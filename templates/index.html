@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ app_name }}</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="/static/images/mc_logo.png" alt="MixingCompass Logo" class="logo">
+                <h1>{{ app_name }}</h1>
+            </div>
+            <nav class="navigation">
+                <button class="nav-btn active" data-section="hsp-experimental">HSP (Experimental)</button>
+                <button class="nav-btn" data-section="hsp-calculation">HSP (Calculation)</button>
+                <button class="nav-btn" data-section="solvent-search">Solvent Search</button>
+                <button class="nav-btn" data-section="data-list">Data List</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- HSP Experimental Section -->
+        <section id="hsp-experimental" class="content-section active">
+            <div class="split-layout">
+                <div class="left-panel">
+                    <div class="panel-header">
+                        <h2>HSP Experimental Data</h2>
+                        <button id="load-data-btn" class="btn btn-secondary">Load Data</button>
+                    </div>
+                    <div class="sample-info">
+                        <label>Sample Name:</label>
+                        <input type="text" id="sample-name" placeholder="Enter sample name">
+                    </div>
+                    <div id="solvent-table-container" class="data-table-container">
+                        <!-- Solvent table will be dynamically generated -->
+                    </div>
+                </div>
+                <div class="right-panel">
+                    <div class="calculation-section">
+                        <button id="calculate-btn" class="btn btn-primary">Calculate HSP</button>
+                        <div class="calculation-status" id="calculation-status"></div>
+                    </div>
+                    <div class="results-section">
+                        <h3>Hansen Solubility Parameters</h3>
+                        <div class="hsp-values">
+                            <div class="hsp-value">
+                                <label>&delta;D:</label>
+                                <span id="delta-d" class="value">-</span>
+                                <span class="unit">MPa<sup>0.5</sup></span>
+                            </div>
+                            <div class="hsp-value">
+                                <label>&delta;P:</label>
+                                <span id="delta-p" class="value">-</span>
+                                <span class="unit">MPa<sup>0.5</sup></span>
+                            </div>
+                            <div class="hsp-value">
+                                <label>&delta;H:</label>
+                                <span id="delta-h" class="value">-</span>
+                                <span class="unit">MPa<sup>0.5</sup></span>
+                            </div>
+                            <div class="hsp-value">
+                                <label>Ra:</label>
+                                <span id="ra" class="value">-</span>
+                                <span class="unit">MPa<sup>0.5</sup></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="hansen-sphere" id="hansen-sphere-container">
+                        <div class="sphere-header">
+                            <h4>Hansen Sphere Visualization</h4>
+                            <button id="refresh-visualization-btn" class="btn btn-secondary" style="display: none;">Refresh</button>
+                        </div>
+                        <div id="plotly-visualization" class="plotly-container">
+                            <div class="visualization-placeholder">
+                                <p>Calculate HSP to display 3D Hansen sphere</p>
+                                <small>Interactive 3D visualization will appear after calculation</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <button id="save-data-btn" class="btn btn-secondary">Save Data</button>
+                        <button id="export-data-btn" class="btn btn-secondary">Export Data</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- HSP Calculation Section -->
+        <section id="hsp-calculation" class="content-section">
+            <h2>HSP Calculation</h2>
+            <p>SMILES-based calculation functionality (To be implemented)</p>
+        </section>
+
+        <!-- Solvent Search Section -->
+        <section id="solvent-search" class="content-section">
+            <h2>Solvent Search</h2>
+            <p>Solvent search functionality (To be implemented)</p>
+        </section>
+
+        <!-- Data List Section -->
+        <section id="data-list" class="content-section">
+            <h2>Data List</h2>
+            <p>Data list management functionality (To be implemented)</p>
+        </section>
+    </main>
+
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/hsp_experimental.js"></script>
+</body>
+</html>

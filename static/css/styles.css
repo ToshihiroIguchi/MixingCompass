@@ -1,0 +1,710 @@
+/* MixingCompass Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* Header */
+.header {
+    background-color: #1e3a8a;
+    color: white;
+    padding: 1rem 2rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0 2rem;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logo {
+    height: 40px;
+    width: auto;
+}
+
+.logo-section h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.navigation {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+.nav-btn {
+    background-color: transparent;
+    color: white;
+    border: 2px solid rgba(255,255,255,0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.nav-btn:hover {
+    background-color: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.5);
+}
+
+.nav-btn.active {
+    background-color: white;
+    color: #1e3a8a;
+    border-color: white;
+}
+
+/* Main Content */
+.main-content {
+    margin-top: 80px;
+    padding: 0;
+    width: 100%;
+}
+
+.content-section {
+    display: none;
+    padding: 0;
+}
+
+.content-section.active {
+    display: block;
+}
+
+/* Split Layout */
+.split-layout {
+    display: grid;
+    grid-template-columns: 60% 40%;
+    gap: 1.5rem;
+    height: calc(100vh - 160px);
+    overflow: hidden;
+    padding: 0 2rem;
+}
+
+.left-panel, .right-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    overflow: hidden;
+}
+
+.left-panel {
+    min-width: 0;
+}
+
+/* Buttons */
+.btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.btn-primary {
+    background-color: #1e3a8a;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #1e40af;
+}
+
+.btn-secondary {
+    background-color: #6b7280;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #4b5563;
+}
+
+/* Form Elements */
+.sample-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.sample-info label {
+    font-weight: 500;
+    color: #374151;
+}
+
+.sample-info input {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.sample-info input:focus {
+    outline: none;
+    border-color: #1e3a8a;
+    box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.1);
+}
+
+/* Panel Header */
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.panel-header h2 {
+    margin: 0;
+}
+
+/* Data Table Container */
+.data-table-container {
+    flex: 1;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background-color: #f9fafb;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Solvent Table */
+.solvent-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background-color: #f3f4f6;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.solvent-table-header h3 {
+    margin: 0;
+    color: #374151;
+    font-size: 1.1rem;
+}
+
+.table-wrapper {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    min-height: 0;
+}
+
+.solvent-table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    table-layout: fixed;
+}
+
+.solvent-table th,
+.solvent-table td {
+    padding: 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.solvent-table th {
+    background-color: #f9fafb;
+    font-weight: 600;
+    color: #374151;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.solvent-table tbody tr:hover {
+    background-color: #f3f4f6;
+}
+
+/* Solvent Input Controls */
+.solvent-input-container {
+    position: relative;
+}
+
+/* Column widths for fixed table layout */
+.solvent-table th:nth-child(1), /* Solvent Name */
+.solvent-table td:nth-child(1) {
+    width: 25%;
+    min-width: 180px;
+}
+
+.solvent-table th:nth-child(2), /* dD */
+.solvent-table td:nth-child(2),
+.solvent-table th:nth-child(3), /* dP */
+.solvent-table td:nth-child(3),
+.solvent-table th:nth-child(4), /* dH */
+.solvent-table td:nth-child(4) {
+    width: 12%;
+    min-width: 80px;
+}
+
+.solvent-table th:nth-child(5), /* Solubility */
+.solvent-table td:nth-child(5) {
+    width: 15%;
+    min-width: 120px;
+}
+
+.solvent-table th:nth-child(6), /* Notes */
+.solvent-table td:nth-child(6) {
+    width: 20%;
+    min-width: 100px;
+}
+
+.solvent-table th:nth-child(7), /* Actions */
+.solvent-table td:nth-child(7) {
+    width: 16%;
+    min-width: 120px;
+}
+
+.solvent-name-input {
+    width: 100%;
+    min-width: 160px;
+    padding: 0.25rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.solvent-name-input.manual-mode {
+    background-color: #f3f4f6;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+.solvent-name-input:disabled {
+    background-color: #f3f4f6;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+.hsp-input {
+    width: 80px;
+    padding: 0.25rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.hsp-input:read-only {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+
+.hsp-input.manual-entry {
+    background-color: #fef3c7;
+    border-color: #f59e0b;
+}
+
+.delta-d, .delta-p, .delta-h {
+    width: 100%;
+    max-width: 70px;
+    padding: 0.25rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.solubility-select {
+    width: 100%;
+    max-width: 110px;
+    padding: 0.25rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.solubility-select:invalid {
+    border-color: #ef4444;
+    background-color: #fef2f2;
+}
+
+.solubility-select option[value=""] {
+    color: #6b7280;
+    font-style: italic;
+}
+
+.notes-input {
+    width: 100%;
+    max-width: 150px;
+    padding: 0.25rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-small {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-small.btn-secondary {
+    background-color: #6b7280;
+    color: white;
+}
+
+.btn-small.btn-secondary:hover {
+    background-color: #4b5563;
+}
+
+.btn-small.btn-secondary.active {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.btn-small.btn-danger {
+    background-color: #ef4444;
+    color: white;
+}
+
+.btn-small.btn-danger:hover {
+    background-color: #dc2626;
+}
+
+/* Calculation Section */
+.calculation-section {
+    margin-bottom: 1rem;
+}
+
+.calculation-status {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 4px;
+    display: none;
+}
+
+.calculation-status.success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #10b981;
+    display: block;
+}
+
+.calculation-status.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #ef4444;
+    display: block;
+}
+
+/* Results Section */
+.results-section {
+    background-color: #f9fafb;
+    padding: 1rem;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 1rem;
+}
+
+.results-section h3 {
+    margin-bottom: 1rem;
+    color: #374151;
+}
+
+.hsp-values {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.hsp-value {
+    padding: 0.75rem;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.hsp-value label {
+    font-weight: 600;
+    color: #374151;
+    min-width: 30px;
+}
+
+.hsp-value .value {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #1e3a8a;
+    flex: 1;
+}
+
+.hsp-value .unit {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+/* Plot Container */
+.plot-container {
+    min-height: 250px;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+}
+
+/* Notifications */
+.notification {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: 4px;
+    color: white;
+    font-weight: 500;
+    z-index: 1000;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease;
+}
+
+.notification-success {
+    background-color: #10b981;
+}
+
+.notification-error {
+    background-color: #ef4444;
+}
+
+.notification-info {
+    background-color: #3b82f6;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Hansen Sphere */
+.hansen-sphere {
+    flex: 1;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background-color: #f9fafb;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sphere-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1rem 0 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #f3f4f6;
+}
+
+.sphere-header h4 {
+    margin: 0;
+    color: #374151;
+    font-size: 1.1rem;
+}
+
+.plotly-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.visualization-placeholder {
+    text-align: center;
+    color: #6b7280;
+    padding: 2rem;
+}
+
+.visualization-placeholder p {
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+}
+
+.visualization-placeholder small {
+    font-size: 0.9rem;
+    color: #9ca3af;
+}
+
+/* Calculation Details */
+.calculation-details {
+    background-color: #f9fafb;
+    padding: 1rem;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+    margin-top: 1rem;
+}
+
+.calculation-details h4 {
+    margin: 0 0 1rem 0;
+    color: #374151;
+    font-size: 1.1rem;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    background-color: white;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+}
+
+.detail-item label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.9rem;
+}
+
+.detail-item span {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: #1e3a8a;
+    font-weight: bold;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+.action-buttons .btn {
+    flex: 1;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .navigation {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .split-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+
+    .left-panel, .right-panel {
+        overflow: visible;
+    }
+
+    .main-content {
+        padding: 0 1rem;
+        margin-top: 120px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    /* Table adjustments for mobile */
+    .solvent-table {
+        min-width: 600px;
+        font-size: 0.8rem;
+    }
+
+    .solvent-table th,
+    .solvent-table td {
+        padding: 0.25rem;
+    }
+
+    .solvent-name-input {
+        min-width: 140px;
+    }
+
+    .delta-d, .delta-p, .delta-h {
+        max-width: 60px;
+    }
+
+    .solubility-select {
+        max-width: 100px;
+    }
+
+    .notes-input {
+        max-width: 120px;
+    }
+}
+
+/* Tablet adjustments */
+@media (min-width: 769px) and (max-width: 1200px) {
+    .split-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+
+    .left-panel, .right-panel {
+        overflow: visible;
+    }
+
+    .solvent-table {
+        min-width: 700px;
+    }
+}
+
+/* Large screen optimizations */
+@media (min-width: 1400px) {
+    .split-layout {
+        grid-template-columns: 65% 35%;
+        padding: 0 3rem;
+    }
+}
