@@ -85,9 +85,9 @@ class HSPCalculationResult(BaseModel):
     radius: float = Field(..., description="Hansen sphere radius (Ra) in MPa^0.5", ge=0)
 
     # Calculation quality metrics
-    accuracy: float = Field(..., description="Calculation accuracy (0-1)", ge=0, le=1)
-    error: float = Field(..., description="Calculation error", ge=0)
-    data_fit: float = Field(..., description="Data fit quality (0-1)", ge=0, le=1)
+    accuracy: float = Field(0.0, description="Calculation accuracy (0-1)", ge=0, le=1)
+    error: float = Field(0.0, description="Calculation error", ge=0)
+    data_fit: float = Field(0.0, description="Data fit quality (0-1)", ge=0, le=1)
 
     # Method information
     method: str = Field(..., description="Calculation method used")

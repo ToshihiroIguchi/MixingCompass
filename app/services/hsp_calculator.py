@@ -51,18 +51,69 @@ class HSPCalculator:
                 # Load data
                 hsp.read(tmp_filename)
 
-                # Perform calculation
-                hsp.get(inside_limit=inside_limit)
+                # Prepare data for fitting
+                X = hsp_data[['D', 'P', 'H']].values
+                y = hsp_data['Data'].values
+
+                # Perform calculation using fit method
+                hsp.fit(X, y)
+
+                # Extract results from hsp_ attribute
+                if hasattr(hsp, 'hsp_') and hsp.hsp_ is not None:
+                    try:
+                        hsp_info = hsp.hsp_[0]  # Get first Hansen sphere info
+                        print(f"Debug: hsp_info = {hsp_info}")
+                        print(f"Debug: hsp_info type = {type(hsp_info)}")
+
+                        # Safely extract values with debugging
+                        delta_d = float(hsp_info[0]) if hsp_info[0] is not None else 0.0
+                        delta_p = float(hsp_info[1]) if hsp_info[1] is not None else 0.0
+                        delta_h = float(hsp_info[2]) if hsp_info[2] is not None else 0.0
+                        radius = float(hsp_info[3]) if hsp_info[3] is not None else 1.0
+
+                        print(f"Debug: Extracted values - δd={delta_d}, δp={delta_p}, δh={delta_h}, radius={radius}")
+
+                    except Exception as e:
+                        print(f"Debug: Error extracting HSP values: {e}")
+                        raise ValueError(f"Failed to extract HSP values: {e}")
+
+                    # Calculate accuracy and other metrics safely
+                    accuracy = 0.0
+                    error = 0.0
+                    data_fit = 0.0
+
+                    # Try to get accuracy if available
+                    if hasattr(hsp, 'accuracy_') and hsp.accuracy_ is not None:
+                        try:
+                            accuracy = float(hsp.accuracy_)
+                        except (ValueError, TypeError):
+                            accuracy = 0.0
+
+                    # Try to get error if available
+                    if hasattr(hsp, 'error_') and hsp.error_ is not None:
+                        try:
+                            error = float(hsp.error_)
+                        except (ValueError, TypeError):
+                            error = 0.0
+
+                    # Try to get datafit if available
+                    if hasattr(hsp, 'datafit_') and hsp.datafit_ is not None:
+                        try:
+                            data_fit = float(hsp.datafit_)
+                        except (ValueError, TypeError):
+                            data_fit = 0.0
+                else:
+                    raise ValueError("Failed to extract HSP results from fitted model")
 
                 # Extract results
                 result = HSPCalculationResult(
-                    delta_d=float(hsp.d),
-                    delta_p=float(hsp.p),
-                    delta_h=float(hsp.h),
-                    radius=float(hsp.radius),
-                    accuracy=float(hsp.accuracy),
-                    error=float(hsp.error),
-                    data_fit=float(hsp.DATAFIT),
+                    delta_d=delta_d,
+                    delta_p=delta_p,
+                    delta_h=delta_h,
+                    radius=radius,
+                    accuracy=accuracy,
+                    error=error,
+                    data_fit=data_fit,
                     method="HSPiPy",
                     solvent_count=len(solvent_tests),
                     good_solvents=len([t for t in solvent_tests if t.solubility == 'soluble']),

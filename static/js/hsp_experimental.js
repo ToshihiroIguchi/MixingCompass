@@ -564,7 +564,13 @@ class HSPExperimental {
         }
 
         try {
-            const response = await fetch(`/api/hsp-experimental/experiments/${this.currentExperiment}/visualization`);
+            // Get container size for dynamic sizing
+            const container = document.querySelector('#plotly-visualization');
+            const containerRect = container ? container.getBoundingClientRect() : { width: 1000, height: 700 };
+            const width = Math.round(Math.min(1200, Math.max(800, containerRect.width)));
+            const height = Math.round(Math.min(800, Math.max(600, containerRect.height)));
+
+            const response = await fetch(`/api/hsp-experimental/experiments/${this.currentExperiment}/visualization?width=${width}&height=${height}`);
 
             if (response.ok) {
                 const data = await response.json();

@@ -320,8 +320,8 @@ async def get_data_stats():
 @router.get("/experiments/{experiment_id}/visualization")
 async def get_hansen_sphere_visualization(
     experiment_id: str,
-    width: int = Query(800, description="Plot width", ge=400, le=1200),
-    height: int = Query(600, description="Plot height", ge=300, le=900)
+    width: int = Query(1000, description="Plot width", ge=400, le=1600),
+    height: int = Query(700, description="Plot height", ge=300, le=1000)
 ):
     """Generate Hansen sphere 3D visualization for an experiment"""
 
@@ -353,10 +353,28 @@ async def get_hansen_sphere_visualization(
         for i, test in enumerate(experiment.solvent_tests):
             logger.debug(f"Processing test {i+1}: {test.solvent_name}, Solubility: {test.solubility}")
 
-            # Get HSP values from solvent data or manual values
-            delta_d = test.manual_delta_d or (test.solvent_data.delta_d if test.solvent_data else None)
-            delta_p = test.manual_delta_p or (test.solvent_data.delta_p if test.solvent_data else None)
-            delta_h = test.manual_delta_h or (test.solvent_data.delta_h if test.solvent_data else None)
+            # Get HSP values from manual input first, then solvent database
+            delta_d = test.manual_delta_d
+            delta_p = test.manual_delta_p
+            delta_h = test.manual_delta_h
+
+            # If no manual values, try to get from database
+            if delta_d is None or delta_p is None or delta_h is None:
+                try:
+                    solvent_db_data = solvent_service.get_solvent_by_name(test.solvent_name)
+                    if solvent_db_data:
+                        delta_d = delta_d if delta_d is not None else solvent_db_data.delta_d
+                        delta_p = delta_p if delta_p is not None else solvent_db_data.delta_p
+                        delta_h = delta_h if delta_h is not None else solvent_db_data.delta_h
+                        logger.debug(f"  🔍 Retrieved from database: δD={delta_d}, δP={delta_p}, δH={delta_h}")
+                except Exception as e:
+                    logger.warning(f"  ⚠️ Failed to retrieve solvent data for {test.solvent_name}: {e}")
+
+            # If still no data from solvent_data attribute, try that too
+            if (delta_d is None or delta_p is None or delta_h is None) and test.solvent_data:
+                delta_d = delta_d if delta_d is not None else getattr(test.solvent_data, 'delta_d', None)
+                delta_p = delta_p if delta_p is not None else getattr(test.solvent_data, 'delta_p', None)
+                delta_h = delta_h if delta_h is not None else getattr(test.solvent_data, 'delta_h', None)
 
             logger.debug(f"  💧 HSP values: δD={delta_d}, δP={delta_p}, δH={delta_h}")
             logger.debug(f"  📝 Manual values: δD={test.manual_delta_d}, δP={test.manual_delta_p}, δH={test.manual_delta_h}")

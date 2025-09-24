@@ -129,12 +129,12 @@ class HansenSphereVisualizationService:
             'z': sphere_coords['z'],
             'name': 'Hansen Sphere',
             'opacity': 0.3,
-            'colorscale': [[0, 'lightgreen'], [1, 'lightgreen']],
+            'colorscale': 'YlGn',  # Yellow-green colorscale
             'showscale': False,
-            'hovertemplate': f'Hansen Sphere<br>Center: ({hsp_result.delta_d:.1f}, {hsp_result.delta_p:.1f}, {hsp_result.delta_h:.1f})<br>Radius: {hsp_result.ra:.1f}<extra></extra>'
+            'hovertemplate': f'Hansen Sphere<br>Center: ({hsp_result.delta_d:.1f}, {hsp_result.delta_p:.1f}, {hsp_result.delta_h:.1f})<br>Radius: {hsp_result.radius:.1f}<extra></extra>'
         })
 
-        # Good solvents (green points)
+        # Good solvents (blue points, smaller size)
         if solvent_points['good_solvents']['x']:
             traces.append({
                 'type': 'scatter3d',
@@ -144,8 +144,8 @@ class HansenSphereVisualizationService:
                 'z': solvent_points['good_solvents']['z'],
                 'name': 'Good Solvents',
                 'marker': {
-                    'size': 8,
-                    'color': 'green',
+                    'size': 4,  # Reduced from 8 to 4
+                    'color': 'blue',
                     'symbol': 'circle'
                 },
                 'text': solvent_points['good_solvents']['names'],
@@ -153,7 +153,7 @@ class HansenSphereVisualizationService:
                 'customdata': solvent_points['good_solvents']['solubility']
             })
 
-        # Bad solvents (red points)
+        # Bad solvents (red points, smaller size)
         if solvent_points['bad_solvents']['x']:
             traces.append({
                 'type': 'scatter3d',
@@ -163,7 +163,7 @@ class HansenSphereVisualizationService:
                 'z': solvent_points['bad_solvents']['z'],
                 'name': 'Poor Solvents',
                 'marker': {
-                    'size': 8,
+                    'size': 4,  # Reduced from 8 to 4
                     'color': 'red',
                     'symbol': 'circle'
                 },
@@ -172,20 +172,20 @@ class HansenSphereVisualizationService:
                 'customdata': solvent_points['bad_solvents']['solubility']
             })
 
-        # HSP center point
+        # HSP center point (yellow-green circle, same size as other points)
         traces.append({
             'type': 'scatter3d',
             'mode': 'markers',
             'x': [hsp_result.delta_d],
             'y': [hsp_result.delta_p],
             'z': [hsp_result.delta_h],
-            'name': 'Sample HSP',
+            'name': 'Hansen Center',
             'marker': {
-                'size': 12,
-                'color': 'blue',
-                'symbol': 'diamond'
+                'size': 4,  # Reduced from 12 to 4 (same as other points)
+                'color': 'yellowgreen',  # Changed from blue to yellowgreen
+                'symbol': 'circle'       # Changed from diamond to circle
             },
-            'hovertemplate': f'<b>Sample Center</b><br>δD: {hsp_result.delta_d:.1f}<br>δP: {hsp_result.delta_p:.1f}<br>δH: {hsp_result.delta_h:.1f}<extra></extra>'
+            'hovertemplate': f'<b>Hansen Center</b><br>δD: {hsp_result.delta_d:.1f}<br>δP: {hsp_result.delta_p:.1f}<br>δH: {hsp_result.delta_h:.1f}<br>Radius: {hsp_result.radius:.1f}<extra></extra>'
         })
 
         # Layout configuration
