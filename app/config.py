@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     debug: bool = False
 
     # Server
-    host: str = "127.0.0.1"
+    host: str = "0.0.0.0"
     port: int = 8200
 
     # Paths

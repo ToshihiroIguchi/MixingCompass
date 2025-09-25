@@ -201,7 +201,7 @@ def start_application(port: int):
         cmd = [
             sys.executable, "-m", "uvicorn",
             "app.main:app",
-            "--host", "127.0.0.1",
+            "--host", "0.0.0.0",
             "--port", str(port),
             "--reload"
         ]
