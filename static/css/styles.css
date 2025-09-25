@@ -587,6 +587,42 @@ body {
     margin: 0 0 0.5rem 0;
     color: #374151;
     font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    user-select: none;
+    padding: 0.25rem 0;
+    border-radius: 4px;
+    transition: background-color 0.2s ease;
+}
+
+.calculation-details h4:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.calculation-details h4::after {
+    content: '▼';
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+    color: #6b7280;
+}
+
+.calculation-details.collapsed h4::after {
+    transform: rotate(-90deg);
+}
+
+.detail-grid {
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    max-height: 200px;
+    opacity: 1;
+}
+
+.calculation-details.collapsed .detail-grid {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
 }
 
 .detail-grid {

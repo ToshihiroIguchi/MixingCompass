@@ -470,6 +470,15 @@ class HSPExperimental {
                 </div>
             </div>
         `;
+
+        // デフォルトで折りたたみ状態にする
+        detailsSection.classList.add('collapsed');
+
+        // クリックイベントを追加
+        const h4Element = detailsSection.querySelector('h4');
+        h4Element.addEventListener('click', () => {
+            detailsSection.classList.toggle('collapsed');
+        });
     }
 
     async saveExperiment() {
