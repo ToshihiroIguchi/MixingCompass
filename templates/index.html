@@ -33,7 +33,7 @@
                     </div>
                     <div class="sample-info">
                         <label>Sample Name:</label>
-                        <input type="text" id="sample-name" placeholder="Enter sample name">
+                        <input type="text" id="sample-name" placeholder="Enter sample name" required>
                     </div>
                     <div id="solvent-table-container" class="data-table-container">
                         <!-- Solvent table will be dynamically generated -->
@@ -45,7 +45,10 @@
                         <div class="calculation-status" id="calculation-status"></div>
                     </div>
                     <div class="results-section">
-                        <h3>Hansen Solubility Parameters</h3>
+                        <div class="results-header">
+                            <h3>Hansen Solubility Parameters</h3>
+                            <button id="details-info-btn" class="info-btn" title="View calculation details" style="display: none;">ⓘ</button>
+                        </div>
                         <div class="hsp-values">
                             <div class="hsp-value">
                                 <label>&delta;D:</label>
@@ -70,10 +73,6 @@
                         </div>
                     </div>
                     <div class="hansen-sphere" id="hansen-sphere-container">
-                        <div class="sphere-header">
-                            <h4>Hansen Sphere Visualization</h4>
-                            <button id="refresh-visualization-btn" class="btn btn-secondary" style="display: none;">Refresh</button>
-                        </div>
                         <div id="plotly-visualization" class="plotly-container">
                             <div class="visualization-placeholder">
                                 <p>Calculate HSP to display 3D Hansen sphere</p>
@@ -88,6 +87,19 @@
                 </div>
             </div>
         </section>
+
+        <!-- Calculation Details Modal -->
+        <div id="calculation-details-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4>Calculation Details</h4>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body" id="modal-calculation-details">
+                    <!-- Details will be populated here -->
+                </div>
+            </div>
+        </div>
 
         <!-- HSP Calculation Section -->
         <section id="hsp-calculation" class="content-section">

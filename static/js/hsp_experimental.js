@@ -44,6 +44,62 @@ class HSPExperimental {
         if (addSolventBtn) {
             addSolventBtn.addEventListener('click', () => this.addSolventRow());
         }
+
+        // Set up data change listeners
+        this.setupDataChangeListeners();
+    }
+
+    setupDataChangeListeners() {
+        // Listen for changes in table data
+        document.addEventListener('input', (e) => {
+            if (e.target.closest('.solvent-table')) {
+                console.log('🔄 Data changed (input):', e.target.tagName, e.target.type, e.target.value);
+                this.resetCalculationResults();
+            }
+        });
+
+        document.addEventListener('change', (e) => {
+            if (e.target.closest('.solvent-table')) {
+                console.log('🔄 Data changed (change):', e.target.tagName, e.target.type, e.target.value);
+                this.resetCalculationResults();
+            }
+        });
+    }
+
+    resetCalculationResults() {
+        console.log('🔄 Resetting calculation results...');
+
+        // Clear HSP values
+        document.querySelector('#delta-d').textContent = '-';
+        document.querySelector('#delta-p').textContent = '-';
+        document.querySelector('#delta-h').textContent = '-';
+        document.querySelector('#ra').textContent = '-';
+
+        // Hide info button
+        const infoBtn = document.querySelector('#details-info-btn');
+        if (infoBtn) {
+            infoBtn.style.display = 'none';
+        }
+
+        // Clear visualization
+        const plotlyDiv = document.querySelector('#plotly-visualization');
+        if (plotlyDiv) {
+            const placeholder = `
+                <div class="visualization-placeholder">
+                    <p>Calculate HSP to display 3D Hansen sphere</p>
+                    <small>Interactive 3D visualization will appear after calculation</small>
+                </div>
+            `;
+            plotlyDiv.innerHTML = placeholder;
+            console.log('✅ Hansen sphere visualization cleared');
+        }
+
+        // Show recalculation message
+        const statusDiv = document.querySelector('#calculation-status');
+        if (statusDiv) {
+            statusDiv.innerHTML = '<span style="color: #f59e0b;">⚠ Recalculation needed</span>';
+            statusDiv.style.display = 'block';
+        }
     }
 
     async loadAvailableSolvents() {
@@ -166,7 +222,7 @@ class HSPExperimental {
                     <button class="btn-small btn-secondary mode-btn"
                             title="Toggle input mode">Auto</button>
                     <button class="btn-small btn-danger remove-btn"
-                            title="Remove row">Remove</button>
+                            title="Remove row">×</button>
                 </div>
             </td>
         `;
@@ -366,6 +422,12 @@ class HSPExperimental {
         }
 
         try {
+            // Show loading state on button
+            const calculateBtn = document.querySelector('#calculate-btn');
+            const originalText = calculateBtn.textContent;
+            calculateBtn.textContent = 'Calculating...';
+            calculateBtn.disabled = true;
+
             // Update solvent test data
             this.updateSolventTestData();
 
@@ -378,7 +440,7 @@ class HSPExperimental {
                 }
             }
 
-            this.showNotification('Calculating HSP values...', 'info');
+            this.showNotification('🔬 Calculating HSP values...', 'info');
 
             // Call the HSP calculation API
             const response = await fetch(`/api/hsp-experimental/experiments/${this.currentExperiment}/calculate`, {
@@ -391,30 +453,46 @@ class HSPExperimental {
             if (response.ok) {
                 const result = await response.json();
 
-                // Show calculation results
-                this.showCalculationResults(result);
+                this.showNotification('📊 Updating visualization...', 'info');
+
+                // Show calculation results and details, load visualization simultaneously
+                await Promise.all([
+                    this.showCalculationResults(result),
+                    this.showCalculationDetails(result),
+                    new Promise(resolve => {
+                        setTimeout(() => {
+                            this.loadHansenSphereVisualization();
+                            resolve();
+                        }, 100);
+                    })
+                ]);
 
                 this.showNotification(
-                    `HSP calculation completed: δD=${result.delta_d.toFixed(1)}, δP=${result.delta_p.toFixed(1)}, δH=${result.delta_h.toFixed(1)}`,
+                    `✓ HSP calculation completed: δD=${result.delta_d.toFixed(1)}, δP=${result.delta_p.toFixed(1)}, δH=${result.delta_h.toFixed(1)}`,
                     'success'
                 );
 
-                // Show calculation details
-                this.showCalculationDetails(result);
-
-                // Load Hansen sphere visualization
-                setTimeout(() => {
-                    this.loadHansenSphereVisualization();
-                }, 500);
+                // Clear calculation status after successful completion
+                const statusDiv = document.querySelector('#calculation-status');
+                statusDiv.style.display = 'none';
 
             } else {
                 const error = await response.json();
-                this.showNotification(`HSP calculation failed: ${error.detail}`, 'error');
+                this.showNotification(`❌ HSP calculation failed: ${error.detail}`, 'error');
             }
+
+            // Restore button
+            calculateBtn.textContent = originalText;
+            calculateBtn.disabled = false;
 
         } catch (error) {
             console.error('Error calculating HSP:', error);
-            this.showNotification('Error calculating HSP values', 'error');
+            this.showNotification('❌ Error calculating HSP values', 'error');
+
+            // Restore button in case of error
+            const calculateBtn = document.querySelector('#calculate-btn');
+            calculateBtn.textContent = 'Calculate HSP';
+            calculateBtn.disabled = false;
         }
     }
 
@@ -426,19 +504,27 @@ class HSPExperimental {
     }
 
     showCalculationDetails(result) {
-        // Create calculation details section if it doesn't exist
-        let detailsSection = document.getElementById('calculation-details');
-        if (!detailsSection) {
-            detailsSection = document.createElement('div');
-            detailsSection.id = 'calculation-details';
-            detailsSection.className = 'calculation-details';
+        // Store calculation details for modal
+        this.calculationDetails = result;
 
-            const resultsSection = document.querySelector('.results-section');
-            resultsSection.appendChild(detailsSection);
-        }
+        // Show info button
+        const infoBtn = document.querySelector('#details-info-btn');
+        infoBtn.style.display = 'block';
 
-        detailsSection.innerHTML = `
-            <h4>Calculation Details</h4>
+        // Remove existing event listener and add new one
+        const newInfoBtn = infoBtn.cloneNode(true);
+        infoBtn.parentNode.replaceChild(newInfoBtn, infoBtn);
+
+        newInfoBtn.addEventListener('click', () => {
+            this.showCalculationDetailsModal(result);
+        });
+    }
+
+    showCalculationDetailsModal(result) {
+        const modal = document.querySelector('#calculation-details-modal');
+        const modalBody = document.querySelector('#modal-calculation-details');
+
+        modalBody.innerHTML = `
             <div class="detail-grid">
                 <div class="detail-item">
                     <label>Method:</label>
@@ -465,20 +551,26 @@ class HSPExperimental {
                     <span>${result.solvent_count}</span>
                 </div>
                 <div class="detail-item">
-                    <label>Total d:</label>
+                    <label>Total δ:</label>
                     <span>${Math.sqrt(result.delta_d**2 + result.delta_p**2 + result.delta_h**2).toFixed(1)}</span>
                 </div>
             </div>
         `;
 
-        // デフォルトで折りたたみ状態にする
-        detailsSection.classList.add('collapsed');
+        modal.style.display = 'flex';
 
-        // クリックイベントを追加
-        const h4Element = detailsSection.querySelector('h4');
-        h4Element.addEventListener('click', () => {
-            detailsSection.classList.toggle('collapsed');
-        });
+        // Close modal functionality
+        const closeBtn = modal.querySelector('.modal-close');
+        const closeModal = () => {
+            modal.style.display = 'none';
+        };
+
+        closeBtn.onclick = closeModal;
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        };
     }
 
     async saveExperiment() {
