@@ -154,8 +154,12 @@ class HSPCalculator:
             if delta_d is None or delta_p is None or delta_h is None:
                 continue  # Skip tests without complete HSP data
 
-            # Convert solubility to binary format
-            data_value = self._convert_solubility_to_binary(test.solubility)
+            # Convert solubility to continuous float format
+            data_value = self._convert_solubility_to_float(test.solubility)
+
+            # Skip tests with unknown solubility (data_value is None)
+            if data_value is None:
+                continue
 
             hsp_rows.append({
                 'Chemical': test.solvent_name,
@@ -203,18 +207,37 @@ class HSPCalculator:
 
         return (None, None, None)
 
-    def _convert_solubility_to_binary(self, solubility: str) -> int:
+    def _convert_solubility_to_float(self, solubility) -> Optional[float]:
         """
-        Convert solubility string to binary format for HSPiPy
+        Convert solubility input to continuous float format for HSPiPy
 
         Args:
-            solubility: Solubility status ('soluble', 'insoluble', 'partial', 'unknown')
+            solubility: Solubility status (string or float)
+                      String: 'soluble', 'insoluble', 'partial'
+                      Float: 0.0-1.0 range for custom values
 
         Returns:
-            Binary value (1 for good solvent, 0 for poor solvent)
+            Continuous value (0.0-1.0 range, None for invalid input)
         """
-        good_solvents = ['soluble', 'partial']
-        return 1 if solubility in good_solvents else 0
+        # Handle direct numerical input
+        if isinstance(solubility, (int, float)):
+            value = float(solubility)
+            # Validate range
+            if 0.0 <= value <= 1.0:
+                return value
+            else:
+                return None  # Invalid range
+
+        # Handle string input
+        if isinstance(solubility, str):
+            mapping = {
+                'soluble': 1.0,    # Complete dissolution
+                'partial': 0.5,    # Partial dissolution
+                'insoluble': 0.0,  # No dissolution
+            }
+            return mapping.get(solubility, None)
+
+        return None  # Invalid input type
 
     def validate_test_data(self, solvent_tests: List[SolventTest]) -> Dict[str, any]:
         """

@@ -3,7 +3,7 @@ Solvent data models for MixingCompass application
 """
 
 from pydantic import BaseModel, Field, validator
-from typing import Optional, List
+from typing import Optional, List, Union
 from enum import Enum
 
 
@@ -12,7 +12,6 @@ class SolubilityType(str, Enum):
     SOLUBLE = "soluble"
     INSOLUBLE = "insoluble"
     PARTIAL = "partial"
-    UNKNOWN = "unknown"
 
 
 class SolventData(BaseModel):
@@ -92,7 +91,16 @@ class SolventTest(BaseModel):
     """Solvent test result for HSP experiments"""
 
     solvent_name: str = Field(..., description="Name of tested solvent")
-    solubility: SolubilityType = Field(..., description="Solubility classification")
+    solubility: Union[SolubilityType, float] = Field(..., description="Solubility classification or numerical value (0.0-1.0)")
+
+    @validator('solubility')
+    def validate_solubility(cls, v):
+        """Validate solubility value"""
+        if isinstance(v, float):
+            if not (0.0 <= v <= 1.0):
+                raise ValueError('Numerical solubility must be between 0.0 and 1.0')
+        return v
+
     notes: Optional[str] = Field(None, description="Additional notes or observations")
 
     # Optional solvent data reference

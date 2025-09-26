@@ -284,8 +284,8 @@ body {
 
 .solvent-table th:nth-child(5), /* Solubility */
 .solvent-table td:nth-child(5) {
-    width: 15%;
-    min-width: 120px;
+    width: 10%;
+    min-width: 80px;
 }
 
 .solvent-table th:nth-child(6), /* Notes */
@@ -350,13 +350,29 @@ body {
     text-align: center;
 }
 
+/* Solubility Input Group */
+.solubility-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    max-width: 120px;
+}
+
 .solubility-select {
     width: 100%;
-    max-width: 110px;
     padding: 0.25rem;
     border: 1px solid #d1d5db;
     border-radius: 4px;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+}
+
+.custom-solubility-input {
+    width: 100%;
+    padding: 0.25rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    text-align: center;
 }
 
 .solubility-select:invalid {
@@ -792,7 +808,7 @@ body {
     }
 
     .solubility-select {
-        max-width: 100px;
+        max-width: 65px;
     }
 
     .notes-input {

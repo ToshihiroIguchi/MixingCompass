@@ -204,13 +204,22 @@ class HSPExperimental {
                        readonly>
             </td>
             <td>
-                <select class="solubility-select" required>
-                    <option value="">Choose solubility level</option>
-                    <option value="soluble">Soluble</option>
-                    <option value="insoluble">Insoluble</option>
-                    <option value="partial">Partial</option>
-                    <option value="unknown">Unknown</option>
-                </select>
+                <div class="solubility-input-group">
+                    <select class="solubility-select" required>
+                        <option value="">Choose solubility level</option>
+                        <option value="soluble">Soluble (1.0)</option>
+                        <option value="insoluble">Insoluble (0.0)</option>
+                        <option value="partial">Partial (0.5)</option>
+                        <option value="custom">Custom...</option>
+                    </select>
+                    <input type="number"
+                           class="custom-solubility-input"
+                           min="0"
+                           max="1"
+                           step="0.1"
+                           placeholder="0.0-1.0"
+                           style="display: none;">
+                </div>
             </td>
             <td>
                 <input type="text"
@@ -253,6 +262,10 @@ class HSPExperimental {
         nameInput.addEventListener('input', (e) => this.onSolventNameChange(e, row));
         nameInput.addEventListener('blur', (e) => this.onSolventNameBlur(e, row));
 
+        // Solubility select dropdown
+        const solubilitySelect = row.querySelector('.solubility-select');
+        solubilitySelect.addEventListener('change', (e) => this.onSolubilitySelectChange(e, row));
+
         // Mode toggle button
         const modeBtn = row.querySelector('.mode-btn');
         modeBtn.addEventListener('click', () => this.toggleInputMode(row));
@@ -266,10 +279,23 @@ class HSPExperimental {
         hspInputs.forEach(input => {
             input.addEventListener('change', () => this.updateSolventTestData());
         });
+    }
 
-        // Solubility change listener
-        const solubilitySelect = row.querySelector('.solubility-select');
-        solubilitySelect.addEventListener('change', () => this.updateSolventTestData());
+    onSolubilitySelectChange(event, row) {
+        const selectValue = event.target.value;
+        const customInput = row.querySelector('.custom-solubility-input');
+
+        if (selectValue === 'custom') {
+            // Show custom input field
+            customInput.style.display = 'block';
+            customInput.focus();
+        } else {
+            // Hide custom input field
+            customInput.style.display = 'none';
+            customInput.value = '';
+        }
+
+        this.updateSolventTestData();
     }
 
     async onSolventNameChange(event, row) {
@@ -388,9 +414,18 @@ class HSPExperimental {
             const solventName = nameInput.value.trim();
             if (!solventName) return;
 
+            // Get solubility value (either from dropdown or custom input)
+            let solubilityValue;
+            if (solubility.value === 'custom') {
+                const customInput = row.querySelector('.custom-solubility-input');
+                solubilityValue = parseFloat(customInput.value) || 0.5;
+            } else {
+                solubilityValue = solubility.value || 'insoluble';
+            }
+
             const testData = {
                 solvent_name: solventName,
-                solubility: solubility.value || 'unknown',
+                solubility: solubilityValue,
                 notes: notes.value || null
             };
 
