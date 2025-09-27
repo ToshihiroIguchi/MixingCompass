@@ -439,3 +439,5 @@ async def get_hansen_sphere_visualization(
         logger.error(f"Error message: {str(e)}")
         logger.error(f"Stack trace:\n{error_details}")
         raise HTTPException(status_code=500, detail=f"Error generating visualization: {str(e)}")
+
+

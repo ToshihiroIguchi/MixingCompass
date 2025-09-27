@@ -44,49 +44,60 @@ class HansenSphereVisualizationService:
         }
 
     @staticmethod
+    def get_solubility_color(solubility) -> str:
+        """
+        Get color for solubility value based on scientific standards
+
+        Args:
+            solubility: Solubility value (categorical string or numerical 0-1)
+
+        Returns:
+            Color string for the solubility value
+        """
+        if isinstance(solubility, str):
+            color_map = {
+                'soluble': '#1976d2',     # Blue (Good solvents)
+                'partial': '#ff9800',     # Orange (Partial solvents)
+                'insoluble': '#d32f2f'    # Red (Poor solvents)
+            }
+            return color_map.get(solubility, '#666666')
+
+        # Numerical solubility (0.0 - 1.0)
+        if isinstance(solubility, (int, float)):
+            if solubility >= 0.7:
+                return '#1976d2'    # Blue (Good: >= 0.7)
+            elif solubility >= 0.3:
+                return '#ff9800'    # Orange (Partial: 0.3-0.7)
+            else:
+                return '#d32f2f'    # Red (Poor: < 0.3)
+
+        return '#666666'  # Default gray
+
+    @staticmethod
     def create_solvent_points(solvent_data: List[Dict]) -> Dict[str, List]:
         """
-        Create scatter points for solvents in HSP space
+        Create scatter points for solvents in HSP space with scientific color coding
 
         Args:
             solvent_data: List of solvent test data with HSP values and solubility
 
         Returns:
-            Dictionary with coordinates and metadata for scatter plot
+            Dictionary with coordinates, colors, and metadata for scatter plot
         """
-        good_solvents = {'x': [], 'y': [], 'z': [], 'names': [], 'solubility': []}
-        bad_solvents = {'x': [], 'y': [], 'z': [], 'names': [], 'solubility': []}
+        points = {'x': [], 'y': [], 'z': [], 'names': [], 'colors': [], 'solubility': []}
 
         for solvent in solvent_data:
             if not all(key in solvent for key in ['delta_d', 'delta_p', 'delta_h', 'solubility']):
                 continue
 
-            point_data = {
-                'x': solvent['delta_d'],
-                'y': solvent['delta_p'],
-                'z': solvent['delta_h'],
-                'name': solvent.get('solvent_name', 'Unknown'),
-                'solubility': solvent['solubility']
-            }
+            points['x'].append(solvent['delta_d'])
+            points['y'].append(solvent['delta_p'])
+            points['z'].append(solvent['delta_h'])
+            points['names'].append(solvent.get('solvent_name', 'Unknown'))
+            points['colors'].append(HansenSphereVisualizationService.get_solubility_color(solvent['solubility']))
+            points['solubility'].append(solvent['solubility'])
 
-            # Color-code based on solubility
-            if solvent['solubility'] in ['soluble', 'partial']:
-                good_solvents['x'].append(point_data['x'])
-                good_solvents['y'].append(point_data['y'])
-                good_solvents['z'].append(point_data['z'])
-                good_solvents['names'].append(point_data['name'])
-                good_solvents['solubility'].append(point_data['solubility'])
-            else:
-                bad_solvents['x'].append(point_data['x'])
-                bad_solvents['y'].append(point_data['y'])
-                bad_solvents['z'].append(point_data['z'])
-                bad_solvents['names'].append(point_data['name'])
-                bad_solvents['solubility'].append(point_data['solubility'])
-
-        return {
-            'good_solvents': good_solvents,
-            'bad_solvents': bad_solvents
-        }
+        return points
 
     @classmethod
     def generate_plotly_visualization(cls,
@@ -118,61 +129,51 @@ class HansenSphereVisualizationService:
         # Create solvent scatter points
         solvent_points = cls.create_solvent_points(solvent_data)
 
+        # Generate sphere coordinates for visualization
+        center_x, center_y, center_z = sphere_center
+
         # Build Plotly traces
         traces = []
 
-        # Hansen sphere surface (wireframe)
+        # Hansen sphere surface (transparent green - scientific standard)
         traces.append({
             'type': 'surface',
             'x': sphere_coords['x'],
             'y': sphere_coords['y'],
             'z': sphere_coords['z'],
             'name': 'Hansen Sphere',
-            'opacity': 0.3,
-            'colorscale': 'YlGn',  # Yellow-green colorscale
+            'opacity': 0.35,  # Optimal transparency for scientific visualization
+            'colorscale': [[0, 'rgba(76, 175, 80, 0.3)'], [1, 'rgba(76, 175, 80, 0.3)']],  # Uniform green
             'showscale': False,
             'hovertemplate': f'Hansen Sphere<br>Center: ({hsp_result.delta_d:.1f}, {hsp_result.delta_p:.1f}, {hsp_result.delta_h:.1f})<br>Radius: {hsp_result.radius:.1f}<extra></extra>'
         })
 
-        # Good solvents (blue points, smaller size)
-        if solvent_points['good_solvents']['x']:
+        # Solvent points with scientific color coding
+        if solvent_points['x']:
             traces.append({
                 'type': 'scatter3d',
                 'mode': 'markers',
-                'x': solvent_points['good_solvents']['x'],
-                'y': solvent_points['good_solvents']['y'],
-                'z': solvent_points['good_solvents']['z'],
-                'name': 'Good Solvents',
+                'x': solvent_points['x'],
+                'y': solvent_points['y'],
+                'z': solvent_points['z'],
+                'name': 'Solvent Points',
+                'showlegend': False,  # Hide from legend to avoid clutter
                 'marker': {
-                    'size': 4,  # Reduced from 8 to 4
-                    'color': 'blue',
-                    'symbol': 'circle'
+                    'size': 3,  # Optimal UI size for 3D - prevents overlapping and clutter
+                    'color': solvent_points['colors'],  # Individual colors per point
+                    'symbol': 'circle',
+                    'opacity': 0.9,  # Higher opacity for better visibility
+                    'line': {
+                        'width': 0.5,
+                        'color': 'rgba(255,255,255,0.6)'  # Subtle white border for definition
+                    }
                 },
-                'text': solvent_points['good_solvents']['names'],
+                'text': solvent_points['names'],
                 'hovertemplate': '<b>%{text}</b><br>δD: %{x:.1f}<br>δP: %{y:.1f}<br>δH: %{z:.1f}<br>Solubility: %{customdata}<extra></extra>',
-                'customdata': solvent_points['good_solvents']['solubility']
+                'customdata': solvent_points['solubility']
             })
 
-        # Bad solvents (red points, smaller size)
-        if solvent_points['bad_solvents']['x']:
-            traces.append({
-                'type': 'scatter3d',
-                'mode': 'markers',
-                'x': solvent_points['bad_solvents']['x'],
-                'y': solvent_points['bad_solvents']['y'],
-                'z': solvent_points['bad_solvents']['z'],
-                'name': 'Poor Solvents',
-                'marker': {
-                    'size': 4,  # Reduced from 8 to 4
-                    'color': 'red',
-                    'symbol': 'circle'
-                },
-                'text': solvent_points['bad_solvents']['names'],
-                'hovertemplate': '<b>%{text}</b><br>δD: %{x:.1f}<br>δP: %{y:.1f}<br>δH: %{z:.1f}<br>Solubility: %{customdata}<extra></extra>',
-                'customdata': solvent_points['bad_solvents']['solubility']
-            })
-
-        # HSP center point (yellow-green circle, same size as other points)
+        # HSP center point (gold - HSPiP standard) - Balanced visual hierarchy
         traces.append({
             'type': 'scatter3d',
             'mode': 'markers',
@@ -180,18 +181,24 @@ class HansenSphereVisualizationService:
             'y': [hsp_result.delta_p],
             'z': [hsp_result.delta_h],
             'name': 'Hansen Center',
+            'showlegend': False,  # Hide from legend for unified legend system
             'marker': {
-                'size': 4,  # Reduced from 12 to 4 (same as other points)
-                'color': 'yellowgreen',  # Changed from blue to yellowgreen
-                'symbol': 'circle'       # Changed from diamond to circle
+                'size': 3,  # Same size as solvent points per HSPiP standard
+                'color': '#32CD32',  # Lime green - HSPiP standard color
+                'symbol': 'circle',  # Standard circle shape per HSPiP
+                'opacity': 1.0,  # Full opacity for emphasis
+                'line': {
+                    'width': 0.5,
+                    'color': 'rgba(50,205,50,0.8)'  # Lime green border for definition
+                }
             },
-            'hovertemplate': f'<b>Hansen Center</b><br>δD: {hsp_result.delta_d:.1f}<br>δP: {hsp_result.delta_p:.1f}<br>δH: {hsp_result.delta_h:.1f}<br>Radius: {hsp_result.radius:.1f}<extra></extra>'
+            'hovertemplate': f'<b>Hansen Center</b><br>δD: {hsp_result.delta_d:.1f}<br>δP: {hsp_result.delta_p:.1f}<br>δH: {hsp_result.delta_h:.1f}<br>Ra: {hsp_result.radius:.1f}<extra></extra>'
         })
 
         # Layout configuration
         layout = {
             'title': {
-                'text': 'Hansen Solubility Parameters - 3D Visualization',
+                'text': f'HSP (δD: {hsp_result.delta_d:.1f}, δP: {hsp_result.delta_p:.1f}, δH: {hsp_result.delta_h:.1f}, Ra: {hsp_result.radius:.1f})',
                 'x': 0.5,
                 'font': {'size': 16}
             },
@@ -209,20 +216,44 @@ class HansenSphereVisualizationService:
                     'titlefont': {'size': 12}
                 },
                 'camera': {
-                    'eye': {'x': 1.5, 'y': 1.5, 'z': 1.5}
+                    'eye': {'x': 1.25, 'y': 1.25, 'z': 1.25}  # Optimized for perfect sphere visibility
                 },
-                'aspectmode': 'cube'
+                'aspectmode': 'cube'  # Use cube mode for perfect sphere rendering
             },
             'width': width,
             'height': height,
             'margin': {'l': 0, 'r': 0, 't': 40, 'b': 0},
+            'showlegend': True,
             'legend': {
                 'x': 0.02,
                 'y': 0.98,
-                'bgcolor': 'rgba(255,255,255,0.8)',
+                'bgcolor': 'rgba(255,255,255,0.95)',
                 'bordercolor': 'rgba(0,0,0,0.2)',
-                'borderwidth': 1
-            }
+                'borderwidth': 1,
+                'font': {'size': 11},
+                'itemsizing': 'constant',
+                'itemwidth': 30
+            },
+            'annotations': [{
+                'text': '<b>Solubility Legend</b><br>' +
+                        '🔴 <span style="color:#d32f2f">Poor</span> (< 0.3)<br>' +
+                        '🟠 <span style="color:#ff9800">Partial</span> (0.3-0.7)<br>' +
+                        '🔵 <span style="color:#1976d2">Good</span> (≥ 0.7)<br>' +
+                        '🟢 <span style="color:#32CD32">Hansen Center</span><br>' +
+                        '<span style="color:#4caf50">⬛ Hansen Sphere</span>',
+                'showarrow': False,
+                'xref': 'paper',
+                'yref': 'paper',
+                'x': 0.02,
+                'y': 0.35,
+                'xanchor': 'left',
+                'yanchor': 'top',
+                'bgcolor': 'rgba(255,255,255,0.95)',
+                'bordercolor': 'rgba(0,0,0,0.2)',
+                'borderwidth': 1,
+                'font': {'size': 11},
+                'align': 'left'
+            }]
         }
 
         return {
