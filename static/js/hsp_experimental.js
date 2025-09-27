@@ -12,6 +12,27 @@ class HSPExperimental {
         this.setupEventListeners();
         this.loadAvailableSolvents();
         this.initializeSolventTable();
+
+        // Check for solvent set to load from session storage
+        this.checkForSolventSetToLoad();
+    }
+
+    checkForSolventSetToLoad() {
+        const loadSetId = sessionStorage.getItem('loadSolventSetId');
+        if (loadSetId) {
+            sessionStorage.removeItem('loadSolventSetId');
+
+            // Wait for everything to be ready, then load the set
+            setTimeout(() => {
+                const solventSetManager = window.solventSetManager;
+                if (solventSetManager) {
+                    const solventSet = solventSetManager.getSolventSetById(loadSetId);
+                    if (solventSet) {
+                        solventSetManager.loadSolventSet(solventSet);
+                    }
+                }
+            }, 500);
+        }
     }
 
     setupEventListeners() {
@@ -47,6 +68,9 @@ class HSPExperimental {
 
         // Set up data change listeners
         this.setupDataChangeListeners();
+
+        // Make this instance globally available for solvent set manager
+        window.hspExperimental = this;
     }
 
     setupDataChangeListeners() {
@@ -123,6 +147,16 @@ class HSPExperimental {
         tableContainer.innerHTML = `
             <div class="solvent-table-header">
                 <h3>Solvent Tests</h3>
+                <div class="solvent-set-controls">
+                    <select id="solvent-set-selector" class="solvent-set-select">
+                        <option value="">Select saved set...</option>
+                    </select>
+                    <button id="load-solvent-set-btn" class="btn btn-secondary btn-small" disabled>Load</button>
+                    <div class="save-set-group">
+                        <input type="text" id="new-set-name" class="set-name-input" placeholder="Set name">
+                        <button id="save-solvent-set-btn" class="btn btn-primary btn-small">Save</button>
+                    </div>
+                </div>
             </div>
             <div class="table-wrapper" id="table-wrapper">
                 <table class="solvent-table" id="solvent-table">
@@ -155,6 +189,10 @@ class HSPExperimental {
 
         // Add initial row
         this.addSolventRow();
+
+        // Dispatch event to notify other components that the table is ready
+        document.dispatchEvent(new CustomEvent('hspExperimentalReady'));
+        console.log('📡 HSP Experimental table initialized and ready');
     }
 
     addSolventRow() {
@@ -466,11 +504,21 @@ class HSPExperimental {
             // Update solvent test data
             this.updateSolventTestData();
 
-            // First, save the experiment if not already saved
+            // Save or update the experiment with current data
             if (!this.currentExperiment) {
+                // Create new experiment
                 await this.saveExperiment();
                 if (!this.currentExperiment) {
-                    this.showNotification('Please save the experiment first', 'error');
+                    this.showNotification('Failed to create experiment', 'error');
+                    return;
+                }
+            } else {
+                // Update existing experiment with latest data
+                try {
+                    await this.updateExperiment();
+                    console.log('🔄 Experiment updated with latest table data');
+                } catch (error) {
+                    this.showNotification(`Failed to update experiment: ${error.message}`, 'error');
                     return;
                 }
             }
@@ -652,6 +700,55 @@ class HSPExperimental {
         } catch (error) {
             console.error('Error saving experiment:', error);
             this.showNotification('Error saving experiment', 'error');
+        }
+    }
+
+    async updateExperiment() {
+        if (!this.currentExperiment) {
+            throw new Error('No experiment to update');
+        }
+
+        const sampleName = document.querySelector('#sample-name').value.trim();
+        if (!sampleName) {
+            throw new Error('Please enter a sample name before updating');
+        }
+
+        if (this.solventTests.length === 0) {
+            throw new Error('Please add at least one solvent test before updating');
+        }
+
+        try {
+            this.updateSolventTestData();
+
+            const experimentData = {
+                sample_name: sampleName,
+                description: null,
+                solvent_tests: this.solventTests,
+                experimenter: null,
+                notes: null,
+                tags: []
+            };
+
+            const response = await fetch(`/api/hsp-experimental/experiments/${this.currentExperiment}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(experimentData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log(`✅ Experiment updated: ${result.message}`);
+                return true;
+            } else {
+                const error = await response.json();
+                throw new Error(`Failed to update experiment: ${error.detail}`);
+            }
+
+        } catch (error) {
+            console.error('Error updating experiment:', error);
+            throw error;
         }
     }
 

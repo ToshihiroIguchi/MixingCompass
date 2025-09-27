@@ -55,6 +55,19 @@ async def root(request: Request):
     )
 
 
+@app.get("/data-list", response_class=HTMLResponse)
+async def data_list_page(request: Request):
+    """Serve the data list management page"""
+    return templates.TemplateResponse(
+        "data_list.html",
+        {
+            "request": request,
+            "app_name": settings.app_name,
+            "version": settings.version
+        }
+    )
+
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""

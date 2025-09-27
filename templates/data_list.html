@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data List - MixingCompass</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><img src="/static/images/mc_logo.png" alt="MC" class="logo">MixingCompass</h1>
+            <nav>
+                <a href="/">HSP Analysis</a>
+                <a href="/data-list" class="active">Data List</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="data-list-container">
+            <div class="data-list-header">
+                <h2>Solvent Set Management</h2>
+                <div class="header-actions">
+                    <button id="import-sets-btn" class="btn btn-secondary">Import Sets</button>
+                    <button id="export-sets-btn" class="btn btn-secondary">Export Sets</button>
+                </div>
+            </div>
+
+            <div class="solvent-sets-section">
+                <div class="section-header">
+                    <h3>Saved Solvent Sets</h3>
+                    <span id="sets-count" class="count-badge">0 sets</span>
+                </div>
+
+                <div id="solvent-sets-list" class="solvent-sets-list">
+                    <div class="empty-state">
+                        <p>No solvent sets saved yet.</p>
+                        <p>Create sets in the <a href="/">HSP Analysis</a> page to manage them here.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Modal -->
+            <div id="edit-set-modal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Edit Solvent Set</h3>
+                        <button class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="edit-set-name">Set Name:</label>
+                            <input type="text" id="edit-set-name" class="form-input" placeholder="Enter set name">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Solvents in this set:</label>
+                            <div id="edit-solvents-list" class="edit-solvents-list">
+                                <!-- Solvent list will be populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="save-set-changes" class="btn btn-primary">Save Changes</button>
+                        <button id="cancel-set-edit" class="btn btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Import File Input -->
+            <input type="file" id="import-file-input" accept=".json" style="display: none;">
+        </div>
+    </main>
+
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/solvent_set_manager.js"></script>
+    <script src="/static/js/data_list.js"></script>
+</body>
+</html>
