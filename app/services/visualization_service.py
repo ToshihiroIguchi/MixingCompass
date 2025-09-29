@@ -172,6 +172,30 @@ class HansenSphereVisualizationService:
             'z': [min(all_z), max(all_z)]
         }
 
+        # Calculate maximum HSP values from all data (sphere + solvents + center)
+        max_delta_d = max(all_x) if all_x else 25.0
+        max_delta_p = max(all_y) if all_y else 25.0
+        max_delta_h = max(all_z) if all_z else 25.0
+
+        logger.info(f"🔍 MAX VALUES: D={max_delta_d:.1f}, P={max_delta_p:.1f}, H={max_delta_h:.1f}")
+
+        # Set axis ranges from 0 to max(25, max_value) for consistent sphere visualization
+        axis_max_d = max(25.0, max_delta_d + 2)  # Add padding
+        axis_max_p = max(25.0, max_delta_p + 2)  # Add padding
+        axis_max_h = max(25.0, max_delta_h + 2)  # Add padding
+
+        # Use the maximum of all three to ensure equal ranges and perfect sphere
+        axis_max = max(axis_max_d, axis_max_p, axis_max_h)
+
+        logger.info(f"🔍 AXIS CALCULATIONS: D={axis_max_d:.1f}, P={axis_max_p:.1f}, H={axis_max_h:.1f} → MAX={axis_max:.1f}")
+
+        # Fixed equal ranges for all axes from 0 to axis_max
+        equal_x_range = [0, axis_max]
+        equal_y_range = [0, axis_max]
+        equal_z_range = [0, axis_max]
+
+        logger.info(f"🔍 FINAL RANGES: X={equal_x_range}, Y={equal_y_range}, Z={equal_z_range}")
+
         # Build Plotly traces
         traces = []
 
@@ -246,17 +270,17 @@ class HansenSphereVisualizationService:
                 'xaxis': {
                     'title': 'δD (Dispersion) [MPa<sup>0.5</sup>]',
                     'titlefont': {'size': 12},
-                    'range': [sphere_bounds['x'][0] - 1, sphere_bounds['x'][1] + 1]  # Add padding for visibility
+                    'range': equal_x_range
                 },
                 'yaxis': {
                     'title': 'δP (Polarity) [MPa<sup>0.5</sup>]',
                     'titlefont': {'size': 12},
-                    'range': [0, sphere_bounds['y'][1] + 1]  # Start from 0 to show hexane at (14.9, 0, 0)
+                    'range': equal_y_range
                 },
                 'zaxis': {
                     'title': 'δH (Hydrogen Bonding) [MPa<sup>0.5</sup>]',
                     'titlefont': {'size': 12},
-                    'range': [0, sphere_bounds['z'][1] + 1]  # Start from 0 to show hexane at (14.9, 0, 0)
+                    'range': equal_z_range
                 },
                 'camera': {
                     'eye': {'x': 1.25, 'y': 1.25, 'z': 1.25}  # Optimized for perfect sphere visibility
