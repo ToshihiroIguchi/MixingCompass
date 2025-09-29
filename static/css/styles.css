@@ -706,6 +706,12 @@ body {
     margin-bottom: 1rem;
 }
 
+.result-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
 .results-header h3 {
     margin: 0;
     white-space: nowrap;
@@ -1262,6 +1268,106 @@ body {
     }
 }
 
+/* Warning Modal Styles */
+.warning-modal {
+    border-left: 4px solid #f59e0b;
+    box-shadow: 0 20px 25px -5px rgba(245, 158, 11, 0.1), 0 10px 10px -5px rgba(245, 158, 11, 0.04);
+}
+
+.warning-header {
+    background-color: #fffbeb;
+    border-bottom: 1px solid #f59e0b;
+}
+
+.warning-header h3 {
+    color: #92400e;
+    font-weight: 600;
+}
+
+.warning-section {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-radius: 6px;
+}
+
+.warning-icon {
+    font-size: 1.5rem;
+    color: #f59e0b;
+    flex-shrink: 0;
+}
+
+.warning-content h4 {
+    color: #92400e;
+    margin: 0 0 0.5rem 0;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.warning-content p {
+    color: #451a03;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.impact-details {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 1rem;
+}
+
+.impact-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.impact-item:last-of-type {
+    border-bottom: none;
+    margin-bottom: 1rem;
+}
+
+.impact-label {
+    color: #475569;
+    font-weight: 500;
+}
+
+.impact-value {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.loss-warning {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 4px;
+    padding: 0.75rem;
+    text-align: center;
+    color: #991b1b;
+}
+
+.warning-footer {
+    background-color: #f9fafb;
+    justify-content: space-between;
+}
+
+.btn-danger {
+    background-color: #dc2626;
+    color: white;
+    font-weight: 600;
+}
+
+.btn-danger:hover {
+    background-color: #b91c1c;
+}
+
 /* Mobile responsive adjustments */
 @media (max-width: 768px) {
     .hsp-values {
@@ -1270,5 +1376,25 @@ body {
 
     .detail-grid {
         grid-template-columns: 1fr 1fr;
+    }
+
+    .warning-section {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .impact-item {
+        flex-direction: column;
+        gap: 0.25rem;
+        text-align: center;
+    }
+
+    .warning-footer {
+        flex-direction: column-reverse;
+        gap: 0.75rem;
+    }
+
+    .warning-footer .btn {
+        width: 100%;
     }
 }

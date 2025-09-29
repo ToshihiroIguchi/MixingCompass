@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ app_name }}</title>
-    <link rel="stylesheet" href="/static/css/styles.css?v=2024092903">
+    <link rel="stylesheet" href="/static/css/styles.css?v=2024092905">
 </head>
 <body>
     <header class="header">
@@ -69,7 +69,10 @@
                                     <span class="unit">MPa<sup>0.5</sup></span>
                                 </span>
                             </div>
-                            <button id="details-info-btn" class="info-btn" title="View calculation details" style="display: none;">ⓘ</button>
+                            <div class="result-actions">
+                                <button id="details-info-btn" class="info-btn" title="View calculation details" style="display: none;">ⓘ</button>
+                                <button id="copy-hsp-btn" class="info-btn" title="Copy HSP data for Excel" style="display: none;">📋</button>
+                            </div>
                         </div>
                     </div>
                     <div class="hansen-sphere" id="hansen-sphere-container">

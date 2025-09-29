@@ -10,7 +10,14 @@
       "Bash(find:*)",
       "WebFetch(domain:plotly.com)",
       "WebFetch(domain:github.com)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(start sphere_distortion_test.html)",
+      "Bash(start real_data_debug.html)",
+      "Bash(findstr:*)",
+      "Bash(start poor_solvent_debug.html)",
+      "Bash(taskkill:*)",
+      "Bash(netstat:*)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

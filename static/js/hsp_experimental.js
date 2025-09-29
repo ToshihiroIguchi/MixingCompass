@@ -99,10 +99,14 @@ class HSPExperimental {
         document.querySelector('#delta-h').textContent = '-';
         document.querySelector('#ra').textContent = '-';
 
-        // Hide info button
+        // Hide action buttons
         const infoBtn = document.querySelector('#details-info-btn');
         if (infoBtn) {
             infoBtn.style.display = 'none';
+        }
+        const copyBtn = document.querySelector('#copy-hsp-btn');
+        if (copyBtn) {
+            copyBtn.style.display = 'none';
         }
 
         // Clear visualization
@@ -149,7 +153,7 @@ class HSPExperimental {
                 <h3>Solvent Tests</h3>
                 <div class="solvent-set-controls">
                     <select id="solvent-set-selector" class="solvent-set-select">
-                        <option value="">Select saved set...</option>
+                        <option value="">Select saved solvent set...</option>
                     </select>
                     <button id="load-solvent-set-btn" class="btn btn-secondary btn-small" disabled>Load</button>
                     <div class="save-set-group">
@@ -602,6 +606,102 @@ class HSPExperimental {
         newInfoBtn.addEventListener('click', () => {
             this.showCalculationDetailsModal(result);
         });
+
+        // Show and setup copy button
+        const copyBtn = document.querySelector('#copy-hsp-btn');
+        copyBtn.style.display = 'block';
+
+        // Remove existing event listener and add new one
+        const newCopyBtn = copyBtn.cloneNode(true);
+        copyBtn.parentNode.replaceChild(newCopyBtn, copyBtn);
+
+        newCopyBtn.addEventListener('click', () => {
+            this.copyHSPDataToClipboard(result);
+        });
+    }
+
+    async copyHSPDataToClipboard(result) {
+        try {
+            // Get sample name
+            const sampleNameInput = document.querySelector('#sample-name');
+            const sampleName = sampleNameInput ? sampleNameInput.value.trim() : '';
+            const displayName = sampleName || 'Unknown Sample';
+
+            // Use original (unrounded) values if available, otherwise display values
+            const deltaD = result.original_delta_d !== undefined ? result.original_delta_d : result.delta_d;
+            const deltaP = result.original_delta_p !== undefined ? result.original_delta_p : result.delta_p;
+            const deltaH = result.original_delta_h !== undefined ? result.original_delta_h : result.delta_h;
+            const ra = result.original_radius !== undefined ? result.original_radius : result.radius;
+
+            // Create tab-separated data for Excel
+            const header = 'Sample Name\tδD\tδP\tδH\tRa';
+            const dataRow = `${displayName}\t${deltaD}\t${deltaP}\t${deltaH}\t${ra}`;
+            const copyText = `${header}\n${dataRow}`;
+
+            // Copy to clipboard using modern API
+            await navigator.clipboard.writeText(copyText);
+
+            // Show success notification
+            this.showNotification('HSP data copied to clipboard for Excel', 'success');
+
+            // Temporary visual feedback
+            const copyBtn = document.querySelector('#copy-hsp-btn');
+            const originalText = copyBtn.textContent;
+            copyBtn.textContent = '✓';
+            copyBtn.style.color = '#10b981';
+
+            setTimeout(() => {
+                copyBtn.textContent = originalText;
+                copyBtn.style.color = '';
+            }, 1500);
+
+        } catch (error) {
+            console.error('Failed to copy HSP data:', error);
+
+            // Fallback for older browsers
+            try {
+                this.fallbackCopyToClipboard(result);
+            } catch (fallbackError) {
+                console.error('Fallback copy also failed:', fallbackError);
+                this.showNotification('Failed to copy HSP data to clipboard', 'error');
+            }
+        }
+    }
+
+    fallbackCopyToClipboard(result) {
+        // Get sample name
+        const sampleNameInput = document.querySelector('#sample-name');
+        const sampleName = sampleNameInput ? sampleNameInput.value.trim() : '';
+        const displayName = sampleName || 'Unknown Sample';
+
+        // Use original values if available
+        const deltaD = result.original_delta_d !== undefined ? result.original_delta_d : result.delta_d;
+        const deltaP = result.original_delta_p !== undefined ? result.original_delta_p : result.delta_p;
+        const deltaH = result.original_delta_h !== undefined ? result.original_delta_h : result.delta_h;
+        const ra = result.original_radius !== undefined ? result.original_radius : result.radius;
+
+        // Create tab-separated data
+        const header = 'Sample Name\tδD\tδP\tδH\tRa';
+        const dataRow = `${displayName}\t${deltaD}\t${deltaP}\t${deltaH}\t${ra}`;
+        const copyText = `${header}\n${dataRow}`;
+
+        // Create temporary textarea for fallback copy
+        const textArea = document.createElement('textarea');
+        textArea.value = copyText;
+        textArea.style.position = 'fixed';
+        textArea.style.left = '-999999px';
+        textArea.style.top = '-999999px';
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+
+        if (document.execCommand('copy')) {
+            this.showNotification('HSP data copied to clipboard for Excel', 'success');
+        } else {
+            throw new Error('execCommand failed');
+        }
+
+        document.body.removeChild(textArea);
     }
 
     showCalculationDetailsModal(result) {
