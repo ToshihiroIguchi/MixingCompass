@@ -721,7 +721,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.25rem;
-    font-size: 0.9rem;
+    font-size: 1rem;
 }
 
 .hsp-value-inline .value {
@@ -731,7 +731,7 @@ body {
 }
 
 .hsp-value-inline .unit {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     color: #6b7280;
 }
 

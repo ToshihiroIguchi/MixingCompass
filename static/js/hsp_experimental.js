@@ -246,8 +246,8 @@ class HSPExperimental {
                     <select class="solubility-select" required>
                         <option value="">Choose solubility level</option>
                         <option value="soluble">Soluble (1.0)</option>
-                        <option value="insoluble">Insoluble (0.0)</option>
                         <option value="partial">Partial (0.5)</option>
+                        <option value="insoluble">Insoluble (0.0)</option>
                         <option value="custom">Custom...</option>
                     </select>
                     <input type="number"
