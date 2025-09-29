@@ -702,8 +702,41 @@ body {
 .results-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 1rem;
     margin-bottom: 1rem;
+}
+
+.results-header h3 {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.hsp-values-inline {
+    display: flex;
+    gap: 1rem;
+    flex: 1;
+}
+
+.hsp-value-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.9rem;
+}
+
+.hsp-value-inline .value {
+    font-weight: 600;
+    color: #1f2937;
+    min-width: 2em;
+}
+
+.hsp-value-inline .unit {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+.results-header .info-btn {
+    margin-left: auto;
 }
 
 .info-btn {

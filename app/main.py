@@ -20,6 +20,13 @@ app = FastAPI(
     debug=settings.debug
 )
 
+@app.middleware("http")
+async def log_requests(request, call_next):
+    print(f"REQUEST: {request.method} {request.url}")
+    response = await call_next(request)
+    print(f"RESPONSE: {response.status_code}")
+    return response
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,

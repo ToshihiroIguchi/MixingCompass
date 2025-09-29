@@ -580,6 +580,7 @@ class HSPExperimental {
     }
 
     showCalculationResults(result) {
+        // Update HSP values in header
         document.getElementById('delta-d').textContent = result.delta_d.toFixed(1);
         document.getElementById('delta-p').textContent = result.delta_p.toFixed(1);
         document.getElementById('delta-h').textContent = result.delta_h.toFixed(1);

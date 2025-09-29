@@ -84,11 +84,21 @@ class HansenSphereVisualizationService:
         Returns:
             Dictionary with coordinates, colors, and metadata for scatter plot
         """
+        import logging
+        logger = logging.getLogger(__name__)
+
+        logger.info(f"🔍 create_solvent_points called with {len(solvent_data)} solvents")
+
         points = {'x': [], 'y': [], 'z': [], 'names': [], 'colors': [], 'solubility': []}
 
-        for solvent in solvent_data:
+        for i, solvent in enumerate(solvent_data):
+            logger.info(f"🔍 Processing solvent {i}: {solvent}")
+
             if not all(key in solvent for key in ['delta_d', 'delta_p', 'delta_h', 'solubility']):
+                logger.warning(f"⚠️ Skipping solvent {i} - missing required keys")
                 continue
+
+            logger.info(f"✅ Adding solvent: {solvent.get('solvent_name', 'Unknown')} at ({solvent['delta_d']}, {solvent['delta_p']}, {solvent['delta_h']}) - {solvent['solubility']}")
 
             points['x'].append(solvent['delta_d'])
             points['y'].append(solvent['delta_p'])
@@ -97,7 +107,10 @@ class HansenSphereVisualizationService:
             points['colors'].append(HansenSphereVisualizationService.get_solubility_color(solvent['solubility']))
             points['solubility'].append(solvent['solubility'])
 
+        logger.info(f"🔍 Final points: {len(points['x'])} total, colors: {points['colors']}, solubilities: {points['solubility']}")
+
         return points
+
 
     @classmethod
     def generate_plotly_visualization(cls,
@@ -117,20 +130,47 @@ class HansenSphereVisualizationService:
         Returns:
             Complete Plotly figure configuration
         """
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"🚀 generate_plotly_visualization called with {len(solvent_data)} solvents")
+        logger.info(f"🚀 Input solvent_data: {solvent_data}")
 
-        # Generate sphere coordinates
+        # Generate sphere data - cube mode will handle equal ranges automatically
         sphere_center = (hsp_result.delta_d, hsp_result.delta_p, hsp_result.delta_h)
+        radius = hsp_result.radius
+
+        # Generate sphere coordinates using original center and radius
         sphere_coords = cls.generate_sphere_coordinates(
             center=sphere_center,
-            radius=hsp_result.radius,
+            radius=radius,
             resolution=25
         )
 
-        # Create solvent scatter points
+        # Create solvent scatter points using original data
         solvent_points = cls.create_solvent_points(solvent_data)
 
-        # Generate sphere coordinates for visualization
-        center_x, center_y, center_z = sphere_center
+        # Calculate data bounds including both sphere and points
+        # sphere_coords returns lists, not numpy arrays, so no need for flatten()
+        all_x = []
+        for row in sphere_coords['x']:
+            all_x.extend(row if isinstance(row, list) else [row])
+        all_x.extend(solvent_points['x'])
+
+        all_y = []
+        for row in sphere_coords['y']:
+            all_y.extend(row if isinstance(row, list) else [row])
+        all_y.extend(solvent_points['y'])
+
+        all_z = []
+        for row in sphere_coords['z']:
+            all_z.extend(row if isinstance(row, list) else [row])
+        all_z.extend(solvent_points['z'])
+
+        sphere_bounds = {
+            'x': [min(all_x), max(all_x)],
+            'y': [min(all_y), max(all_y)],
+            'z': [min(all_z), max(all_z)]
+        }
 
         # Build Plotly traces
         traces = []
@@ -173,7 +213,7 @@ class HansenSphereVisualizationService:
                 'customdata': solvent_points['solubility']
             })
 
-        # HSP center point (gold - HSPiP standard) - Balanced visual hierarchy
+        # HSP center point (lime green - HSPiP standard)
         traces.append({
             'type': 'scatter3d',
             'mode': 'markers',
@@ -205,20 +245,24 @@ class HansenSphereVisualizationService:
             'scene': {
                 'xaxis': {
                     'title': 'δD (Dispersion) [MPa<sup>0.5</sup>]',
-                    'titlefont': {'size': 12}
+                    'titlefont': {'size': 12},
+                    'range': [sphere_bounds['x'][0] - 1, sphere_bounds['x'][1] + 1]  # Add padding for visibility
                 },
                 'yaxis': {
                     'title': 'δP (Polarity) [MPa<sup>0.5</sup>]',
-                    'titlefont': {'size': 12}
+                    'titlefont': {'size': 12},
+                    'range': [0, sphere_bounds['y'][1] + 1]  # Start from 0 to show hexane at (14.9, 0, 0)
                 },
                 'zaxis': {
                     'title': 'δH (Hydrogen Bonding) [MPa<sup>0.5</sup>]',
-                    'titlefont': {'size': 12}
+                    'titlefont': {'size': 12},
+                    'range': [0, sphere_bounds['z'][1] + 1]  # Start from 0 to show hexane at (14.9, 0, 0)
                 },
                 'camera': {
                     'eye': {'x': 1.25, 'y': 1.25, 'z': 1.25}  # Optimized for perfect sphere visibility
                 },
-                'aspectmode': 'cube'  # Use cube mode for perfect sphere rendering
+                'aspectmode': 'manual',  # Manual mode for explicit axis control
+                'aspectratio': {'x': 1, 'y': 1, 'z': 1}  # Equal aspect ratio for proper sphere
             },
             'width': width,
             'height': height,
