@@ -1143,8 +1143,116 @@ class HSPExperimental {
     }
 
     showLoadDataModal() {
-        // TODO: Implement load data modal
-        this.showNotification('Load data functionality will be implemented', 'info');
+        const resultsManager = window.experimentalResultsManager;
+        if (!resultsManager) {
+            Notification.error('Experimental results manager not available');
+            return;
+        }
+
+        const results = resultsManager.getExperimentalResults();
+        const modal = document.querySelector('#load-data-modal');
+        const resultsList = document.querySelector('#results-list');
+        const searchInput = document.querySelector('#result-search');
+
+        if (!modal || !resultsList) {
+            Notification.error('Modal elements not found');
+            return;
+        }
+
+        // Display results
+        this.displayLoadDataResults(results, resultsList);
+
+        // Setup search functionality
+        searchInput.value = '';
+        searchInput.oninput = Utils.debounce((e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = results.filter(r =>
+                r.sample_name.toLowerCase().includes(query)
+            );
+            this.displayLoadDataResults(filtered, resultsList);
+        }, 300);
+
+        // Show modal
+        modal.style.display = 'flex';
+
+        // Setup modal close handlers
+        this.setupLoadDataModalListeners(modal);
+    }
+
+    displayLoadDataResults(results, container) {
+        if (results.length === 0) {
+            container.innerHTML = `
+                <div class="empty-results">
+                    <p><strong>No saved results found</strong></p>
+                    <p>Save calculation results to load them later</p>
+                </div>
+            `;
+            return;
+        }
+
+        const resultsHTML = results.map(result => `
+            <div class="result-item" data-result-id="${result.id}">
+                <div class="result-header">
+                    <span class="result-name">${Utils.escapeHtml(result.sample_name)}</span>
+                    <span class="result-date">${Utils.formatDate(result.created)}</span>
+                </div>
+                <div class="result-hsp">
+                    <span class="hsp-item"><strong>δD:</strong> ${result.hsp_result.delta_d.toFixed(1)}</span>
+                    <span class="hsp-item"><strong>δP:</strong> ${result.hsp_result.delta_p.toFixed(1)}</span>
+                    <span class="hsp-item"><strong>δH:</strong> ${result.hsp_result.delta_h.toFixed(1)}</span>
+                    <span class="hsp-item"><strong>Ra:</strong> ${result.hsp_result.radius.toFixed(1)}</span>
+                </div>
+                <div class="result-meta">
+                    <span>${result.metadata.solvent_count} solvents</span>
+                    ${result.last_modified && result.last_modified !== result.created ?
+                        `<span>Modified: ${Utils.formatDate(result.last_modified)}</span>` : ''}
+                </div>
+            </div>
+        `).join('');
+
+        container.innerHTML = resultsHTML;
+
+        // Add click handlers to result items
+        container.querySelectorAll('.result-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const resultId = item.dataset.resultId;
+                this.loadResultFromModal(resultId);
+            });
+        });
+    }
+
+    loadResultFromModal(resultId) {
+        const modal = document.querySelector('#load-data-modal');
+        modal.style.display = 'none';
+
+        this.loadExperimentalResultData(resultId);
+    }
+
+    setupLoadDataModalListeners(modal) {
+        const closeBtn = modal.querySelector('.modal-close');
+        const cancelBtn = modal.querySelector('#cancel-load-data');
+
+        const closeModal = () => {
+            modal.style.display = 'none';
+        };
+
+        closeBtn.onclick = closeModal;
+        cancelBtn.onclick = closeModal;
+
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
+        };
+
+        // Escape key to close
+        const escapeHandler = (e) => {
+            if (e.key === 'Escape' && modal.style.display === 'flex') {
+                closeModal();
+                document.removeEventListener('keydown', escapeHandler);
+            }
+        };
+        document.addEventListener('keydown', escapeHandler);
     }
 
     async loadHansenSphereVisualization() {

@@ -18,7 +18,8 @@
       "Bash(taskkill:*)",
       "Bash(netstat:*)",
       "Bash(timeout:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []

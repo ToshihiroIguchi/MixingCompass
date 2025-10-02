@@ -104,6 +104,27 @@
             </div>
         </div>
 
+        <!-- Load Data Modal -->
+        <div id="load-data-modal" class="modal" style="display: none;">
+            <div class="modal-content modal-large">
+                <div class="modal-header">
+                    <h3>Load Experimental Result</h3>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="search-section">
+                        <input type="text" id="result-search" class="search-input" placeholder="Search by sample name...">
+                    </div>
+                    <div id="results-list" class="results-list">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="cancel-load-data" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+        </div>
+
         <!-- HSP Calculation Section -->
         <section id="hsp-calculation" class="content-section">
             <h2>HSP Calculation</h2>
