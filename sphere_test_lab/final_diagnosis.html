@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Final Hansen Sphere Diagnosis</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-container { margin-bottom: 30px; border: 1px solid #ccc; padding: 20px; }
+        .plot-container { width: 700px; height: 500px; margin: 10px 0; }
+        .comparison { display: flex; gap: 20px; }
+        .analysis { background: #f0f0f0; padding: 15px; margin: 10px 0; font-family: monospace; font-size: 12px; }
+        h2 { color: #333; }
+        .highlight { background: yellow; }
+    </style>
+</head>
+<body>
+    <h1>Hansen Sphere Final Diagnosis</h1>
+
+    <div class="test-container">
+        <h2>Real MixingCompass Data Analysis</h2>
+        <div class="analysis" id="analysis">
+            <strong>From Server Response:</strong><br>
+            HSP Center: (15.6, 8.067, 13.0)<br>
+            Radius: 6.454<br>
+            <br>
+            <strong>Solvent Data:</strong><br>
+            acetone: (15.5, 10.4, 7.0) - soluble<br>
+            ethanol: (15.8, 8.8, 19.4) - soluble<br>
+            ethyl acetate: (15.8, 5.3, 7.2) - partial<br>
+            hexane: (14.9, 0, 0) - insoluble<br>
+            toluene: (18.0, 1.4, 2.0) - insoluble<br>
+            <br>
+            <strong>Coordinate Range Analysis:</strong><br>
+            X (δD): 14.9 to 18.0 (span: 3.1)<br>
+            Y (δP): 0 to 19.4 (span: 19.4)<br>
+            Z (δH): 0 to 19.4 (span: 19.4)<br>
+            <br>
+            <span class="highlight">PROBLEM: Y and Z spans are 6x larger than X span!</span><br>
+            This creates extreme distortion in the X direction.
+        </div>
+    </div>
+
+    <div class="comparison">
+        <div class="test-container">
+            <h2>Current (Distorted)</h2>
+            <div class="plot-container" id="plotDistorted"></div>
+        </div>
+
+        <div class="test-container">
+            <h2>Fixed (Equal Ranges)</h2>
+            <div class="plot-container" id="plotFixed"></div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h2>Ultimate Fix: Force Equal Axis Ranges</h2>
+        <div class="analysis">
+            The solution is to calculate the maximum span and apply it to all axes:<br>
+            <code>maxSpan = max(xSpan, ySpan, zSpan) = 19.4</code><br>
+            <code>xRange = [center.x - maxSpan/2, center.x + maxSpan/2]</code><br>
+            <code>yRange = [center.y - maxSpan/2, center.y + maxSpan/2]</code><br>
+            <code>zRange = [center.z - maxSpan/2, center.z + maxSpan/2]</code><br>
+            <br>
+            This forces all axes to have equal visual spans, creating a perfect sphere.
+        </div>
+    </div>
+
+    <script>
+        // Real MixingCompass data
+        const hspCenter = [15.6, 8.067, 13.0];
+        const hspRadius = 6.454;
+
+        const solvents = [
+            { name: 'acetone', coords: [15.5, 10.4, 7.0], color: '#1976d2' },
+            { name: 'ethanol', coords: [15.8, 8.8, 19.4], color: '#1976d2' },
+            { name: 'ethyl acetate', coords: [15.8, 5.3, 7.2], color: '#ff9800' },
+            { name: 'hexane', coords: [14.9, 0, 0], color: '#d32f2f' },
+            { name: 'toluene', coords: [18.0, 1.4, 2.0], color: '#d32f2f' }
+        ];
+
+        // Generate sphere surface
+        function generateSphere(center, radius, resolution = 20) {
+            const x = [];
+            const y = [];
+            const z = [];
+
+            for (let i = 0; i < resolution; i++) {
+                const xRow = [];
+                const yRow = [];
+                const zRow = [];
+                for (let j = 0; j < resolution; j++) {
+                    const u = 2 * Math.PI * j / (resolution - 1);
+                    const v = Math.PI * i / (resolution - 1);
+
+                    xRow.push(center[0] + radius * Math.cos(u) * Math.sin(v));
+                    yRow.push(center[1] + radius * Math.sin(u) * Math.sin(v));
+                    zRow.push(center[2] + radius * Math.cos(v));
+                }
+                x.push(xRow);
+                y.push(yRow);
+                z.push(zRow);
+            }
+
+            return { x, y, z };
+        }
+
+        // Calculate ranges
+        const allX = [hspCenter[0], ...solvents.map(s => s.coords[0])];
+        const allY = [hspCenter[1], ...solvents.map(s => s.coords[1])];
+        const allZ = [hspCenter[2], ...solvents.map(s => s.coords[2])];
+
+        // Add sphere boundary
+        allX.push(hspCenter[0] - hspRadius, hspCenter[0] + hspRadius);
+        allY.push(hspCenter[1] - hspRadius, hspCenter[1] + hspRadius);
+        allZ.push(hspCenter[2] - hspRadius, hspCenter[2] + hspRadius);
+
+        const xRange = [Math.min(...allX), Math.max(...allX)];
+        const yRange = [Math.min(...allY), Math.max(...allY)];
+        const zRange = [Math.min(...allZ), Math.max(...allZ)];
+
+        const xSpan = xRange[1] - xRange[0];
+        const ySpan = yRange[1] - yRange[0];
+        const zSpan = zRange[1] - zRange[0];
+        const maxSpan = Math.max(xSpan, ySpan, zSpan);
+
+        console.log('Spans:', { x: xSpan, y: ySpan, z: zSpan, max: maxSpan });
+
+        // Create plots
+        function createBaseTraces() {
+            const sphere = generateSphere(hspCenter, hspRadius);
+
+            return [
+                {
+                    type: 'surface',
+                    x: sphere.x,
+                    y: sphere.y,
+                    z: sphere.z,
+                    colorscale: [[0, 'rgba(76, 175, 80, 0.3)'], [1, 'rgba(76, 175, 80, 0.3)']],
+                    opacity: 0.4,
+                    showscale: false,
+                    name: 'Hansen Sphere'
+                },
+                {
+                    type: 'scatter3d',
+                    mode: 'markers',
+                    x: solvents.map(s => s.coords[0]),
+                    y: solvents.map(s => s.coords[1]),
+                    z: solvents.map(s => s.coords[2]),
+                    marker: {
+                        size: 6,
+                        color: solvents.map(s => s.color),
+                        opacity: 0.9
+                    },
+                    text: solvents.map(s => s.name),
+                    name: 'Solvents'
+                },
+                {
+                    type: 'scatter3d',
+                    mode: 'markers',
+                    x: [hspCenter[0]],
+                    y: [hspCenter[1]],
+                    z: [hspCenter[2]],
+                    marker: {
+                        size: 8,
+                        color: '#32CD32',
+                        opacity: 1.0
+                    },
+                    name: 'HSP Center'
+                }
+            ];
+        }
+
+        // Plot 1: Current distorted (mimics MixingCompass)
+        Plotly.newPlot('plotDistorted', createBaseTraces(), {
+            scene: {
+                aspectmode: 'cube',  // This should work but doesn't with unequal data ranges
+                camera: { eye: { x: 1.5, y: 1.5, z: 1.5 } },
+                xaxis: { title: 'δD [MPa^0.5]' },
+                yaxis: { title: 'δP [MPa^0.5]' },
+                zaxis: { title: 'δH [MPa^0.5]' }
+            },
+            title: 'Current: Distorted (aspectmode: cube with unequal data)',
+            width: 600,
+            height: 400
+        });
+
+        // Plot 2: Fixed with equal ranges
+        const equalRanges = {
+            x: [hspCenter[0] - maxSpan/2, hspCenter[0] + maxSpan/2],
+            y: [hspCenter[1] - maxSpan/2, hspCenter[1] + maxSpan/2],
+            z: [hspCenter[2] - maxSpan/2, hspCenter[2] + maxSpan/2]
+        };
+
+        Plotly.newPlot('plotFixed', createBaseTraces(), {
+            scene: {
+                aspectmode: 'manual',
+                aspectratio: { x: 1, y: 1, z: 1 },
+                xaxis: {
+                    title: 'δD [MPa^0.5]',
+                    range: equalRanges.x
+                },
+                yaxis: {
+                    title: 'δP [MPa^0.5]',
+                    range: equalRanges.y
+                },
+                zaxis: {
+                    title: 'δH [MPa^0.5]',
+                    range: equalRanges.z
+                },
+                camera: { eye: { x: 1.5, y: 1.5, z: 1.5 } }
+            },
+            title: 'Fixed: Perfect Sphere (manual ranges + aspectratio)',
+            width: 600,
+            height: 400
+        });
+
+        // Update analysis with actual calculated values
+        document.getElementById('analysis').innerHTML += `
+            <br><strong>Calculated Ranges:</strong><br>
+            X: [${xRange[0].toFixed(1)}, ${xRange[1].toFixed(1)}] (span: ${xSpan.toFixed(1)})<br>
+            Y: [${yRange[0].toFixed(1)}, ${yRange[1].toFixed(1)}] (span: ${ySpan.toFixed(1)})<br>
+            Z: [${zRange[0].toFixed(1)}, ${zRange[1].toFixed(1)}] (span: ${zSpan.toFixed(1)})<br>
+            <br>
+            <strong>Solution - Equal Ranges:</strong><br>
+            X: [${equalRanges.x[0].toFixed(1)}, ${equalRanges.x[1].toFixed(1)}]<br>
+            Y: [${equalRanges.y[0].toFixed(1)}, ${equalRanges.y[1].toFixed(1)}]<br>
+            Z: [${equalRanges.z[0].toFixed(1)}, ${equalRanges.z[1].toFixed(1)}]<br>
+        `;
+    </script>
+</body>
+</html>

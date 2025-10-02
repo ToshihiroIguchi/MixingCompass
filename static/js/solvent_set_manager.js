@@ -63,17 +63,17 @@ class SolventSetManager {
             const selector = document.querySelector('#solvent-set-selector');
 
             if (selector) {
-                console.log('✅ Solvent set selector found, initializing...');
+                console.log('Solvent set selector found, initializing...');
                 this.updateSolventSetSelector();
                 return true;
             }
 
             retryCount++;
             if (retryCount < maxRetries) {
-                console.log(`⏳ Waiting for solvent set selector... (${retryCount}/${maxRetries})`);
+                console.log(`Waiting for solvent set selector... (${retryCount}/${maxRetries})`);
                 setTimeout(tryInitialize, 100);
             } else {
-                console.warn('⚠️ Solvent set selector not found after maximum retries');
+                console.warn('Solvent set selector not found after maximum retries');
             }
             return false;
         };
@@ -83,7 +83,7 @@ class SolventSetManager {
 
         // Also listen for HSP experimental ready event
         document.addEventListener('hspExperimentalReady', () => {
-            console.log('📡 HSP Experimental ready event received');
+            console.log('HSP Experimental ready event received');
             this.updateSolventSetSelector();
         });
     }
@@ -92,7 +92,7 @@ class SolventSetManager {
         try {
             const stored = localStorage.getItem(this.storageKey);
             this.solventSets = stored ? JSON.parse(stored) : [];
-            console.log(`📦 Loaded ${this.solventSets.length} solvent sets from storage`);
+            console.log(`Loaded ${this.solventSets.length} solvent sets from storage`);
             // Don't call updateSolventSetSelector here - it will be called by initializeSelectorWithRetry
         } catch (error) {
             console.error('Error loading solvent sets from storage:', error);
@@ -112,7 +112,7 @@ class SolventSetManager {
     updateSolventSetSelector() {
         const selector = document.querySelector('#solvent-set-selector');
         if (!selector) {
-            console.warn('🔍 Solvent set selector not found, skipping update');
+            console.warn('Solvent set selector not found, skipping update');
             return false;
         }
 
@@ -138,7 +138,7 @@ class SolventSetManager {
             loadBtn.disabled = true;
         }
 
-        console.log(`✅ Updated solvent set selector with ${this.solventSets.length} sets`);
+        console.log(`Updated solvent set selector with ${this.solventSets.length} sets`);
         return true;
     }
 
@@ -579,7 +579,7 @@ class SolventSetManager {
                 this.solventSets = [];
                 this.updateSolventSetSelector();
                 this.showNotification('All solvent set data has been cleared', 'success');
-                console.log('🗑️ All solvent sets data cleared from browser storage');
+                console.log('All solvent sets data cleared from browser storage');
             } catch (error) {
                 console.error('Error clearing stored data:', error);
                 this.showNotification('Failed to clear data', 'error');
@@ -593,7 +593,7 @@ class SolventSetManager {
         if (confirm('Are you sure you want to delete all solvent set data stored in the browser?\n\nThis action cannot be undone.')) {
             try {
                 localStorage.removeItem(storageKey);
-                console.log('🗑️ All solvent sets data cleared from browser storage');
+                console.log('All solvent sets data cleared from browser storage');
                 alert('Data has been cleared. The page will now reload.');
                 // Refresh the page to reset the application state
                 window.location.reload();

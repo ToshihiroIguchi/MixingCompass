@@ -33,6 +33,17 @@ class HSPExperimental {
                 }
             }, 500);
         }
+
+        // Check if we need to load a specific experimental result from session storage
+        const loadResultId = sessionStorage.getItem('loadExperimentalResultId');
+        if (loadResultId) {
+            sessionStorage.removeItem('loadExperimentalResultId');
+            console.log('Loading experimental result from session storage:', loadResultId);
+
+            setTimeout(() => {
+                this.loadExperimentalResultData(loadResultId);
+            }, 500);
+        }
     }
 
     setupEventListeners() {
@@ -77,21 +88,21 @@ class HSPExperimental {
         // Listen for changes in table data
         document.addEventListener('input', (e) => {
             if (e.target.closest('.solvent-table')) {
-                console.log('🔄 Data changed (input):', e.target.tagName, e.target.type, e.target.value);
+                console.log('Data changed (input):', e.target.tagName, e.target.type, e.target.value);
                 this.resetCalculationResults();
             }
         });
 
         document.addEventListener('change', (e) => {
             if (e.target.closest('.solvent-table')) {
-                console.log('🔄 Data changed (change):', e.target.tagName, e.target.type, e.target.value);
+                console.log('Data changed (change):', e.target.tagName, e.target.type, e.target.value);
                 this.resetCalculationResults();
             }
         });
     }
 
     resetCalculationResults() {
-        console.log('🔄 Resetting calculation results...');
+        console.log('Resetting calculation results...');
 
         // Clear HSP values
         document.querySelector('#delta-d').textContent = '-';
@@ -109,6 +120,16 @@ class HSPExperimental {
             copyBtn.style.display = 'none';
         }
 
+        // Hide result action buttons
+        const saveResultBtn = document.querySelector('#save-result-btn');
+        if (saveResultBtn) {
+            saveResultBtn.disabled = true;
+        }
+        const exportResultBtn = document.querySelector('#export-result-btn');
+        if (exportResultBtn) {
+            exportResultBtn.disabled = true;
+        }
+
         // Clear visualization
         const plotlyDiv = document.querySelector('#plotly-visualization');
         if (plotlyDiv) {
@@ -119,7 +140,7 @@ class HSPExperimental {
                 </div>
             `;
             plotlyDiv.innerHTML = placeholder;
-            console.log('✅ Hansen sphere visualization cleared');
+            console.log('Hansen sphere visualization cleared');
         }
 
         // Show recalculation message
@@ -196,7 +217,7 @@ class HSPExperimental {
 
         // Dispatch event to notify other components that the table is ready
         document.dispatchEvent(new CustomEvent('hspExperimentalReady'));
-        console.log('📡 HSP Experimental table initialized and ready');
+        console.log('HSP Experimental table initialized and ready');
     }
 
     addSolventRow() {
@@ -520,7 +541,7 @@ class HSPExperimental {
                 // Update existing experiment with latest data
                 try {
                     await this.updateExperiment();
-                    console.log('🔄 Experiment updated with latest table data');
+                    console.log('Experiment updated with latest table data');
                 } catch (error) {
                     this.showNotification(`Failed to update experiment: ${error.message}`, 'error');
                     return;
@@ -618,6 +639,42 @@ class HSPExperimental {
         newCopyBtn.addEventListener('click', () => {
             this.copyHSPDataToClipboard(result);
         });
+
+        // Enable and setup result action buttons
+        this.enableResultActionButtons(result);
+    }
+
+    enableResultActionButtons(result) {
+        // Store result data for save/export operations
+        this.currentCalculationResult = result;
+
+        // Enable save result button
+        const saveResultBtn = document.querySelector('#save-result-btn');
+        if (saveResultBtn) {
+            saveResultBtn.disabled = false;
+
+            // Remove existing event listener and add new one
+            const newSaveResultBtn = saveResultBtn.cloneNode(true);
+            saveResultBtn.parentNode.replaceChild(newSaveResultBtn, saveResultBtn);
+
+            newSaveResultBtn.addEventListener('click', () => {
+                this.saveExperimentalResult();
+            });
+        }
+
+        // Enable export result button
+        const exportResultBtn = document.querySelector('#export-result-btn');
+        if (exportResultBtn) {
+            exportResultBtn.disabled = false;
+
+            // Remove existing event listener and add new one
+            const newExportResultBtn = exportResultBtn.cloneNode(true);
+            exportResultBtn.parentNode.replaceChild(newExportResultBtn, exportResultBtn);
+
+            newExportResultBtn.addEventListener('click', () => {
+                this.exportCurrentResult();
+            });
+        }
     }
 
     async copyHSPDataToClipboard(result) {
@@ -702,6 +759,220 @@ class HSPExperimental {
         }
 
         document.body.removeChild(textArea);
+    }
+
+    saveExperimentalResult() {
+        try {
+            // Get sample name
+            const sampleNameInput = document.querySelector('#sample-name');
+            const sampleName = sampleNameInput ? sampleNameInput.value.trim() : '';
+
+            if (!sampleName) {
+                alert('Please enter a sample name before saving the result.');
+                if (sampleNameInput) {
+                    sampleNameInput.focus();
+                    sampleNameInput.style.borderColor = '#ef4444';
+                    setTimeout(() => {
+                        sampleNameInput.style.borderColor = '';
+                    }, 2000);
+                }
+                return;
+            }
+
+            if (!this.currentCalculationResult) {
+                this.showNotification('No calculation result available to save', 'error');
+                return;
+            }
+
+            // Update solvent test data to get current state
+            this.updateSolventTestData();
+
+            // Check if experimental results manager is available
+            if (!window.experimentalResultsManager) {
+                this.showNotification('Experimental results manager not available', 'error');
+                return;
+            }
+
+            // Save the result using the experimental results manager
+            window.experimentalResultsManager.saveExperimentalResult(
+                sampleName,
+                this.currentCalculationResult,
+                this.solventTests,
+                '' // notes - could be added later
+            ).then(() => {
+                // Success handled by the results manager
+                console.log('Experimental result saved successfully');
+            }).catch(error => {
+                console.error('Failed to save experimental result:', error);
+                this.showNotification('Failed to save experimental result', 'error');
+            });
+
+        } catch (error) {
+            console.error('Error saving experimental result:', error);
+            this.showNotification('Failed to save experimental result', 'error');
+        }
+    }
+
+    exportCurrentResult() {
+        try {
+            // Get sample name
+            const sampleNameInput = document.querySelector('#sample-name');
+            const sampleName = sampleNameInput ? sampleNameInput.value.trim() : '';
+            const displayName = sampleName || 'Unknown Sample';
+
+            if (!this.currentCalculationResult) {
+                this.showNotification('No calculation result available to export', 'error');
+                return;
+            }
+
+            // Update solvent test data to get current state
+            this.updateSolventTestData();
+
+            // Create export data structure
+            const exportData = {
+                version: '1.0',
+                exported: new Date().toISOString(),
+                sample_name: displayName,
+                hsp_result: this.currentCalculationResult,
+                solvents: this.solventTests,
+                metadata: {
+                    solvent_count: this.solventTests.length,
+                    calculation_method: 'experimental',
+                    export_type: 'single_result'
+                }
+            };
+
+            // Create and download file
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hsp-result-${displayName.replace(/[^a-zA-Z0-9]/g, '_')}-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            this.showNotification(`Result exported: ${displayName}`, 'success');
+
+        } catch (error) {
+            console.error('Error exporting result:', error);
+            this.showNotification('Failed to export result', 'error');
+        }
+    }
+
+    loadExperimentalResultData(resultId) {
+        try {
+            if (!window.experimentalResultsManager) {
+                this.showNotification('Experimental results manager not available', 'error');
+                return;
+            }
+
+            const result = window.experimentalResultsManager.getExperimentalResultById(resultId);
+            if (!result) {
+                this.showNotification('Experimental result not found', 'error');
+                return;
+            }
+
+            console.log('Loading experimental result:', result.sample_name);
+
+            // Clear existing data
+            this.clearSolventTable();
+
+            // Load sample name
+            const sampleNameInput = document.querySelector('#sample-name');
+            if (sampleNameInput) {
+                sampleNameInput.value = result.sample_name;
+            }
+
+            // Load solvent data
+            result.solvents.forEach(solventData => {
+                this.addSolventRow();
+                const rows = document.querySelectorAll('#solvent-table-body tr');
+                const newRow = rows[rows.length - 1];
+                this.populateRowWithExperimentalResultData(newRow, solventData);
+            });
+
+            // Display HSP results immediately
+            this.displayHSPResults(result.hsp_result);
+            this.showCalculationDetails(result.hsp_result);
+
+            // Update visualization if available
+            if (result.hsp_result && result.solvents.length > 0) {
+                this.updateSolventTestData();
+                this.generateVisualization();
+            }
+
+            this.showNotification(`Loaded experimental result: ${result.sample_name}`, 'success');
+
+        } catch (error) {
+            console.error('Error loading experimental result:', error);
+            this.showNotification('Failed to load experimental result', 'error');
+        }
+    }
+
+    populateRowWithExperimentalResultData(row, solventData) {
+        try {
+            // Set solvent name
+            const nameInput = row.querySelector('.solvent-name-input');
+            if (nameInput) {
+                nameInput.value = solventData.solvent_name;
+            }
+
+            // Set mode and HSP values
+            if (solventData.mode === 'manual' && solventData.manual_values) {
+                // Manual mode
+                const deltaD = row.querySelector('.delta-d');
+                const deltaP = row.querySelector('.delta-p');
+                const deltaH = row.querySelector('.delta-h');
+
+                if (deltaD) deltaD.value = solventData.manual_values.delta_d;
+                if (deltaP) deltaP.value = solventData.manual_values.delta_p;
+                if (deltaH) deltaH.value = solventData.manual_values.delta_h;
+
+                this.setRowMode(row, 'manual');
+            } else {
+                // Auto mode
+                this.setRowMode(row, 'auto');
+                // Trigger solvent name lookup for auto mode
+                if (nameInput) {
+                    this.onSolventNameChange({ target: nameInput }, row);
+                }
+            }
+
+            // Set solubility
+            const solubilitySelect = row.querySelector('.solubility-select');
+            if (solubilitySelect && solventData.solubility) {
+                if (typeof solventData.solubility === 'number') {
+                    // Custom numerical value
+                    solubilitySelect.value = 'custom';
+                    const customInput = row.querySelector('.custom-solubility-input');
+                    if (customInput) {
+                        customInput.style.display = 'inline-block';
+                        customInput.value = solventData.solubility;
+                    }
+                } else {
+                    // Standard categorical value
+                    solubilitySelect.value = solventData.solubility;
+                }
+            }
+
+            // Set notes
+            const notesInput = row.querySelector('.notes-input');
+            if (notesInput && solventData.notes) {
+                notesInput.value = solventData.notes;
+            }
+
+        } catch (error) {
+            console.error('Error populating row with experimental result data:', error);
+        }
+    }
+
+    clearSolventTable() {
+        const tbody = document.querySelector('#solvent-table-body');
+        if (tbody) {
+            tbody.innerHTML = '';
+        }
     }
 
     showCalculationDetailsModal(result) {
@@ -840,7 +1111,7 @@ class HSPExperimental {
 
             if (response.ok) {
                 const result = await response.json();
-                console.log(`✅ Experiment updated: ${result.message}`);
+                console.log(`Experiment updated: ${result.message}`);
                 return true;
             } else {
                 const error = await response.json();

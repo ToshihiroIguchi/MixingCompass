@@ -12,6 +12,7 @@ class DataListManager {
     init() {
         this.setupEventListeners();
         this.loadSolventSetsDisplay();
+        this.loadExperimentalResultsDisplay();
     }
 
     setupEventListeners() {
@@ -448,6 +449,220 @@ class DataListManager {
     showNotification(message, type = 'info') {
         // Simple notification - could be enhanced with a proper notification system
         alert(message);
+    }
+
+    // === Experimental Results Management ===
+
+    loadExperimentalResultsDisplay() {
+        const listContainer = document.querySelector('#experimental-results-list');
+        if (!listContainer) {
+            console.warn('Experimental results list container not found');
+            return;
+        }
+
+        // Get experimental results from storage
+        const results = window.experimentalResultsManager ?
+            window.experimentalResultsManager.getExperimentalResults() : [];
+
+        if (results.length === 0) {
+            listContainer.innerHTML = `
+                <div class="empty-state">
+                    <h4>No Experimental Results</h4>
+                    <p>Saved experimental results will appear here after you run HSP calculations.</p>
+                </div>
+            `;
+            return;
+        }
+
+        // Generate results cards HTML
+        const resultsHTML = results.map(result => this.createExperimentalResultCard(result)).join('');
+
+        listContainer.innerHTML = resultsHTML;
+
+        // Add event listeners for result actions
+        this.setupExperimentalResultsListeners();
+    }
+
+    createExperimentalResultCard(result) {
+        const created = new Date(result.created);
+        const lastModified = result.last_modified ? new Date(result.last_modified) : created;
+
+        return `
+            <div class="experimental-result-card" data-result-id="${result.id}">
+                <div class="result-card-header">
+                    <h4 class="result-sample-name">${this.escapeHtml(result.sample_name)}</h4>
+                    <div class="result-actions">
+                        <button class="btn-icon load-result-btn" title="Load result" data-result-id="${result.id}">📖</button>
+                        <button class="btn-icon edit-result-btn" title="Edit metadata" data-result-id="${result.id}">✏️</button>
+                        <button class="btn-icon export-single-result-btn" title="Export result" data-result-id="${result.id}">📤</button>
+                        <button class="btn-icon delete-result-btn" title="Delete result" data-result-id="${result.id}">🗑️</button>
+                    </div>
+                </div>
+                <div class="result-card-content">
+                    <div class="result-metadata">
+                        <div class="metadata-item">
+                            <span class="metadata-label">Created:</span>
+                            <span class="metadata-value">${created.toLocaleDateString()} ${created.toLocaleTimeString()}</span>
+                        </div>
+                        ${result.last_modified && result.last_modified !== result.created ? `
+                        <div class="metadata-item">
+                            <span class="metadata-label">Modified:</span>
+                            <span class="metadata-value">${lastModified.toLocaleDateString()} ${lastModified.toLocaleTimeString()}</span>
+                        </div>
+                        ` : ''}
+                        <div class="metadata-item">
+                            <span class="metadata-label">Solvents:</span>
+                            <span class="metadata-value">${result.metadata.solvent_count}</span>
+                        </div>
+                    </div>
+                    <div class="result-hsp-values">
+                        <div class="hsp-summary">
+                            <span class="hsp-label">HSP:</span>
+                            <span class="hsp-value">δD: ${result.hsp_result.delta_d.toFixed(1)}</span>
+                            <span class="hsp-value">δP: ${result.hsp_result.delta_p.toFixed(1)}</span>
+                            <span class="hsp-value">δH: ${result.hsp_result.delta_h.toFixed(1)}</span>
+                            <span class="hsp-value">Ra: ${result.hsp_result.radius.toFixed(1)}</span>
+                        </div>
+                    </div>
+                    ${result.metadata.notes ? `
+                    <div class="result-notes">
+                        <span class="notes-label">Notes:</span>
+                        <span class="notes-value">${this.escapeHtml(result.metadata.notes)}</span>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    setupExperimentalResultsListeners() {
+        // Load result buttons
+        document.querySelectorAll('.load-result-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const resultId = e.target.dataset.resultId;
+                this.loadExperimentalResult(resultId);
+            });
+        });
+
+        // Edit result buttons
+        document.querySelectorAll('.edit-result-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const resultId = e.target.dataset.resultId;
+                this.editExperimentalResult(resultId);
+            });
+        });
+
+        // Export single result buttons
+        document.querySelectorAll('.export-single-result-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const resultId = e.target.dataset.resultId;
+                this.exportSingleExperimentalResult(resultId);
+            });
+        });
+
+        // Delete result buttons
+        document.querySelectorAll('.delete-result-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const resultId = e.target.dataset.resultId;
+                this.deleteExperimentalResult(resultId);
+            });
+        });
+    }
+
+    loadExperimentalResult(resultId) {
+        try {
+            if (!window.experimentalResultsManager) {
+                this.showNotification('Experimental results manager not available', 'error');
+                return;
+            }
+
+            const result = window.experimentalResultsManager.getExperimentalResultById(resultId);
+            if (!result) {
+                this.showNotification('Experimental result not found', 'error');
+                return;
+            }
+
+            // Store result ID in session storage for the HSP experimental page to pick up
+            sessionStorage.setItem('loadExperimentalResultId', resultId);
+
+            // Navigate to HSP experimental page
+            const currentUrl = new URL(window.location);
+            currentUrl.hash = '';
+            currentUrl.search = '';
+            window.location.href = currentUrl.origin + currentUrl.pathname + '#hsp-experimental';
+
+            // Trigger navigation if we're already on the page
+            if (window.location.hash === '#hsp-experimental') {
+                window.location.reload();
+            }
+
+        } catch (error) {
+            console.error('Error loading experimental result:', error);
+            this.showNotification('Failed to load experimental result', 'error');
+        }
+    }
+
+    editExperimentalResult(resultId) {
+        // Show edit modal for result metadata (sample name, notes)
+        // Implementation would go here - for now, show placeholder
+        alert('Edit experimental result feature - to be implemented');
+    }
+
+    exportSingleExperimentalResult(resultId) {
+        try {
+            if (!window.experimentalResultsManager) {
+                this.showNotification('Experimental results manager not available', 'error');
+                return;
+            }
+
+            const result = window.experimentalResultsManager.getExperimentalResultById(resultId);
+            if (!result) {
+                this.showNotification('Experimental result not found', 'error');
+                return;
+            }
+
+            // Create export data
+            const exportData = {
+                version: '1.0',
+                exported: new Date().toISOString(),
+                experimental_result: result
+            };
+
+            // Create and download file
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hsp-result-${result.sample_name.replace(/[^a-zA-Z0-9]/g, '_')}-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            this.showNotification(`Exported: ${result.sample_name}`, 'success');
+
+        } catch (error) {
+            console.error('Error exporting experimental result:', error);
+            this.showNotification('Failed to export experimental result', 'error');
+        }
+    }
+
+    deleteExperimentalResult(resultId) {
+        try {
+            if (!window.experimentalResultsManager) {
+                this.showNotification('Experimental results manager not available', 'error');
+                return;
+            }
+
+            if (window.experimentalResultsManager.deleteExperimentalResult(resultId)) {
+                // Refresh the display
+                this.loadExperimentalResultsDisplay();
+            }
+
+        } catch (error) {
+            console.error('Error deleting experimental result:', error);
+            this.showNotification('Failed to delete experimental result', 'error');
+        }
     }
 }
 

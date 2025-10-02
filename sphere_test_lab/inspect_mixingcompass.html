@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MixingCompass Data Inspector</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .inspector { background: #f0f0f0; padding: 15px; margin: 10px 0; font-family: monospace; font-size: 12px; }
+        .test-container { margin-bottom: 30px; border: 1px solid #ccc; padding: 20px; }
+        .plot-container { width: 600px; height: 400px; margin: 10px 0; }
+        button { padding: 10px; margin: 5px; background: #007cba; color: white; border: none; cursor: pointer; }
+        button:hover { background: #005a87; }
+        .json-view { max-height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>MixingCompass Data Inspector</h1>
+
+    <div class="test-container">
+        <h2>Step 1: Fetch Actual Data</h2>
+        <button onclick="fetchVisualizationData()">Fetch Real Visualization Data</button>
+        <div id="fetchStatus" class="inspector">Click button to fetch...</div>
+    </div>
+
+    <div class="test-container">
+        <h2>Step 2: Data Analysis</h2>
+        <div id="dataInspection" class="inspector">No data fetched yet</div>
+    </div>
+
+    <div class="test-container">
+        <h2>Step 3: Raw Data Plot</h2>
+        <div class="inspector">Direct plot using fetched data</div>
+        <div id="plotRaw" class="plot-container"></div>
+    </div>
+
+    <div class="test-container">
+        <h2>Step 4: Fixed Data Plot</h2>
+        <div class="inspector">Same data with corrected layout</div>
+        <div id="plotFixed" class="plot-container"></div>
+    </div>
+
+    <div class="test-container">
+        <h2>Raw JSON Data</h2>
+        <div id="jsonView" class="json-view">No data yet</div>
+    </div>
+
+    <script>
+        let rawVisualizationData = null;
+
+        async function fetchVisualizationData() {
+            try {
+                document.getElementById('fetchStatus').textContent = 'Fetching data...';
+
+                // Try to get a real experiment ID first
+                const experimentsResponse = await fetch('http://localhost:8200/api/hsp-experimental/experiments');
+
+                if (!experimentsResponse.ok) {
+                    throw new Error('Cannot fetch experiments list');
+                }
+
+                const experiments = await experimentsResponse.json();
+
+                if (experiments.experiments && experiments.experiments.length > 0) {
+                    // Use the first experiment
+                    const experimentId = experiments.experiments[0].id;
+
+                    // Fetch the visualization data
+                    const vizResponse = await fetch(`http://localhost:8200/api/hsp-experimental/experiments/${experimentId}/visualization?width=800&height=600`);
+
+                    if (!vizResponse.ok) {
+                        throw new Error(`Visualization fetch failed: ${vizResponse.status}`);
+                    }
+
+                    rawVisualizationData = await vizResponse.json();
+
+                    document.getElementById('fetchStatus').innerHTML = `
+                        ✅ Data fetched successfully!<br>
+                        Experiment ID: ${experimentId}<br>
+                        Data size: ${JSON.stringify(rawVisualizationData).length} chars
+                    `;
+
+                    analyzeData();
+                    plotRawData();
+                    plotFixedData();
+                    showJsonData();
+
+                } else {
+                    throw new Error('No experiments found');
+                }
+
+            } catch (error) {
+                document.getElementById('fetchStatus').innerHTML = `
+                    ❌ Error: ${error.message}<br>
+                    Make sure MixingCompass server is running and has some experiment data.
+                `;
+            }
+        }
+
+        function analyzeData() {
+            if (!rawVisualizationData) return;
+
+            let analysis = '<strong>Data Structure Analysis:</strong>\n';
+
+            // Check if it's Plotly format
+            if (rawVisualizationData.data && rawVisualizationData.layout) {
+                analysis += '✅ Standard Plotly format detected\n\n';
+
+                analysis += `<strong>Traces found:</strong> ${rawVisualizationData.data.length}\n`;
+
+                rawVisualizationData.data.forEach((trace, i) => {
+                    analysis += `\nTrace ${i}: ${trace.type} (${trace.name || 'unnamed'})\n`;
+
+                    if (trace.type === 'surface') {
+                        analysis += `  Surface - x: ${trace.x ? trace.x.length : 'undefined'} rows\n`;
+                        analysis += `  Surface - y: ${trace.y ? trace.y.length : 'undefined'} rows\n`;
+                        analysis += `  Surface - z: ${trace.z ? trace.z.length : 'undefined'} rows\n`;
+                    } else if (trace.type === 'scatter3d') {
+                        analysis += `  Scatter3D - points: ${trace.x ? trace.x.length : 'undefined'}\n`;
+                        analysis += `  Mode: ${trace.mode || 'undefined'}\n`;
+                    }
+                });
+
+                // Check layout
+                analysis += `\n<strong>Layout Settings:</strong>\n`;
+                if (rawVisualizationData.layout.scene) {
+                    const scene = rawVisualizationData.layout.scene;
+                    analysis += `  aspectmode: ${scene.aspectmode || 'undefined'}\n`;
+                    if (scene.aspectratio) {
+                        analysis += `  aspectratio: x=${scene.aspectratio.x}, y=${scene.aspectratio.y}, z=${scene.aspectratio.z}\n`;
+                    }
+                    if (scene.xaxis && scene.xaxis.range) {
+                        analysis += `  x-axis range: [${scene.xaxis.range[0]}, ${scene.xaxis.range[1]}]\n`;
+                    }
+                    if (scene.yaxis && scene.yaxis.range) {
+                        analysis += `  y-axis range: [${scene.yaxis.range[0]}, ${scene.yaxis.range[1]}]\n`;
+                    }
+                    if (scene.zaxis && scene.zaxis.range) {
+                        analysis += `  z-axis range: [${scene.zaxis.range[0]}, ${scene.zaxis.range[1]}]\n`;
+                    }
+                }
+
+                // Find sphere data
+                const sphereTrace = rawVisualizationData.data.find(t => t.type === 'surface' || (t.type === 'scatter3d' && t.mode === 'lines'));
+                if (sphereTrace) {
+                    analysis += `\n<strong>Sphere Data Analysis:</strong>\n`;
+                    if (sphereTrace.type === 'surface') {
+                        const xFlat = sphereTrace.x ? sphereTrace.x.flat() : [];
+                        const yFlat = sphereTrace.y ? sphereTrace.y.flat() : [];
+                        const zFlat = sphereTrace.z ? sphereTrace.z.flat() : [];
+
+                        const xRange = [Math.min(...xFlat), Math.max(...xFlat)];
+                        const yRange = [Math.min(...yFlat), Math.max(...yFlat)];
+                        const zRange = [Math.min(...zFlat), Math.max(...zFlat)];
+
+                        analysis += `  X range: [${xRange[0].toFixed(2)}, ${xRange[1].toFixed(2)}] (span: ${(xRange[1] - xRange[0]).toFixed(2)})\n`;
+                        analysis += `  Y range: [${yRange[0].toFixed(2)}, ${yRange[1].toFixed(2)}] (span: ${(yRange[1] - yRange[0]).toFixed(2)})\n`;
+                        analysis += `  Z range: [${zRange[0].toFixed(2)}, ${zRange[1].toFixed(2)}] (span: ${(zRange[1] - zRange[0]).toFixed(2)})\n`;
+
+                        const xSpan = xRange[1] - xRange[0];
+                        const ySpan = yRange[1] - yRange[0];
+                        const zSpan = zRange[1] - zRange[0];
+
+                        analysis += `\n<strong>Span Ratios:</strong>\n`;
+                        analysis += `  X:Y = ${(xSpan/ySpan).toFixed(3)}:1\n`;
+                        analysis += `  X:Z = ${(xSpan/zSpan).toFixed(3)}:1\n`;
+                        analysis += `  Y:Z = ${(ySpan/zSpan).toFixed(3)}:1\n`;
+
+                        if (Math.abs(xSpan - ySpan) > 0.1 || Math.abs(xSpan - zSpan) > 0.1 || Math.abs(ySpan - zSpan) > 0.1) {
+                            analysis += `\n⚠️ <strong>PROBLEM FOUND:</strong> Unequal axis spans cause distortion!\n`;
+                        } else {
+                            analysis += `\n✅ Axis spans are equal - should render correctly\n`;
+                        }
+                    }
+                }
+
+            } else {
+                analysis += '❌ Non-standard data format\n';
+            }
+
+            document.getElementById('dataInspection').innerHTML = analysis.replace(/\n/g, '<br>');
+        }
+
+        function plotRawData() {
+            if (!rawVisualizationData) return;
+
+            try {
+                // Plot exactly as received from server
+                Plotly.newPlot('plotRaw', rawVisualizationData.data, rawVisualizationData.layout);
+            } catch (error) {
+                document.getElementById('plotRaw').innerHTML = `Error plotting raw data: ${error.message}`;
+            }
+        }
+
+        function plotFixedData() {
+            if (!rawVisualizationData) return;
+
+            try {
+                // Create a fixed version
+                const fixedLayout = JSON.parse(JSON.stringify(rawVisualizationData.layout));
+
+                // Force cube aspectmode
+                if (fixedLayout.scene) {
+                    fixedLayout.scene.aspectmode = 'cube';
+                    // Remove any axis ranges that might interfere
+                    if (fixedLayout.scene.xaxis) delete fixedLayout.scene.xaxis.range;
+                    if (fixedLayout.scene.yaxis) delete fixedLayout.scene.yaxis.range;
+                    if (fixedLayout.scene.zaxis) delete fixedLayout.scene.zaxis.range;
+                }
+
+                fixedLayout.title = (fixedLayout.title || '') + ' - FIXED';
+
+                Plotly.newPlot('plotFixed', rawVisualizationData.data, fixedLayout);
+            } catch (error) {
+                document.getElementById('plotFixed').innerHTML = `Error plotting fixed data: ${error.message}`;
+            }
+        }
+
+        function showJsonData() {
+            if (!rawVisualizationData) return;
+
+            const jsonString = JSON.stringify(rawVisualizationData, null, 2);
+            document.getElementById('jsonView').innerHTML = `<pre>${jsonString}</pre>`;
+        }
+    </script>
+</body>
+</html>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ app_name }}</title>
-    <link rel="stylesheet" href="/static/css/styles.css?v=2024092905">
+    <link rel="stylesheet" href="/static/css/styles.css?v=2024092906">
 </head>
 <body>
     <header class="header">
@@ -84,8 +84,8 @@
                         </div>
                     </div>
                     <div class="action-buttons">
-                        <button id="save-data-btn" class="btn btn-secondary">Save Data</button>
-                        <button id="export-data-btn" class="btn btn-secondary">Export Data</button>
+                        <button id="save-result-btn" class="btn btn-secondary" disabled>Save Result</button>
+                        <button id="export-result-btn" class="btn btn-secondary" disabled>Export Result</button>
                     </div>
                 </div>
             </div>
@@ -126,6 +126,7 @@
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <script src="/static/js/main.js"></script>
     <script src="/static/js/solvent_set_manager.js"></script>
+    <script src="/static/js/experimental_results_manager.js"></script>
     <script src="/static/js/hsp_experimental.js"></script>
 </body>
 </html>

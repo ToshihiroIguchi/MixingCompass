@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hansen Sphere Distortion Test</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .test-section { margin-bottom: 30px; border: 1px solid #ccc; padding: 20px; }
+        .plot-container { width: 700px; height: 500px; margin: 10px 0; display: inline-block; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .analysis { background: #f0f0f0; padding: 15px; margin: 10px 0; font-family: monospace; font-size: 12px; }
+        button { padding: 10px 20px; margin: 5px; background: #007cba; color: white; border: none; cursor: pointer; }
+        button:hover { background: #005a87; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .approach-title { background: #e3f2fd; padding: 10px; margin: 10px 0; border-left: 4px solid #2196f3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hansen Sphere Distortion Test - 4 Approaches</h1>
+
+        <div class="test-section">
+            <h2>実験コントロール</h2>
+            <button onclick="runDistortionTest()">球面歪み修正テストを実行</button>
+            <div id="testStatus" class="analysis">テストボタンをクリックしてください...</div>
+        </div>
+
+        <div class="grid">
+            <div class="test-section">
+                <div class="approach-title">
+                    <h3>Approach 1: Current (Cube Mode)</h3>
+                    <div id="approach1-desc" class="analysis">現在の方法</div>
+                </div>
+                <div id="plot1" class="plot-container"></div>
+            </div>
+
+            <div class="test-section">
+                <div class="approach-title">
+                    <h3>Approach 2: Manual Equal Ranges</h3>
+                    <div id="approach2-desc" class="analysis">手動で等しい範囲を計算</div>
+                </div>
+                <div id="plot2" class="plot-container"></div>
+            </div>
+
+            <div class="test-section">
+                <div class="approach-title">
+                    <h3>Approach 3: Data Mode</h3>
+                    <div id="approach3-desc" class="analysis">Plotly自動計算</div>
+                </div>
+                <div id="plot3" class="plot-container"></div>
+            </div>
+
+            <div class="test-section">
+                <div class="approach-title">
+                    <h3>Approach 4: Manual Forced Large</h3>
+                    <div id="approach4-desc" class="analysis">強制的に大きな等しい範囲</div>
+                </div>
+                <div id="plot4" class="plot-container"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>結果分析</h2>
+            <div id="analysisResults" class="analysis">テスト実行後に分析が表示されます...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>詳細情報</h2>
+            <div id="detailInfo" class="analysis">
+                <strong>目的:</strong> ハンセン球の歪みを修正する最適な方法を特定<br>
+                <strong>問題:</strong> 現在の実装では球が歪んで表示される<br>
+                <strong>テスト方法:</strong> 同じデータで4つの異なるレンダリング方法を比較<br>
+                <strong>期待結果:</strong> 完全な球形の表示
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let testData = null;
+
+        async function runDistortionTest() {
+            try {
+                document.getElementById('testStatus').innerHTML = '<span class="success">実験データを取得中...</span>';
+
+                // 実験用エンドポイントからデータを取得
+                const response = await fetch('http://localhost:8200/api/hsp-experimental/test-sphere-distortion');
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                testData = await response.json();
+
+                document.getElementById('testStatus').innerHTML = `
+<span class="success">✅ 実験データ取得成功</span>
+HSP中心: (${testData.hsp_center[0]}, ${testData.hsp_center[1]}, ${testData.hsp_center[2]})
+半径: ${testData.hsp_radius}
+溶剤数: ${testData.solvent_count}
+                `;
+
+                // 各アプローチを可視化
+                plotApproach('current_cube', 'plot1', 'approach1-desc');
+                plotApproach('manual_equal_ranges', 'plot2', 'approach2-desc');
+                plotApproach('data_mode', 'plot3', 'approach3-desc');
+                plotApproach('manual_forced', 'plot4', 'approach4-desc');
+
+                // 分析結果を表示
+                analyzeResults();
+
+            } catch (error) {
+                document.getElementById('testStatus').innerHTML = `
+<span class="error">❌ エラー: ${error.message}</span>
+サーバーが起動していることを確認してください。
+                `;
+            }
+        }
+
+        function plotApproach(approachKey, plotId, descId) {
+            if (!testData || !testData.approaches[approachKey]) {
+                document.getElementById(plotId).innerHTML = 'データなし';
+                return;
+            }
+
+            const approach = testData.approaches[approachKey];
+
+            try {
+                // Plotlyで可視化
+                Plotly.newPlot(plotId, approach.data, approach.layout, {responsive: true});
+
+                // 説明を更新
+                document.getElementById(descId).innerHTML = `
+<strong>方法:</strong> ${approach.approach_description}<br>
+<strong>aspectmode:</strong> ${approach.layout.scene.aspectmode}<br>
+<strong>aspectratio:</strong> ${JSON.stringify(approach.layout.scene.aspectratio || 'なし')}<br>
+<strong>axis ranges:</strong> ${hasAxisRanges(approach.layout.scene) ? 'あり' : 'なし'}
+                `;
+
+            } catch (error) {
+                document.getElementById(plotId).innerHTML = `エラー: ${error.message}`;
+            }
+        }
+
+        function hasAxisRanges(scene) {
+            return (scene.xaxis && scene.xaxis.range) ||
+                   (scene.yaxis && scene.yaxis.range) ||
+                   (scene.zaxis && scene.zaxis.range);
+        }
+
+        function analyzeResults() {
+            if (!testData) return;
+
+            let analysis = '<strong>球面歪み分析結果:</strong><br><br>';
+
+            Object.keys(testData.approaches).forEach((key, index) => {
+                const approach = testData.approaches[key];
+                const scene = approach.layout.scene;
+
+                analysis += `<strong>Approach ${index + 1} (${key}):</strong><br>`;
+                analysis += `• 方法: ${approach.approach_description}<br>`;
+                analysis += `• aspectmode: ${scene.aspectmode}<br>`;
+
+                if (scene.aspectratio) {
+                    analysis += `• aspectratio: x=${scene.aspectratio.x}, y=${scene.aspectratio.y}, z=${scene.aspectratio.z}<br>`;
+                }
+
+                if (hasAxisRanges(scene)) {
+                    analysis += '• 軸範囲: 手動指定あり<br>';
+                } else {
+                    analysis += '• 軸範囲: 自動計算<br>';
+                }
+
+                analysis += '<br>';
+            });
+
+            analysis += '<strong>推奨事項:</strong><br>';
+            analysis += '各プロットを比較して、最も球形に近いものを特定してください。<br>';
+            analysis += '正しく修正されている場合、球は完全に丸く表示されるはずです。';
+
+            document.getElementById('analysisResults').innerHTML = analysis;
+        }
+
+        // ページロード時の説明を更新
+        window.onload = () => {
+            document.getElementById('detailInfo').innerHTML += `
+<br><br><strong>操作方法:</strong><br>
+1. 「球面歪み修正テストを実行」ボタンをクリック<br>
+2. 4つのプロットが表示されるのを待つ<br>
+3. 各プロットの球形度を比較<br>
+4. 最も正しい球形を示すアプローチを特定<br>
+5. そのアプローチを本システムに適用
+            `;
+        };
+    </script>
+</body>
+</html>

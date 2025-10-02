@@ -326,6 +326,7 @@ async def get_hansen_sphere_visualization(
     """Generate Hansen sphere 3D visualization for an experiment"""
 
     logger.info(f"🎯 Starting visualization generation for experiment: {experiment_id}")
+    print(f"VISUALIZATION CALLED FOR: {experiment_id}")
 
     try:
         # Load experiment
@@ -402,6 +403,12 @@ async def get_hansen_sphere_visualization(
                 detail="No valid solvent data found. Ensure solvents have HSP values."
             )
 
+        # DEBUG: Log input solvent data
+        logger.info(f"🧪 INPUT SOLVENT DATA DEBUG:")
+        logger.info(f"   Total solvents: {len(solvent_data)}")
+        for i, solvent in enumerate(solvent_data):
+            logger.info(f"   Solvent {i}: {solvent}")
+
         # Generate Plotly visualization
         logger.debug(f"🎨 Generating Plotly visualization ({width}x{height})")
         plotly_data = HansenSphereVisualizationService.generate_plotly_visualization(
@@ -412,6 +419,28 @@ async def get_hansen_sphere_visualization(
         )
 
         logger.info(f"🎉 Visualization generated successfully for {experiment.sample_name}")
+
+        # DEBUG: Log Plotly data details
+        logger.info(f"📊 PLOTLY DATA DEBUG:")
+        logger.info(f"   Number of traces: {len(plotly_data['data'])}")
+        for i, trace in enumerate(plotly_data['data']):
+            trace_type = trace.get('type')
+            trace_name = trace.get('name', 'unnamed')
+            logger.info(f"   Trace {i}: {trace_type} - {trace_name}")
+
+            if trace_type == 'scatter3d' and trace_name == 'Solvent Points':
+                x_points = trace.get('x', [])
+                y_points = trace.get('y', [])
+                z_points = trace.get('z', [])
+                colors = trace.get('marker', {}).get('color', [])
+                names = trace.get('text', [])
+                solubility = trace.get('customdata', [])
+
+                logger.info(f"     - Points count: {len(x_points)}")
+                logger.info(f"     - Coordinates: {list(zip(x_points, y_points, z_points))}")
+                logger.info(f"     - Colors: {colors}")
+                logger.info(f"     - Names: {names}")
+                logger.info(f"     - Solubility: {solubility}")
 
         response_data = {
             "experiment_id": experiment_id,
@@ -439,5 +468,199 @@ async def get_hansen_sphere_visualization(
         logger.error(f"Error message: {str(e)}")
         logger.error(f"Stack trace:\n{error_details}")
         raise HTTPException(status_code=500, detail=f"Error generating visualization: {str(e)}")
+
+
+@router.get("/test-sphere-distortion")
+async def test_sphere_distortion():
+    """Test different approaches to fix sphere distortion with real data"""
+    # Use real HSP data that causes distortion
+    hsp_center = (15.6, 8.067, 13.0)
+    hsp_radius = 6.454
+
+    # Real solvent data that causes the problem
+    solvent_data = [
+        {'delta_d': 15.5, 'delta_p': 10.4, 'delta_h': 7.0, 'solvent_name': 'acetone', 'solubility': 'soluble'},
+        {'delta_d': 15.8, 'delta_p': 8.8, 'delta_h': 19.4, 'solvent_name': 'ethanol', 'solubility': 'soluble'},
+        {'delta_d': 15.8, 'delta_p': 5.3, 'delta_h': 7.2, 'solvent_name': 'ethyl acetate', 'solubility': 'partial'},
+        {'delta_d': 14.9, 'delta_p': 0, 'delta_h': 0, 'solvent_name': 'hexane', 'solubility': 'insoluble'},
+        {'delta_d': 18.0, 'delta_p': 1.4, 'delta_h': 2.0, 'solvent_name': 'toluene', 'solubility': 'insoluble'}
+    ]
+
+    approaches = {}
+
+    # Approach 1: Current (cube mode) - what's currently being used
+    approaches['current_cube'] = create_sphere_test('cube', hsp_center, hsp_radius, solvent_data)
+
+    # Approach 2: Manual with calculated equal ranges
+    approaches['manual_equal_ranges'] = create_sphere_test('manual_equal', hsp_center, hsp_radius, solvent_data)
+
+    # Approach 3: Data mode (Plotly auto-calculated)
+    approaches['data_mode'] = create_sphere_test('data', hsp_center, hsp_radius, solvent_data)
+
+    # Approach 4: Manual with forced larger ranges
+    approaches['manual_forced'] = create_sphere_test('manual_forced', hsp_center, hsp_radius, solvent_data)
+
+    return {
+        "message": "Sphere distortion test approaches generated",
+        "hsp_center": hsp_center,
+        "hsp_radius": hsp_radius,
+        "approaches": approaches,
+        "solvent_count": len(solvent_data)
+    }
+
+
+def create_sphere_test(approach_type: str, center, radius, solvent_data):
+    """Create sphere visualization with different approaches"""
+
+    # Generate sphere coordinates
+    sphere_coords = generate_test_sphere(center, radius, 25)
+
+    # Create traces
+    traces = []
+
+    # Sphere surface
+    traces.append({
+        'type': 'surface',
+        'x': sphere_coords['x'],
+        'y': sphere_coords['y'],
+        'z': sphere_coords['z'],
+        'name': 'Hansen Sphere',
+        'opacity': 0.35,
+        'colorscale': [[0, 'rgba(76, 175, 80, 0.3)'], [1, 'rgba(76, 175, 80, 0.3)']],
+        'showscale': False,
+        'hovertemplate': f'Hansen Sphere<br>Center: ({center[0]:.1f}, {center[1]:.1f}, {center[2]:.1f})<br>Radius: {radius:.1f}<extra></extra>'
+    })
+
+    # Solvent points
+    solvent_x = [s['delta_d'] for s in solvent_data]
+    solvent_y = [s['delta_p'] for s in solvent_data]
+    solvent_z = [s['delta_h'] for s in solvent_data]
+    colors = [get_solubility_color(s['solubility']) for s in solvent_data]
+    names = [s['solvent_name'] for s in solvent_data]
+
+    traces.append({
+        'type': 'scatter3d',
+        'mode': 'markers',
+        'x': solvent_x,
+        'y': solvent_y,
+        'z': solvent_z,
+        'name': 'Solvents',
+        'marker': {'size': 6, 'color': colors, 'opacity': 0.9},
+        'text': names,
+        'showlegend': False
+    })
+
+    # Center point
+    traces.append({
+        'type': 'scatter3d',
+        'mode': 'markers',
+        'x': [center[0]],
+        'y': [center[1]],
+        'z': [center[2]],
+        'name': 'Center',
+        'marker': {'size': 8, 'color': '#32CD32', 'opacity': 1.0},
+        'showlegend': False
+    })
+
+    # Calculate ranges based on approach
+    layout = create_layout_for_approach(approach_type, center, radius, solvent_data)
+
+    return {
+        'data': traces,
+        'layout': layout,
+        'approach_description': get_approach_description(approach_type)
+    }
+
+
+def create_layout_for_approach(approach_type: str, center, radius, solvent_data):
+    """Create layout configuration for different approaches"""
+
+    base_layout = {
+        'title': f'Approach: {approach_type}',
+        'width': 700,
+        'height': 500,
+        'scene': {
+            'camera': {'eye': {'x': 1.25, 'y': 1.25, 'z': 1.25}},
+            'xaxis': {'title': 'δD [MPa^0.5]'},
+            'yaxis': {'title': 'δP [MPa^0.5]'},
+            'zaxis': {'title': 'δH [MPa^0.5]'}
+        }
+    }
+
+    if approach_type == 'cube':
+        # Current approach: cube mode
+        base_layout['scene']['aspectmode'] = 'cube'
+
+    elif approach_type == 'manual_equal':
+        # Manual with calculated equal ranges
+        all_x = [center[0] - radius, center[0] + radius] + [s['delta_d'] for s in solvent_data]
+        all_y = [center[1] - radius, center[1] + radius] + [s['delta_p'] for s in solvent_data]
+        all_z = [center[2] - radius, center[2] + radius] + [s['delta_h'] for s in solvent_data]
+
+        x_span = max(all_x) - min(all_x)
+        y_span = max(all_y) - min(all_y)
+        z_span = max(all_z) - min(all_z)
+        max_span = max(x_span, y_span, z_span)
+
+        base_layout['scene']['aspectmode'] = 'manual'
+        base_layout['scene']['aspectratio'] = {'x': 1, 'y': 1, 'z': 1}
+        base_layout['scene']['xaxis']['range'] = [center[0] - max_span/2, center[0] + max_span/2]
+        base_layout['scene']['yaxis']['range'] = [center[1] - max_span/2, center[1] + max_span/2]
+        base_layout['scene']['zaxis']['range'] = [center[2] - max_span/2, center[2] + max_span/2]
+
+    elif approach_type == 'data':
+        # Let Plotly calculate automatically
+        base_layout['scene']['aspectmode'] = 'data'
+
+    elif approach_type == 'manual_forced':
+        # Force large equal ranges
+        range_size = 25.0  # Force large range
+        base_layout['scene']['aspectmode'] = 'manual'
+        base_layout['scene']['aspectratio'] = {'x': 1, 'y': 1, 'z': 1}
+        base_layout['scene']['xaxis']['range'] = [center[0] - range_size/2, center[0] + range_size/2]
+        base_layout['scene']['yaxis']['range'] = [center[1] - range_size/2, center[1] + range_size/2]
+        base_layout['scene']['zaxis']['range'] = [center[2] - range_size/2, center[2] + range_size/2]
+
+    return base_layout
+
+
+def get_approach_description(approach_type: str) -> str:
+    """Get description of the approach"""
+    descriptions = {
+        'cube': 'aspectmode: cube (current method)',
+        'manual_equal': 'aspectmode: manual + calculated equal ranges',
+        'data': 'aspectmode: data (Plotly auto-calculated)',
+        'manual_forced': 'aspectmode: manual + forced large equal ranges'
+    }
+    return descriptions.get(approach_type, 'Unknown approach')
+
+
+def generate_test_sphere(center, radius, resolution=20):
+    """Generate sphere coordinates for testing"""
+    import numpy as np
+
+    u = np.linspace(0, 2 * np.pi, resolution)
+    v = np.linspace(0, np.pi, resolution)
+    u, v = np.meshgrid(u, v)
+
+    x = center[0] + radius * np.cos(u) * np.sin(v)
+    y = center[1] + radius * np.sin(u) * np.sin(v)
+    z = center[2] + radius * np.cos(v)
+
+    return {
+        'x': x.tolist(),
+        'y': y.tolist(),
+        'z': z.tolist()
+    }
+
+
+def get_solubility_color(solubility: str) -> str:
+    """Get color for solubility"""
+    color_map = {
+        'soluble': '#1976d2',
+        'partial': '#ff9800',
+        'insoluble': '#d32f2f'
+    }
+    return color_map.get(solubility, '#666666')
 
 

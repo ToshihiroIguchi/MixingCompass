@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hansen Sphere Fix Verification</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .test-section { margin-bottom: 30px; border: 1px solid #ccc; padding: 20px; }
+        .plot-container { width: 700px; height: 500px; margin: 10px 0; }
+        .analysis { background: #f0f0f0; padding: 15px; margin: 10px 0; font-family: monospace; font-size: 12px; }
+        button { padding: 10px 20px; margin: 5px; background: #007cba; color: white; border: none; cursor: pointer; }
+        button:hover { background: #005a87; }
+        .success { color: green; font-weight: bold; }
+        .info { color: blue; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hansen Sphere Fix Verification</h1>
+
+        <div class="test-section">
+            <h2>Verification Results</h2>
+            <button onclick="fetchAndVerify()">Fetch Current Data & Verify Fix</button>
+            <div id="verificationResults" class="analysis">Click button to start verification...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>Current MixingCompass Data</h2>
+            <div class="analysis" id="currentStatus">No data loaded...</div>
+            <div id="plotCurrent" class="plot-container"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Force Hard Refresh Test</h2>
+            <div class="analysis">This plot bypasses any potential caching issues by recreating everything</div>
+            <button onclick="forceRefreshTest()">Force Hard Refresh Plot</button>
+            <div id="plotRefresh" class="plot-container"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentData = null;
+
+        async function fetchAndVerify() {
+            try {
+                document.getElementById('verificationResults').textContent = 'Fetching data...';
+
+                // Get the latest experiment
+                const experimentsResponse = await fetch('http://localhost:8200/api/hsp-experimental/experiments');
+                const experimentsData = await experimentsResponse.json();
+                const experimentId = experimentsData.experiments[0].experiment_id || experimentsData.experiments[0].id;
+
+                // Get visualization data
+                const vizResponse = await fetch(`http://localhost:8200/api/hsp-experimental/experiments/${experimentId}/visualization?width=890&height=600`);
+                currentData = await vizResponse.json();
+
+                // Verify the fix
+                const verification = verifySphereFix(currentData);
+
+                document.getElementById('verificationResults').innerHTML = `
+<span class="success">✅ Data fetched successfully!</span>
+
+<strong>Verification Results:</strong>
+${verification.isFixed ? '<span class="success">✅ SPHERE FIX IS WORKING!</span>' : '<span class="error">❌ Sphere is still distorted</span>'}
+
+<strong>Data Analysis:</strong>
+• X span: ${verification.spans.x.toFixed(3)}
+• Y span: ${verification.spans.y.toFixed(3)}
+• Z span: ${verification.spans.z.toFixed(3)}
+• Max difference: ${verification.maxDifference.toFixed(6)}
+• aspectmode: ${verification.aspectmode}
+• Has manual ranges: ${verification.hasRanges ? 'Yes' : 'No'}
+
+<strong>Conclusion:</strong>
+${verification.isFixed ?
+  'The sphere data has EQUAL spans and should render as a perfect sphere!' :
+  'The sphere data still has unequal spans - fix needs adjustment.'}
+                `;
+
+                plotCurrentData();
+
+            } catch (error) {
+                document.getElementById('verificationResults').innerHTML = `❌ Error: ${error.message}`;
+            }
+        }
+
+        function verifySphereFix(data) {
+            const sphereTrace = data.plotly_config.data.find(trace => trace.type === 'surface');
+
+            if (!sphereTrace) {
+                return { isFixed: false, error: 'No sphere surface found' };
+            }
+
+            // Calculate ranges
+            const xFlat = sphereTrace.x.flat();
+            const yFlat = sphereTrace.y.flat();
+            const zFlat = sphereTrace.z.flat();
+
+            const xSpan = Math.max(...xFlat) - Math.min(...xFlat);
+            const ySpan = Math.max(...yFlat) - Math.min(...yFlat);
+            const zSpan = Math.max(...zFlat) - Math.min(...zFlat);
+
+            const maxDifference = Math.max(
+                Math.abs(xSpan - ySpan),
+                Math.abs(xSpan - zSpan),
+                Math.abs(ySpan - zSpan)
+            );
+
+            // Check layout settings
+            const scene = data.plotly_config.layout.scene;
+            const hasRanges = (scene.xaxis && scene.xaxis.range) ||
+                            (scene.yaxis && scene.yaxis.range) ||
+                            (scene.zaxis && scene.zaxis.range);
+
+            return {
+                isFixed: maxDifference < 0.01, // Allow tiny floating point differences
+                spans: { x: xSpan, y: ySpan, z: zSpan },
+                maxDifference: maxDifference,
+                aspectmode: scene.aspectmode,
+                hasRanges: hasRanges
+            };
+        }
+
+        function plotCurrentData() {
+            if (!currentData) return;
+
+            try {
+                // Plot exactly as received from server
+                Plotly.newPlot('plotCurrent',
+                    currentData.plotly_config.data,
+                    currentData.plotly_config.layout
+                );
+
+                document.getElementById('currentStatus').innerHTML = `
+<span class="info">Current MixingCompass Data:</span>
+• Experiment: ${currentData.experiment_id}
+• Sample: ${currentData.sample_name}
+• HSP: (${currentData.hsp_parameters.delta_d.toFixed(1)}, ${currentData.hsp_parameters.delta_p.toFixed(1)}, ${currentData.hsp_parameters.delta_h.toFixed(1)})
+• Radius: ${currentData.hsp_parameters.ra.toFixed(1)}
+• aspectmode: ${currentData.plotly_config.layout.scene.aspectmode}
+                `;
+            } catch (error) {
+                document.getElementById('plotCurrent').innerHTML = `Error: ${error.message}`;
+            }
+        }
+
+        function forceRefreshTest() {
+            if (!currentData) {
+                alert('Please fetch data first');
+                return;
+            }
+
+            // Force a completely fresh plot by adding a timestamp
+            const freshLayout = JSON.parse(JSON.stringify(currentData.plotly_config.layout));
+            freshLayout.title = `${freshLayout.title.text || 'Hansen Sphere'} - Fresh ${new Date().getTime()}`;
+
+            // Ensure cube aspectmode
+            freshLayout.scene.aspectmode = 'cube';
+
+            // Remove any axis ranges to let cube mode work
+            delete freshLayout.scene.xaxis.range;
+            delete freshLayout.scene.yaxis.range;
+            delete freshLayout.scene.zaxis.range;
+
+            Plotly.newPlot('plotRefresh',
+                currentData.plotly_config.data,
+                freshLayout,
+                {responsive: true}  // Force responsive mode
+            );
+        }
+    </script>
+</body>
+</html>

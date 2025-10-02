@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Poor Solvent Visibility Debug</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .test-section { margin-bottom: 30px; border: 1px solid #ccc; padding: 20px; }
+        .plot-container { width: 700px; height: 500px; margin: 10px 0; }
+        .comparison { display: flex; gap: 20px; flex-wrap: wrap; }
+        .analysis { background: #f0f0f0; padding: 15px; margin: 10px 0; font-family: monospace; font-size: 12px; white-space: pre-line; }
+        button { padding: 10px 20px; margin: 5px; background: #007cba; color: white; border: none; cursor: pointer; }
+        button:hover { background: #005a87; }
+        .error { color: red; font-weight: bold; }
+        .success { color: green; font-weight: bold; }
+        .warning { color: orange; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Poor Solvent Visibility Debug Test</h1>
+
+        <div class="test-section">
+            <h2>Data Fetch & Analysis</h2>
+            <button onclick="fetchAndAnalyze()">Fetch Current Data & Debug Poor Solvents</button>
+            <div id="fetchStatus" class="analysis">Click button to start...</div>
+        </div>
+
+        <div class="comparison">
+            <div class="test-section">
+                <h2>Current Data (Original)</h2>
+                <div class="analysis" id="currentInfo">Original server data visualization</div>
+                <div id="plotCurrent" class="plot-container"></div>
+            </div>
+
+            <div class="test-section">
+                <h2>Points Only (No Sphere)</h2>
+                <div class="analysis" id="pointsInfo">Only solvent points, no sphere surface</div>
+                <div id="plotPointsOnly" class="plot-container"></div>
+            </div>
+
+            <div class="test-section">
+                <h2>Poor Solvents Highlighted</h2>
+                <div class="analysis" id="poorInfo">Poor solvents with larger markers</div>
+                <div id="plotPoorHighlighted" class="plot-container"></div>
+            </div>
+
+            <div class="test-section">
+                <h2>All Points Large</h2>
+                <div class="analysis" id="largeInfo">All points with large markers for visibility</div>
+                <div id="plotLargePoints" class="plot-container"></div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Coordinate Analysis</h2>
+            <div id="coordinateAnalysis" class="analysis">No data yet...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>Camera Position Test</h2>
+            <button onclick="testCameraPositions()">Test Different Camera Angles</button>
+            <div class="comparison">
+                <div class="test-section">
+                    <h3>Camera: Front View</h3>
+                    <div id="plotCameraFront" class="plot-container"></div>
+                </div>
+                <div class="test-section">
+                    <h3>Camera: Bottom View</h3>
+                    <div id="plotCameraBottom" class="plot-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentData = null;
+
+        async function fetchAndAnalyze() {
+            try {
+                document.getElementById('fetchStatus').textContent = 'Creating new test experiment...';
+
+                // Create test experiment first (like the main app does)
+                const solventTests = [
+                    { solvent_name: 'acetone', solubility: 'soluble' },
+                    { solvent_name: 'ethanol', solubility: 'soluble' },
+                    { solvent_name: 'ethyl acetate', solubility: 'partial' },
+                    { solvent_name: 'hexane', solubility: 'insoluble' },
+                    { solvent_name: 'toluene', solubility: 'insoluble' }
+                ];
+
+                const createResponse = await fetch('http://localhost:8200/api/hsp-experimental/experiments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sample_name: 'poor_solvent_debug',
+                        solvent_tests: solventTests
+                    })
+                });
+
+                if (!createResponse.ok) {
+                    throw new Error(`Failed to create experiment: ${createResponse.status}`);
+                }
+
+                const createData = await createResponse.json();
+                console.log('🔍 Create response:', createData);
+                const experimentId = createData.id;
+                console.log('🔍 Created experiment ID:', experimentId);
+
+                document.getElementById('fetchStatus').textContent = 'Calculating HSP...';
+
+                // Calculate HSP
+                const calcResponse = await fetch(`http://localhost:8200/api/hsp-experimental/experiments/${experimentId}/calculate`, {
+                    method: 'POST'
+                });
+
+                if (!calcResponse.ok) {
+                    throw new Error(`Failed to calculate HSP: ${calcResponse.status}`);
+                }
+
+                document.getElementById('fetchStatus').textContent = 'Fetching visualization data...';
+
+                // Get visualization data
+                const vizResponse = await fetch(`http://localhost:8200/api/hsp-experimental/experiments/${experimentId}/visualization?width=890&height=600`);
+                if (!vizResponse.ok) {
+                    throw new Error(`Visualization fetch failed: ${vizResponse.status}`);
+                }
+                currentData = await vizResponse.json();
+
+                // Debug: Log data structure
+                console.log('Raw response data:', currentData);
+
+                // Check data structure
+                if (!currentData.plotly_config || !currentData.plotly_config.data) {
+                    throw new Error(`Invalid data structure. Available keys: ${Object.keys(currentData).join(', ')}`);
+                }
+
+                document.getElementById('fetchStatus').innerHTML = `
+<span class="success">✅ Data fetched successfully!</span>
+Experiment ID: ${experimentId}
+Data structure: ${Object.keys(currentData).join(', ')}
+Plotly traces: ${currentData.plotly_config.data.length}
+                `;
+
+                analyzeCoordinates();
+                plotCurrentData();
+                plotPointsOnly();
+                plotPoorHighlighted();
+                plotLargePoints();
+
+            } catch (error) {
+                document.getElementById('fetchStatus').innerHTML = `
+<span class="error">❌ Error: ${error.message}</span>
+                `;
+            }
+        }
+
+        function analyzeCoordinates() {
+            if (!currentData) return;
+
+            const traces = currentData.plotly_config.data;
+            let solventTrace = null;
+            let sphereTrace = null;
+
+            for (const trace of traces) {
+                if (trace.type === 'scatter3d' && trace.name === 'Solvent Points') {
+                    solventTrace = trace;
+                } else if (trace.type === 'surface' && trace.name === 'Hansen Sphere') {
+                    sphereTrace = trace;
+                }
+            }
+
+            let analysis = '=== COORDINATE ANALYSIS ===\n\n';
+
+            if (solventTrace) {
+                const x = solventTrace.x;
+                const y = solventTrace.y;
+                const z = solventTrace.z;
+                const names = solventTrace.text;
+                const colors = solventTrace.marker.color;
+                const solubility = solventTrace.customdata;
+
+                analysis += `Solvent Points (${x.length} total):\n`;
+                for (let i = 0; i < x.length; i++) {
+                    const isPoor = solubility[i] === 'insoluble';
+                    const marker = isPoor ? '🔴 [POOR]' : '🔵';
+                    analysis += `${marker} ${names[i]}: (${x[i]}, ${y[i]}, ${z[i]}) color=${colors[i]}\n`;
+                }
+
+                // Calculate bounds
+                const xBounds = [Math.min(...x), Math.max(...x)];
+                const yBounds = [Math.min(...y), Math.max(...y)];
+                const zBounds = [Math.min(...z), Math.max(...z)];
+
+                analysis += `\nData Bounds:\n`;
+                analysis += `X: [${xBounds[0]}, ${xBounds[1]}] (span: ${xBounds[1] - xBounds[0]})\n`;
+                analysis += `Y: [${yBounds[0]}, ${yBounds[1]}] (span: ${yBounds[1] - yBounds[0]})\n`;
+                analysis += `Z: [${zBounds[0]}, ${zBounds[1]}] (span: ${zBounds[1] - zBounds[0]})\n`;
+
+                // Check for poor solvents at extremes
+                const poorSolvents = [];
+                for (let i = 0; i < x.length; i++) {
+                    if (solubility[i] === 'insoluble') {
+                        poorSolvents.push({
+                            name: names[i],
+                            x: x[i],
+                            y: y[i],
+                            z: z[i]
+                        });
+                    }
+                }
+
+                analysis += `\nPoor Solvents Analysis:\n`;
+                for (const poor of poorSolvents) {
+                    analysis += `${poor.name}: (${poor.x}, ${poor.y}, ${poor.z})\n`;
+                    if (poor.y === 0 || poor.z === 0) {
+                        analysis += `  ⚠️ WARNING: Has zero coordinates - may be at plot edge!\n`;
+                    }
+                }
+            }
+
+            if (sphereTrace) {
+                analysis += `\nSphere Surface Data:\n`;
+                const xFlat = sphereTrace.x.flat();
+                const yFlat = sphereTrace.y.flat();
+                const zFlat = sphereTrace.z.flat();
+
+                const sphereXBounds = [Math.min(...xFlat), Math.max(...xFlat)];
+                const sphereYBounds = [Math.min(...yFlat), Math.max(...yFlat)];
+                const sphereZBounds = [Math.min(...zFlat), Math.max(...zFlat)];
+
+                analysis += `Sphere X: [${sphereXBounds[0].toFixed(2)}, ${sphereXBounds[1].toFixed(2)}]\n`;
+                analysis += `Sphere Y: [${sphereYBounds[0].toFixed(2)}, ${sphereYBounds[1].toFixed(2)}]\n`;
+                analysis += `Sphere Z: [${sphereZBounds[0].toFixed(2)}, ${sphereZBounds[1].toFixed(2)}]\n`;
+            }
+
+            // Check layout settings
+            const scene = currentData.plotly_config.layout.scene;
+            analysis += `\nLayout Settings:\n`;
+            analysis += `aspectmode: ${scene.aspectmode}\n`;
+            if (scene.camera) {
+                analysis += `camera.eye: ${JSON.stringify(scene.camera.eye)}\n`;
+            }
+
+            document.getElementById('coordinateAnalysis').textContent = analysis;
+        }
+
+        function plotCurrentData() {
+            if (!currentData) return;
+
+            try {
+                Plotly.newPlot('plotCurrent',
+                    currentData.plotly_config.data,
+                    currentData.plotly_config.layout
+                );
+
+                document.getElementById('currentInfo').textContent = `
+Original Data:
+• Total traces: ${currentData.plotly_config.data.length}
+• aspectmode: ${currentData.plotly_config.layout.scene.aspectmode}
+                `;
+            } catch (error) {
+                document.getElementById('plotCurrent').innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+
+        function plotPointsOnly() {
+            if (!currentData) return;
+
+            try {
+                // Filter to only solvent points and center
+                const pointTraces = currentData.plotly_config.data.filter(trace =>
+                    trace.type === 'scatter3d'
+                );
+
+                const layout = JSON.parse(JSON.stringify(currentData.plotly_config.layout));
+                layout.title = { text: 'Points Only - No Sphere Surface' };
+
+                Plotly.newPlot('plotPointsOnly', pointTraces, layout);
+
+                document.getElementById('pointsInfo').textContent = `
+Points Only:
+• ${pointTraces.length} point traces
+• No sphere surface interference
+                `;
+            } catch (error) {
+                document.getElementById('plotPointsOnly').innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+
+        function plotPoorHighlighted() {
+            if (!currentData) return;
+
+            try {
+                const modifiedTraces = JSON.parse(JSON.stringify(currentData.plotly_config.data));
+
+                // Find and modify solvent points trace
+                for (const trace of modifiedTraces) {
+                    if (trace.type === 'scatter3d' && trace.name === 'Solvent Points') {
+                        // Make poor solvents much larger and more visible
+                        const sizes = [];
+                        const colors = [];
+
+                        for (let i = 0; i < trace.customdata.length; i++) {
+                            if (trace.customdata[i] === 'insoluble') {
+                                sizes.push(20); // Very large
+                                colors.push('#ff0000'); // Bright red
+                            } else {
+                                sizes.push(6); // Normal size
+                                colors.push(trace.marker.color[i]);
+                            }
+                        }
+
+                        trace.marker.size = sizes;
+                        trace.marker.color = colors;
+                        trace.marker.line = { width: 2, color: '#ffffff' };
+                    }
+                }
+
+                const layout = JSON.parse(JSON.stringify(currentData.plotly_config.layout));
+                layout.title = { text: 'Poor Solvents Highlighted (Large Red Markers)' };
+
+                Plotly.newPlot('plotPoorHighlighted', modifiedTraces, layout);
+
+                document.getElementById('poorInfo').textContent = `
+Poor Highlighted:
+• Poor solvents: size 20, bright red
+• Other solvents: normal size
+                `;
+            } catch (error) {
+                document.getElementById('plotPoorHighlighted').innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+
+        function plotLargePoints() {
+            if (!currentData) return;
+
+            try {
+                const modifiedTraces = JSON.parse(JSON.stringify(currentData.plotly_config.data));
+
+                // Make ALL points much larger
+                for (const trace of modifiedTraces) {
+                    if (trace.type === 'scatter3d') {
+                        trace.marker = trace.marker || {};
+                        trace.marker.size = 15; // Large for all points
+                        trace.marker.line = { width: 2, color: '#ffffff' };
+                    }
+                }
+
+                const layout = JSON.parse(JSON.stringify(currentData.plotly_config.layout));
+                layout.title = { text: 'All Points Large Size for Maximum Visibility' };
+
+                Plotly.newPlot('plotLargePoints', modifiedTraces, layout);
+
+                document.getElementById('largeInfo').textContent = `
+Large Points:
+• All points: size 15
+• White borders for visibility
+                `;
+            } catch (error) {
+                document.getElementById('plotLargePoints').innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            }
+        }
+
+        function testCameraPositions() {
+            if (!currentData) return;
+
+            // Front view camera
+            const frontLayout = JSON.parse(JSON.stringify(currentData.plotly_config.layout));
+            frontLayout.scene.camera = {
+                eye: { x: 2.5, y: 0, z: 0 }
+            };
+            frontLayout.title = { text: 'Front View Camera' };
+
+            // Bottom view camera
+            const bottomLayout = JSON.parse(JSON.stringify(currentData.plotly_config.layout));
+            bottomLayout.scene.camera = {
+                eye: { x: 0, y: 0, z: -2.5 }
+            };
+            bottomLayout.title = { text: 'Bottom View Camera' };
+
+            // Use only point traces for clarity
+            const pointTraces = currentData.plotly_config.data.filter(trace =>
+                trace.type === 'scatter3d'
+            );
+
+            // Make points larger for these tests
+            const largePointTraces = JSON.parse(JSON.stringify(pointTraces));
+            for (const trace of largePointTraces) {
+                trace.marker = trace.marker || {};
+                trace.marker.size = 12;
+                trace.marker.line = { width: 2, color: '#ffffff' };
+            }
+
+            Plotly.newPlot('plotCameraFront', largePointTraces, frontLayout);
+            Plotly.newPlot('plotCameraBottom', largePointTraces, bottomLayout);
+        }
+    </script>
+</body>
+</html>

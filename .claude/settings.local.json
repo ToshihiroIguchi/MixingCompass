@@ -17,7 +17,8 @@
       "Bash(start poor_solvent_debug.html)",
       "Bash(taskkill:*)",
       "Bash(netstat:*)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []
