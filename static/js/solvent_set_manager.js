@@ -89,24 +89,13 @@ class SolventSetManager {
     }
 
     loadSolventSetsFromStorage() {
-        try {
-            const stored = localStorage.getItem(this.storageKey);
-            this.solventSets = stored ? JSON.parse(stored) : [];
-            console.log(`Loaded ${this.solventSets.length} solvent sets from storage`);
-            // Don't call updateSolventSetSelector here - it will be called by initializeSelectorWithRetry
-        } catch (error) {
-            console.error('Error loading solvent sets from storage:', error);
-            this.solventSets = [];
-        }
+        this.solventSets = Storage.get(this.storageKey, []);
+        console.log(`Loaded ${this.solventSets.length} solvent sets from storage`);
+        // Don't call updateSolventSetSelector here - it will be called by initializeSelectorWithRetry
     }
 
     saveSolventSetsToStorage() {
-        try {
-            localStorage.setItem(this.storageKey, JSON.stringify(this.solventSets));
-        } catch (error) {
-            console.error('Error saving solvent sets to storage:', error);
-            throw new Error('Failed to save solvent sets. Storage may be full.');
-        }
+        Storage.set(this.storageKey, this.solventSets);
     }
 
     updateSolventSetSelector() {
@@ -292,10 +281,7 @@ class SolventSetManager {
     }
 
     escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+        return Utils.escapeHtml(text);
     }
 
     saveSolventSet(name, solvents) {
@@ -304,11 +290,11 @@ class SolventSetManager {
             const existingIndex = this.solventSets.findIndex(set => set.name === name);
 
             const solventSet = {
-                id: existingIndex >= 0 ? this.solventSets[existingIndex].id : this.generateId(),
+                id: existingIndex >= 0 ? this.solventSets[existingIndex].id : Utils.generateId('set'),
                 name: name,
                 solvents: this.cleanSolventData(solvents),
-                created: existingIndex >= 0 ? this.solventSets[existingIndex].created : new Date().toISOString(),
-                lastUsed: new Date().toISOString(),
+                created: existingIndex >= 0 ? this.solventSets[existingIndex].created : Utils.formatISO(),
+                lastUsed: Utils.formatISO(),
                 description: `${solvents.length} solvents`
             };
 
@@ -316,14 +302,14 @@ class SolventSetManager {
                 // Update existing set
                 if (confirm(`A solvent set named "${name}" already exists. Do you want to overwrite it?`)) {
                     this.solventSets[existingIndex] = solventSet;
-                    this.showNotification(`Solvent set "${name}" updated successfully`, 'success');
+                    Notification.success(`Solvent set "${name}" updated successfully`);
                 } else {
                     return;
                 }
             } else {
                 // Add new set
                 this.solventSets.push(solventSet);
-                this.showNotification(`Solvent set "${name}" saved successfully`, 'success');
+                Notification.success(`Solvent set "${name}" saved successfully`);
             }
 
             this.saveSolventSetsToStorage();
@@ -331,7 +317,7 @@ class SolventSetManager {
 
         } catch (error) {
             console.error('Error saving solvent set:', error);
-            this.showNotification('Failed to save solvent set', 'error');
+            Notification.error('Failed to save solvent set');
         }
     }
 
@@ -374,15 +360,15 @@ class SolventSetManager {
             });
 
             // Update the last used timestamp
-            solventSet.lastUsed = new Date().toISOString();
+            solventSet.lastUsed = Utils.formatISO();
             this.saveSolventSetsToStorage();
             this.updateSolventSetSelector();
 
-            this.showNotification(`Loaded solvent set: ${solventSet.name}`, 'success');
+            Notification.success(`Loaded solvent set: ${solventSet.name}`);
 
         } catch (error) {
             console.error('Error loading solvent set:', error);
-            this.showNotification('Failed to load solvent set', 'error');
+            Notification.error('Failed to load solvent set');
         }
     }
 
@@ -468,7 +454,7 @@ class SolventSetManager {
                 this.solventSets.splice(index, 1);
                 this.saveSolventSetsToStorage();
                 this.updateSolventSetSelector();
-                this.showNotification(`Deleted solvent set: ${setName}`, 'success');
+                Notification.success(`Deleted solvent set: ${setName}`);
                 return true;
             }
         }
@@ -479,24 +465,17 @@ class SolventSetManager {
         try {
             const data = {
                 version: '1.0',
-                exported: new Date().toISOString(),
+                exported: Utils.formatISO(),
                 solventSets: this.solventSets
             };
 
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `mixing-compass-solvent-sets-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const filename = `mixing-compass-solvent-sets-${Utils.formatISO().split('T')[0]}.json`;
+            Utils.downloadJSON(data, filename);
 
-            this.showNotification('Solvent sets exported successfully', 'success');
+            Notification.success('Solvent sets exported successfully');
         } catch (error) {
             console.error('Error exporting solvent sets:', error);
-            this.showNotification('Failed to export solvent sets', 'error');
+            Notification.error('Failed to export solvent sets');
         }
     }
 
@@ -531,12 +510,12 @@ class SolventSetManager {
 
                     this.saveSolventSetsToStorage();
                     this.updateSolventSetSelector();
-                    this.showNotification(`Imported ${importCount} new solvent sets`, 'success');
+                    Notification.success(`Imported ${importCount} new solvent sets`);
                     resolve(importCount);
 
                 } catch (error) {
                     console.error('Error importing solvent sets:', error);
-                    this.showNotification('Failed to import solvent sets', 'error');
+                    Notification.error('Failed to import solvent sets');
                     reject(error);
                 }
             };
@@ -545,18 +524,11 @@ class SolventSetManager {
     }
 
     generateId() {
-        return 'set_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        return Utils.generateId('set');
     }
 
     showNotification(message, type = 'info') {
-        // Use the existing notification system from HSP experimental
-        const hspExperimental = window.hspExperimental;
-        if (hspExperimental && hspExperimental.showNotification) {
-            hspExperimental.showNotification(message, type);
-        } else {
-            // Fallback to alert
-            alert(message);
-        }
+        Notification.show(message, type);
     }
 
     getSolventSets() {
@@ -575,14 +547,14 @@ class SolventSetManager {
     clearAllStoredData() {
         if (confirm('Are you sure you want to delete all solvent set data stored in the browser?\n\nThis action cannot be undone.')) {
             try {
-                localStorage.removeItem(this.storageKey);
+                Storage.remove(this.storageKey);
                 this.solventSets = [];
                 this.updateSolventSetSelector();
-                this.showNotification('All solvent set data has been cleared', 'success');
+                Notification.success('All solvent set data has been cleared');
                 console.log('All solvent sets data cleared from browser storage');
             } catch (error) {
                 console.error('Error clearing stored data:', error);
-                this.showNotification('Failed to clear data', 'error');
+                Notification.error('Failed to clear data');
             }
         }
     }
@@ -592,10 +564,9 @@ class SolventSetManager {
         const storageKey = 'mixingCompass_solventSets';
         if (confirm('Are you sure you want to delete all solvent set data stored in the browser?\n\nThis action cannot be undone.')) {
             try {
-                localStorage.removeItem(storageKey);
+                Storage.remove(storageKey);
                 console.log('All solvent sets data cleared from browser storage');
                 alert('Data has been cleared. The page will now reload.');
-                // Refresh the page to reset the application state
                 window.location.reload();
             } catch (error) {
                 console.error('Error clearing stored data:', error);

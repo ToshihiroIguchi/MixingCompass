@@ -14,23 +14,12 @@ class ExperimentalResultsManager {
     }
 
     loadResultsFromStorage() {
-        try {
-            const stored = localStorage.getItem(this.storageKey);
-            this.experimentalResults = stored ? JSON.parse(stored) : [];
-            console.log(`Loaded ${this.experimentalResults.length} experimental results from storage`);
-        } catch (error) {
-            console.error('Error loading experimental results from storage:', error);
-            this.experimentalResults = [];
-        }
+        this.experimentalResults = Storage.get(this.storageKey, []);
+        console.log(`Loaded ${this.experimentalResults.length} experimental results from storage`);
     }
 
     saveResultsToStorage() {
-        try {
-            localStorage.setItem(this.storageKey, JSON.stringify(this.experimentalResults));
-        } catch (error) {
-            console.error('Error saving experimental results to storage:', error);
-            throw new Error('Failed to save experimental results. Storage may be full.');
-        }
+        Storage.set(this.storageKey, this.experimentalResults);
     }
 
     saveExperimentalResult(sampleName, hspResult, solventData, notes = '') {
@@ -47,8 +36,8 @@ class ExperimentalResultsManager {
                 sample_name: sampleName,
                 created: existingIndex >= 0 ?
                     this.experimentalResults[existingIndex].created :
-                    new Date().toISOString(),
-                last_modified: new Date().toISOString(),
+                    Utils.formatISO(),
+                last_modified: Utils.formatISO(),
                 hsp_result: {
                     delta_d: hspResult.delta_d,
                     delta_p: hspResult.delta_p,
@@ -100,11 +89,11 @@ class ExperimentalResultsManager {
                 } else if (action === 'saveAsNew') {
                     // Generate new name and save as new result
                     newResult.sample_name = this.generateUniqueNameVariant(newResult.sample_name);
-                    newResult.id = this.generateId();
-                    newResult.created = new Date().toISOString();
+                    newResult.id = Utils.generateId('result');
+                    newResult.created = Utils.formatISO();
                     this.experimentalResults.push(newResult);
                     this.saveResultsToStorage();
-                    this.showNotification(`Experimental result saved as "${newResult.sample_name}"`, 'success');
+                    Notification.success(`Experimental result saved as "${newResult.sample_name}"`);
                     return true;
                 } else {
                     // Cancel - do nothing
@@ -135,7 +124,7 @@ class ExperimentalResultsManager {
                                     <div class="comparison-col">
                                         <h5>Existing Result:</h5>
                                         <div class="result-summary">
-                                            <div>Date: ${new Date(existingResult.created).toLocaleDateString()}</div>
+                                            <div>Date: ${Utils.formatDate(existingResult.created)}</div>
                                             <div>Time: ${new Date(existingResult.created).toLocaleTimeString()}</div>
                                             <div>Solvents: ${existingResult.metadata.solvent_count}</div>
                                             <div>HSP: (${existingResult.hsp_result.delta_d.toFixed(1)}, ${existingResult.hsp_result.delta_p.toFixed(1)}, ${existingResult.hsp_result.delta_h.toFixed(1)})</div>
@@ -144,7 +133,7 @@ class ExperimentalResultsManager {
                                     <div class="comparison-col">
                                         <h5>New Result:</h5>
                                         <div class="result-summary">
-                                            <div>Date: ${new Date().toLocaleDateString()}</div>
+                                            <div>Date: ${Utils.formatDate(new Date())}</div>
                                             <div>Time: ${new Date().toLocaleTimeString()}</div>
                                             <div>Solvents: ${newResult.metadata.solvent_count}</div>
                                             <div>HSP: (${newResult.hsp_result.delta_d.toFixed(1)}, ${newResult.hsp_result.delta_p.toFixed(1)}, ${newResult.hsp_result.delta_h.toFixed(1)})</div>
@@ -302,9 +291,9 @@ class ExperimentalResultsManager {
                 this.experimentalResults[index].metadata.notes = updates.notes;
             }
 
-            this.experimentalResults[index].last_modified = new Date().toISOString();
+            this.experimentalResults[index].last_modified = Utils.formatISO();
             this.saveResultsToStorage();
-            this.showNotification('Experimental result updated successfully', 'success');
+            Notification.success('Experimental result updated successfully');
             return true;
         }
         return false;
@@ -324,60 +313,43 @@ class ExperimentalResultsManager {
         try {
             const data = {
                 version: '1.0',
-                exported: new Date().toISOString(),
+                exported: Utils.formatISO(),
                 experimentalResults: this.experimentalResults
             };
 
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `mixing-compass-experimental-results-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const filename = `mixing-compass-experimental-results-${Utils.formatISO().split('T')[0]}.json`;
+            Utils.downloadJSON(data, filename);
 
-            this.showNotification('Experimental results exported successfully', 'success');
+            Notification.success('Experimental results exported successfully');
         } catch (error) {
             console.error('Error exporting experimental results:', error);
-            this.showNotification('Failed to export experimental results', 'error');
+            Notification.error('Failed to export experimental results');
         }
     }
 
     generateId() {
-        return 'result_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        return Utils.generateId('result');
     }
 
     escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+        return Utils.escapeHtml(text);
     }
 
     showNotification(message, type = 'info') {
-        // Use the existing notification system from HSP experimental
-        const hspExperimental = window.hspExperimental;
-        if (hspExperimental && hspExperimental.showNotification) {
-            hspExperimental.showNotification(message, type);
-        } else {
-            // Fallback to alert
-            alert(message);
-        }
+        Notification.show(message, type);
     }
 
     // Method to clear all stored experimental results data from browser
     clearAllStoredData() {
         if (confirm('Are you sure you want to delete all experimental results data stored in the browser?\n\nThis action cannot be undone.')) {
             try {
-                localStorage.removeItem(this.storageKey);
+                Storage.remove(this.storageKey);
                 this.experimentalResults = [];
-                this.showNotification('All experimental results data has been cleared', 'success');
+                Notification.success('All experimental results data has been cleared');
                 console.log('All experimental results data cleared from browser storage');
             } catch (error) {
                 console.error('Error clearing stored data:', error);
-                this.showNotification('Failed to clear data', 'error');
+                Notification.error('Failed to clear data');
             }
         }
     }
@@ -387,7 +359,7 @@ class ExperimentalResultsManager {
         const storageKey = 'mixingCompass_experimentalResults';
         if (confirm('Are you sure you want to delete all experimental results data stored in the browser?\n\nThis action cannot be undone.')) {
             try {
-                localStorage.removeItem(storageKey);
+                Storage.remove(storageKey);
                 console.log('All experimental results data cleared from browser storage');
                 alert('Data has been cleared. The page will now reload.');
                 window.location.reload();

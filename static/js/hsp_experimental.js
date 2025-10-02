@@ -831,7 +831,7 @@ class HSPExperimental {
             // Create export data structure
             const exportData = {
                 version: '1.0',
-                exported: new Date().toISOString(),
+                exported: Utils.formatISO(),
                 sample_name: displayName,
                 hsp_result: this.currentCalculationResult,
                 solvents: this.solventTests,
@@ -843,17 +843,10 @@ class HSPExperimental {
             };
 
             // Create and download file
-            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `hsp-result-${displayName.replace(/[^a-zA-Z0-9]/g, '_')}-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const filename = `hsp-result-${displayName.replace(/[^a-zA-Z0-9]/g, '_')}-${Utils.formatISO().split('T')[0]}.json`;
+            Utils.downloadJSON(exportData, filename);
 
-            this.showNotification(`Result exported: ${displayName}`, 'success');
+            Notification.success(`Result exported: ${displayName}`);
 
         } catch (error) {
             console.error('Error exporting result:', error);
@@ -1146,15 +1139,7 @@ class HSPExperimental {
     }
 
     downloadJSON(data, filename) {
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        Utils.downloadJSON(data, filename);
     }
 
     showLoadDataModal() {
@@ -1257,19 +1242,7 @@ class HSPExperimental {
     }
 
     showNotification(message, type = 'info') {
-        // Simple notification system
-        console.log(`${type.toUpperCase()}: ${message}`);
-
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.textContent = message;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            notification.remove();
-        }, 3000);
+        Notification.show(message, type);
     }
 }
 

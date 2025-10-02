@@ -100,8 +100,8 @@ class DataListManager {
     }
 
     createSetCardHTML(set) {
-        const createdDate = new Date(set.created).toLocaleDateString();
-        const lastUsedDate = set.lastUsed ? new Date(set.lastUsed).toLocaleDateString() : 'Never';
+        const createdDate = Utils.formatDate(set.created);
+        const lastUsedDate = set.lastUsed ? Utils.formatDate(set.lastUsed) : 'Never';
 
         return `
             <div class="solvent-set-card" data-set-id="${set.id}">
@@ -353,13 +353,13 @@ class DataListManager {
         // Update the set
         this.currentEditingSet.name = newName;
         this.currentEditingSet.solvents = solvents;
-        this.currentEditingSet.lastUsed = new Date().toISOString();
+        this.currentEditingSet.lastUsed = Utils.formatISO();
 
         // Save to storage
         const solventSetManager = window.solventSetManager;
         if (solventSetManager) {
             solventSetManager.saveSolventSetsToStorage();
-            this.showNotification(`Updated solvent set: ${newName}`, 'success');
+            Notification.success(`Updated solvent set: ${newName}`);
         }
 
         this.closeEditModal();
@@ -440,15 +440,11 @@ class DataListManager {
     }
 
     escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
+        return Utils.escapeHtml(text);
     }
 
     showNotification(message, type = 'info') {
-        // Simple notification - could be enhanced with a proper notification system
-        alert(message);
+        Notification.show(message, type);
     }
 
     // === Experimental Results Management ===
@@ -484,8 +480,8 @@ class DataListManager {
     }
 
     createExperimentalResultCard(result) {
-        const created = new Date(result.created);
-        const lastModified = result.last_modified ? new Date(result.last_modified) : created;
+        const created = result.created;
+        const lastModified = result.last_modified || result.created;
 
         return `
             <div class="experimental-result-card" data-result-id="${result.id}">
@@ -502,12 +498,12 @@ class DataListManager {
                     <div class="result-metadata">
                         <div class="metadata-item">
                             <span class="metadata-label">Created:</span>
-                            <span class="metadata-value">${created.toLocaleDateString()} ${created.toLocaleTimeString()}</span>
+                            <span class="metadata-value">${Utils.formatDateTime(created)}</span>
                         </div>
                         ${result.last_modified && result.last_modified !== result.created ? `
                         <div class="metadata-item">
                             <span class="metadata-label">Modified:</span>
-                            <span class="metadata-value">${lastModified.toLocaleDateString()} ${lastModified.toLocaleTimeString()}</span>
+                            <span class="metadata-value">${Utils.formatDateTime(lastModified)}</span>
                         </div>
                         ` : ''}
                         <div class="metadata-item">
@@ -624,22 +620,15 @@ class DataListManager {
             // Create export data
             const exportData = {
                 version: '1.0',
-                exported: new Date().toISOString(),
+                exported: Utils.formatISO(),
                 experimental_result: result
             };
 
             // Create and download file
-            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `hsp-result-${result.sample_name.replace(/[^a-zA-Z0-9]/g, '_')}-${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const filename = `hsp-result-${result.sample_name.replace(/[^a-zA-Z0-9]/g, '_')}-${Utils.formatISO().split('T')[0]}.json`;
+            Utils.downloadJSON(exportData, filename);
 
-            this.showNotification(`Exported: ${result.sample_name}`, 'success');
+            Notification.success(`Exported: ${result.sample_name}`);
 
         } catch (error) {
             console.error('Error exporting experimental result:', error);
