@@ -887,14 +887,11 @@ class HSPExperimental {
             });
 
             // Display HSP results immediately
-            this.displayHSPResults(result.hsp_result);
+            this.showCalculationResults(result.hsp_result);
             this.showCalculationDetails(result.hsp_result);
 
-            // Update visualization if available
-            if (result.hsp_result && result.solvents.length > 0) {
-                this.updateSolventTestData();
-                this.generateVisualization();
-            }
+            // Store current result for re-calculation if needed
+            this.currentCalculationResult = result.hsp_result;
 
             this.showNotification(`Loaded experimental result: ${result.sample_name}`, 'success');
 
