@@ -3,10 +3,13 @@ Hansen Sphere Visualization Service
 Generates Plotly-compatible 3D sphere data for Hansen Solubility Parameters
 """
 
+import logging
 import numpy as np
 import plotly.graph_objects as go
 from typing import Dict, List, Optional, Tuple
 from ..models.hsp_models import HSPCalculationResult
+
+logger = logging.getLogger(__name__)
 
 
 class HansenSphereVisualizationService:
