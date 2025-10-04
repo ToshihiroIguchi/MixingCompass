@@ -15,6 +15,9 @@ class HSPExperimental {
 
         // Check for solvent set to load from session storage
         this.checkForSolventSetToLoad();
+
+        // Initialize button states
+        this.updateAnalyzeButtonState();
     }
 
     checkForSolventSetToLoad() {
@@ -100,14 +103,39 @@ class HSPExperimental {
                 console.log('Data changed (input):', e.target.tagName, e.target.type, e.target.value);
                 this.resetCalculationResults();
             }
+            // Update Analyze button state when sample name changes
+            if (e.target.id === 'sample-name') {
+                this.updateAnalyzeButtonState();
+            }
         });
 
         document.addEventListener('change', (e) => {
             if (e.target.closest('.solvent-table')) {
                 console.log('Data changed (change):', e.target.tagName, e.target.type, e.target.value);
                 this.resetCalculationResults();
+                this.updateAnalyzeButtonState();
             }
         });
+    }
+
+    updateAnalyzeButtonState() {
+        const calculateBtn = document.querySelector('#calculate-btn');
+        if (!calculateBtn) return;
+
+        const sampleName = document.querySelector('#sample-name').value.trim();
+        const tableRows = document.querySelectorAll('#solvent-table-body tr');
+        const hasData = tableRows.length > 0;
+
+        if (!sampleName) {
+            calculateBtn.disabled = true;
+            calculateBtn.title = 'Please enter a sample name';
+        } else if (!hasData) {
+            calculateBtn.disabled = true;
+            calculateBtn.title = 'Please add at least one solvent test';
+        } else {
+            calculateBtn.disabled = false;
+            calculateBtn.title = 'Calculate HSP values and generate visualization';
+        }
     }
 
     resetCalculationResults() {
@@ -133,10 +161,12 @@ class HSPExperimental {
         const saveResultBtn = document.querySelector('#save-result-btn');
         if (saveResultBtn) {
             saveResultBtn.disabled = true;
+            saveResultBtn.title = 'Calculate HSP first to enable saving';
         }
         const exportPackageBtn = document.querySelector('#export-package-btn');
         if (exportPackageBtn) {
             exportPackageBtn.disabled = true;
+            exportPackageBtn.title = 'Calculate HSP first to enable export';
         }
 
         // Clear visualization
@@ -326,6 +356,9 @@ class HSPExperimental {
 
         // Add event listeners for this row
         this.setupRowEventListeners(row);
+
+        // Update Analyze button state
+        this.updateAnalyzeButtonState();
     }
 
     setupRowEventListeners(row) {
@@ -490,6 +523,7 @@ class HSPExperimental {
     removeSolventRow(row) {
         row.remove();
         this.updateSolventTestData();
+        this.updateAnalyzeButtonState();
     }
 
     updateSolventTestData() {
@@ -682,6 +716,7 @@ class HSPExperimental {
         const saveResultBtn = document.querySelector('#save-result-btn');
         if (saveResultBtn) {
             saveResultBtn.disabled = false;
+            saveResultBtn.title = 'Save HSP calculation results to local storage';
 
             // Remove existing event listener and add new one
             const newSaveResultBtn = saveResultBtn.cloneNode(true);
@@ -696,6 +731,7 @@ class HSPExperimental {
         const exportPackageBtn = document.querySelector('#export-package-btn');
         if (exportPackageBtn) {
             exportPackageBtn.disabled = false;
+            exportPackageBtn.title = 'Export visualization graphs and data as ZIP package';
 
             // Remove existing event listener and add new one
             const newExportPackageBtn = exportPackageBtn.cloneNode(true);

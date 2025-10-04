@@ -143,6 +143,23 @@ body {
     background-color: #4b5563;
 }
 
+.btn:disabled,
+.btn[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.btn-primary:disabled,
+.btn-primary[disabled] {
+    background-color: #93c5fd;
+}
+
+.btn-secondary:disabled,
+.btn-secondary[disabled] {
+    background-color: #d1d5db;
+}
+
 /* Form Elements */
 .sample-info {
     display: flex;
