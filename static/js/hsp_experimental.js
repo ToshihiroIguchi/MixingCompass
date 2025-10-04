@@ -919,10 +919,37 @@ class HSPExperimental {
             // Wait for async solvent data loading to complete
             await new Promise(resolve => setTimeout(resolve, 500));
 
-            // Recalculate HSP with loaded data
-            await this.calculateHSP();
+            // Update solvent test data from the loaded rows
+            this.updateSolventTestData();
 
-            this.showNotification(`Loaded and recalculated: ${result.sample_name}`, 'success');
+            // Create experiment
+            await this.saveExperiment();
+            if (!this.currentExperiment) {
+                this.showNotification('Failed to create experiment', 'error');
+                return;
+            }
+
+            // Calculate HSP to store in backend and generate visualization
+            const calculateResponse = await fetch(`/api/hsp-experimental/experiments/${this.currentExperiment}/calculate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!calculateResponse.ok) {
+                this.showNotification('Failed to calculate HSP', 'error');
+                return;
+            }
+
+            // Display HSP results
+            this.showCalculationResults(result.hsp_result);
+            this.showCalculationDetails(result.hsp_result);
+
+            // Load visualization (3D and 2D)
+            await this.loadHansenSphereVisualization();
+
+            this.showNotification(`Loaded: ${result.sample_name}`, 'success');
 
         } catch (error) {
             console.error('Error loading experimental result:', error);
