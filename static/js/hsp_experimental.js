@@ -134,9 +134,9 @@ class HSPExperimental {
         if (saveResultBtn) {
             saveResultBtn.disabled = true;
         }
-        const exportResultBtn = document.querySelector('#export-result-btn');
-        if (exportResultBtn) {
-            exportResultBtn.disabled = true;
+        const exportPackageBtn = document.querySelector('#export-package-btn');
+        if (exportPackageBtn) {
+            exportPackageBtn.disabled = true;
         }
 
         // Clear visualization
@@ -692,30 +692,16 @@ class HSPExperimental {
             });
         }
 
-        // Enable export result button
-        const exportResultBtn = document.querySelector('#export-result-btn');
-        if (exportResultBtn) {
-            exportResultBtn.disabled = false;
+        // Enable export package button
+        const exportPackageBtn = document.querySelector('#export-package-btn');
+        if (exportPackageBtn) {
+            exportPackageBtn.disabled = false;
 
             // Remove existing event listener and add new one
-            const newExportResultBtn = exportResultBtn.cloneNode(true);
-            exportResultBtn.parentNode.replaceChild(newExportResultBtn, exportResultBtn);
+            const newExportPackageBtn = exportPackageBtn.cloneNode(true);
+            exportPackageBtn.parentNode.replaceChild(newExportPackageBtn, exportPackageBtn);
 
-            newExportResultBtn.addEventListener('click', () => {
-                this.exportCurrentResult();
-            });
-        }
-
-        // Enable export graphs button
-        const exportGraphsBtn = document.querySelector('#export-graphs-btn');
-        if (exportGraphsBtn) {
-            exportGraphsBtn.disabled = false;
-
-            // Remove existing event listener and add new one
-            const newExportGraphsBtn = exportGraphsBtn.cloneNode(true);
-            exportGraphsBtn.parentNode.replaceChild(newExportGraphsBtn, exportGraphsBtn);
-
-            newExportGraphsBtn.addEventListener('click', () => {
+            newExportPackageBtn.addEventListener('click', () => {
                 this.exportGraphsAsZip();
             });
         }
