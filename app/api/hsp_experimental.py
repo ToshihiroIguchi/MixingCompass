@@ -3,9 +3,15 @@ HSP Experimental API endpoints
 """
 
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.responses import StreamingResponse
 from typing import List, Optional
 import time
 import logging
+import io
+import zipfile
+import csv
+import json
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -672,5 +678,240 @@ def get_solubility_color(solubility: str) -> str:
         'insoluble': '#d32f2f'
     }
     return color_map.get(solubility, '#666666')
+
+
+@router.get("/experiments/{experiment_id}/export-graphs")
+async def export_graphs_as_zip(experiment_id: str):
+    """Export visualization graphs and data as ZIP package"""
+
+    try:
+        # Load experiment
+        experiment = data_manager.load_experiment(experiment_id)
+        if not experiment:
+            raise HTTPException(status_code=404, detail=f"Experiment '{experiment_id}' not found")
+
+        # Check if HSP has been calculated
+        if not experiment.calculated_hsp:
+            raise HTTPException(
+                status_code=400,
+                detail="HSP has not been calculated for this experiment"
+            )
+
+        # Prepare solvent data
+        solvent_data = []
+        for test in experiment.solvent_tests:
+            delta_d = test.manual_delta_d
+            delta_p = test.manual_delta_p
+            delta_h = test.manual_delta_h
+
+            if delta_d is None or delta_p is None or delta_h is None:
+                try:
+                    solvent_db_data = solvent_service.get_solvent_by_name(test.solvent_name)
+                    if solvent_db_data:
+                        delta_d = delta_d if delta_d is not None else solvent_db_data.delta_d
+                        delta_p = delta_p if delta_p is not None else solvent_db_data.delta_p
+                        delta_h = delta_h if delta_h is not None else solvent_db_data.delta_h
+                except Exception:
+                    pass
+
+            if test.solvent_name and delta_d is not None and delta_p is not None and delta_h is not None:
+                solvent_entry = {
+                    'solvent_name': test.solvent_name,
+                    'delta_d': delta_d,
+                    'delta_p': delta_p,
+                    'delta_h': delta_h,
+                    'solubility': test.solubility
+                }
+                solvent_data.append(solvent_entry)
+
+        if not solvent_data:
+            raise HTTPException(
+                status_code=400,
+                detail="No valid solvent data found"
+            )
+
+        # Create ZIP file in memory
+        zip_buffer = io.BytesIO()
+
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            # 1. Generate 3D HTML
+            plotly_3d = HansenSphereVisualizationService.generate_plotly_visualization(
+                hsp_result=experiment.calculated_hsp,
+                solvent_data=solvent_data,
+                width=1000,
+                height=700
+            )
+
+            html_content = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Hansen Sphere 3D - {experiment.sample_name}</title>
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+    <div id="plot"></div>
+    <script>
+        var data = {json.dumps(plotly_3d['data'])};
+        var layout = {json.dumps(plotly_3d['layout'])};
+        Plotly.newPlot('plot', data, layout, {{responsive: true}});
+    </script>
+</body>
+</html>"""
+            zip_file.writestr('graphs/hansen_sphere_3d.html', html_content)
+
+            # 1b. Generate 3D PNG
+            try:
+                import plotly.graph_objects as go
+                fig_3d = go.Figure(data=plotly_3d['data'], layout=plotly_3d['layout'])
+                png_3d_bytes = fig_3d.to_image(format='png', width=1200, height=800, scale=2)
+                zip_file.writestr('graphs/hansen_sphere_3d.png', png_3d_bytes)
+            except Exception as e:
+                logger.warning(f"Failed to generate 3D PNG: {e}")
+
+            # 1c. Generate 2D projections PNG
+            try:
+                projections_2d = HansenSphereVisualizationService.generate_2d_projections(
+                    hsp_result=experiment.calculated_hsp,
+                    solvent_data=solvent_data,
+                    width=600,
+                    height=600
+                )
+
+                # Create combined 2D projection image using plotly
+                from plotly.subplots import make_subplots
+
+                fig_2d = make_subplots(
+                    rows=1, cols=3,
+                    subplot_titles=('δD vs δP', 'δD vs δH', 'δP vs δH'),
+                    horizontal_spacing=0.12
+                )
+
+                # Add δD vs δP
+                for trace in projections_2d['dd_dp']['data']:
+                    fig_2d.add_trace(trace, row=1, col=1)
+
+                # Add δD vs δH
+                for trace in projections_2d['dd_dh']['data']:
+                    fig_2d.add_trace(trace, row=1, col=2)
+
+                # Add δP vs δH
+                for trace in projections_2d['dp_dh']['data']:
+                    fig_2d.add_trace(trace, row=1, col=3)
+
+                # Update layout
+                fig_2d.update_xaxes(title_text="δD [MPa<sup>0.5</sup>]", row=1, col=1)
+                fig_2d.update_yaxes(title_text="δP [MPa<sup>0.5</sup>]", row=1, col=1, scaleanchor="x", scaleratio=1)
+
+                fig_2d.update_xaxes(title_text="δD [MPa<sup>0.5</sup>]", row=1, col=2)
+                fig_2d.update_yaxes(title_text="δH [MPa<sup>0.5</sup>]", row=1, col=2, scaleanchor="x2", scaleratio=1)
+
+                fig_2d.update_xaxes(title_text="δP [MPa<sup>0.5</sup>]", row=1, col=3)
+                fig_2d.update_yaxes(title_text="δH [MPa<sup>0.5</sup>]", row=1, col=3, scaleanchor="x3", scaleratio=1)
+
+                fig_2d.update_layout(
+                    height=600,
+                    width=1800,
+                    showlegend=False,
+                    title_text=f"Hansen Solubility Parameters 2D Projections - {experiment.sample_name}"
+                )
+
+                png_2d_bytes = fig_2d.to_image(format='png', width=1800, height=600, scale=2)
+                zip_file.writestr('graphs/hansen_projections_2d.png', png_2d_bytes)
+            except Exception as e:
+                logger.warning(f"Failed to generate 2D PNG: {e}")
+
+            # 2. Generate CSV
+            csv_buffer = io.StringIO()
+            csv_writer = csv.writer(csv_buffer)
+
+            # Header section
+            csv_writer.writerow(['Sample Name', experiment.sample_name])
+            csv_writer.writerow(['Calculated Date', datetime.now().strftime('%Y-%m-%d %H:%M:%S')])
+            csv_writer.writerow(['δD (MPa^0.5)', f'{experiment.calculated_hsp.delta_d:.2f}'])
+            csv_writer.writerow(['δP (MPa^0.5)', f'{experiment.calculated_hsp.delta_p:.2f}'])
+            csv_writer.writerow(['δH (MPa^0.5)', f'{experiment.calculated_hsp.delta_h:.2f}'])
+            csv_writer.writerow(['Ra (MPa^0.5)', f'{experiment.calculated_hsp.radius:.2f}'])
+            csv_writer.writerow(['Method', experiment.calculated_hsp.method])
+            csv_writer.writerow(['Accuracy (%)', f'{experiment.calculated_hsp.accuracy * 100:.1f}'])
+            csv_writer.writerow([])
+
+            # Solvent data section
+            csv_writer.writerow(['Solvent Name', 'δD', 'δP', 'δH', 'Solubility'])
+            for solvent in solvent_data:
+                csv_writer.writerow([
+                    solvent['solvent_name'],
+                    f"{solvent['delta_d']:.1f}",
+                    f"{solvent['delta_p']:.1f}",
+                    f"{solvent['delta_h']:.1f}",
+                    solvent['solubility']
+                ])
+
+            zip_file.writestr('data/hsp_results.csv', csv_buffer.getvalue())
+
+            # 3. Generate JSON
+            json_data = {
+                'sample_name': experiment.sample_name,
+                'calculation_date': datetime.now().isoformat(),
+                'hsp_parameters': {
+                    'delta_d': experiment.calculated_hsp.delta_d,
+                    'delta_p': experiment.calculated_hsp.delta_p,
+                    'delta_h': experiment.calculated_hsp.delta_h,
+                    'radius': experiment.calculated_hsp.radius
+                },
+                'calculation_details': {
+                    'method': experiment.calculated_hsp.method,
+                    'accuracy': experiment.calculated_hsp.accuracy,
+                    'error': experiment.calculated_hsp.error,
+                    'good_solvents': experiment.calculated_hsp.good_solvents,
+                    'total_solvents': experiment.calculated_hsp.solvent_count
+                },
+                'solvents': solvent_data
+            }
+            zip_file.writestr('data/hsp_results.json', json.dumps(json_data, indent=2))
+
+            # 4. Generate README
+            readme_content = f"""Hansen Solubility Parameters Analysis Results
+Sample: {experiment.sample_name}
+Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+HSP Parameters:
+- δD = {experiment.calculated_hsp.delta_d:.1f} MPa^0.5
+- δP = {experiment.calculated_hsp.delta_p:.1f} MPa^0.5
+- δH = {experiment.calculated_hsp.delta_h:.1f} MPa^0.5
+- Ra = {experiment.calculated_hsp.radius:.1f} MPa^0.5
+
+Calculation Details:
+- Method: {experiment.calculated_hsp.method}
+- Accuracy: {experiment.calculated_hsp.accuracy * 100:.1f}%
+- Good Solvents: {experiment.calculated_hsp.good_solvents}/{experiment.calculated_hsp.solvent_count}
+
+Files:
+- graphs/hansen_sphere_3d.html: Interactive 3D visualization
+- graphs/hansen_sphere_3d.png: Static 3D visualization (if available)
+- graphs/hansen_projections_2d.png: 2D projection plots (if available)
+- data/hsp_results.csv: Data in CSV format
+- data/hsp_results.json: Data in JSON format
+
+Generated by MixingCompass
+"""
+            zip_file.writestr('README.txt', readme_content)
+
+        # Prepare response
+        zip_buffer.seek(0)
+
+        return StreamingResponse(
+            zip_buffer,
+            media_type="application/zip",
+            headers={
+                "Content-Disposition": f'attachment; filename="{experiment.sample_name}_hansen_graphs.zip"'
+            }
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error exporting graphs: {e}")
+        raise HTTPException(status_code=500, detail=f"Error exporting graphs: {str(e)}")
 
 

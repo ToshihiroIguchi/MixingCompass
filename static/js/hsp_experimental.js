@@ -705,6 +705,20 @@ class HSPExperimental {
                 this.exportCurrentResult();
             });
         }
+
+        // Enable export graphs button
+        const exportGraphsBtn = document.querySelector('#export-graphs-btn');
+        if (exportGraphsBtn) {
+            exportGraphsBtn.disabled = false;
+
+            // Remove existing event listener and add new one
+            const newExportGraphsBtn = exportGraphsBtn.cloneNode(true);
+            exportGraphsBtn.parentNode.replaceChild(newExportGraphsBtn, exportGraphsBtn);
+
+            newExportGraphsBtn.addEventListener('click', () => {
+                this.exportGraphsAsZip();
+            });
+        }
     }
 
     async copyHSPDataToClipboard(result) {
@@ -1523,6 +1537,50 @@ class HSPExperimental {
             }
         } else {
             console.warn('dp_dh projection data not available');
+        }
+    }
+
+    async exportGraphsAsZip() {
+        try {
+            if (!this.currentExperiment) {
+                this.showNotification('No experiment available to export', 'error');
+                return;
+            }
+
+            const sampleNameInput = document.querySelector('#sample-name');
+            const sampleName = sampleNameInput ? sampleNameInput.value.trim() : 'sample';
+
+            this.showNotification('Generating graphs package...', 'info');
+
+            // Call backend API to generate ZIP
+            const response = await fetch(`/api/hsp-experimental/experiments/${this.currentExperiment}/export-graphs`);
+
+            if (!response.ok) {
+                const error = await response.json();
+                this.showNotification(`Export failed: ${error.detail}`, 'error');
+                return;
+            }
+
+            // Download the ZIP file
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+
+            // Generate filename with sample name and date
+            const date = new Date().toISOString().split('T')[0];
+            a.download = `${sampleName}_hansen_${date}.zip`;
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            this.showNotification('Graphs exported successfully', 'success');
+
+        } catch (error) {
+            console.error('Error exporting graphs:', error);
+            this.showNotification('Failed to export graphs', 'error');
         }
     }
 

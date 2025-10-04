@@ -14,6 +14,7 @@ scipy>=1.10.0,<2.0.0
 # Visualization
 plotly>=5.0.0,<6.0.0
 matplotlib>=3.5.0,<4.0.0
+kaleido==0.2.1
 
 # Hansen Solubility Parameters Calculation
 HSPiPy>=1.1.0,<2.0.0

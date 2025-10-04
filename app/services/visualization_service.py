@@ -468,18 +468,15 @@ class HansenSphereVisualizationService:
             },
             'scene': {
                 'xaxis': {
-                    'title': 'δD (Dispersion) [MPa<sup>0.5</sup>]',
-                    'titlefont': {'size': 12},
+                    'title': {'text': 'δD (Dispersion) [MPa<sup>0.5</sup>]', 'font': {'size': 12}},
                     'range': equal_x_range
                 },
                 'yaxis': {
-                    'title': 'δP (Polarity) [MPa<sup>0.5</sup>]',
-                    'titlefont': {'size': 12},
+                    'title': {'text': 'δP (Polarity) [MPa<sup>0.5</sup>]', 'font': {'size': 12}},
                     'range': equal_y_range
                 },
                 'zaxis': {
-                    'title': 'δH (Hydrogen Bonding) [MPa<sup>0.5</sup>]',
-                    'titlefont': {'size': 12},
+                    'title': {'text': 'δH (Hydrogen Bonding) [MPa<sup>0.5</sup>]', 'font': {'size': 12}},
                     'range': equal_z_range
                 },
                 'camera': {
