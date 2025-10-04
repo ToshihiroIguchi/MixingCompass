@@ -159,6 +159,14 @@ class HansenSphereVisualizationService:
         # Extract solvent points
         solvent_points = HansenSphereVisualizationService.create_solvent_points(solvent_data)
 
+        # Calculate axis maximum for consistent ranges with origin at (0,0)
+        all_values = (
+            solvent_points['x'] + solvent_points['y'] + solvent_points['z'] +
+            [center_d, center_p, center_h] +
+            [center_d + radius, center_p + radius, center_h + radius]
+        )
+        axis_max = max(25.0, max(all_values) + 2) if all_values else 25.0
+
         # 1. δD vs δP (fixing δH)
         circle_x, circle_y = HansenSphereVisualizationService.generate_circle_coordinates((center_d, center_p), radius)
 
@@ -202,8 +210,8 @@ class HansenSphereVisualizationService:
             'layout': {
                 'width': width,
                 'height': height,
-                'xaxis': {'title': 'δD [MPa<sup>0.5</sup>]', 'range': [0, None]},
-                'yaxis': {'title': 'δP [MPa<sup>0.5</sup>]', 'range': [0, None], 'scaleanchor': 'x', 'scaleratio': 1},
+                'xaxis': {'title': 'δD [MPa<sup>0.5</sup>]', 'range': [0, axis_max]},
+                'yaxis': {'title': 'δP [MPa<sup>0.5</sup>]', 'range': [0, axis_max], 'scaleanchor': 'x', 'scaleratio': 1},
                 'hovermode': 'closest',
                 'showlegend': False,
                 'margin': {'l': 50, 'r': 20, 't': 20, 'b': 50}
@@ -250,8 +258,8 @@ class HansenSphereVisualizationService:
             'layout': {
                 'width': width,
                 'height': height,
-                'xaxis': {'title': 'δD [MPa<sup>0.5</sup>]', 'range': [0, None]},
-                'yaxis': {'title': 'δH [MPa<sup>0.5</sup>]', 'range': [0, None], 'scaleanchor': 'x', 'scaleratio': 1},
+                'xaxis': {'title': 'δD [MPa<sup>0.5</sup>]', 'range': [0, axis_max]},
+                'yaxis': {'title': 'δH [MPa<sup>0.5</sup>]', 'range': [0, axis_max], 'scaleanchor': 'x', 'scaleratio': 1},
                 'hovermode': 'closest',
                 'showlegend': False,
                 'margin': {'l': 50, 'r': 20, 't': 20, 'b': 50}
@@ -298,8 +306,8 @@ class HansenSphereVisualizationService:
             'layout': {
                 'width': width,
                 'height': height,
-                'xaxis': {'title': 'δP [MPa<sup>0.5</sup>]', 'range': [0, None]},
-                'yaxis': {'title': 'δH [MPa<sup>0.5</sup>]', 'range': [0, None], 'scaleanchor': 'x', 'scaleratio': 1},
+                'xaxis': {'title': 'δP [MPa<sup>0.5</sup>]', 'range': [0, axis_max]},
+                'yaxis': {'title': 'δH [MPa<sup>0.5</sup>]', 'range': [0, axis_max], 'scaleanchor': 'x', 'scaleratio': 1},
                 'hovermode': 'closest',
                 'showlegend': False,
                 'margin': {'l': 50, 'r': 20, 't': 20, 'b': 50}
