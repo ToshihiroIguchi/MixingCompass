@@ -875,7 +875,7 @@ class HSPExperimental {
         }
     }
 
-    loadExperimentalResultData(resultId) {
+    async loadExperimentalResultData(resultId) {
         try {
             if (!window.experimentalResultsManager) {
                 this.showNotification('Experimental results manager not available', 'error');
@@ -907,14 +907,13 @@ class HSPExperimental {
                 this.populateRowWithExperimentalResultData(newRow, solventData);
             });
 
-            // Display HSP results immediately
-            this.showCalculationResults(result.hsp_result);
-            this.showCalculationDetails(result.hsp_result);
+            // Wait for async solvent data loading to complete
+            await new Promise(resolve => setTimeout(resolve, 500));
 
-            // Store current result for re-calculation if needed
-            this.currentCalculationResult = result.hsp_result;
+            // Recalculate HSP with loaded data
+            await this.calculateHSP();
 
-            this.showNotification(`Loaded experimental result: ${result.sample_name}`, 'success');
+            this.showNotification(`Loaded and recalculated: ${result.sample_name}`, 'success');
 
         } catch (error) {
             console.error('Error loading experimental result:', error);
