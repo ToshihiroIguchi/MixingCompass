@@ -76,10 +76,29 @@
                         </div>
                     </div>
                     <div class="hansen-sphere" id="hansen-sphere-container">
-                        <div id="plotly-visualization" class="plotly-container">
-                            <div class="visualization-placeholder">
-                                <p>Calculate HSP to display 3D Hansen sphere</p>
-                                <small>Interactive 3D visualization will appear after calculation</small>
+                        <div class="viz-tabs">
+                            <button class="viz-tab active" data-view="view-3d">3D View</button>
+                            <button class="viz-tab" data-view="view-2d">2D Projections</button>
+                        </div>
+                        <div id="view-3d" class="view-panel active">
+                            <div id="plotly-visualization" class="plotly-container">
+                                <div class="visualization-placeholder">
+                                    <p>Calculate HSP to display 3D Hansen sphere</p>
+                                    <small>Interactive 3D visualization will appear after calculation</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="view-2d" class="view-panel" style="display: none;">
+                            <div class="grid-2d">
+                                <div class="plot-item">
+                                    <div id="plot-dd-dp" class="plot-2d"></div>
+                                </div>
+                                <div class="plot-item">
+                                    <div id="plot-dd-dh" class="plot-2d"></div>
+                                </div>
+                                <div class="plot-item">
+                                    <div id="plot-dp-dh" class="plot-2d"></div>
+                                </div>
                             </div>
                         </div>
                     </div>

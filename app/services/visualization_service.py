@@ -114,6 +114,203 @@ class HansenSphereVisualizationService:
 
         return points
 
+    @staticmethod
+    def generate_circle_coordinates(center: Tuple[float, float],
+                                   radius: float,
+                                   resolution: int = 100) -> Tuple[List[float], List[float]]:
+        """
+        Generate circle coordinates for 2D projection
+
+        Args:
+            center: Circle center (x, y)
+            radius: Circle radius
+            resolution: Number of points for circle
+
+        Returns:
+            Tuple of (x_coords, y_coords) for circle
+        """
+        theta = np.linspace(0, 2 * np.pi, resolution)
+        x = center[0] + radius * np.cos(theta)
+        y = center[1] + radius * np.sin(theta)
+        return x.tolist(), y.tolist()
+
+    @staticmethod
+    def generate_2d_projections(hsp_result: HSPCalculationResult,
+                                solvent_data: List[Dict],
+                                width: int = 400,
+                                height: int = 400) -> Dict:
+        """
+        Generate 2D projection plots for Hansen space
+
+        Args:
+            hsp_result: HSP calculation result with center and radius
+            solvent_data: Solvent test data for plotting points
+            width: Plot width in pixels
+            height: Plot height in pixels
+
+        Returns:
+            Dictionary with three 2D projection plots (dd_dp, dd_dh, dp_dh)
+        """
+        center_d = hsp_result.delta_d
+        center_p = hsp_result.delta_p
+        center_h = hsp_result.delta_h
+        radius = hsp_result.radius
+
+        # Extract solvent points
+        solvent_points = HansenSphereVisualizationService.create_solvent_points(solvent_data)
+
+        # 1. δD vs δP (fixing δH)
+        circle_x, circle_y = HansenSphereVisualizationService.generate_circle_coordinates((center_d, center_p), radius)
+
+        dd_dp = {
+            'data': [
+                # Circle
+                {
+                    'x': circle_x,
+                    'y': circle_y,
+                    'mode': 'lines',
+                    'name': 'Hansen Circle',
+                    'line': {'color': 'rgba(76, 175, 80, 0.6)', 'width': 2},
+                    'fill': 'toself',
+                    'fillcolor': 'rgba(76, 175, 80, 0.1)',
+                    'hoverinfo': 'skip'
+                },
+                # Solvent points
+                {
+                    'x': solvent_points['x'],
+                    'y': solvent_points['y'],
+                    'mode': 'markers',
+                    'name': 'Solvents',
+                    'marker': {
+                        'size': 8,
+                        'color': solvent_points['colors'],
+                        'line': {'width': 1, 'color': 'white'}
+                    },
+                    'text': solvent_points['names'],
+                    'hovertemplate': '<b>%{text}</b><br>δD: %{x:.1f}<br>δP: %{y:.1f}<extra></extra>'
+                },
+                # Center point
+                {
+                    'x': [center_d],
+                    'y': [center_p],
+                    'mode': 'markers',
+                    'name': 'Center',
+                    'marker': {'size': 10, 'color': '#32CD32', 'symbol': 'cross'},
+                    'hovertemplate': f'<b>Center</b><br>δD: {center_d:.1f}<br>δP: {center_p:.1f}<extra></extra>'
+                }
+            ],
+            'layout': {
+                'width': width,
+                'height': height,
+                'xaxis': {'title': 'δD [MPa<sup>0.5</sup>]', 'range': [0, None]},
+                'yaxis': {'title': 'δP [MPa<sup>0.5</sup>]', 'range': [0, None], 'scaleanchor': 'x', 'scaleratio': 1},
+                'hovermode': 'closest',
+                'showlegend': False,
+                'margin': {'l': 50, 'r': 20, 't': 20, 'b': 50}
+            }
+        }
+
+        # 2. δD vs δH (fixing δP)
+        circle_x, circle_y = HansenSphereVisualizationService.generate_circle_coordinates((center_d, center_h), radius)
+
+        dd_dh = {
+            'data': [
+                {
+                    'x': circle_x,
+                    'y': circle_y,
+                    'mode': 'lines',
+                    'name': 'Hansen Circle',
+                    'line': {'color': 'rgba(76, 175, 80, 0.6)', 'width': 2},
+                    'fill': 'toself',
+                    'fillcolor': 'rgba(76, 175, 80, 0.1)',
+                    'hoverinfo': 'skip'
+                },
+                {
+                    'x': solvent_points['x'],
+                    'y': solvent_points['z'],
+                    'mode': 'markers',
+                    'name': 'Solvents',
+                    'marker': {
+                        'size': 8,
+                        'color': solvent_points['colors'],
+                        'line': {'width': 1, 'color': 'white'}
+                    },
+                    'text': solvent_points['names'],
+                    'hovertemplate': '<b>%{text}</b><br>δD: %{x:.1f}<br>δH: %{y:.1f}<extra></extra>'
+                },
+                {
+                    'x': [center_d],
+                    'y': [center_h],
+                    'mode': 'markers',
+                    'name': 'Center',
+                    'marker': {'size': 10, 'color': '#32CD32', 'symbol': 'cross'},
+                    'hovertemplate': f'<b>Center</b><br>δD: {center_d:.1f}<br>δH: {center_h:.1f}<extra></extra>'
+                }
+            ],
+            'layout': {
+                'width': width,
+                'height': height,
+                'xaxis': {'title': 'δD [MPa<sup>0.5</sup>]', 'range': [0, None]},
+                'yaxis': {'title': 'δH [MPa<sup>0.5</sup>]', 'range': [0, None], 'scaleanchor': 'x', 'scaleratio': 1},
+                'hovermode': 'closest',
+                'showlegend': False,
+                'margin': {'l': 50, 'r': 20, 't': 20, 'b': 50}
+            }
+        }
+
+        # 3. δP vs δH (fixing δD)
+        circle_x, circle_y = HansenSphereVisualizationService.generate_circle_coordinates((center_p, center_h), radius)
+
+        dp_dh = {
+            'data': [
+                {
+                    'x': circle_x,
+                    'y': circle_y,
+                    'mode': 'lines',
+                    'name': 'Hansen Circle',
+                    'line': {'color': 'rgba(76, 175, 80, 0.6)', 'width': 2},
+                    'fill': 'toself',
+                    'fillcolor': 'rgba(76, 175, 80, 0.1)',
+                    'hoverinfo': 'skip'
+                },
+                {
+                    'x': solvent_points['y'],
+                    'y': solvent_points['z'],
+                    'mode': 'markers',
+                    'name': 'Solvents',
+                    'marker': {
+                        'size': 8,
+                        'color': solvent_points['colors'],
+                        'line': {'width': 1, 'color': 'white'}
+                    },
+                    'text': solvent_points['names'],
+                    'hovertemplate': '<b>%{text}</b><br>δP: %{x:.1f}<br>δH: %{y:.1f}<extra></extra>'
+                },
+                {
+                    'x': [center_p],
+                    'y': [center_h],
+                    'mode': 'markers',
+                    'name': 'Center',
+                    'marker': {'size': 10, 'color': '#32CD32', 'symbol': 'cross'},
+                    'hovertemplate': f'<b>Center</b><br>δP: {center_p:.1f}<br>δH: {center_h:.1f}<extra></extra>'
+                }
+            ],
+            'layout': {
+                'width': width,
+                'height': height,
+                'xaxis': {'title': 'δP [MPa<sup>0.5</sup>]', 'range': [0, None]},
+                'yaxis': {'title': 'δH [MPa<sup>0.5</sup>]', 'range': [0, None], 'scaleanchor': 'x', 'scaleratio': 1},
+                'hovermode': 'closest',
+                'showlegend': False,
+                'margin': {'l': 50, 'r': 20, 't': 20, 'b': 50}
+            }
+        }
+
+        return {
+            'dd_dp': dd_dp,
+            'dd_dh': dd_dh,
+            'dp_dh': dp_dh
+        }
 
     @classmethod
     def generate_plotly_visualization(cls,

@@ -47,6 +47,15 @@ class HSPExperimental {
     }
 
     setupEventListeners() {
+        // Visualization tab switching
+        const vizTabs = document.querySelectorAll('.viz-tab');
+        vizTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const view = tab.dataset.view;
+                this.switchVisualizationView(view);
+            });
+        });
+
         // Load data button
         const loadDataBtn = document.querySelector('#load-data-btn');
         if (loadDataBtn) {
@@ -1289,7 +1298,18 @@ class HSPExperimental {
 
             if (response.ok) {
                 const data = await response.json();
+                console.log('Visualization API response:', data);
+                console.log('projections_2d available:', !!data.projections_2d);
+
                 this.displayPlotlyVisualization(data.plotly_config);
+
+                // Render 2D projections if available
+                if (data.projections_2d) {
+                    console.log('Calling render2DProjections with:', data.projections_2d);
+                    this.render2DProjections(data.projections_2d);
+                } else {
+                    console.warn('No projections_2d in API response');
+                }
 
                 // Show refresh button
                 const refreshBtn = document.querySelector('#refresh-visualization-btn');
@@ -1364,6 +1384,119 @@ class HSPExperimental {
                 `<option value="${name}">`
             ).join('');
         });
+    }
+
+    switchVisualizationView(view) {
+        // Update tab states
+        const tabs = document.querySelectorAll('.viz-tab');
+        tabs.forEach(tab => {
+            if (tab.dataset.view === view) {
+                tab.classList.add('active');
+            } else {
+                tab.classList.remove('active');
+            }
+        });
+
+        // Update panel visibility
+        const view3d = document.querySelector('#view-3d');
+        const view2d = document.querySelector('#view-2d');
+
+        if (view === 'view-3d') {
+            if (view3d) {
+                view3d.classList.add('active');
+                view3d.style.display = '';
+            }
+            if (view2d) {
+                view2d.classList.remove('active');
+                view2d.style.display = 'none';
+            }
+        } else if (view === 'view-2d') {
+            if (view3d) {
+                view3d.classList.remove('active');
+                view3d.style.display = 'none';
+            }
+            if (view2d) {
+                view2d.classList.add('active');
+                view2d.style.display = '';
+            }
+        }
+    }
+
+    render2DProjections(projections) {
+        console.log('render2DProjections called with:', projections);
+
+        if (!projections) {
+            console.warn('No projections data provided');
+            return;
+        }
+
+        // Check if DOM elements exist
+        const ddDpElement = document.getElementById('plot-dd-dp');
+        const ddDhElement = document.getElementById('plot-dd-dh');
+        const dpDhElement = document.getElementById('plot-dp-dh');
+
+        console.log('DOM elements:', {
+            'plot-dd-dp': ddDpElement ? 'found' : 'NOT FOUND',
+            'plot-dd-dh': ddDhElement ? 'found' : 'NOT FOUND',
+            'plot-dp-dh': dpDhElement ? 'found' : 'NOT FOUND'
+        });
+
+        // Render δD vs δP
+        if (projections.dd_dp) {
+            console.log('Rendering dd_dp projection...');
+            if (ddDpElement) {
+                // Override layout size to 60% of original
+                const layout = {...projections.dd_dp.layout, width: 240, height: 240};
+                Plotly.newPlot('plot-dd-dp', projections.dd_dp.data, layout, {
+                    responsive: true,
+                    displayModeBar: true,
+                    displaylogo: false
+                });
+                console.log('dd_dp rendered successfully');
+            } else {
+                console.error('plot-dd-dp element not found');
+            }
+        } else {
+            console.warn('dd_dp projection data not available');
+        }
+
+        // Render δD vs δH
+        if (projections.dd_dh) {
+            console.log('Rendering dd_dh projection...');
+            if (ddDhElement) {
+                // Override layout size to 60% of original
+                const layout = {...projections.dd_dh.layout, width: 240, height: 240};
+                Plotly.newPlot('plot-dd-dh', projections.dd_dh.data, layout, {
+                    responsive: true,
+                    displayModeBar: true,
+                    displaylogo: false
+                });
+                console.log('dd_dh rendered successfully');
+            } else {
+                console.error('plot-dd-dh element not found');
+            }
+        } else {
+            console.warn('dd_dh projection data not available');
+        }
+
+        // Render δP vs δH
+        if (projections.dp_dh) {
+            console.log('Rendering dp_dh projection...');
+            if (dpDhElement) {
+                // Override layout size to 60% of original
+                const layout = {...projections.dp_dh.layout, width: 240, height: 240};
+                Plotly.newPlot('plot-dp-dh', projections.dp_dh.data, layout, {
+                    responsive: true,
+                    displayModeBar: true,
+                    displaylogo: false
+                });
+                console.log('dp_dh rendered successfully');
+            } else {
+                console.error('plot-dp-dh element not found');
+            }
+        } else {
+            console.warn('dp_dh projection data not available');
+        }
     }
 
     showNotification(message, type = 'info') {

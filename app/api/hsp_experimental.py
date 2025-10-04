@@ -442,6 +442,15 @@ async def get_hansen_sphere_visualization(
                 logger.info(f"     - Names: {names}")
                 logger.info(f"     - Solubility: {solubility}")
 
+        # Generate 2D projections
+        logger.debug(f"🎨 Generating 2D projections")
+        projections_2d = HansenSphereVisualizationService.generate_2d_projections(
+            hsp_result=experiment.calculated_hsp,
+            solvent_data=solvent_data,
+            width=240,
+            height=240
+        )
+
         response_data = {
             "experiment_id": experiment_id,
             "sample_name": experiment.sample_name,
@@ -452,10 +461,11 @@ async def get_hansen_sphere_visualization(
                 "ra": experiment.calculated_hsp.radius
             },
             "plotly_config": plotly_data,
+            "projections_2d": projections_2d,
             "solvent_count": len(solvent_data)
         }
 
-        logger.debug(f"📤 Sending response with {len(plotly_data['data'])} plot traces")
+        logger.debug(f"📤 Sending response with {len(plotly_data['data'])} plot traces and 3 2D projections")
         return response_data
 
     except HTTPException:
