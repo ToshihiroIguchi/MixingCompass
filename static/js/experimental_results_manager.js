@@ -105,47 +105,63 @@ class ExperimentalResultsManager {
     showDuplicateConfirmationDialog(newResult, existingResult) {
         return new Promise((resolve) => {
             const modalHTML = `
-                <div id="duplicate-result-modal" class="modal" style="display: block;">
-                    <div class="modal-content warning-modal">
-                        <div class="modal-header warning-header">
+                <div id="duplicate-result-modal" class="modal" style="display: flex;">
+                    <div class="modal-content modal-large">
+                        <div class="modal-header">
                             <h3>⚠️ Duplicate Sample Name</h3>
                             <button class="modal-close">&times;</button>
                         </div>
                         <div class="modal-body">
-                            <div class="warning-section">
-                                <div class="warning-icon">⚠️</div>
-                                <div class="warning-content">
-                                    <h4>Sample Name Already Exists</h4>
-                                    <p>A result named <strong>"${this.escapeHtml(newResult.sample_name)}"</strong> already exists.</p>
-                                </div>
+                            <div class="duplicate-warning-message">
+                                <p>A result named <strong>"${this.escapeHtml(newResult.sample_name)}"</strong> already exists.</p>
+                                <p>Choose how to proceed:</p>
                             </div>
-                            <div class="impact-details">
-                                <div class="comparison-row">
-                                    <div class="comparison-col">
-                                        <h5>Existing Result:</h5>
-                                        <div class="result-summary">
-                                            <div>Date: ${Utils.formatDate(existingResult.created)}</div>
-                                            <div>Time: ${new Date(existingResult.created).toLocaleTimeString()}</div>
-                                            <div>Solvents: ${existingResult.metadata.solvent_count}</div>
-                                            <div>HSP: (${existingResult.hsp_result.delta_d.toFixed(1)}, ${existingResult.hsp_result.delta_p.toFixed(1)}, ${existingResult.hsp_result.delta_h.toFixed(1)})</div>
+                            <div class="duplicate-comparison">
+                                <div class="comparison-item">
+                                    <h4>Existing Result</h4>
+                                    <div class="result-details">
+                                        <div class="detail-row">
+                                            <span class="detail-label">Date:</span>
+                                            <span class="detail-value">${Utils.formatDate(existingResult.created)}</span>
                                         </div>
-                                    </div>
-                                    <div class="comparison-col">
-                                        <h5>New Result:</h5>
-                                        <div class="result-summary">
-                                            <div>Date: ${Utils.formatDate(new Date())}</div>
-                                            <div>Time: ${new Date().toLocaleTimeString()}</div>
-                                            <div>Solvents: ${newResult.metadata.solvent_count}</div>
-                                            <div>HSP: (${newResult.hsp_result.delta_d.toFixed(1)}, ${newResult.hsp_result.delta_p.toFixed(1)}, ${newResult.hsp_result.delta_h.toFixed(1)})</div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">Time:</span>
+                                            <span class="detail-value">${new Date(existingResult.created).toLocaleTimeString()}</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">Solvents:</span>
+                                            <span class="detail-value">${existingResult.metadata.solvent_count}</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">HSP:</span>
+                                            <span class="detail-value">(${existingResult.hsp_result.delta_d.toFixed(1)}, ${existingResult.hsp_result.delta_p.toFixed(1)}, ${existingResult.hsp_result.delta_h.toFixed(1)})</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="loss-warning">
-                                    <strong>Choose how to proceed:</strong>
+                                <div class="comparison-item">
+                                    <h4>New Result</h4>
+                                    <div class="result-details">
+                                        <div class="detail-row">
+                                            <span class="detail-label">Date:</span>
+                                            <span class="detail-value">${Utils.formatDate(new Date())}</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">Time:</span>
+                                            <span class="detail-value">${new Date().toLocaleTimeString()}</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">Solvents:</span>
+                                            <span class="detail-value">${newResult.metadata.solvent_count}</span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="detail-label">HSP:</span>
+                                            <span class="detail-value">(${newResult.hsp_result.delta_d.toFixed(1)}, ${newResult.hsp_result.delta_p.toFixed(1)}, ${newResult.hsp_result.delta_h.toFixed(1)})</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer warning-footer">
+                        <div class="modal-footer">
                             <button id="cancel-duplicate" class="btn btn-secondary">Cancel</button>
                             <button id="save-as-new-duplicate" class="btn btn-primary">Save as New</button>
                             <button id="overwrite-duplicate" class="btn btn-danger">Overwrite</button>
