@@ -394,6 +394,27 @@ class HSPExperimental {
         row.querySelector('.delta-p').value = solventData.delta_p !== undefined ? solventData.delta_p : '';
         row.querySelector('.delta-h').value = solventData.delta_h !== undefined ? solventData.delta_h : '';
 
+        // Add reference URL link if available
+        const nameInput = row.querySelector('.solvent-name-input');
+        const container = row.querySelector('.solvent-input-container');
+
+        // Remove existing link if any
+        const existingLink = container.querySelector('.ref-link');
+        if (existingLink) {
+            existingLink.remove();
+        }
+
+        // Add new link if source_url exists
+        if (solventData.source_url) {
+            const link = document.createElement('a');
+            link.href = solventData.source_url;
+            link.target = '_blank';
+            link.className = 'ref-link';
+            link.title = 'View source reference';
+            link.textContent = '🔗';
+            container.appendChild(link);
+        }
+
         // Store solvent data in row for reference
         row.dataset.solventData = JSON.stringify(solventData);
     }

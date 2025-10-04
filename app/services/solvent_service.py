@@ -151,6 +151,7 @@ class SolventService:
             delta_total=float(row['delta_total']) if pd.notna(row.get('delta_total')) else None,
             source_file=str(row['source_file']) if pd.notna(row.get('source_file')) else None,
             source_row=int(row['source_row']) if pd.notna(row.get('source_row')) else None,
+            source_url=str(row['source_url']) if pd.notna(row.get('source_url')) else None,
             completeness=float(row['completeness']) if pd.notna(row.get('completeness')) else None,
         )
 

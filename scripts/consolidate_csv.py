@@ -39,6 +39,66 @@ class CSVConsolidator:
 
         return csv_files
 
+    def load_source_urls(self, url_file: Path) -> Dict[str, str]:
+        """Load source URLs from list.csv"""
+        try:
+            url_df = pd.read_csv(url_file)
+
+            # Create mapping from file name (without extension) to URL
+            url_mapping = {}
+            for _, row in url_df.iterrows():
+                file_name = Path(row['file']).stem  # Remove .csv extension
+                url_mapping[file_name] = row['URL']
+
+            logger.info(f"Loaded {len(url_mapping)} source URL mappings")
+            return url_mapping
+
+        except Exception as e:
+            logger.error(f"Error loading URL mapping file: {e}")
+            return {}
+
+    def clean_numeric_field(self, value, field_type='int', allow_negative=True):
+        """Clean numeric field values"""
+
+        # Check for None/NaN/empty
+        if pd.isna(value):
+            return None
+
+        # Handle string values
+        if isinstance(value, str):
+            value = value.strip()
+
+            # Check for missing value markers
+            if value in ['-', '–', '—', '', 'nan', 'NaN', 'NA', 'N/A']:
+                return None
+
+            # Handle space-separated multiple values (e.g., "1            2")
+            if ' ' in value and field_type == 'int':
+                # Get first numeric value
+                parts = value.split()
+                for part in parts:
+                    try:
+                        return int(float(part))
+                    except ValueError:
+                        continue
+                return None  # No numeric value found
+
+        # Convert to numeric
+        try:
+            if field_type == 'int':
+                result = int(float(value))  # "1.0" -> 1
+                if not allow_negative and result < 0:
+                    return None
+                return result
+            else:  # float
+                result = float(value)
+                if not allow_negative and result < 0:
+                    return None
+                return result
+        except (ValueError, TypeError):
+            logger.warning(f"Cannot convert to {field_type}: {value}")
+            return None
+
     def normalize_column_names(self, df: pd.DataFrame, file_name: str) -> pd.DataFrame:
         """Normalize column names to standard format"""
         df = df.copy()
@@ -106,13 +166,27 @@ class CSVConsolidator:
         non_null_count = sum(1 for col in essential_cols if col in row.index and pd.notna(row[col]))
         return non_null_count / len(essential_cols)
 
-    def consolidate_files(self, csv_files: Dict[str, pd.DataFrame]) -> pd.DataFrame:
+    def consolidate_files(self, csv_files: Dict[str, pd.DataFrame], source_urls: Dict[str, str] = None) -> pd.DataFrame:
         """Consolidate all CSV files with duplicate handling"""
 
         all_data = []
         solvent_registry = {}  # Track solvents and their priority scores
 
         essential_cols = ['delta_D', 'delta_P', 'delta_H']
+
+        # Define numeric fields to clean
+        numeric_fields = {
+            'WGK': ('int', False),           # integer, no negative
+            'delta_D': ('float', False),     # float, no negative
+            'delta_P': ('float', False),
+            'delta_H': ('float', False),
+            'MWt': ('float', False),
+            'MVol': ('float', False),
+            'Density': ('float', False),
+            'Tv': ('float', True),           # boiling point can be negative
+            'Pv': ('float', False),
+            'Cost': ('float', False),
+        }
 
         # Process each file
         for file_name, df in csv_files.items():
@@ -144,10 +218,26 @@ class CSVConsolidator:
 
                 # Add source information
                 row_dict = row.to_dict()
+
+                # Clean numeric fields
+                for field, (dtype, allow_neg) in numeric_fields.items():
+                    if field in row_dict:
+                        row_dict[field] = self.clean_numeric_field(
+                            row_dict[field],
+                            field_type=dtype,
+                            allow_negative=allow_neg
+                        )
+
                 row_dict['source_file'] = file_name
                 row_dict['source_row'] = idx + 2  # +2 for header and 0-based index
                 row_dict['priority_score'] = priority_score
                 row_dict['completeness'] = completeness
+
+                # Add source URL if available
+                if source_urls and file_name in source_urls:
+                    row_dict['source_url'] = source_urls[file_name]
+                else:
+                    row_dict['source_url'] = None
 
                 # Handle duplicates
                 if solvent_name in solvent_registry:
@@ -232,7 +322,7 @@ class CSVConsolidator:
             for source in stats['sources']:
                 logger.debug(f"    - {source}")
 
-    def run(self):
+    def run(self, url_file: Path = None):
         """Main consolidation process"""
         logger.info("Starting CSV consolidation...")
 
@@ -242,8 +332,13 @@ class CSVConsolidator:
             logger.error("No CSV files found to consolidate")
             return
 
+        # Load source URLs if provided
+        source_urls = {}
+        if url_file and url_file.exists():
+            source_urls = self.load_source_urls(url_file)
+
         # Consolidate data
-        consolidated_df = self.consolidate_files(csv_files)
+        consolidated_df = self.consolidate_files(csv_files, source_urls)
 
         # Save results
         self.save_consolidated_data(consolidated_df)
@@ -264,9 +359,11 @@ def main():
     # Define paths
     input_dir = project_root / "data" / "original"
     output_file = project_root / "data" / "hsp.csv"
+    url_file = project_root / "data" / "original" / "list.csv"
 
     logger.info(f"Input directory: {input_dir}")
     logger.info(f"Output file: {output_file}")
+    logger.info(f"URL mapping file: {url_file}")
 
     # Check if input directory exists
     if not input_dir.exists():
@@ -275,7 +372,7 @@ def main():
 
     # Run consolidation
     consolidator = CSVConsolidator(input_dir, output_file)
-    consolidator.run()
+    consolidator.run(url_file=url_file)
 
 
 if __name__ == "__main__":

@@ -49,6 +49,7 @@ class SolventData(BaseModel):
     # Data source tracking
     source_file: Optional[str] = Field(None, description="Source file name")
     source_row: Optional[int] = Field(None, description="Source row number", ge=1)
+    source_url: Optional[str] = Field(None, description="Reference URL for source data")
     completeness: Optional[float] = Field(None, description="Data completeness ratio", ge=0, le=1)
 
     @validator('delta_total', always=True)
