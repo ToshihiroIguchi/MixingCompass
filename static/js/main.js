@@ -38,6 +38,22 @@ class MixingCompass {
 
         this.currentSection = sectionId;
         console.log(`Switched to section: ${sectionId}`);
+
+        // Initialize section-specific functionality
+        if (sectionId === 'data-list') {
+            this.initializeDataList();
+        }
+    }
+
+    initializeDataList() {
+        // Initialize or refresh the data list manager
+        if (!window.dataListManager) {
+            window.dataListManager = new DataListManager();
+        } else {
+            // Refresh the displays
+            window.dataListManager.loadSolventSetsDisplay();
+            window.dataListManager.loadExperimentalResultsDisplay();
+        }
     }
 
     setupEventListeners() {

@@ -395,9 +395,13 @@ class DataListManager {
         const solventSet = solventSetManager.getSolventSetById(setId);
         if (!solventSet) return;
 
-        // Store the set ID to load and redirect
+        // Store the set ID to load
         sessionStorage.setItem('loadSolventSetId', setId);
-        window.location.href = '/';
+
+        // Switch to HSP Experimental tab
+        if (window.mixingCompass) {
+            window.mixingCompass.switchSection('hsp-experimental');
+        }
     }
 
     exportSolventSets() {
@@ -581,15 +585,9 @@ class DataListManager {
             // Store result ID in session storage for the HSP experimental page to pick up
             sessionStorage.setItem('loadExperimentalResultId', resultId);
 
-            // Navigate to HSP experimental page
-            const currentUrl = new URL(window.location);
-            currentUrl.hash = '';
-            currentUrl.search = '';
-            window.location.href = currentUrl.origin + currentUrl.pathname + '#hsp-experimental';
-
-            // Trigger navigation if we're already on the page
-            if (window.location.hash === '#hsp-experimental') {
-                window.location.reload();
+            // Switch to HSP Experimental tab
+            if (window.mixingCompass) {
+                window.mixingCompass.switchSection('hsp-experimental');
             }
 
         } catch (error) {
@@ -655,14 +653,11 @@ class DataListManager {
     }
 }
 
-// Initialize when DOM is loaded
+// Initialize when DOM is loaded (only if on standalone data list page)
 document.addEventListener('DOMContentLoaded', () => {
-    // Check if we need to load a specific solvent set from session storage
-    const loadSetId = sessionStorage.getItem('loadSolventSetId');
-    if (loadSetId) {
-        sessionStorage.removeItem('loadSolventSetId');
-        // This will be handled by the main page
+    // Only auto-initialize if we're on the standalone data-list page
+    // In the main app, initialization is handled by main.js when switching tabs
+    if (window.location.pathname === '/data-list') {
+        window.dataListManager = new DataListManager();
     }
-
-    window.dataListManager = new DataListManager();
 });
