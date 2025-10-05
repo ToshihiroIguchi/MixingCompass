@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ app_name }}</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
     <link rel="stylesheet" href="/static/css/styles.css?v=2024092906">
 </head>
 <body>
@@ -152,8 +153,120 @@
 
         <!-- Solvent Search Section -->
         <section id="solvent-search" class="content-section">
-            <h2>Solvent Search</h2>
-            <p>Solvent search functionality (To be implemented)</p>
+            <div class="solvent-search-container">
+                <div class="search-panels">
+                    <!-- Left Panel: Search Input -->
+                    <div class="search-input-panel">
+                        <h2>Solvent Search</h2>
+
+                        <!-- Target HSP Input -->
+                        <div class="search-section">
+                            <h3>Target HSP Values</h3>
+                            <div class="hsp-input-grid">
+                                <div class="input-group">
+                                    <label for="target-delta-d">δD (MPa<sup>0.5</sup>)</label>
+                                    <input type="number" id="target-delta-d" step="0.1" placeholder="15.5">
+                                </div>
+                                <div class="input-group">
+                                    <label for="target-delta-p">δP (MPa<sup>0.5</sup>)</label>
+                                    <input type="number" id="target-delta-p" step="0.1" placeholder="7.0">
+                                </div>
+                                <div class="input-group">
+                                    <label for="target-delta-h">δH (MPa<sup>0.5</sup>)</label>
+                                    <input type="number" id="target-delta-h" step="0.1" placeholder="8.0">
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label for="target-radius">Search Radius Ra (MPa<sup>0.5</sup>)</label>
+                                <input type="number" id="target-radius" step="0.1" placeholder="5.0" value="5.0">
+                                <small>Leave empty for unlimited distance</small>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div class="search-section">
+                            <h3>Filters <button id="toggle-filters" class="btn-small btn-secondary">Show/Hide</button></h3>
+                            <div id="filter-options" style="display: none;">
+                                <div class="filter-group">
+                                    <label>Boiling Point (°C)</label>
+                                    <div class="range-inputs">
+                                        <input type="number" id="bp-min" placeholder="Min">
+                                        <span>—</span>
+                                        <input type="number" id="bp-max" placeholder="Max">
+                                    </div>
+                                </div>
+                                <div class="filter-group">
+                                    <label>Cost (USD/mL)</label>
+                                    <div class="range-inputs">
+                                        <input type="number" id="cost-min" placeholder="Min" step="0.01">
+                                        <span>—</span>
+                                        <input type="number" id="cost-max" placeholder="Max" step="0.01">
+                                    </div>
+                                </div>
+                                <div class="filter-group">
+                                    <label>Safety (WGK)</label>
+                                    <select id="wgk-filter" multiple size="4">
+                                        <option value="all" selected>All</option>
+                                        <option value="1">WGK 1 (Low hazard)</option>
+                                        <option value="2">WGK 2 (Moderate hazard)</option>
+                                        <option value="3">WGK 3 (High hazard)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Search Mode -->
+                        <div class="search-section">
+                            <h3>Search Mode</h3>
+                            <div class="mode-selector">
+                                <label>
+                                    <input type="radio" name="search-mode" value="single" checked>
+                                    Single Solvent
+                                </label>
+                                <label>
+                                    <input type="radio" name="search-mode" value="blend">
+                                    2-Component Blend
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Search Button -->
+                        <button id="search-solvents-btn" class="btn btn-primary" disabled>Search Solvents</button>
+                    </div>
+
+                    <!-- Right Panel: Results -->
+                    <div class="search-results-panel">
+                        <div class="results-header">
+                            <h3>Search Results</h3>
+                            <div class="results-controls">
+                                <span id="results-count-display">0 results</span>
+                                <select id="sort-results">
+                                    <option value="distance">Sort by: Distance (RED)</option>
+                                    <option value="name">Sort by: Name</option>
+                                    <option value="bp">Sort by: Boiling Point</option>
+                                    <option value="cost">Sort by: Cost</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="search-results-list" class="search-results-list">
+                            <div class="empty-state">
+                                <p>Enter target HSP values and click "Search Solvents" to find suitable solvents.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Visualization Section (Optional) -->
+                <div class="search-visualization-section" style="display: none;">
+                    <h3>2D Visualization</h3>
+                    <div id="search-viz-container" class="search-viz-grid">
+                        <div id="search-plot-dd-dp"></div>
+                        <div id="search-plot-dd-dh"></div>
+                        <div id="search-plot-dp-dh"></div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- Data List Section -->
@@ -237,6 +350,7 @@
     <script src="/static/js/solvent_set_manager.js"></script>
     <script src="/static/js/experimental_results_manager.js"></script>
     <script src="/static/js/hsp_experimental.js"></script>
+    <script src="/static/js/solvent_search.js"></script>
     <script src="/static/js/data_list.js"></script>
 </body>
 </html>

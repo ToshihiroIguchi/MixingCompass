@@ -19,7 +19,13 @@
       "Bash(netstat:*)",
       "Bash(timeout:*)",
       "Bash(git reset:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(tasklist)",
+      "Bash(git restore:*)",
+      "Bash(venvScriptspip install kaleido==0.2.1)",
+      "Bash(venvScriptspip.exe install:*)",
+      "Bash(git mv:*)",
+      "Read(//tmp/**)"
     ],
     "deny": [],
     "ask": []

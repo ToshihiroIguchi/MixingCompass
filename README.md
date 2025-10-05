@@ -188,7 +188,7 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8201
 **Solution**: Ensure you're in the project root directory
 
 **Issue**: Solvent database not loading
-**Solution**: Check that `data/hsp.csv` exists and is readable
+**Solution**: Check that `data/solvents.csv` exists and is readable
 
 **Issue**: Visualization not displaying
 **Solution**: Ensure modern browser with JavaScript enabled
@@ -210,7 +210,10 @@ MixingCompass/
 │   └── images/           # Images
 ├── templates/             # HTML templates
 ├── data/                  # Data files
-│   ├── hsp.csv           # Solvent database
+│   ├── original/         # Original source data
+│   │   ├── solvents/    # Solvent database sources
+│   │   └── polymers/    # Polymer database sources
+│   ├── solvents.csv      # Consolidated solvent database
 │   └── experiments/      # Saved experiments
 ├── start.py              # Application launcher
 └── requirements.txt      # Dependencies

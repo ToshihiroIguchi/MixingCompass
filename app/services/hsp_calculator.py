@@ -124,12 +124,17 @@ class HSPCalculator:
                     }
                 )
 
+                # Log temporary file location for debugging
+                print(f"Debug: HSP calculation data saved to: {tmp_filename}")
+                print(f"Debug: File contains {len(hsp_data)} records")
+
                 return result
 
             finally:
-                # Clean up temporary file
-                if os.path.exists(tmp_filename):
-                    os.unlink(tmp_filename)
+                # Keep temporary file for debugging (do not delete)
+                # if os.path.exists(tmp_filename):
+                #     os.unlink(tmp_filename)
+                pass
 
         except Exception as e:
             print(f"HSP calculation error: {e}")

@@ -25,7 +25,7 @@ class Settings(BaseSettings):
     templates_dir: str = "templates"
 
     # File paths
-    solvent_data_file: str = "data/hsp.csv"
+    solvent_data_file: str = "data/solvents.csv"
     logo_file: str = "static/images/mc_logo.png"
 
     # CORS

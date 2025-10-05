@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CSV Consolidation Script for MixingCompass
+CSV Consolidation Script for Polymer Database
 Consolidates multiple CSV files with data richness priority handling for duplicates.
 """
 
@@ -16,8 +16,8 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-class CSVConsolidator:
-    """Consolidates multiple CSV files with intelligent duplicate handling"""
+class PolymerCSVConsolidator:
+    """Consolidates multiple polymer CSV files with intelligent duplicate handling"""
 
     def __init__(self, input_dir: str, output_file: str):
         self.input_dir = Path(input_dir)
@@ -30,6 +30,10 @@ class CSVConsolidator:
         csv_files = {}
 
         for csv_file in self.input_dir.glob("*.csv"):
+            # Skip list.csv (URL mapping file)
+            if csv_file.name == 'list.csv':
+                continue
+
             try:
                 df = pd.read_csv(csv_file, encoding='utf-8-sig')
                 csv_files[csv_file.stem] = df
@@ -57,7 +61,7 @@ class CSVConsolidator:
             logger.error(f"Error loading URL mapping file: {e}")
             return {}
 
-    def clean_numeric_field(self, value, field_type='int', allow_negative=True):
+    def clean_numeric_field(self, value, field_type='float', allow_negative=True):
         """Clean numeric field values"""
 
         # Check for None/NaN/empty
@@ -72,21 +76,10 @@ class CSVConsolidator:
             if value in ['-', '–', '—', '', 'nan', 'NaN', 'NA', 'N/A']:
                 return None
 
-            # Handle space-separated multiple values (e.g., "1            2")
-            if ' ' in value and field_type == 'int':
-                # Get first numeric value
-                parts = value.split()
-                for part in parts:
-                    try:
-                        return int(float(part))
-                    except ValueError:
-                        continue
-                return None  # No numeric value found
-
         # Convert to numeric
         try:
             if field_type == 'int':
-                result = int(float(value))  # "1.0" -> 1
+                result = int(float(value))
                 if not allow_negative and result < 0:
                     return None
                 return result
@@ -105,26 +98,19 @@ class CSVConsolidator:
 
         # Column mapping for different files
         column_mapping = {
-            # Common mappings
-            'Solvents': 'Solvent',
-            'dD': 'delta_D',
-            'dP': 'delta_P',
-            'dH': 'delta_H',
-            'δt': 'delta_total',
-            'Volume': 'MVol',
-            'MWt (g/mol)': 'MWt',
-            'MVol (cm³/mol)': 'MVol',
-            'Tv     (°C)': 'Tv',
-            'Pv  (hPa)': 'Pv',
-            'Density     (g/cm³)': 'Density',
-            'Cost      (€/mL)': 'Cost'
+            'delta': 'delta_total',
+            'delta_D': 'delta_D',
+            'delta_P': 'delta_P',
+            'delta_H': 'delta_H',
+            'R0': 'Ra',
+            'Resin': 'Polymer',
         }
 
         # Apply mappings
         df.columns = [column_mapping.get(col, col) for col in df.columns]
 
         # Ensure essential columns exist
-        essential_columns = ['Solvent', 'delta_D', 'delta_P', 'delta_H']
+        essential_columns = ['Polymer', 'delta_D', 'delta_P', 'delta_H']
         for col in essential_columns:
             if col not in df.columns:
                 logger.warning(f"Missing essential column '{col}' in {file_name}")
@@ -137,13 +123,11 @@ class CSVConsolidator:
 
         # File priority weights (higher = better)
         file_weights = {
-            'JoshuaSchrier_Hansen-Solubility-Parameters': 3000,
-            'HSP_Calculations': 2000,
-            'Solvent List for calc': 1000
+            'polytable': 3000,  # Main polymer database
         }
 
         # Get base file weight
-        base_weight = file_weights.get(file_name, 500)
+        base_weight = file_weights.get(file_name, 1000)
 
         # Row position bonus (earlier rows get higher priority)
         position_bonus = total_rows - row_index
@@ -170,22 +154,25 @@ class CSVConsolidator:
         """Consolidate all CSV files with duplicate handling"""
 
         all_data = []
-        solvent_registry = {}  # Track solvents and their priority scores
+        polymer_registry = {}  # Track polymers and their priority scores
 
         essential_cols = ['delta_D', 'delta_P', 'delta_H']
 
         # Define numeric fields to clean
         numeric_fields = {
-            'WGK': ('int', False),           # integer, no negative
-            'delta_D': ('float', False),     # float, no negative
+            'delta_D': ('float', False),
             'delta_P': ('float', False),
             'delta_H': ('float', False),
-            'MWt': ('float', False),
-            'MVol': ('float', False),
-            'Density': ('float', False),
-            'Tv': ('float', True),           # boiling point can be negative
-            'Pv': ('float', False),
-            'Cost': ('float', False),
+            'delta_total': ('float', False),
+            'Ra': ('float', False),
+            'gamma_s(Polar)': ('float', True),
+            'gamma_sd': ('float', True),
+            'gamma_sP': ('float', True),
+            'gamma_s(Acid-Base)': ('float', True),
+            'gamma_sLW': ('float', True),
+            'gamma_sAB': ('float', True),
+            'gamma_s-': ('float', True),
+            'gamma_s+': ('float', True),
         }
 
         # Process each file
@@ -195,19 +182,19 @@ class CSVConsolidator:
             # Normalize column names
             df = self.normalize_column_names(df, file_name)
 
-            # Skip if no Solvent column
-            if 'Solvent' not in df.columns:
-                logger.warning(f"No 'Solvent' column found in {file_name}, skipping...")
+            # Skip if no Polymer column
+            if 'Polymer' not in df.columns:
+                logger.warning(f"No 'Polymer' column found in {file_name}, skipping...")
                 continue
 
             total_rows = len(df)
 
             # Process each row
             for idx, row in df.iterrows():
-                solvent_name = str(row['Solvent']).strip()
+                polymer_name = str(row['Polymer']).strip()
 
-                # Skip empty solvent names
-                if not solvent_name or solvent_name.lower() in ['nan', '']:
+                # Skip empty polymer names
+                if not polymer_name or polymer_name.lower() in ['nan', '']:
                     continue
 
                 # Calculate completeness and priority
@@ -240,36 +227,36 @@ class CSVConsolidator:
                     row_dict['source_url'] = None
 
                 # Handle duplicates
-                if solvent_name in solvent_registry:
-                    existing_score = solvent_registry[solvent_name]['priority_score']
+                if polymer_name in polymer_registry:
+                    existing_score = polymer_registry[polymer_name]['priority_score']
 
                     if priority_score > existing_score:
                         # Replace with higher priority data
-                        logger.debug(f"Replacing {solvent_name}: {existing_score} -> {priority_score}")
-                        solvent_registry[solvent_name] = row_dict
+                        logger.debug(f"Replacing {polymer_name}: {existing_score} -> {priority_score}")
+                        polymer_registry[polymer_name] = row_dict
 
                         # Update duplicate stats
-                        if solvent_name not in self.duplicate_stats:
-                            self.duplicate_stats[solvent_name] = {'count': 0, 'sources': []}
-                        self.duplicate_stats[solvent_name]['count'] += 1
-                        self.duplicate_stats[solvent_name]['sources'].append(
+                        if polymer_name not in self.duplicate_stats:
+                            self.duplicate_stats[polymer_name] = {'count': 0, 'sources': []}
+                        self.duplicate_stats[polymer_name]['count'] += 1
+                        self.duplicate_stats[polymer_name]['sources'].append(
                             f"{file_name}:{idx+2} (score: {priority_score})"
                         )
                     else:
                         # Log duplicate found but not used
-                        logger.debug(f"Duplicate found for {solvent_name}, keeping existing (higher priority)")
-                        if solvent_name not in self.duplicate_stats:
-                            self.duplicate_stats[solvent_name] = {'count': 0, 'sources': []}
-                        self.duplicate_stats[solvent_name]['count'] += 1
-                        self.duplicate_stats[solvent_name]['sources'].append(
+                        logger.debug(f"Duplicate found for {polymer_name}, keeping existing (higher priority)")
+                        if polymer_name not in self.duplicate_stats:
+                            self.duplicate_stats[polymer_name] = {'count': 0, 'sources': []}
+                        self.duplicate_stats[polymer_name]['count'] += 1
+                        self.duplicate_stats[polymer_name]['sources'].append(
                             f"{file_name}:{idx+2} (score: {priority_score}) [REJECTED]"
                         )
                 else:
                     # First occurrence
-                    solvent_registry[solvent_name] = row_dict
+                    polymer_registry[polymer_name] = row_dict
 
         # Convert to list for DataFrame creation
-        final_data = list(solvent_registry.values())
+        final_data = list(polymer_registry.values())
 
         # Create consolidated DataFrame
         if final_data:
@@ -315,16 +302,16 @@ class CSVConsolidator:
             return
 
         logger.info(f"Duplicate processing summary:")
-        logger.info(f"Total solvents with duplicates: {len(self.duplicate_stats)}")
+        logger.info(f"Total polymers with duplicates: {len(self.duplicate_stats)}")
 
-        for solvent, stats in self.duplicate_stats.items():
-            logger.info(f"  {solvent}: {stats['count']} duplicates")
+        for polymer, stats in self.duplicate_stats.items():
+            logger.info(f"  {polymer}: {stats['count']} duplicates")
             for source in stats['sources']:
                 logger.debug(f"    - {source}")
 
     def run(self, url_file: Path = None):
         """Main consolidation process"""
-        logger.info("Starting CSV consolidation...")
+        logger.info("Starting polymer CSV consolidation...")
 
         # Load CSV files
         csv_files = self.load_csv_files()
@@ -346,7 +333,7 @@ class CSVConsolidator:
         # Log statistics
         self.log_duplicate_stats()
 
-        logger.info("CSV consolidation completed")
+        logger.info("Polymer CSV consolidation completed")
 
 
 def main():
@@ -357,9 +344,9 @@ def main():
     project_root = script_dir.parent
 
     # Define paths
-    input_dir = project_root / "data" / "original"
-    output_file = project_root / "data" / "hsp.csv"
-    url_file = project_root / "data" / "original" / "list.csv"
+    input_dir = project_root / "data" / "original" / "polymers"
+    output_file = project_root / "data" / "polymers.csv"
+    url_file = project_root / "data" / "original" / "polymers" / "list.csv"
 
     logger.info(f"Input directory: {input_dir}")
     logger.info(f"Output file: {output_file}")
@@ -371,7 +358,7 @@ def main():
         sys.exit(1)
 
     # Run consolidation
-    consolidator = CSVConsolidator(input_dir, output_file)
+    consolidator = PolymerCSVConsolidator(input_dir, output_file)
     consolidator.run(url_file=url_file)
 
 
