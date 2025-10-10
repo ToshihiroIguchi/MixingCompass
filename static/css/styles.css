@@ -2170,3 +2170,21 @@ body {
         min-height: 210px;
     }
 }
+
+/* Panel Action Buttons (Above HSP results) */
+.panel-action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.panel-action-buttons .btn {
+    min-width: 150px;
+}
+
+.panel-action-buttons .btn-secondary {
+    min-width: auto;
+    padding: 0.75rem 1rem;
+}

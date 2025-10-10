@@ -254,6 +254,17 @@ class HSPCalculationRequest(BaseModel):
     method: str = Field("Hansen_Sphere_Fitting", description="Calculation method")
     parameters: Dict[str, Any] = Field(default_factory=dict, description="Method parameters")
 
+    # New parameters for theory-based loss functions
+    loss_function: Optional[str] = Field(
+        "cross_entropy",
+        description="Loss function to use: boundary_distance, proportional_boundary, log_barrier, normalized_distance, cross_entropy"
+    )
+    size_factor: Optional[float] = Field(
+        0.0,
+        description="Size penalty factor for sphere radius (0 = no penalty)",
+        ge=0.0
+    )
+
     class Config:
         schema_extra = {
             "example": {
@@ -262,6 +273,8 @@ class HSPCalculationRequest(BaseModel):
                     {"solvent_name": "Acetone", "solubility": "soluble"},
                     {"solvent_name": "Water", "solubility": "insoluble"}
                 ],
-                "method": "Hansen_Sphere_Fitting"
+                "method": "Hansen_Sphere_Fitting",
+                "loss_function": "cross_entropy",
+                "size_factor": 0.0
             }
         }

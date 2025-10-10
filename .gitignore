@@ -54,4 +54,5 @@ coverage.xml
 # Temporary files
 temp/
 tmp/
-scripts/debug/*.log
+scripts/debug/*.lognul
+*.jpeg

@@ -2,9 +2,9 @@
 HSP Experimental API endpoints
 """
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Body
 from fastapi.responses import StreamingResponse
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import time
 import logging
 import io
@@ -30,7 +30,7 @@ from app.models.hsp_models import (
 from app.services.solvent_service import solvent_service
 from app.services.data_manager import data_manager
 from app.services.hsp_calculator import hsp_calculator
-from app.services.visualization_service import HansenSphereVisualizationService
+from app.services.visualization_service import HansenSphereVisualizationService  # Force reload
 
 router = APIRouter()
 
@@ -259,8 +259,13 @@ async def search_experiments(
 
 
 @router.post("/experiments/{experiment_id}/calculate", response_model=HSPCalculationResult)
-async def calculate_hsp(experiment_id: str, calculation_request: Optional[HSPCalculationRequest] = None):
+async def calculate_hsp(
+    experiment_id: str,
+    calc_params: Dict[str, Any] = Body(default={})
+):
     """Calculate HSP values for an experiment"""
+
+    logger.info(f"Calculate HSP called with experiment_id={experiment_id}, calc_params={calc_params}")
 
     try:
         # Load experiment
@@ -276,8 +281,16 @@ async def calculate_hsp(experiment_id: str, calculation_request: Optional[HSPCal
                 detail=f"Invalid experiment data for HSP calculation: {'; '.join(validation['errors'])}"
             )
 
-        # Perform HSP calculation
-        result = hsp_calculator.calculate_hsp_from_tests(experiment.solvent_tests)
+        # Extract parameters from body or use defaults
+        loss_function = calc_params.get('loss_function', 'cross_entropy')
+        size_factor = calc_params.get('size_factor', 0.0)
+
+        # Perform HSP calculation with custom loss function and size_factor
+        result = hsp_calculator.calculate_hsp_from_tests(
+            experiment.solvent_tests,
+            loss_function=loss_function,
+            size_factor=size_factor
+        )
         if not result:
             raise HTTPException(
                 status_code=500,
@@ -604,8 +617,23 @@ def create_layout_for_approach(approach_type: str, center, radius, solvent_data)
     }
 
     if approach_type == 'cube':
-        # Current approach: cube mode
-        base_layout['scene']['aspectmode'] = 'cube'
+        # Current approach: cube mode with corrected δD axis range
+        # δD axis should be 9.5 ~ 22.5 (or extend if data exceeds this range)
+        # Note: ellipsoid is generated with radius/2 in δD direction (Euclidean space)
+        all_delta_d = [s['delta_d'] for s in solvent_data]
+        all_delta_d.append(center[0] - radius/2)  # ellipsoid extends ±radius/2 in δD
+        all_delta_d.append(center[0] + radius/2)
+
+        min_delta_d = min(9.5, min(all_delta_d))
+        max_delta_d = max(22.5, max(all_delta_d))
+
+        if min_delta_d < 9.5:
+            print(f"Warning: δD minimum ({min(all_delta_d):.2f}) is below 9.5, extending range to {min_delta_d:.2f}")
+        if max_delta_d > 22.5:
+            print(f"Warning: δD maximum ({max(all_delta_d):.2f}) is above 22.5, extending range to {max_delta_d:.2f}")
+
+        base_layout['scene']['aspectmode'] = 'data'  # Use data aspect ratio
+        base_layout['scene']['xaxis']['range'] = [min_delta_d, max_delta_d]
 
     elif approach_type == 'manual_equal':
         # Manual with calculated equal ranges
@@ -652,16 +680,36 @@ def get_approach_description(approach_type: str) -> str:
 
 
 def generate_test_sphere(center, radius, resolution=20):
-    """Generate sphere coordinates for testing"""
+    """
+    Generate Hansen spheroid coordinates
+
+    Hansen spheroid is an ELLIPSOID in Euclidean space.
+    Ra = √[4(δD1 - δD2)² + (δP1 - δP2)² + (δH1 - δH2)²]
+
+    The factor of 4 for δD means in Euclidean space:
+    - δD direction: radius / 2 (compressed)
+    - δP direction: radius (normal)
+    - δH direction: radius (normal)
+
+    We generate the ellipsoid directly using parametric equations with
+    different radii for each axis.
+    """
     import numpy as np
 
     u = np.linspace(0, 2 * np.pi, resolution)
     v = np.linspace(0, np.pi, resolution)
     u, v = np.meshgrid(u, v)
 
-    x = center[0] + radius * np.cos(u) * np.sin(v)
-    y = center[1] + radius * np.sin(u) * np.sin(v)
-    z = center[2] + radius * np.cos(v)
+    # Generate ellipsoid in Euclidean space
+    # δD direction has HALF the radius due to factor of 4 in distance formula
+    x = center[0] + (radius / 2) * np.cos(u) * np.sin(v)  # δD: half radius
+    y = center[1] + radius * np.sin(u) * np.sin(v)        # δP: full radius
+    z = center[2] + radius * np.cos(v)                     # δH: full radius
+
+    print(f"DEBUG generate_test_sphere: center={center}, radius={radius}")
+    print(f"DEBUG generate_test_sphere: δD range=[{x.min():.2f}, {x.max():.2f}] (radius/2={radius/2:.2f})")
+    print(f"DEBUG generate_test_sphere: δP range=[{y.min():.2f}, {y.max():.2f}] (radius={radius:.2f})")
+    print(f"DEBUG generate_test_sphere: δH range=[{z.min():.2f}, {z.max():.2f}] (radius={radius:.2f})")
 
     return {
         'x': x.tolist(),

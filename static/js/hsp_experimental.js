@@ -5,10 +5,18 @@ class HSPExperimental {
         this.currentExperiment = null;
         this.solventTests = [];
         this.availableSolvents = [];
+        // Calculation settings
+        this.calculationSettings = {
+            loss_function: 'cross_entropy',
+            size_factor: 0.0
+        };
         this.init();
     }
 
     init() {
+        // Load saved calculation settings
+        this.loadCalculationSettings();
+
         this.setupEventListeners();
         this.loadAvailableSolvents();
         this.initializeSolventTable();
@@ -87,6 +95,18 @@ class HSPExperimental {
         const addSolventBtn = document.querySelector('#add-solvent-btn');
         if (addSolventBtn) {
             addSolventBtn.addEventListener('click', () => this.addSolventRow());
+        }
+
+        // Calculation settings button
+        const settingsBtn = document.querySelector('#calculation-settings-btn');
+        if (settingsBtn) {
+            settingsBtn.addEventListener('click', () => this.showCalculationSettings());
+        }
+
+        // Save calculation settings button
+        const saveSettingsBtn = document.querySelector('#save-calculation-settings-btn');
+        if (saveSettingsBtn) {
+            saveSettingsBtn.addEventListener('click', () => this.saveCalculationSettings());
         }
 
         // Set up data change listeners
@@ -614,12 +634,16 @@ class HSPExperimental {
 
             this.showNotification('🔬 Calculating HSP values...', 'info');
 
-            // Call the HSP calculation API
+            // Call the HSP calculation API with calculation settings
             const response = await fetch(`/api/hsp-experimental/experiments/${this.currentExperiment}/calculate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({
+                    loss_function: this.calculationSettings.loss_function,
+                    size_factor: this.calculationSettings.size_factor
+                })
             });
 
             if (response.ok) {
@@ -650,7 +674,9 @@ class HSPExperimental {
 
             } else {
                 const error = await response.json();
-                this.showNotification(`❌ HSP calculation failed: ${error.detail}`, 'error');
+                console.error('HSP calculation error:', error);
+                const errorDetail = typeof error.detail === 'object' ? JSON.stringify(error.detail) : error.detail;
+                this.showNotification(`❌ HSP calculation failed: ${errorDetail}`, 'error');
             }
 
             // Restore button
@@ -1608,6 +1634,67 @@ class HSPExperimental {
 
     showNotification(message, type = 'info') {
         Notification.show(message, type);
+    }
+
+    showCalculationSettings() {
+        // Populate current settings
+        const lossFunctionSelect = document.getElementById('loss-function-select');
+        const sizeFactorInput = document.getElementById('size-factor-input');
+
+        if (lossFunctionSelect) {
+            lossFunctionSelect.value = this.calculationSettings.loss_function;
+        }
+        if (sizeFactorInput) {
+            sizeFactorInput.value = this.calculationSettings.size_factor;
+        }
+
+        // Show modal
+        const modal = document.getElementById('calculation-settings-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+        }
+    }
+
+    saveCalculationSettings() {
+        const lossFunctionSelect = document.getElementById('loss-function-select');
+        const sizeFactorInput = document.getElementById('size-factor-input');
+
+        if (lossFunctionSelect) {
+            this.calculationSettings.loss_function = lossFunctionSelect.value;
+        }
+        if (sizeFactorInput) {
+            const sizeFactor = parseFloat(sizeFactorInput.value);
+            this.calculationSettings.size_factor = isNaN(sizeFactor) ? 0.0 : sizeFactor;
+        }
+
+        // Save to localStorage for persistence
+        localStorage.setItem('hsp_calculation_settings', JSON.stringify(this.calculationSettings));
+
+        // Hide modal
+        const modal = document.getElementById('calculation-settings-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+
+        this.showNotification(
+            `Settings saved: ${this.calculationSettings.loss_function}, size_factor=${this.calculationSettings.size_factor}`,
+            'success'
+        );
+
+        console.log('Calculation settings updated:', this.calculationSettings);
+    }
+
+    loadCalculationSettings() {
+        // Load settings from localStorage
+        const savedSettings = localStorage.getItem('hsp_calculation_settings');
+        if (savedSettings) {
+            try {
+                this.calculationSettings = JSON.parse(savedSettings);
+                console.log('Loaded calculation settings:', this.calculationSettings);
+            } catch (error) {
+                console.error('Failed to load calculation settings:', error);
+            }
+        }
     }
 }
 

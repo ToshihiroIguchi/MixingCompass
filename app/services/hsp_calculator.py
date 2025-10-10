@@ -6,9 +6,10 @@ import pandas as pd
 import tempfile
 import os
 from typing import List, Dict, Optional, Tuple
-from hspipy import HSP
+from hspipy import HSP, HSPEstimator
 
 from app.models.hsp_models import SolventTest, HSPCalculationResult
+from app.services.theory_based_loss import get_loss_function
 
 
 class HSPCalculator:
@@ -20,14 +21,18 @@ class HSPCalculator:
     def calculate_hsp_from_tests(
         self,
         solvent_tests: List[SolventTest],
-        inside_limit: int = 1
+        inside_limit: int = 1,
+        loss_function: str = "cross_entropy",
+        size_factor: float = 0.0
     ) -> Optional[HSPCalculationResult]:
         """
         Calculate HSP values from solvent test data
 
         Args:
             solvent_tests: List of solvent test data
-            inside_limit: Minimum number of good solvents required
+            inside_limit: Minimum number of good solvents required (legacy parameter)
+            loss_function: Loss function name (default: "cross_entropy")
+            size_factor: Size penalty factor (default: 0.0)
 
         Returns:
             HSPCalculationResult or None if calculation fails
@@ -45,18 +50,27 @@ class HSPCalculator:
                 hsp_data.to_csv(tmp_filename, index=False)
 
             try:
-                # Initialize HSPiPy
-                hsp = HSP()
-
-                # Load data
-                hsp.read(tmp_filename)
-
                 # Prepare data for fitting
                 X = hsp_data[['D', 'P', 'H']].values
                 y = hsp_data['Data'].values
 
-                # Perform calculation using fit method
-                hsp.fit(X, y)
+                # Get loss function
+                loss_func = get_loss_function(loss_function, size_factor=size_factor if size_factor > 0 else None)
+
+                # Use HSPEstimator with custom loss function
+                estimator = HSPEstimator(
+                    n_spheres=1,
+                    method='differential_evolution',
+                    loss=loss_func,
+                    de_maxiter=3000,
+                    de_workers=1
+                )
+
+                # Perform calculation
+                estimator.fit(X, y)
+
+                # Use estimator results
+                hsp = estimator
 
                 # Extract results from hsp_ attribute
                 if hasattr(hsp, 'hsp_') and hsp.hsp_ is not None:
@@ -114,13 +128,15 @@ class HSPCalculator:
                     accuracy=accuracy,
                     error=error,
                     data_fit=data_fit,
-                    method="HSPiPy",
+                    method=f"HSPiPy-{loss_function}",
                     solvent_count=len(solvent_tests),
                     good_solvents=len([t for t in solvent_tests if t.solubility == 'soluble']),
                     calculation_details={
-                        "inside_limit": inside_limit,
+                        "loss_function": loss_function,
+                        "size_factor": size_factor,
                         "optimization_method": "differential_evolution",
-                        "sphere_model": "single"
+                        "sphere_model": "single",
+                        "maxiter": 3000
                     }
                 )
 

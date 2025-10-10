@@ -14,13 +14,22 @@ logger = logging.getLogger(__name__)
 
 class HansenSphereVisualizationService:
     """Service for generating Hansen sphere 3D visualizations using Plotly"""
+    # ELLIPSOID FIX APPLIED
 
     @staticmethod
     def generate_sphere_coordinates(center: Tuple[float, float, float],
                                   radius: float,
                                   resolution: int = 20) -> Dict[str, List[float]]:
         """
-        Generate sphere coordinates for Hansen sphere visualization
+        Generate Hansen spheroid coordinates for visualization
+
+        Hansen spheroid is an ELLIPSOID in Euclidean space.
+        Ra = √[4(δD1 - δD2)² + (δP1 - δP2)² + (δH1 - δH2)²]
+
+        The factor of 4 for δD means in Euclidean space:
+        - δD direction: radius / 2 (compressed)
+        - δP direction: radius (normal)
+        - δH direction: radius (normal)
 
         Args:
             center: Sphere center (delta_d, delta_p, delta_h)
@@ -28,17 +37,28 @@ class HansenSphereVisualizationService:
             resolution: Mesh resolution for sphere surface
 
         Returns:
-            Dictionary with x, y, z coordinates for sphere surface
+            Dictionary with x, y, z coordinates for ellipsoid surface
         """
         # Generate sphere surface using parametric equations
         u = np.linspace(0, 2 * np.pi, resolution)
         v = np.linspace(0, np.pi, resolution)
         u, v = np.meshgrid(u, v)
 
-        # Parametric equations for sphere
-        x = center[0] + radius * np.cos(u) * np.sin(v)
-        y = center[1] + radius * np.sin(u) * np.sin(v)
-        z = center[2] + radius * np.cos(v)
+        # Parametric equations for Hansen spheroid (ellipsoid in Euclidean space)
+        # δD direction has HALF the radius due to factor of 4 in distance formula
+        x = center[0] + (radius / 2) * np.cos(u) * np.sin(v)  # δD: half radius
+        y = center[1] + radius * np.sin(u) * np.sin(v)        # δP: full radius
+        z = center[2] + radius * np.cos(v)                     # δH: full radius
+
+        # Clip to 0 (Hansen parameters cannot be negative)
+        x = np.maximum(x, 0)
+        y = np.maximum(y, 0)
+        z = np.maximum(z, 0)
+
+        print(f"DEBUG generate_sphere_coordinates CALLED: center={center}, radius={radius}")
+        print(f"DEBUG deltaD range: [{x.min():.2f}, {x.max():.2f}]")
+        print(f"DEBUG deltaP range: [{y.min():.2f}, {y.max():.2f}]")
+        print(f"DEBUG deltaH range: [{z.min():.2f}, {z.max():.2f}]")
 
         return {
             'x': x.tolist(),
@@ -135,6 +155,32 @@ class HansenSphereVisualizationService:
         return x.tolist(), y.tolist()
 
     @staticmethod
+    def generate_ellipse_coordinates(center: Tuple[float, float],
+                                    semi_axis_x: float,
+                                    semi_axis_y: float,
+                                    resolution: int = 100) -> Tuple[List[float], List[float]]:
+        """
+        Generate ellipse coordinates for 2D projection
+
+        For Hansen sphere projections involving δD:
+        - δD direction has semi-axis = radius / 2 (due to factor of 4 in distance formula)
+        - δP, δH directions have semi-axis = radius (full radius)
+
+        Args:
+            center: Ellipse center (x, y)
+            semi_axis_x: Semi-axis length in x direction
+            semi_axis_y: Semi-axis length in y direction
+            resolution: Number of points for ellipse
+
+        Returns:
+            Tuple of (x_coords, y_coords) for ellipse
+        """
+        theta = np.linspace(0, 2 * np.pi, resolution)
+        x = center[0] + semi_axis_x * np.cos(theta)
+        y = center[1] + semi_axis_y * np.sin(theta)
+        return x.tolist(), y.tolist()
+
+    @staticmethod
     def generate_2d_projections(hsp_result: HSPCalculationResult,
                                 solvent_data: List[Dict],
                                 width: int = 400,
@@ -168,16 +214,19 @@ class HansenSphereVisualizationService:
         axis_max = max(25.0, max(all_values) + 2) if all_values else 25.0
 
         # 1. δD vs δP (fixing δH)
-        circle_x, circle_y = HansenSphereVisualizationService.generate_circle_coordinates((center_d, center_p), radius)
+        # δD has semi-axis radius/2, δP has semi-axis radius (ellipse)
+        ellipse_x, ellipse_y = HansenSphereVisualizationService.generate_ellipse_coordinates(
+            (center_d, center_p), radius / 2, radius
+        )
 
         dd_dp = {
             'data': [
-                # Circle
+                # Ellipse (δD compressed by factor of 2)
                 {
-                    'x': circle_x,
-                    'y': circle_y,
+                    'x': ellipse_x,
+                    'y': ellipse_y,
                     'mode': 'lines',
-                    'name': 'Hansen Circle',
+                    'name': 'Hansen Ellipse',
                     'line': {'color': 'rgba(76, 175, 80, 0.6)', 'width': 2},
                     'fill': 'toself',
                     'fillcolor': 'rgba(76, 175, 80, 0.1)',
@@ -203,31 +252,35 @@ class HansenSphereVisualizationService:
                     'y': [center_p],
                     'mode': 'markers',
                     'name': 'Center',
-                    'marker': {'size': 10, 'color': '#32CD32', 'symbol': 'cross'},
+                    'marker': {'size': 10, 'color': '#32CD32', 'symbol': 'cross', 'line': {'width': 2, 'color': '#228B22'}},
                     'hovertemplate': f'<b>Center</b><br>δD: {center_d:.1f}<br>δP: {center_p:.1f}<extra></extra>'
                 }
             ],
             'layout': {
+                'title': {'text': 'δD vs δP Projection', 'font': {'size': 14}},
                 'width': width,
                 'height': height,
                 'xaxis': {'title': 'δD [MPa<sup>0.5</sup>]', 'range': [0, axis_max]},
-                'yaxis': {'title': 'δP [MPa<sup>0.5</sup>]', 'range': [0, axis_max], 'scaleanchor': 'x', 'scaleratio': 1},
+                'yaxis': {'title': 'δP [MPa<sup>0.5</sup>]', 'range': [0, axis_max]},
                 'hovermode': 'closest',
                 'showlegend': False,
-                'margin': {'l': 50, 'r': 20, 't': 20, 'b': 50}
+                'margin': {'l': 50, 'r': 20, 't': 40, 'b': 50}
             }
         }
 
         # 2. δD vs δH (fixing δP)
-        circle_x, circle_y = HansenSphereVisualizationService.generate_circle_coordinates((center_d, center_h), radius)
+        # δD has semi-axis radius/2, δH has semi-axis radius (ellipse)
+        ellipse_x, ellipse_y = HansenSphereVisualizationService.generate_ellipse_coordinates(
+            (center_d, center_h), radius / 2, radius
+        )
 
         dd_dh = {
             'data': [
                 {
-                    'x': circle_x,
-                    'y': circle_y,
+                    'x': ellipse_x,
+                    'y': ellipse_y,
                     'mode': 'lines',
-                    'name': 'Hansen Circle',
+                    'name': 'Hansen Ellipse',
                     'line': {'color': 'rgba(76, 175, 80, 0.6)', 'width': 2},
                     'fill': 'toself',
                     'fillcolor': 'rgba(76, 175, 80, 0.1)',
@@ -251,18 +304,19 @@ class HansenSphereVisualizationService:
                     'y': [center_h],
                     'mode': 'markers',
                     'name': 'Center',
-                    'marker': {'size': 10, 'color': '#32CD32', 'symbol': 'cross'},
+                    'marker': {'size': 10, 'color': '#32CD32', 'symbol': 'cross', 'line': {'width': 2, 'color': '#228B22'}},
                     'hovertemplate': f'<b>Center</b><br>δD: {center_d:.1f}<br>δH: {center_h:.1f}<extra></extra>'
                 }
             ],
             'layout': {
+                'title': {'text': 'δD vs δH Projection', 'font': {'size': 14}},
                 'width': width,
                 'height': height,
                 'xaxis': {'title': 'δD [MPa<sup>0.5</sup>]', 'range': [0, axis_max]},
-                'yaxis': {'title': 'δH [MPa<sup>0.5</sup>]', 'range': [0, axis_max], 'scaleanchor': 'x', 'scaleratio': 1},
+                'yaxis': {'title': 'δH [MPa<sup>0.5</sup>]', 'range': [0, axis_max]},
                 'hovermode': 'closest',
                 'showlegend': False,
-                'margin': {'l': 50, 'r': 20, 't': 20, 'b': 50}
+                'margin': {'l': 50, 'r': 20, 't': 40, 'b': 50}
             }
         }
 
@@ -299,18 +353,19 @@ class HansenSphereVisualizationService:
                     'y': [center_h],
                     'mode': 'markers',
                     'name': 'Center',
-                    'marker': {'size': 10, 'color': '#32CD32', 'symbol': 'cross'},
+                    'marker': {'size': 10, 'color': '#32CD32', 'symbol': 'cross', 'line': {'width': 2, 'color': '#228B22'}},
                     'hovertemplate': f'<b>Center</b><br>δP: {center_p:.1f}<br>δH: {center_h:.1f}<extra></extra>'
                 }
             ],
             'layout': {
+                'title': {'text': 'δP vs δH Projection', 'font': {'size': 14}},
                 'width': width,
                 'height': height,
                 'xaxis': {'title': 'δP [MPa<sup>0.5</sup>]', 'range': [0, axis_max]},
                 'yaxis': {'title': 'δH [MPa<sup>0.5</sup>]', 'range': [0, axis_max], 'scaleanchor': 'x', 'scaleratio': 1},
                 'hovermode': 'closest',
                 'showlegend': False,
-                'margin': {'l': 50, 'r': 20, 't': 20, 'b': 50}
+                'margin': {'l': 50, 'r': 20, 't': 40, 'b': 50}
             }
         }
 
@@ -357,8 +412,15 @@ class HansenSphereVisualizationService:
         # Create solvent scatter points using original data
         solvent_points = cls.create_solvent_points(solvent_data)
 
-        # Calculate data bounds including both sphere and points
-        # sphere_coords returns lists, not numpy arrays, so no need for flatten()
+        # Fixed axis ranges (standard Hansen parameter ranges)
+        # δD: 10-25 (typical organic solvents range from 14-22)
+        # δP: 0-30 (covers most polar interactions)
+        # δH: 0-30 (covers hydrogen bonding range)
+        fixed_x_range = [10, 25]  # δD
+        fixed_y_range = [0, 30]   # δP
+        fixed_z_range = [0, 30]   # δH
+
+        # Check for out-of-range data and log warnings
         all_x = []
         for row in sphere_coords['x']:
             all_x.extend(row if isinstance(row, list) else [row])
@@ -374,35 +436,19 @@ class HansenSphereVisualizationService:
             all_z.extend(row if isinstance(row, list) else [row])
         all_z.extend(solvent_points['z'])
 
-        sphere_bounds = {
-            'x': [min(all_x), max(all_x)],
-            'y': [min(all_y), max(all_y)],
-            'z': [min(all_z), max(all_z)]
-        }
+        # Identify out-of-range solvents
+        out_of_range_solvents = []
+        for i, solvent in enumerate(solvent_data):
+            delta_d = solvent.get('delta_d', 0)
+            delta_p = solvent.get('delta_p', 0)
+            delta_h = solvent.get('delta_h', 0)
+            if not (10 <= delta_d <= 25 and 0 <= delta_p <= 30 and 0 <= delta_h <= 30):
+                out_of_range_solvents.append(f"{solvent.get('name', 'Unknown')} (δD={delta_d:.1f}, δP={delta_p:.1f}, δH={delta_h:.1f})")
 
-        # Calculate maximum HSP values from all data (sphere + solvents + center)
-        max_delta_d = max(all_x) if all_x else 25.0
-        max_delta_p = max(all_y) if all_y else 25.0
-        max_delta_h = max(all_z) if all_z else 25.0
+        if out_of_range_solvents:
+            logger.info(f"Solvents outside standard range [δD:10-25, δP:0-30, δH:0-30]: {', '.join(out_of_range_solvents)}")
 
-        logger.info(f"🔍 MAX VALUES: D={max_delta_d:.1f}, P={max_delta_p:.1f}, H={max_delta_h:.1f}")
-
-        # Set axis ranges from 0 to max(25, max_value) for consistent sphere visualization
-        axis_max_d = max(25.0, max_delta_d + 2)  # Add padding
-        axis_max_p = max(25.0, max_delta_p + 2)  # Add padding
-        axis_max_h = max(25.0, max_delta_h + 2)  # Add padding
-
-        # Use the maximum of all three to ensure equal ranges and perfect sphere
-        axis_max = max(axis_max_d, axis_max_p, axis_max_h)
-
-        logger.info(f"🔍 AXIS CALCULATIONS: D={axis_max_d:.1f}, P={axis_max_p:.1f}, H={axis_max_h:.1f} → MAX={axis_max:.1f}")
-
-        # Fixed equal ranges for all axes from 0 to axis_max
-        equal_x_range = [0, axis_max]
-        equal_y_range = [0, axis_max]
-        equal_z_range = [0, axis_max]
-
-        logger.info(f"🔍 FINAL RANGES: X={equal_x_range}, Y={equal_y_range}, Z={equal_z_range}")
+        logger.info(f"Fixed axis ranges: δD=[10, 25], δP=[0, 30], δH=[0, 30]")
 
         # Build Plotly traces
         traces = []
@@ -470,28 +516,27 @@ class HansenSphereVisualizationService:
         # Layout configuration
         layout = {
             'title': {
-                'text': f'HSP (δD: {hsp_result.delta_d:.1f}, δP: {hsp_result.delta_p:.1f}, δH: {hsp_result.delta_h:.1f}, Ra: {hsp_result.radius:.1f})',
+                'text': f'HSP (δD: {hsp_result.delta_d:.1f}, δP: {hsp_result.delta_p:.1f}, δH: {hsp_result.delta_h:.1f}, Ra: {hsp_result.radius:.1f})<br><sub>Range: δD[10-25], δP/δH[0-30] MPa<sup>0.5</sup></sub>',
                 'x': 0.5,
                 'font': {'size': 16}
             },
             'scene': {
                 'xaxis': {
                     'title': {'text': 'δD (Dispersion) [MPa<sup>0.5</sup>]', 'font': {'size': 12}},
-                    'range': equal_x_range
+                    'range': fixed_x_range
                 },
                 'yaxis': {
                     'title': {'text': 'δP (Polarity) [MPa<sup>0.5</sup>]', 'font': {'size': 12}},
-                    'range': equal_y_range
+                    'range': fixed_y_range
                 },
                 'zaxis': {
                     'title': {'text': 'δH (Hydrogen Bonding) [MPa<sup>0.5</sup>]', 'font': {'size': 12}},
-                    'range': equal_z_range
+                    'range': fixed_z_range
                 },
                 'camera': {
-                    'eye': {'x': 1.25, 'y': 1.25, 'z': 1.25}  # Optimized for perfect sphere visibility
+                    'eye': {'x': 1.25, 'y': 1.25, 'z': 1.25}  # Optimized for visibility
                 },
-                'aspectmode': 'manual',  # Manual mode for explicit axis control
-                'aspectratio': {'x': 1, 'y': 1, 'z': 1}  # Equal aspect ratio for proper sphere
+                'aspectmode': 'cube'  # Force cube display for equal visual axis lengths
             },
             'width': width,
             'height': height,

@@ -3,13 +3,19 @@
 MixingCompass - Port Management and Application Startup Script
 """
 
+import os
 import socket
 import sys
 import subprocess
 import psutil
 import time
 import platform
+import shutil
+import pathlib
 from typing import Optional, List
+
+# Disable Python bytecode generation in development to avoid cache issues
+os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
 
 
 class PortManager:
@@ -192,9 +198,31 @@ class PortManager:
         return port
 
 
+def clear_python_cache():
+    """Clear Python bytecode cache to ensure code changes are reflected"""
+    print("Clearing Python cache...")
+    cache_cleared = False
+
+    for cache_dir in pathlib.Path('app').rglob('__pycache__'):
+        try:
+            shutil.rmtree(cache_dir)
+            print(f"  [OK] Cleared: {cache_dir}")
+            cache_cleared = True
+        except Exception as e:
+            print(f"  [WARNING] Could not clear {cache_dir}: {e}")
+
+    if not cache_cleared:
+        print("  No cache found (this is normal on first run)")
+    else:
+        print("Cache cleared successfully.")
+
+
 def start_application(port: int):
     """Start the FastAPI application"""
-    print(f"Starting MixingCompass on port {port}...")
+    # Clear Python cache before starting
+    clear_python_cache()
+
+    print(f"\nStarting MixingCompass on port {port}...")
 
     try:
         # Start uvicorn server
