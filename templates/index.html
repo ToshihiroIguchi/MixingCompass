@@ -355,11 +355,15 @@
                     <div class="form-group">
                         <label for="loss-function-select">Loss Function:</label>
                         <select id="loss-function-select" class="form-control">
-                            <option value="cross_entropy" selected>Cross Entropy (Default, Recommended)</option>
-                            <option value="log_barrier">Log Barrier</option>
+                            <option value="optimize_radius_only" selected>Cross Entropy → Optimize Ra Only (Recommended)</option>
+                            <option value="cross_entropy">Cross Entropy</option>
+                            <option value="hspipy_default">HSPiPy Default (Classic DATAFIT)</option>
+                            <option value="proportional_boundary">Proportional Boundary</option>
+                            <option value="boundary_distance">Boundary Distance</option>
                             <option value="normalized_distance">Normalized Distance</option>
+                            <option value="log_barrier">Log Barrier</option>
                         </select>
-                        <small class="form-text">Loss function for HSP optimization. No arbitrary parameters.</small>
+                        <small class="form-text">Loss function for HSP optimization. <a href="#" onclick="event.preventDefault(); document.querySelector('.form-group:nth-of-type(3)').scrollIntoView({behavior: 'smooth'});">Learn more about each method →</a></small>
                     </div>
                     <div class="form-group" style="margin-top: 20px;">
                         <label for="size-factor-input">Size Factor (Sphere Radius Penalty):</label>
@@ -370,12 +374,37 @@
                     </div>
                     <div class="form-group" style="margin-top: 20px; padding: 15px; background-color: #f0f0f0; border-radius: 5px;">
                         <h4 style="margin-top: 0;">About Loss Functions</h4>
-                        <ul style="margin: 10px 0; padding-left: 20px; font-size: 14px; line-height: 1.6;">
-                            <li><strong>Cross Entropy:</strong> Information-theoretic approach. Can handle continuous solubility values. (Default)</li>
-                            <li><strong>Log Barrier:</strong> Interior point method for constraint enforcement.</li>
-                            <li><strong>Normalized Distance:</strong> Direct RED optimization.</li>
+
+                        <h5 style="margin: 15px 0 10px 0; font-size: 15px; color: #2c5282;">Recommended Methods (Practical Use)</h5>
+                        <ul style="margin: 5px 0 15px 0; padding-left: 20px; font-size: 14px; line-height: 1.6;">
+                            <li><strong>Cross Entropy → Optimize Ra Only:</strong>
+                                Uses Cross Entropy for center, then sets Ra = Ra_min (minimum radius covering all soluble points).
+                                Minimizes false positives by using the smallest possible sphere.
+                                <span style="display: inline-block; margin-left: 8px; padding: 2px 6px; background: #48bb78; color: white; border-radius: 3px; font-size: 11px; font-weight: bold;">RECOMMENDED</span>
+                            </li>
+                            <li><strong>Cross Entropy:</strong>
+                                Pure information-theoretic approach. Handles continuous solubility values (0.0-1.0).
+                                Good theoretical foundation.
+                                <span style="display: inline-block; margin-left: 8px; padding: 2px 6px; background: #4299e1; color: white; border-radius: 3px; font-size: 11px; font-weight: bold;">THEORY</span>
+                            </li>
+                            <li><strong>HSPiPy Default:</strong>
+                                Industry-standard algorithm from HSPiPy library using classic DATAFIT method.
+                                Useful for comparison with established methods.
+                                <span style="display: inline-block; margin-left: 8px; padding: 2px 6px; background: #ed8936; color: white; border-radius: 3px; font-size: 11px; font-weight: bold;">BENCHMARK</span>
+                            </li>
                         </ul>
-                        <p style="margin: 10px 0 0 0; font-size: 14px;"><strong>All loss functions are based purely on Hansen theory with no arbitrary parameters.</strong></p>
+
+                        <h5 style="margin: 15px 0 10px 0; font-size: 15px; color: #718096;">Experimental Methods (Research Use)</h5>
+                        <ul style="margin: 5px 0 10px 0; padding-left: 20px; font-size: 13px; line-height: 1.5; color: #4a5568;">
+                            <li><strong>Proportional Boundary:</strong> y-weighted boundary penalties. Good balance between accuracy and sphere size control.</li>
+                            <li><strong>Boundary Distance:</strong> Pure L1 boundary distance. Recommended for discrete classifications (0.0, 0.5, 1.0).</li>
+                            <li><strong>Normalized Distance:</strong> Direct RED optimization. May produce larger spheres.</li>
+                            <li><strong>Log Barrier:</strong> Logarithmic barrier method. Experimental interior point approach.</li>
+                        </ul>
+
+                        <p style="margin: 15px 0 0 0; font-size: 13px; color: #4a5568; font-style: italic;">
+                            <strong>Note:</strong> All custom loss functions are based purely on Hansen solubility theory with no arbitrary parameters.
+                        </p>
                     </div>
                 </div>
                 <div class="modal-footer">

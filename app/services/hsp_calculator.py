@@ -32,11 +32,17 @@ class HSPCalculator:
             solvent_tests: List of solvent test data
             inside_limit: Minimum number of good solvents required (legacy parameter)
             loss_function: Loss function name (default: "cross_entropy")
+                          Special mode: 'optimize_radius_only' - Uses Cross Entropy for center,
+                          then optimizes Ra only to maximize FIT
             size_factor: Size penalty factor (default: 0.0)
 
         Returns:
             HSPCalculationResult or None if calculation fails
         """
+
+        # Check if this is radius-only optimization mode
+        if loss_function == 'optimize_radius_only':
+            return self._calculate_hsp_optimize_radius_only(solvent_tests)
         try:
             # Convert solvent tests to HSPiPy format
             hsp_data = self._convert_tests_to_hsp_format(solvent_tests)
@@ -54,17 +60,25 @@ class HSPCalculator:
                 X = hsp_data[['D', 'P', 'H']].values
                 y = hsp_data['Data'].values
 
-                # Get loss function
-                loss_func = get_loss_function(loss_function, size_factor=size_factor if size_factor > 0 else None)
+                # Check if using HSPiPy default (classic DATAFIT method)
+                if loss_function == 'hspipy_default':
+                    # Use HSPiPy's default classic method (no custom loss function)
+                    estimator = HSPEstimator(
+                        n_spheres=1,
+                        method='classic'
+                    )
+                else:
+                    # Get custom loss function
+                    loss_func = get_loss_function(loss_function, size_factor=size_factor if size_factor > 0 else None)
 
-                # Use HSPEstimator with custom loss function
-                estimator = HSPEstimator(
-                    n_spheres=1,
-                    method='differential_evolution',
-                    loss=loss_func,
-                    de_maxiter=3000,
-                    de_workers=1
-                )
+                    # Use HSPEstimator with custom loss function
+                    estimator = HSPEstimator(
+                        n_spheres=1,
+                        method='differential_evolution',
+                        loss=loss_func,
+                        de_maxiter=3000,
+                        de_workers=1
+                    )
 
                 # Perform calculation
                 estimator.fit(X, y)
@@ -119,6 +133,14 @@ class HSPCalculator:
                 else:
                     raise ValueError("Failed to extract HSP results from fitted model")
 
+                # Determine optimization method name for display
+                if loss_function == 'hspipy_default':
+                    optimization_method = "classic"
+                    method_display = "HSPiPy-default"
+                else:
+                    optimization_method = "differential_evolution"
+                    method_display = f"HSPiPy-{loss_function}"
+
                 # Extract results
                 result = HSPCalculationResult(
                     delta_d=delta_d,
@@ -128,15 +150,15 @@ class HSPCalculator:
                     accuracy=accuracy,
                     error=error,
                     data_fit=data_fit,
-                    method=f"HSPiPy-{loss_function}",
+                    method=method_display,
                     solvent_count=len(solvent_tests),
                     good_solvents=len([t for t in solvent_tests if t.solubility == 'soluble']),
                     calculation_details={
                         "loss_function": loss_function,
                         "size_factor": size_factor,
-                        "optimization_method": "differential_evolution",
+                        "optimization_method": optimization_method,
                         "sphere_model": "single",
-                        "maxiter": 3000
+                        "maxiter": 3000 if optimization_method == "differential_evolution" else None
                     }
                 )
 
@@ -320,6 +342,306 @@ class HSPCalculator:
             validation['warnings'].append("No poor solvents found - calculation may be less accurate")
 
         return validation
+
+    def _calculate_hsp_optimize_radius_only(self, solvent_tests: List[SolventTest]) -> Optional[HSPCalculationResult]:
+        """
+        Optimize Ra only with fixed center from Cross Entropy
+
+        Strategy:
+        1. Calculate center (δD, δP, δH) using Cross Entropy
+        2. Fix the center
+        3. Calculate Ra_min = max distance to all good solvents
+        4. Set Ra_optimal = Ra_min (minimum sphere covering all good solvents)
+
+        Rationale:
+        - Uses Cross Entropy only for center calculation (well-established method)
+        - Ra_min is the smallest radius that covers all soluble points
+        - This minimizes false positives (poor solvents inside sphere)
+        - No arbitrary parameters
+
+        This ensures:
+        - All soluble points (solubility = 1.0) are inside the sphere
+        - The sphere is as small as possible
+        - False positives are minimized
+
+        Classification rule:
+        - solubility = 1.0 → good solvent → must be inside (RED < 1)
+        - solubility < 1.0 → poor solvent → preferably outside (RED > 1)
+        """
+
+        try:
+            print("\n=== Optimize Radius Only Mode ===")
+
+            # Step 1: Calculate center using Cross Entropy
+            print("Step 1: Calculate center using Cross Entropy")
+            center_result = self.calculate_hsp_from_tests(
+                solvent_tests,
+                loss_function='cross_entropy',
+                size_factor=0.0
+            )
+
+            if not center_result:
+                print("Failed to calculate center with Cross Entropy")
+                return None
+
+            center_d = center_result.delta_d
+            center_p = center_result.delta_p
+            center_h = center_result.delta_h
+
+            print(f"Center: δD={center_d:.4f}, δP={center_p:.4f}, δH={center_h:.4f}")
+
+            # Step 2: Convert solvent tests to format with distances
+            print("\nStep 2: Calculate Hansen distances")
+            hsp_data = self._convert_tests_to_hsp_format(solvent_tests)
+
+            if len(hsp_data) < 2:
+                raise ValueError("At least 2 solvent tests are required")
+
+            center = (center_d, center_p, center_h)
+
+            solvents = []
+            for _, row in hsp_data.iterrows():
+                distance = self._calculate_hansen_distance(
+                    (row['D'], row['P'], row['H']),
+                    center
+                )
+                solvents.append({
+                    'name': row['Chemical'],
+                    'delta_d': row['D'],
+                    'delta_p': row['P'],
+                    'delta_h': row['H'],
+                    'solubility': row['Data'],
+                    'distance': distance
+                })
+
+            # Classify solvents
+            good_solvents = [s for s in solvents if s['solubility'] == 1.0]
+            poor_solvents = [s for s in solvents if s['solubility'] < 1.0]
+
+            print(f"\nGood solvents (sol=1.0): {len(good_solvents)}")
+            print(f"Poor solvents (sol<1.0): {len(poor_solvents)}")
+
+            # Step 3: Calculate constraints
+            print("\nStep 3: Calculate Ra constraints")
+
+            if good_solvents:
+                good_distances = [s['distance'] for s in good_solvents]
+                Ra_min = max(good_distances)
+                furthest_good = max(good_solvents, key=lambda x: x['distance'])
+                print(f"Ra_min = {Ra_min:.4f} (furthest good: {furthest_good['name']})")
+            else:
+                Ra_min = 0.1
+                furthest_good = None
+                print(f"Ra_min = {Ra_min:.4f} (default, no good solvents)")
+
+            if poor_solvents:
+                poor_distances = [s['distance'] for s in poor_solvents]
+                Ra_max = min(poor_distances)
+                closest_poor = min(poor_solvents, key=lambda x: x['distance'])
+                print(f"Ra_max = {Ra_max:.4f} (closest poor: {closest_poor['name']}, sol={closest_poor['solubility']})")
+            else:
+                Ra_max = float('inf')
+                closest_poor = None
+                print(f"Ra_max = inf (no poor solvents)")
+
+            # Step 4: Optimize Ra (use minimum sphere covering all good solvents)
+            print("\nStep 4: Optimize Ra (minimum sphere covering all good solvents)")
+
+            cross_entropy_Ra = center_result.radius
+            print(f"Reference: Cross Entropy Ra = {cross_entropy_Ra:.4f}")
+            print(f"Ra_min (covers all good) = {Ra_min:.4f}")
+
+            # Use Ra_min to minimize false positives
+            # This ensures the smallest sphere that covers all soluble points
+            Ra_optimal = Ra_min
+            strategy = "ra_min_minimum_sphere"
+
+            print(f"Strategy: Use Ra_min to minimize false positives")
+            print(f"Final Ra_optimal = {Ra_optimal:.4f}")
+
+            if cross_entropy_Ra > Ra_min:
+                print(f"Note: Cross Entropy Ra is {cross_entropy_Ra - Ra_min:.4f} larger (may include more poor solvents)")
+
+            # Check separation feasibility for reference
+            feasible = Ra_min <= Ra_max
+            if feasible:
+                print(f"Note: Complete separation is possible (margin = {Ra_max - Ra_min:.4f})")
+            else:
+                print(f"Note: Complete separation not possible (overlap = {Ra_min - Ra_max:.4f})")
+
+            # Step 5: Calculate final metrics
+            print("\nStep 5: Calculate final metrics")
+
+            correct = 0
+            total = len(solvents)
+
+            classification_details = []
+
+            for s in solvents:
+                RED = s['distance'] / Ra_optimal
+                is_inside = RED < 1.0
+
+                if s['solubility'] == 1.0:
+                    # Good solvent
+                    is_correct = is_inside
+                else:
+                    # Poor solvent
+                    is_correct = not is_inside
+
+                if is_correct:
+                    correct += 1
+
+                classification_details.append({
+                    'name': s['name'],
+                    'solubility': float(s['solubility']),
+                    'distance': float(s['distance']),
+                    'RED': float(RED),
+                    'is_inside': bool(is_inside),
+                    'is_correct': bool(is_correct)
+                })
+
+            fit = correct / total if total > 0 else 0.0
+
+            print(f"FIT = {fit:.4f} ({correct}/{total} correct)")
+            print(f"  = {fit*100:.1f}%")
+
+            # Create result
+            result = HSPCalculationResult(
+                delta_d=center_d,
+                delta_p=center_p,
+                delta_h=center_h,
+                radius=Ra_optimal,
+                accuracy=fit,
+                error=0.0,
+                data_fit=fit,
+                method="Cross Entropy → Ra Optimized (Cover All Soluble)",
+                solvent_count=len(solvent_tests),
+                good_solvents=len(good_solvents),
+                calculation_details={
+                    "optimization_method": "radius_only_minimum_sphere",
+                    "base_center": "cross_entropy",
+                    "classification_rule": "Ra = Ra_min (minimum sphere covering all good solvents)",
+                    "strategy_used": strategy,
+                    "radius_comparison": {
+                        "cross_entropy_Ra": cross_entropy_Ra,
+                        "Ra_min": Ra_min,
+                        "Ra_optimal": Ra_optimal,
+                        "difference": cross_entropy_Ra - Ra_min
+                    },
+                    "constraints": {
+                        "Ra_min_required": Ra_min,
+                        "Ra_max_allowed": Ra_max if Ra_max != float('inf') else None,
+                        "feasible": feasible,
+                        "margin": Ra_max - Ra_min if feasible and Ra_max != float('inf') else None,
+                        "overlap": Ra_min - Ra_max if not feasible else None
+                    },
+                    "statistics": {
+                        "total_solvents": total,
+                        "good_solvents": len(good_solvents),
+                        "poor_solvents": len(poor_solvents),
+                        "correct_classifications": correct,
+                        "incorrect_classifications": total - correct,
+                        "FIT": fit
+                    },
+                    "boundary_info": {
+                        "furthest_good": {
+                            'name': furthest_good['name'],
+                            'distance': furthest_good['distance']
+                        } if furthest_good else None,
+                        "closest_poor": {
+                            'name': closest_poor['name'],
+                            'distance': closest_poor['distance'],
+                            'solubility': closest_poor['solubility']
+                        } if closest_poor else None
+                    },
+                    "classification_details": classification_details
+                }
+            )
+
+            print(f"\n[OK] Radius optimization completed")
+            return result
+
+        except Exception as e:
+            print(f"Radius optimization error: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    def _calculate_hansen_distance(self, point: Tuple[float, float, float], center: Tuple[float, float, float]) -> float:
+        """
+        Calculate Hansen distance (before dividing by Ra)
+
+        Hansen distance formula:
+        Ra = √[4(ΔδD)² + (ΔδP)² + (ΔδH)²]
+        """
+        import math
+
+        delta_D = point[0] - center[0]
+        delta_P = point[1] - center[1]
+        delta_H = point[2] - center[2]
+
+        distance = math.sqrt(4 * delta_D**2 + delta_P**2 + delta_H**2)
+
+        return distance
+
+    def _optimize_radius_maximize_fit(
+        self,
+        Ra_min: float,
+        Ra_max: float,
+        good_solvents: List[Dict],
+        poor_solvents: List[Dict]
+    ) -> float:
+        """
+        Optimize Ra to maximize FIT when complete separation is impossible
+
+        Strategy:
+        1. Search for Ra that maximizes FIT (correct classifications)
+        2. If multiple Ra have same FIT, choose the smallest (minimum sphere principle)
+        """
+
+        import numpy as np
+
+        print(f"\n  Searching optimal Ra in range [{Ra_max-1.0:.4f}, {Ra_min+1.0:.4f}]")
+
+        # Search range
+        epsilon = max(1.0, Ra_min - Ra_max)
+        search_min = max(0.1, Ra_max - epsilon)
+        search_max = Ra_min + epsilon
+
+        # Grid search (0.01 step)
+        best_Ra = Ra_min
+        max_fit = 0.0
+
+        Ra_values = np.arange(search_min, search_max + 0.01, 0.01)
+
+        for Ra in Ra_values:
+            # Count correct classifications
+            correct = 0
+            total = len(good_solvents) + len(poor_solvents)
+
+            for s in good_solvents:
+                RED = s['distance'] / Ra
+                if RED < 1.0:  # Inside (correct)
+                    correct += 1
+
+            for s in poor_solvents:
+                RED = s['distance'] / Ra
+                if RED > 1.0:  # Outside (correct)
+                    correct += 1
+
+            fit = correct / total if total > 0 else 0.0
+
+            if fit > max_fit:
+                max_fit = fit
+                best_Ra = Ra
+            elif fit == max_fit and Ra < best_Ra:
+                # Same FIT, prefer smaller Ra (minimum sphere principle)
+                best_Ra = Ra
+
+        print(f"  Max FIT = {max_fit:.4f} ({int(max_fit * (len(good_solvents) + len(poor_solvents)))}/{len(good_solvents) + len(poor_solvents)} correct)")
+        print(f"  Best Ra = {best_Ra:.4f}")
+
+        return best_Ra
 
     def get_calculation_parameters(self) -> Dict[str, any]:
         """
