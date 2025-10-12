@@ -7,7 +7,7 @@ class HSPExperimental {
         this.availableSolvents = [];
         // Calculation settings
         this.calculationSettings = {
-            loss_function: 'cross_entropy',
+            loss_function: 'optimize_radius_only',
             size_factor: 0.0
         };
         this.init();
@@ -279,7 +279,7 @@ class HSPExperimental {
         console.log('HSP Experimental table initialized and ready');
     }
 
-    addSolventRow() {
+    addSolventRow(autoScroll = true) {
         const tableBody = document.querySelector('#solvent-table-body');
         if (!tableBody) return;
 
@@ -360,16 +360,18 @@ class HSPExperimental {
 
         tableBody.appendChild(row);
 
-        // Auto-scroll to the new row
-        setTimeout(() => {
-            const tableWrapper = document.querySelector('#table-wrapper');
-            if (tableWrapper) {
-                row.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'nearest'
-                });
-            }
-        }, 100);
+        // Auto-scroll to the new row only if requested (e.g., manual addition)
+        if (autoScroll) {
+            setTimeout(() => {
+                const tableWrapper = document.querySelector('#table-wrapper');
+                if (tableWrapper) {
+                    row.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+                }
+            }, 100);
+        }
 
         // Set initial mode to auto
         this.setRowMode(row, 'auto');
@@ -970,9 +972,9 @@ class HSPExperimental {
                 sampleNameInput.value = result.sample_name;
             }
 
-            // Load solvent data
+            // Load solvent data (without auto-scrolling)
             result.solvents.forEach(solventData => {
-                this.addSolventRow();
+                this.addSolventRow(false);  // Disable auto-scroll during batch loading
                 const rows = document.querySelectorAll('#solvent-table-body tr');
                 const newRow = rows[rows.length - 1];
                 this.populateRowWithExperimentalResultData(newRow, solventData);
@@ -996,7 +998,11 @@ class HSPExperimental {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({
+                    loss_function: this.calculationSettings.loss_function,
+                    size_factor: this.calculationSettings.size_factor
+                })
             });
 
             if (!calculateResponse.ok) {
@@ -1004,12 +1010,21 @@ class HSPExperimental {
                 return;
             }
 
-            // Display HSP results
-            this.showCalculationResults(result.hsp_result);
-            this.showCalculationDetails(result.hsp_result);
+            // Get recalculated result with current settings
+            const recalculatedResult = await calculateResponse.json();
+
+            // Display recalculated HSP results (instead of stored result.hsp_result)
+            this.showCalculationResults(recalculatedResult);
+            this.showCalculationDetails(recalculatedResult);
 
             // Load visualization (3D and 2D)
             await this.loadHansenSphereVisualization();
+
+            // Scroll to top to show HSP results
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
 
             this.showNotification(`Loaded: ${result.sample_name}`, 'success');
 
