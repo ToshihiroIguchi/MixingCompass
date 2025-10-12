@@ -276,10 +276,73 @@
         <section id="data-list" class="content-section">
             <div class="data-list-container">
                 <div class="data-list-header">
-                    <h2>Solvent Set Management</h2>
+                    <h2>Data Management</h2>
                     <div class="header-actions">
                         <button id="import-sets-btn" class="btn btn-secondary">Import Sets</button>
                         <button id="export-sets-btn" class="btn btn-secondary">Export Sets</button>
+                    </div>
+                </div>
+
+                <!-- User Added Solvents Section -->
+                <div class="user-solvents-section">
+                    <div class="section-header">
+                        <h3>User Added Solvents</h3>
+                        <span id="user-solvents-count" class="count-badge">0 solvents</span>
+                    </div>
+
+                    <div id="user-solvents-table-container" class="table-container">
+                        <table id="user-solvents-table" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Solvent</th>
+                                    <th>δD</th>
+                                    <th>δP</th>
+                                    <th>δH</th>
+                                    <th>CAS</th>
+                                    <th>BP (°C)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-solvents-tbody">
+                                <tr>
+                                    <td colspan="7" class="empty-cell">No user-added solvents yet. Add solvents in the HSP Experimental page using Manual mode.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Solvent Database Section -->
+                <div class="solvent-database-section">
+                    <div class="section-header">
+                        <h3>Solvent Database</h3>
+                        <span id="database-count" class="count-badge">0 solvents</span>
+                    </div>
+
+                    <div class="database-controls">
+                        <input type="text" id="solvent-database-search" class="search-input" placeholder="Search by name, CAS, or SMILES...">
+                        <button id="refresh-database-btn" class="btn btn-secondary btn-small">Refresh</button>
+                    </div>
+
+                    <div id="solvent-database-table-container" class="table-container">
+                        <table id="solvent-database-table" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Solvent</th>
+                                    <th>δD</th>
+                                    <th>δP</th>
+                                    <th>δH</th>
+                                    <th>CAS</th>
+                                    <th>BP (°C)</th>
+                                    <th>Link</th>
+                                </tr>
+                            </thead>
+                            <tbody id="solvent-database-tbody">
+                                <tr>
+                                    <td colspan="7" class="loading-cell">Loading solvent database...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -339,6 +402,46 @@
                     </div>
                 </div>
 
+                <!-- Edit User Solvent Modal -->
+                <div id="edit-user-solvent-modal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Edit User Solvent</h3>
+                            <button class="modal-close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="edit-solvent-name">Solvent Name: *</label>
+                                <input type="text" id="edit-solvent-name" class="form-input" placeholder="Enter solvent name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-delta-d">δD (MPa<sup>0.5</sup>): *</label>
+                                <input type="number" id="edit-delta-d" class="form-input" step="0.1" placeholder="15.5" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-delta-p">δP (MPa<sup>0.5</sup>): *</label>
+                                <input type="number" id="edit-delta-p" class="form-input" step="0.1" placeholder="7.0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-delta-h">δH (MPa<sup>0.5</sup>): *</label>
+                                <input type="number" id="edit-delta-h" class="form-input" step="0.1" placeholder="8.0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-cas">CAS Number:</label>
+                                <input type="text" id="edit-cas" class="form-input" placeholder="67-56-1">
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-boiling-point">Boiling Point (°C):</label>
+                                <input type="number" id="edit-boiling-point" class="form-input" step="0.1" placeholder="64.7">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="save-user-solvent-btn" class="btn btn-primary">Save Changes</button>
+                            <button id="cancel-edit-user-solvent-btn" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Import File Input -->
                 <input type="file" id="import-file-input" accept=".json" style="display: none;">
             </div>
@@ -359,7 +462,6 @@
                             <option value="cross_entropy">Cross Entropy</option>
                             <option value="hspipy_default">HSPiPy Default (Classic DATAFIT)</option>
                         </select>
-                        <small class="form-text">Loss function for HSP optimization. <a href="#" onclick="event.preventDefault(); document.querySelector('.form-group:nth-of-type(3)').scrollIntoView({behavior: 'smooth'});">Learn more about each method →</a></small>
                     </div>
                     <div class="form-group" style="margin-top: 20px;">
                         <label for="size-factor-input">Size Factor (Sphere Radius Penalty):</label>
@@ -369,25 +471,98 @@
                         <small class="form-text">Penalty for large sphere radius. Default: 0.0 (no penalty). Range: 0.0 - 0.01</small>
                     </div>
                     <div class="form-group" style="margin-top: 20px; padding: 15px; background-color: #f0f0f0; border-radius: 5px;">
-                        <h4 style="margin-top: 0;">About Loss Functions</h4>
-                        <ul style="margin: 10px 0; padding-left: 20px; font-size: 14px; line-height: 1.6;">
-                            <li><strong>Cross Entropy → Optimize Ra Only:</strong>
-                                Uses Cross Entropy for center calculation, then sets Ra = Ra_min (minimum radius covering all soluble points).
-                                Minimizes false positives by using the smallest possible sphere.
-                                <span style="display: inline-block; margin-left: 8px; padding: 2px 6px; background: #48bb78; color: white; border-radius: 3px; font-size: 11px; font-weight: bold;">RECOMMENDED</span>
-                            </li>
-                            <li><strong>Cross Entropy:</strong>
-                                Information-theoretic approach that handles continuous solubility values (0.0-1.0).
-                                Provides good theoretical foundation.
-                            </li>
-                            <li><strong>HSPiPy Default:</strong>
-                                Industry-standard algorithm from HSPiPy library using classic DATAFIT method.
-                                Useful for comparison with established methods.
-                            </li>
-                        </ul>
-                        <p style="margin: 15px 0 0 0; font-size: 13px; color: #4a5568; font-style: italic;">
-                            <strong>Note:</strong> All methods are based on Hansen solubility theory with no arbitrary parameters.
-                        </p>
+                        <details>
+                            <summary style="cursor: pointer; font-weight: bold; font-size: 16px; margin-bottom: 10px; user-select: none;">
+                                About Loss Functions
+                            </summary>
+                            <div style="padding-top: 10px;">
+                                <!-- Cross Entropy → Optimize Ra Only -->
+                                <div style="margin-bottom: 25px;">
+                                    <h4 style="margin: 0 0 10px 0; color: #2c5282;">
+                                        Cross Entropy → Optimize Ra Only
+                                        <span style="display: inline-block; margin-left: 8px; padding: 2px 6px; background: #48bb78; color: white; border-radius: 3px; font-size: 11px; font-weight: bold;">RECOMMENDED</span>
+                                    </h4>
+                                    <p style="margin: 8px 0; font-size: 14px; line-height: 1.6;">
+                                        Two-phase optimization strategy that combines theoretical rigor with practical constraints.
+                                    </p>
+
+                                    <h5 style="margin: 12px 0 6px 0; font-size: 13px; color: #4a5568;">Phase 1: Center Calculation (Cross Entropy)</h5>
+                                    <p style="margin: 4px 0; font-size: 13px; line-height: 1.5;">
+                                        Calculate center (δD, δP, δH) using Cross Entropy loss function:
+                                    </p>
+                                    <div style="background: white; padding: 10px; border-radius: 4px; margin: 8px 0; font-family: 'Courier New', monospace; font-size: 13px; overflow-x: auto;">
+                                        L = -Σ [y<sub>i</sub> log(p<sub>i</sub>) + (1-y<sub>i</sub>) log(1-p<sub>i</sub>)]
+                                    </div>
+                                    <p style="margin: 4px 0; font-size: 12px; line-height: 1.4; color: #4a5568;">
+                                        where p<sub>i</sub> = σ(1 - RED<sub>i</sub>) = 1 / (1 + exp(-(1 - RED<sub>i</sub>)))<br>
+                                        RED<sub>i</sub> = distance<sub>i</sub> / Ra<sub>trial</sub><br>
+                                        distance<sub>i</sub> = √[4(δD<sub>i</sub> - δD)² + (δP<sub>i</sub> - δP)² + (δH<sub>i</sub> - δH)²]
+                                    </p>
+
+                                    <h5 style="margin: 12px 0 6px 0; font-size: 13px; color: #4a5568;">Phase 2: Radius Optimization</h5>
+                                    <p style="margin: 4px 0; font-size: 13px; line-height: 1.5;">
+                                        Fix center from Phase 1, then set radius to minimum sphere covering all soluble points:
+                                    </p>
+                                    <div style="background: white; padding: 10px; border-radius: 4px; margin: 8px 0; font-family: 'Courier New', monospace; font-size: 13px; overflow-x: auto;">
+                                        Ra = max{distance<sub>i</sub> | y<sub>i</sub> = 1.0}
+                                    </div>
+                                    <p style="margin: 4px 0; font-size: 12px; line-height: 1.4; color: #4a5568;">
+                                        This ensures all soluble points (y<sub>i</sub> = 1.0) are inside the sphere while minimizing false positives.
+                                    </p>
+
+                                    <p style="margin: 10px 0 0 0; font-size: 13px; line-height: 1.5; padding: 8px; background: #e6fffa; border-left: 3px solid #48bb78; border-radius: 3px;">
+                                        <strong>Why recommended:</strong> Combines theoretical optimization (Cross Entropy) with practical constraint (minimum sphere), resulting in high accuracy with minimal false positives.
+                                    </p>
+                                </div>
+
+                                <!-- Cross Entropy -->
+                                <div style="margin-bottom: 25px;">
+                                    <h4 style="margin: 0 0 10px 0; color: #2c5282;">Cross Entropy</h4>
+                                    <p style="margin: 8px 0; font-size: 14px; line-height: 1.6;">
+                                        Information-theoretic approach that simultaneously optimizes center and radius.
+                                    </p>
+                                    <div style="background: white; padding: 10px; border-radius: 4px; margin: 8px 0; font-family: 'Courier New', monospace; font-size: 13px; overflow-x: auto;">
+                                        L = -Σ [y<sub>i</sub> log(p<sub>i</sub>) + (1-y<sub>i</sub>) log(1-p<sub>i</sub>)]
+                                    </div>
+                                    <p style="margin: 4px 0; font-size: 12px; line-height: 1.4; color: #4a5568;">
+                                        where p<sub>i</sub> = σ(1 - RED<sub>i</sub>) represents the probability of solubility.<br>
+                                        Handles continuous solubility values (0.0 ≤ y<sub>i</sub> ≤ 1.0) naturally.<br>
+                                        Provides theoretical foundation based on maximum likelihood estimation.
+                                    </p>
+                                </div>
+
+                                <!-- HSPiPy Default -->
+                                <div style="margin-bottom: 15px;">
+                                    <h4 style="margin: 0 0 10px 0; color: #2c5782;">HSPiPy Default (Classic DATAFIT)</h4>
+                                    <p style="margin: 8px 0; font-size: 14px; line-height: 1.6;">
+                                        Industry-standard classic DATAFIT method from Hansen's original work.
+                                    </p>
+                                    <p style="margin: 4px 0; font-size: 13px; line-height: 1.5;">
+                                        Uses distance-based fitting:
+                                    </p>
+                                    <div style="background: white; padding: 10px; border-radius: 4px; margin: 8px 0; font-family: 'Courier New', monospace; font-size: 13px; overflow-x: auto;">
+                                        FIT = N<sub>correct</sub> / N<sub>total</sub>
+                                    </div>
+                                    <p style="margin: 4px 0; font-size: 12px; line-height: 1.4; color: #4a5568;">
+                                        where N<sub>correct</sub> = number of correctly classified solvents<br>
+                                        Soluble if RED < 1, Insoluble if RED > 1<br>
+                                        Maximizes FIT through iterative sphere adjustment.<br>
+                                        Useful for benchmarking against established HSP calculations.
+                                    </p>
+                                </div>
+
+                                <!-- Hansen Theory -->
+                                <div style="margin-top: 20px; padding: 12px; background: #fff; border: 1px solid #cbd5e0; border-radius: 4px;">
+                                    <h5 style="margin: 0 0 8px 0; font-size: 13px; color: #2d3748;">Hansen Solubility Theory</h5>
+                                    <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #4a5568;">
+                                        All methods are based on Hansen solubility parameters (HSP) theory:<br>
+                                        <strong>δD:</strong> Dispersion forces, <strong>δP:</strong> Polar forces, <strong>δH:</strong> Hydrogen bonding<br>
+                                        <strong>RED</strong> (Relative Energy Difference) = distance / Ra determines solubility:<br>
+                                        RED < 1 → Soluble, RED > 1 → Insoluble, RED ≈ 1 → Boundary
+                                    </p>
+                                </div>
+                            </div>
+                        </details>
                     </div>
                 </div>
                 <div class="modal-footer">

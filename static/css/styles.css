@@ -1003,6 +1003,147 @@ body {
     gap: 0.5rem;
 }
 
+/* User Added Solvents Section */
+.user-solvents-section {
+    margin-bottom: 2rem;
+}
+
+.user-solvents-section .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #3b82f6;
+}
+
+.user-solvents-section .section-header h3 {
+    margin: 0;
+    color: #1f2937;
+    font-size: 1.25rem;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+/* Solvent Database Section */
+.solvent-database-section {
+    margin-bottom: 2rem;
+}
+
+.database-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.database-controls .search-input {
+    flex: 1;
+}
+
+.table-container {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    overflow: auto;
+    max-height: 400px;
+    background: white;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.data-table thead {
+    position: sticky;
+    top: 0;
+    background-color: #f9fafb;
+    z-index: 1;
+}
+
+.data-table th {
+    padding: 0.75rem;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.data-table td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid #f3f4f6;
+    color: #1f2937;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+.solvent-name-cell {
+    font-weight: 500;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cas-cell {
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: #6b7280;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.source-cell {
+    font-size: 0.8rem;
+    color: #6b7280;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.link-cell {
+    text-align: center;
+    font-size: 1.2rem;
+}
+
+.source-link {
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s;
+    display: inline-block;
+}
+
+.source-link:hover {
+    transform: scale(1.2);
+}
+
+.source-icon {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.loading-cell,
+.empty-cell,
+.error-cell {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+}
+
+.error-cell {
+    color: #dc2626;
+}
+
 .solvent-sets-section {
     margin-bottom: 2rem;
 }

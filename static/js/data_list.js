@@ -11,11 +11,35 @@ class DataListManager {
 
     init() {
         this.setupEventListeners();
+        this.loadUserAddedSolvents();
+        this.loadSolventDatabase();
         this.loadSolventSetsDisplay();
         this.loadExperimentalResultsDisplay();
     }
 
     setupEventListeners() {
+        // Solvent database search
+        const dbSearchInput = document.querySelector('#solvent-database-search');
+        if (dbSearchInput) {
+            let searchTimeout;
+            dbSearchInput.addEventListener('input', (e) => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    this.loadSolventDatabase(e.target.value);
+                }, 300);
+            });
+        }
+
+        // Refresh database button
+        const refreshDbBtn = document.querySelector('#refresh-database-btn');
+        if (refreshDbBtn) {
+            refreshDbBtn.addEventListener('click', () => {
+                const searchInput = document.querySelector('#solvent-database-search');
+                if (searchInput) searchInput.value = '';
+                this.loadSolventDatabase();
+            });
+        }
+
         // Export sets button
         const exportBtn = document.querySelector('#export-sets-btn');
         if (exportBtn) {
@@ -443,12 +467,375 @@ class DataListManager {
         }
     }
 
+    // === Solvent Database Management ===
+
+    async loadSolventDatabase(searchQuery = '') {
+        const tbody = document.querySelector('#solvent-database-tbody');
+        const countBadge = document.querySelector('#database-count');
+
+        if (!tbody) {
+            console.error('Solvent database table body not found');
+            return;
+        }
+
+        try {
+            // Show loading state
+            tbody.innerHTML = '<tr><td colspan="7" class="loading-cell">Loading solvent database...</td></tr>';
+
+            // Build query parameters
+            const params = new URLSearchParams({
+                limit: '1000',
+                offset: '0'
+            });
+
+            if (searchQuery && searchQuery.trim()) {
+                params.append('search', searchQuery.trim());
+            }
+
+            // Fetch solvent data
+            const response = await fetch(`/api/data-list/solvents?${params}`);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Update count badge
+            if (countBadge) {
+                countBadge.textContent = `${data.total} solvents`;
+            }
+
+            // Display results
+            if (data.solvents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-cell">No solvents found</td></tr>';
+                return;
+            }
+
+            // Create table rows
+            const rows = data.solvents.map(solvent => {
+                const deltaD = solvent.delta_d !== null ? solvent.delta_d.toFixed(1) : '-';
+                const deltaP = solvent.delta_p !== null ? solvent.delta_p.toFixed(1) : '-';
+                const deltaH = solvent.delta_h !== null ? solvent.delta_h.toFixed(1) : '-';
+                const cas = solvent.cas || '-';
+                const bp = solvent.boiling_point !== null ? solvent.boiling_point.toFixed(1) : '-';
+                const linkIcon = this.formatSourceLink(solvent.source_url, solvent.source_file);
+
+                return `
+                    <tr>
+                        <td class="solvent-name-cell" title="${this.escapeHtml(solvent.solvent)}">${this.escapeHtml(solvent.solvent)}</td>
+                        <td>${deltaD}</td>
+                        <td>${deltaP}</td>
+                        <td>${deltaH}</td>
+                        <td class="cas-cell" title="${this.escapeHtml(cas)}">${this.escapeHtml(cas)}</td>
+                        <td>${bp}</td>
+                        <td class="link-cell">${linkIcon}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            tbody.innerHTML = rows;
+
+            console.log(`Loaded ${data.solvents.length} of ${data.total} solvents`);
+
+        } catch (error) {
+            console.error('Error loading solvent database:', error);
+            tbody.innerHTML = `<tr><td colspan="7" class="error-cell">Error loading solvent database: ${error.message}</td></tr>`;
+            Notification.error('Failed to load solvent database');
+        }
+    }
+
+    formatSource(sourceFile) {
+        if (!sourceFile) return '-';
+        if (sourceFile === 'user_added') return 'User Added';
+
+        // Extract filename from path
+        const filename = sourceFile.split(/[/\\]/).pop();
+        return filename || sourceFile;
+    }
+
+    formatSourceLink(sourceUrl, sourceFile) {
+        // If no URL and it's a user-added solvent, show nothing
+        if (!sourceUrl && sourceFile === 'user_added') {
+            return '-';
+        }
+
+        // If there's a URL, show link icon
+        if (sourceUrl) {
+            const sourceName = this.formatSource(sourceFile);
+            return `<a href="${this.escapeHtml(sourceUrl)}" target="_blank" class="source-link" title="Open source: ${this.escapeHtml(sourceName)}">🔗</a>`;
+        }
+
+        // If no URL but has source file, show icon without link
+        if (sourceFile && sourceFile !== 'user_added') {
+            const sourceName = this.formatSource(sourceFile);
+            return `<span class="source-icon" title="Source: ${this.escapeHtml(sourceName)}">📄</span>`;
+        }
+
+        return '-';
+    }
+
     escapeHtml(text) {
         return Utils.escapeHtml(text);
     }
 
     showNotification(message, type = 'info') {
         Notification.show(message, type);
+    }
+
+    // === User Added Solvents Management ===
+
+    async loadUserAddedSolvents() {
+        const tbody = document.querySelector('#user-solvents-tbody');
+        const countBadge = document.querySelector('#user-solvents-count');
+
+        if (!tbody) {
+            console.error('User solvents table body not found');
+            return;
+        }
+
+        try {
+            // Fetch user-added solvents
+            const response = await fetch('/api/data-list/user-solvents');
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const solvents = await response.json();
+
+            // Update count badge
+            if (countBadge) {
+                countBadge.textContent = `${solvents.length} solvents`;
+            }
+
+            // Display results
+            if (solvents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-cell">No user-added solvents yet. Add solvents in the HSP Experimental page using Manual mode.</td></tr>';
+                return;
+            }
+
+            // Create table rows with edit/delete buttons
+            const rows = solvents.map(solvent => {
+                const deltaD = solvent.delta_d !== null ? solvent.delta_d.toFixed(1) : '-';
+                const deltaP = solvent.delta_p !== null ? solvent.delta_p.toFixed(1) : '-';
+                const deltaH = solvent.delta_h !== null ? solvent.delta_h.toFixed(1) : '-';
+                const cas = solvent.cas || '-';
+                const bp = solvent.boiling_point !== null ? solvent.boiling_point.toFixed(1) : '-';
+
+                return `
+                    <tr>
+                        <td class="solvent-name-cell">${this.escapeHtml(solvent.solvent)}</td>
+                        <td>${deltaD}</td>
+                        <td>${deltaP}</td>
+                        <td>${deltaH}</td>
+                        <td class="cas-cell">${this.escapeHtml(cas)}</td>
+                        <td>${bp}</td>
+                        <td class="actions-cell">
+                            <button class="btn-icon edit-user-solvent-btn" title="Edit" data-solvent='${JSON.stringify(solvent).replace(/'/g, "&apos;")}'>✏️</button>
+                            <button class="btn-icon delete-user-solvent-btn" title="Delete" data-solvent-name="${this.escapeHtml(solvent.solvent)}">🗑️</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            tbody.innerHTML = rows;
+
+            // Attach event listeners
+            this.setupUserSolventListeners();
+
+            console.log(`Loaded ${solvents.length} user-added solvents`);
+
+        } catch (error) {
+            console.error('Error loading user-added solvents:', error);
+            tbody.innerHTML = `<tr><td colspan="7" class="error-cell">Error loading user-added solvents: ${error.message}</td></tr>`;
+            Notification.error('Failed to load user-added solvents');
+        }
+    }
+
+    setupUserSolventListeners() {
+        // Edit buttons
+        document.querySelectorAll('.edit-user-solvent-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const solventData = JSON.parse(e.target.dataset.solvent);
+                this.showEditUserSolventModal(solventData);
+            });
+        });
+
+        // Delete buttons
+        document.querySelectorAll('.delete-user-solvent-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const solventName = e.target.dataset.solventName;
+                this.deleteUserSolvent(solventName);
+            });
+        });
+
+        // Edit modal controls
+        const saveBtn = document.querySelector('#save-user-solvent-btn');
+        const cancelBtn = document.querySelector('#cancel-edit-user-solvent-btn');
+        const closeBtn = document.querySelector('#edit-user-solvent-modal .modal-close');
+        const modal = document.querySelector('#edit-user-solvent-modal');
+
+        if (saveBtn && !saveBtn.hasAttribute('data-listener-attached')) {
+            saveBtn.setAttribute('data-listener-attached', 'true');
+            saveBtn.addEventListener('click', () => this.saveUserSolventChanges());
+        }
+
+        if (cancelBtn && !cancelBtn.hasAttribute('data-listener-attached')) {
+            cancelBtn.setAttribute('data-listener-attached', 'true');
+            cancelBtn.addEventListener('click', () => this.closeEditUserSolventModal());
+        }
+
+        if (closeBtn && !closeBtn.hasAttribute('data-listener-attached')) {
+            closeBtn.setAttribute('data-listener-attached', 'true');
+            closeBtn.addEventListener('click', () => this.closeEditUserSolventModal());
+        }
+
+        if (modal && !modal.hasAttribute('data-listener-attached')) {
+            modal.setAttribute('data-listener-attached', 'true');
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.closeEditUserSolventModal();
+                }
+            });
+        }
+    }
+
+    showEditUserSolventModal(solventData) {
+        const modal = document.querySelector('#edit-user-solvent-modal');
+        const nameInput = document.querySelector('#edit-solvent-name');
+        const deltaDInput = document.querySelector('#edit-delta-d');
+        const deltaPInput = document.querySelector('#edit-delta-p');
+        const deltaHInput = document.querySelector('#edit-delta-h');
+        const casInput = document.querySelector('#edit-cas');
+        const bpInput = document.querySelector('#edit-boiling-point');
+
+        if (!modal) return;
+
+        // Store original solvent name for update
+        modal.setAttribute('data-original-name', solventData.solvent);
+
+        // Populate form
+        if (nameInput) nameInput.value = solventData.solvent || '';
+        if (deltaDInput) deltaDInput.value = solventData.delta_d !== null ? solventData.delta_d : '';
+        if (deltaPInput) deltaPInput.value = solventData.delta_p !== null ? solventData.delta_p : '';
+        if (deltaHInput) deltaHInput.value = solventData.delta_h !== null ? solventData.delta_h : '';
+        if (casInput) casInput.value = solventData.cas || '';
+        if (bpInput) bpInput.value = solventData.boiling_point !== null ? solventData.boiling_point : '';
+
+        modal.style.display = 'block';
+    }
+
+    closeEditUserSolventModal() {
+        const modal = document.querySelector('#edit-user-solvent-modal');
+        if (modal) {
+            modal.style.display = 'none';
+            modal.removeAttribute('data-original-name');
+        }
+    }
+
+    async saveUserSolventChanges() {
+        const modal = document.querySelector('#edit-user-solvent-modal');
+        const originalName = modal.getAttribute('data-original-name');
+
+        const nameInput = document.querySelector('#edit-solvent-name');
+        const deltaDInput = document.querySelector('#edit-delta-d');
+        const deltaPInput = document.querySelector('#edit-delta-p');
+        const deltaHInput = document.querySelector('#edit-delta-h');
+        const casInput = document.querySelector('#edit-cas');
+        const bpInput = document.querySelector('#edit-boiling-point');
+
+        // Validate required fields
+        const newName = nameInput.value.trim();
+        const deltaD = parseFloat(deltaDInput.value);
+        const deltaP = parseFloat(deltaPInput.value);
+        const deltaH = parseFloat(deltaHInput.value);
+
+        if (!newName) {
+            Notification.error('Solvent name is required');
+            return;
+        }
+
+        if (isNaN(deltaD) || isNaN(deltaP) || isNaN(deltaH)) {
+            Notification.error('HSP values (δD, δP, δH) are required');
+            return;
+        }
+
+        // Prepare update data
+        const updateData = {
+            solvent: newName,
+            delta_d: deltaD,
+            delta_p: deltaP,
+            delta_h: deltaH,
+            cas: casInput.value.trim() || null,
+            boiling_point: bpInput.value ? parseFloat(bpInput.value) : null,
+            smiles: null,
+            source_file: 'user_added',
+            source_url: null
+        };
+
+        try {
+            // Send PUT request
+            const response = await fetch(`/api/data-list/user-solvents/${encodeURIComponent(originalName)}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updateData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            Notification.success(`Solvent '${newName}' updated successfully`);
+            this.closeEditUserSolventModal();
+
+            // Reload the user solvents table
+            await this.loadUserAddedSolvents();
+
+            // Also reload the main solvent database to reflect changes
+            await this.loadSolventDatabase();
+
+        } catch (error) {
+            console.error('Error updating user solvent:', error);
+            Notification.error(`Failed to update solvent: ${error.message}`);
+        }
+    }
+
+    async deleteUserSolvent(solventName) {
+        if (!confirm(`Are you sure you want to delete the solvent "${solventName}"?`)) {
+            return;
+        }
+
+        try {
+            // Send DELETE request
+            const response = await fetch(`/api/data-list/user-solvents/${encodeURIComponent(solventName)}`, {
+                method: 'DELETE'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            Notification.success(`Solvent '${solventName}' deleted successfully`);
+
+            // Reload the user solvents table
+            await this.loadUserAddedSolvents();
+
+            // Also reload the main solvent database to reflect changes
+            await this.loadSolventDatabase();
+
+        } catch (error) {
+            console.error('Error deleting user solvent:', error);
+            Notification.error(`Failed to delete solvent: ${error.message}`);
+        }
     }
 
     // === Experimental Results Management ===
