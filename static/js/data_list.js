@@ -514,21 +514,17 @@ class DataListManager {
 
             // Create table rows
             const rows = data.solvents.map(solvent => {
-                const deltaD = solvent.delta_d !== null ? solvent.delta_d.toFixed(1) : '-';
-                const deltaP = solvent.delta_p !== null ? solvent.delta_p.toFixed(1) : '-';
-                const deltaH = solvent.delta_h !== null ? solvent.delta_h.toFixed(1) : '-';
-                const cas = solvent.cas || '-';
-                const bp = solvent.boiling_point !== null ? solvent.boiling_point.toFixed(1) : '-';
+                const values = this.formatSolventValues(solvent);
                 const linkIcon = this.formatSourceLink(solvent.source_url, solvent.source_file);
 
                 return `
                     <tr>
                         <td class="solvent-name-cell" title="${this.escapeHtml(solvent.solvent)}">${this.escapeHtml(solvent.solvent)}</td>
-                        <td>${deltaD}</td>
-                        <td>${deltaP}</td>
-                        <td>${deltaH}</td>
-                        <td class="cas-cell" title="${this.escapeHtml(cas)}">${this.escapeHtml(cas)}</td>
-                        <td>${bp}</td>
+                        <td>${values.deltaD}</td>
+                        <td>${values.deltaP}</td>
+                        <td>${values.deltaH}</td>
+                        <td class="cas-cell" title="${this.escapeHtml(values.cas)}">${this.escapeHtml(values.cas)}</td>
+                        <td>${values.bp}</td>
                         <td class="link-cell">${linkIcon}</td>
                     </tr>
                 `;
@@ -575,6 +571,29 @@ class DataListManager {
         return '-';
     }
 
+    /**
+     * Format solvent property values for display
+     * @param {Object} solvent - Solvent data object
+     * @returns {Object} Formatted values
+     */
+    formatSolventValues(solvent) {
+        return {
+            deltaD: solvent.delta_d !== null ? solvent.delta_d.toFixed(1) : '-',
+            deltaP: solvent.delta_p !== null ? solvent.delta_p.toFixed(1) : '-',
+            deltaH: solvent.delta_h !== null ? solvent.delta_h.toFixed(1) : '-',
+            cas: solvent.cas || '-',
+            bp: solvent.boiling_point !== null ? solvent.boiling_point.toFixed(1) : '-'
+        };
+    }
+
+    /**
+     * Refresh all solvent-related tables
+     */
+    async refreshAllTables() {
+        await this.loadUserAddedSolvents();
+        await this.loadSolventDatabase();
+    }
+
     escapeHtml(text) {
         return Utils.escapeHtml(text);
     }
@@ -617,20 +636,16 @@ class DataListManager {
 
             // Create table rows with edit/delete buttons
             const rows = solvents.map(solvent => {
-                const deltaD = solvent.delta_d !== null ? solvent.delta_d.toFixed(1) : '-';
-                const deltaP = solvent.delta_p !== null ? solvent.delta_p.toFixed(1) : '-';
-                const deltaH = solvent.delta_h !== null ? solvent.delta_h.toFixed(1) : '-';
-                const cas = solvent.cas || '-';
-                const bp = solvent.boiling_point !== null ? solvent.boiling_point.toFixed(1) : '-';
+                const values = this.formatSolventValues(solvent);
 
                 return `
                     <tr>
                         <td class="solvent-name-cell">${this.escapeHtml(solvent.solvent)}</td>
-                        <td>${deltaD}</td>
-                        <td>${deltaP}</td>
-                        <td>${deltaH}</td>
-                        <td class="cas-cell">${this.escapeHtml(cas)}</td>
-                        <td>${bp}</td>
+                        <td>${values.deltaD}</td>
+                        <td>${values.deltaP}</td>
+                        <td>${values.deltaH}</td>
+                        <td class="cas-cell">${this.escapeHtml(values.cas)}</td>
+                        <td>${values.bp}</td>
                         <td class="actions-cell">
                             <button class="btn-icon edit-user-solvent-btn" title="Edit" data-solvent='${JSON.stringify(solvent).replace(/'/g, "&apos;")}'>✏️</button>
                             <button class="btn-icon delete-user-solvent-btn" title="Delete" data-solvent-name="${this.escapeHtml(solvent.solvent)}">🗑️</button>
@@ -794,11 +809,8 @@ class DataListManager {
             Notification.success(`Solvent '${newName}' updated successfully`);
             this.closeEditUserSolventModal();
 
-            // Reload the user solvents table
-            await this.loadUserAddedSolvents();
-
-            // Also reload the main solvent database to reflect changes
-            await this.loadSolventDatabase();
+            // Reload all tables to reflect changes
+            await this.refreshAllTables();
 
         } catch (error) {
             console.error('Error updating user solvent:', error);
@@ -826,11 +838,8 @@ class DataListManager {
 
             Notification.success(`Solvent '${solventName}' deleted successfully`);
 
-            // Reload the user solvents table
-            await this.loadUserAddedSolvents();
-
-            // Also reload the main solvent database to reflect changes
-            await this.loadSolventDatabase();
+            // Reload all tables to reflect changes
+            await this.refreshAllTables();
 
         } catch (error) {
             console.error('Error deleting user solvent:', error);
