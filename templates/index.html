@@ -68,7 +68,7 @@
                                     <span class="unit">MPa<sup>0.5</sup></span>
                                 </span>
                                 <span class="hsp-value-inline">
-                                    <label>Ra:</label>
+                                    <label>R0:</label>
                                     <span id="ra" class="value">-</span>
                                     <span class="unit">MPa<sup>0.5</sup></span>
                                 </span>
@@ -180,7 +180,7 @@
                                 </div>
                             </div>
                             <div class="input-group">
-                                <label for="target-radius">Search Radius Ra (MPa<sup>0.5</sup>)</label>
+                                <label for="target-radius">Interaction Radius R0 (MPa<sup>0.5</sup>)</label>
                                 <input type="number" id="target-radius" step="0.1" placeholder="5.0" value="5.0">
                                 <small>Leave empty for unlimited distance</small>
                             </div>
@@ -458,7 +458,7 @@
                     <div class="form-group">
                         <label for="loss-function-select">Loss Function:</label>
                         <select id="loss-function-select" class="form-control">
-                            <option value="optimize_radius_only" selected>Cross Entropy → Optimize Ra Only (Recommended)</option>
+                            <option value="optimize_radius_only" selected>Cross Entropy → Optimize R0 Only (Recommended)</option>
                             <option value="cross_entropy">Cross Entropy</option>
                             <option value="hspipy_default">HSPiPy Default (Classic DATAFIT)</option>
                         </select>
@@ -476,10 +476,10 @@
                                 About Loss Functions
                             </summary>
                             <div style="padding-top: 10px;">
-                                <!-- Cross Entropy → Optimize Ra Only -->
+                                <!-- Cross Entropy → Optimize R0 Only -->
                                 <div style="margin-bottom: 25px;">
                                     <h4 style="margin: 0 0 10px 0; color: #2c5282;">
-                                        Cross Entropy → Optimize Ra Only
+                                        Cross Entropy → Optimize R0 Only
                                         <span style="display: inline-block; margin-left: 8px; padding: 2px 6px; background: #48bb78; color: white; border-radius: 3px; font-size: 11px; font-weight: bold;">RECOMMENDED</span>
                                     </h4>
                                     <p style="margin: 8px 0; font-size: 14px; line-height: 1.6;">
@@ -495,7 +495,7 @@
                                     </div>
                                     <p style="margin: 4px 0; font-size: 12px; line-height: 1.4; color: #4a5568;">
                                         where p<sub>i</sub> = σ(1 - RED<sub>i</sub>) = 1 / (1 + exp(-(1 - RED<sub>i</sub>)))<br>
-                                        RED<sub>i</sub> = distance<sub>i</sub> / Ra<sub>trial</sub><br>
+                                        RED<sub>i</sub> = distance<sub>i</sub> / R0<sub>trial</sub><br>
                                         distance<sub>i</sub> = √[4(δD<sub>i</sub> - δD)² + (δP<sub>i</sub> - δP)² + (δH<sub>i</sub> - δH)²]
                                     </p>
 
@@ -504,7 +504,7 @@
                                         Fix center from Phase 1, then set radius to minimum sphere covering all soluble points:
                                     </p>
                                     <div style="background: white; padding: 10px; border-radius: 4px; margin: 8px 0; font-family: 'Courier New', monospace; font-size: 13px; overflow-x: auto;">
-                                        Ra = max{distance<sub>i</sub> | y<sub>i</sub> = 1.0}
+                                        R0 = max{distance<sub>i</sub> | y<sub>i</sub> = 1.0}
                                     </div>
                                     <p style="margin: 4px 0; font-size: 12px; line-height: 1.4; color: #4a5568;">
                                         This ensures all soluble points (y<sub>i</sub> = 1.0) are inside the sphere while minimizing false positives.
@@ -557,7 +557,7 @@
                                     <p style="margin: 0; font-size: 12px; line-height: 1.5; color: #4a5568;">
                                         All methods are based on Hansen solubility parameters (HSP) theory:<br>
                                         <strong>δD:</strong> Dispersion forces, <strong>δP:</strong> Polar forces, <strong>δH:</strong> Hydrogen bonding<br>
-                                        <strong>RED</strong> (Relative Energy Difference) = distance / Ra determines solubility:<br>
+                                        <strong>RED</strong> (Relative Energy Difference) = distance / R0 determines solubility:<br>
                                         RED < 1 → Soluble, RED > 1 → Insoluble, RED ≈ 1 → Boundary
                                     </p>
                                 </div>

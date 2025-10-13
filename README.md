@@ -146,15 +146,35 @@ pip install fastapi uvicorn[standard] jinja2 plotly HSPiPy pydantic pydantic-set
 
 3. Calculate HSP values:
    - Click "Calculate HSP Values"
-   - View results: δD, δP, δH, and Ra values
+   - View results: δD, δP, δH, and R0 values
    - Explore 3D Hansen sphere visualization
 
 ### Understanding Results
 
-- **δD (Dispersion)**: Van der Waals forces
-- **δP (Polarity)**: Dipole-dipole interactions
-- **δH (Hydrogen bonding)**: Hydrogen bonding forces
-- **Ra (Radius)**: Interaction sphere radius
+#### Hansen Solubility Parameters
+
+- **δD (Dispersion)**: Van der Waals forces component
+- **δP (Polarity)**: Dipole-dipole interactions component
+- **δH (Hydrogen bonding)**: Hydrogen bonding forces component
+- **R0 (Interaction Radius)**: Hansen sphere radius determining solubility boundary
+
+#### HSP Terminology
+
+The Hansen Solubility Parameters theory uses specific terminology:
+
+- **R0 (Interaction Radius)**: The radius of the Hansen sphere in 3D HSP space. This defines the boundary of solubility for a given material. Materials within the sphere (RED < 1) are typically soluble, while those outside (RED > 1) are typically insoluble.
+
+- **Ra (Hansen Distance)**: The distance between two points in HSP space, calculated using the formula:
+  ```
+  Ra = √[4(δD₁-δD₂)² + (δP₁-δP₂)² + (δH₁-δH₂)²]
+  ```
+
+- **RED (Relative Energy Difference)**: The ratio Ra/R0, which determines solubility:
+  - RED < 1: Materials are likely soluble/compatible
+  - RED ≈ 1: Borderline solubility
+  - RED > 1: Materials are likely insoluble/incompatible
+
+**Note**: In MixingCompass, the internal code uses the variable name `radius` to represent R0 (interaction radius), not Ra (Hansen distance). This is documented throughout the codebase to avoid confusion.
 
 ## Troubleshooting
 

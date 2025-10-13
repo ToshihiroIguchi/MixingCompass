@@ -1330,7 +1330,7 @@ class HSPExperimental {
                     <span class="hsp-item"><strong>δD:</strong> ${result.hsp_result.delta_d.toFixed(1)}</span>
                     <span class="hsp-item"><strong>δP:</strong> ${result.hsp_result.delta_p.toFixed(1)}</span>
                     <span class="hsp-item"><strong>δH:</strong> ${result.hsp_result.delta_h.toFixed(1)}</span>
-                    <span class="hsp-item"><strong>Ra:</strong> ${result.hsp_result.radius.toFixed(1)}</span>
+                    <span class="hsp-item"><strong>R0:</strong> ${result.hsp_result.radius.toFixed(1)}</span>
                 </div>
                 <div class="result-meta">
                     <span>${result.metadata.solvent_count} solvents</span>

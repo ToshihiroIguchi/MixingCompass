@@ -917,7 +917,7 @@ class DataListManager {
                             <span class="hsp-value">δD: ${result.hsp_result.delta_d.toFixed(1)}</span>
                             <span class="hsp-value">δP: ${result.hsp_result.delta_p.toFixed(1)}</span>
                             <span class="hsp-value">δH: ${result.hsp_result.delta_h.toFixed(1)}</span>
-                            <span class="hsp-value">Ra: ${result.hsp_result.radius.toFixed(1)}</span>
+                            <span class="hsp-value">R0: ${result.hsp_result.radius.toFixed(1)}</span>
                         </div>
                     </div>
                     ${result.metadata.notes ? `

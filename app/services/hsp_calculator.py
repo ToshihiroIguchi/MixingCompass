@@ -33,7 +33,7 @@ class HSPCalculator:
             inside_limit: Minimum number of good solvents required (legacy parameter)
             loss_function: Loss function name (default: "cross_entropy")
                           Special mode: 'optimize_radius_only' - Uses Cross Entropy for center,
-                          then optimizes Ra only to maximize FIT
+                          then optimizes R0 (interaction radius) only to maximize FIT
             size_factor: Size penalty factor (default: 0.0)
 
         Returns:
@@ -345,17 +345,17 @@ class HSPCalculator:
 
     def _calculate_hsp_optimize_radius_only(self, solvent_tests: List[SolventTest]) -> Optional[HSPCalculationResult]:
         """
-        Optimize Ra only with fixed center from Cross Entropy
+        Optimize R0 (interaction radius) only with fixed center from Cross Entropy
 
         Strategy:
         1. Calculate center (δD, δP, δH) using Cross Entropy
         2. Fix the center
-        3. Calculate Ra_min = max distance to all good solvents
-        4. Set Ra_optimal = Ra_min (minimum sphere covering all good solvents)
+        3. Calculate R0_min = max distance to all good solvents
+        4. Set R0_optimal = R0_min (minimum sphere covering all good solvents)
 
         Rationale:
         - Uses Cross Entropy only for center calculation (well-established method)
-        - Ra_min is the smallest radius that covers all soluble points
+        - R0_min is the smallest interaction radius that covers all soluble points
         - This minimizes false positives (poor solvents inside sphere)
         - No arbitrary parameters
 
@@ -367,6 +367,8 @@ class HSPCalculator:
         Classification rule:
         - solubility = 1.0 → good solvent → must be inside (RED < 1)
         - solubility < 1.0 → poor solvent → preferably outside (RED > 1)
+
+        Note: RED = Ra / R0, where Ra is the Hansen distance and R0 is the interaction radius
         """
 
         try:
@@ -569,10 +571,13 @@ class HSPCalculator:
 
     def _calculate_hansen_distance(self, point: Tuple[float, float, float], center: Tuple[float, float, float]) -> float:
         """
-        Calculate Hansen distance (before dividing by Ra)
+        Calculate Hansen distance (Ra) between two points in HSP space
 
         Hansen distance formula:
         Ra = √[4(ΔδD)² + (ΔδP)² + (ΔδH)²]
+
+        Note: This calculates Ra (distance), not R0 (interaction radius).
+        RED = Ra / R0 is used to determine solubility.
         """
         import math
 
@@ -592,11 +597,14 @@ class HSPCalculator:
         poor_solvents: List[Dict]
     ) -> float:
         """
-        Optimize Ra to maximize FIT when complete separation is impossible
+        Optimize R0 (interaction radius) to maximize FIT when complete separation is impossible
 
         Strategy:
-        1. Search for Ra that maximizes FIT (correct classifications)
-        2. If multiple Ra have same FIT, choose the smallest (minimum sphere principle)
+        1. Search for R0 that maximizes FIT (correct classifications)
+        2. If multiple R0 values have same FIT, choose the smallest (minimum sphere principle)
+
+        Note: Parameter names Ra_min/Ra_max refer to R0 constraints (not Hansen distance).
+        This follows the internal convention where 'radius' parameter represents R0.
         """
 
         import numpy as np

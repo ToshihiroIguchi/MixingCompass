@@ -16,7 +16,7 @@ class HSPValues(BaseModel):
     delta_d: float = Field(..., description="Dispersion parameter (δD) in MPa^0.5", ge=0)
     delta_p: float = Field(..., description="Polar parameter (δP) in MPa^0.5", ge=0)
     delta_h: float = Field(..., description="Hydrogen bonding parameter (δH) in MPa^0.5", ge=0)
-    radius: Optional[float] = Field(None, description="Hansen sphere radius (Ra) in MPa^0.5", ge=0)
+    radius: Optional[float] = Field(None, description="Interaction radius (R0) in MPa^0.5", ge=0)
 
     @validator('radius', always=True)
     def set_default_radius(cls, v):
@@ -31,7 +31,7 @@ class HSPValues(BaseModel):
     def calculate_red(self, other_hsp: 'HSPValues') -> float:
         """
         Calculate Relative Energy Difference (RED) with another HSP
-        RED = Ra / Ro, where Ra is actual distance and Ro is interaction radius
+        RED = Ra / R0, where Ra is the distance and R0 is the interaction radius
         """
         ra = math.sqrt(
             4 * (self.delta_d - other_hsp.delta_d)**2 +
@@ -82,7 +82,7 @@ class HSPCalculationResult(BaseModel):
     delta_d: float = Field(..., description="Dispersive parameter (δD) in MPa^0.5", ge=0)
     delta_p: float = Field(..., description="Polar parameter (δP) in MPa^0.5", ge=0)
     delta_h: float = Field(..., description="Hydrogen bonding parameter (δH) in MPa^0.5", ge=0)
-    radius: float = Field(..., description="Hansen sphere radius (Ra) in MPa^0.5", ge=0)
+    radius: float = Field(..., description="Interaction radius (R0) in MPa^0.5", ge=0)
 
     # Calculation quality metrics
     accuracy: float = Field(0.0, description="Calculation accuracy (0-1)", ge=0, le=1)
