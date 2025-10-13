@@ -1,41 +1,293 @@
-﻿Polymer,Cas,gamma_s(Polar),gamma_sd,gamma_sP,gamma_s(Acid-Base),gamma_sLW,gamma_sAB,gamma_s-,gamma_s+,delta_total,delta_D,delta_P,delta_H,R0,source_file,source_row,completeness,source_url
-Polyvinyl acetate (PVA),9003-20-7,37.7,24.8,13.0,44.5,42.6,1.9,0.04,22.3,25.7,20.9,11.3,9.7,13.7,polytable,2,1.0,https://www.accudynetest.com/polytable_02.html
-Polystyrene (PS),9003-53-6,41.7,37.0,5.0,36.9,37.9,-0.9,0.1,2.2,23.9,22.8,5.8,4.3,12.7,polytable,3,1.0,https://www.accudynetest.com/polytable_02.html
-Cellulose acetate butyrate (CAB),9004-36-8,,,,,,,,,22.2,17.2,13.8,2.8,12.6,polytable,4,1.0,https://www.accudynetest.com/polytable_02.html
-Epoxies,,45.0,37.2,7.8,,,,,,24.1,19.2,10.9,9.6,11.1,polytable,5,1.0,https://www.accudynetest.com/polytable_02.html
-"Polymethyl methacrylate (PMMA, acrylic, plexiglas)",9011-14-7,43.5,35.9,7.8,42.2,41.6,0.6,0.0,11.1,21.3,17.9,10.1,5.4,11.0,polytable,6,1.0,https://www.accudynetest.com/polytable_02.html
-Polyacrylonitrile (PAN),25014-41-9,,,,,,,,,27.4,21.7,14.1,9.1,10.9,polytable,7,1.0,https://www.accudynetest.com/polytable_02.html
-Nitrocellulose (cellulose nitrate),9004-70-0,,,,45.1,44.8,0.3,0.01,13.3,23.5,16.2,14.1,9.5,10.7,polytable,8,1.0,https://www.accudynetest.com/polytable_02.html
-Cellulose acetate (CA),9004-35-7,42.0,31.0,11.1,43.5,39.0,4.5,0.3,22.2,23.5,17.1,13.1,9.4,10.6,polytable,9,1.0,https://www.accudynetest.com/polytable_02.html
-Polyvinyl alcohol (PVOH),25213-24-5,,,,42.0,42.0,0.0,0.0,37.0,25.2,14.7,14.1,14.9,10.5,polytable,10,1.0,https://www.accudynetest.com/polytable_02.html
-Polyisoprene (PIP),9003-31-0,,,,,,,,,18.4,18.1,2.4,2.3,10.3,polytable,11,1.0,https://www.accudynetest.com/polytable_02.html
-Polycarbonate (PC),24936-68-3,43.4,38.2,5.2,,,,,,22.2,19.6,8.8,5.7,10.2,polytable,12,1.0,https://www.accudynetest.com/polytable_02.html
-Polyvinyl butyral,63148-65-2,,,,,,,,,24.6,19.1,9.5,12.2,10.0,polytable,13,1.0,https://www.accudynetest.com/polytable_02.html
-Polyurethanes,,39.3,30.8,8.6,30.0,30.9,-0.9,0.02,10.0,22.8,18.8,10.0,8.2,9.8,polytable,14,1.0,https://www.accudynetest.com/polytable_02.html
-Polyethyl methacrylate (PEMA),9003-42-3,35.9,26.9,9.0,,,,,,20.0,17.5,8.5,4.7,9.6,polytable,15,1.0,https://www.accudynetest.com/polytable_02.html
-Poly n-butyl methacrylate (PnBMA),95608-33-7,32.3,27.3,5.0,,,,,,18.4,16.0,6.2,6.6,9.5,polytable,16,1.0,https://www.accudynetest.com/polytable_02.html
-Poly iso-butyl methacrylate (PIBMA),9011-15-8,30.9,26.3,4.7,,,,,,20.0,18.3,4.9,6.3,9.4,polytable,17,1.0,https://www.accudynetest.com/polytable_02.html
-Polysulfone (PSU),25135-51-7,46.6,30.4,16.2,,,,,,21.5,18.5,8.5,7.0,9.4,polytable,18,1.0,https://www.accudynetest.com/polytable_02.html
-Acrylonitrile butadiene styrene (ABS),9003-56-9,43.6,35.8,8.0,38.6,39.4,-0.8,0.9,3.7,19.2,17.0,5.7,6.8,9.4,polytable,19,1.0,https://www.accudynetest.com/polytable_02.html
-Polyphenylene oxide (PPO),25134-01-04,46.0,36.0,10.0,,,,,,20.1,17.9,3.1,8.5,8.6,polytable,20,1.0,https://www.accudynetest.com/polytable_02.html
-Polyvinyl chloride (PVC),9002-86-2,40.1,37.4,2.8,39.8,38.7,1.0,0.1,3.1,20.0,16.8,8.9,6.1,8.5,polytable,21,1.0,https://www.accudynetest.com/polytable_02.html
-"Polyisobutylene (PIB, butyl (rubber)",9003-27-4,33.6,33.6,0.0,25.0,25.0,0.0,0.0,0.0,17.1,16.4,1.7,4.7,7.9,polytable,22,1.0,https://www.accudynetest.com/polytable_02.html
-Ethyl cellulose,9004-57-3,,,,28.6,27.4,1.2,0.04,8.6,20.4,19.0,5.6,4.9,7.9,polytable,23,1.0,https://www.accudynetest.com/polytable_02.html
-Cellophane,9005-81-6,45.4,29.8,15.6,,,,,,28.5,16.1,18.5,14.5,7.3,polytable,24,1.0,https://www.accudynetest.com/polytable_02.html
-Polyphenylene sulfide (PPS),26125-40-6,46.8,44.0,2.8,,,,,,19.8,18.7,5.3,3.7,6.7,polytable,25,1.0,https://www.accudynetest.com/polytable_02.html
-Polybutadiene,9003-17-2,,,,,,,,,18.0,17.5,2.3,3.4,6.6,polytable,26,1.0,https://www.accudynetest.com/polytable_02.html
-Polyethylene (PE),9002-88-4,34.2,32.8,1.4,31.7,31.5,0.2,0.1,0.9,17.6,16.8,3.8,3.8,6.6,polytable,27,1.0,https://www.accudynetest.com/polytable_02.html
-Polyethylene terephthalate (PET),25038-59-9,43.7,36.6,7.2,45.3,42.6,1.8,0.3,3.7,20.8,18.7,6.3,6.7,6.5,polytable,28,1.0,https://www.accudynetest.com/polytable_02.html
-Polyethersulfone (PES),25154-01-02,47.0,40.0,7.0,,,,,,21.0,18.3,8.2,6.4,6.3,polytable,29,1.0,https://www.accudynetest.com/polytable_02.html
-Nylon 12,24937-16-4,38.2,33.1,5.2,41.3,37.0,4.3,0.6,7.6,22.2,18.5,8.1,9.1,6.3,polytable,30,1.0,https://www.accudynetest.com/polytable_02.html
-Polypropylene (PP),,30.1,27.7,2.4,32.0,31.7,0.3,0.2,0.4,18.0,17.7,2.9,1.2,6.2,polytable,31,1.0,https://www.accudynetest.com/polytable_02.html
-Polychlorotrifluoroethylene,9002-83-9,29.5,22.6,6.9,,,,,,16.5,15.6,2.5,4.7,5.8,polytable,32,1.0,https://www.accudynetest.com/polytable_02.html
-"Polyvinylidene chloride (PVDC, Saran)",9002-85-1,45.3,40.4,4.9,40.3,40.4,-0.1,0.0,2.6,23.1,19.0,9.6,9.0,5.8,polytable,33,1.0,https://www.accudynetest.com/polytable_02.html
-Nylon 11,25587-80-8,,,,,,,,,20.5,17.0,4.4,10.6,5.1,polytable,34,1.0,https://www.accudynetest.com/polytable_02.html
-"Nylon 6 (polycaprolactum, aramid 6)",25038-54-4,42.7,33.1,9.6,45.3,42.5,2.8,0.2,9.6,20.3,17.0,3.4,10.6,5.1,polytable,35,1.0,https://www.accudynetest.com/polytable_02.html
-Polyetherimide (PEI),61128-46-9,,,,,,,,,19.8,17.7,6.0,6.4,4.8,polytable,36,1.0,https://www.accudynetest.com/polytable_02.html
-"Nylon 6,6",32131-17-2,44.8,36.3,9.8,40.2,36.9,3.3,1.5,12.1,25.8,17.2,9.9,16.5,4.4,polytable,37,1.0,https://www.accudynetest.com/polytable_02.html
-Polyvinylidene fluoride (PVDF),24937-79-9,34.4,25.7,8.7,30.5,28.6,1.9,10.5,0.08,23.2,17.0,12.1,10.2,4.1,polytable,38,1.0,https://www.accudynetest.com/polytable_02.html
-Fluorinated ethylene polypropylene (FEP),25067-11-02,19.9,17.1,2.8,17.9,17.9,0.0,0.0,0.0,19.6,19.0,4.0,3.0,4.0,polytable,39,1.0,https://www.accudynetest.com/polytable_02.html
-Polytetrafluoroethylene (PTFE),9002-84-0,22.2,21.3,0.9,20.8,19.9,0.9,0.1,1.6,16.7,16.2,1.8,3.4,3.9,polytable,40,1.0,https://www.accudynetest.com/polytable_02.html
-Polymethacrylonitrile (PMAN),25067-61-2,,,,,,,,,23.7,17.2,14.4,7.6,3.8,polytable,41,1.0,https://www.accudynetest.com/polytable_02.html
+﻿No,Polymer,delta_D,delta_P,delta_H,R0,source_file,source_row,completeness,source_url,Cas,gamma_s(Polar),gamma_sd,gamma_sP,gamma_s(Acid-Base),gamma_sLW,gamma_sAB,gamma_s-,gamma_s+,delta_total
+1.0,Cellulose Acetobutyrate (CELLIT BP-300),16.6,12.0,6.7,10.2,HSPdataoriginal,2,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+2.0,Cellulose Acetate (CELLIDORA A),18.2,12.4,10.8,7.4,HSPdataoriginal,3,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+3.0,Ethyl Cellulose (ETHOCEL HE10),17.9,4.3,3.9,5.9,HSPdataoriginal,4,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+4.0,Ethyl Cellulose (ETHOCEL STD 20),20.1,6.9,5.9,9.9,HSPdataoriginal,5,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+5.0,Epoxy Resin (ARALDITE DY O25),14.0,7.4,9.4,13.7,HSPdataoriginal,6,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+6.0,Epoxy Resin (EPIKOTE 828),23.1,14.6,5.0,20.5,HSPdataoriginal,7,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+7.0,Epoxy Resin (EPIKOTE 1001),20.0,10.32,10.11,10.02,HSPdataoriginal,8,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+8.0,Epoxy Resin (EPIKOTE 1004),17.4,10.5,9.0,7.9,HSPdataoriginal,9,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+9.0,Epoxy Resin (EPIKOTE 1007),21.0,11.1,13.4,11.7,HSPdataoriginal,10,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+10.0,Epoxy Resin (EPIKOTE 1009),19.3,9.37,10.95,8.26,HSPdataoriginal,11,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+11.0,Epoxy Resin (PKHH),23.4,7.2,14.8,14.9,HSPdataoriginal,12,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+12.0,Epoxy Curing Agent (VERSAMID 100),23.8,5.3,16.2,16.1,HSPdataoriginal,13,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+13.0,Epoxy Curing Agent (VERSAMID 115),20.3,6.6,14.1,9.6,HSPdataoriginal,14,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+14.0,Epoxy Curing Agent (VERSAMID 125),24.9,3.1,18.7,20.3,HSPdataoriginal,15,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+15.0,Epoxy Curing Agent (VERSAMID 140),26.9,2.4,18.5,24.0,HSPdataoriginal,16,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+16.0,Polyurethane (DESMOPHEN 651),17.7,10.6,11.6,9.5,HSPdataoriginal,17,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+17.0,Polyurethane (DESMOPHEN 800),19.1,12.2,9.9,8.0,HSPdataoriginal,18,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+18.0,Polyurethane (DESMOPHEN 850),21.54,14.94,12.28,16.78,HSPdataoriginal,19,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+19.0,Polyurethane (DESMOPHEN 1100),16.0,13.1,9.2,11.4,HSPdataoriginal,20,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+20.0,Polyurethane (DESMOPHEN 1150),20.6,7.8,11.6,13.1,HSPdataoriginal,21,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+21.0,Polyurethane (DESMOPHEN 1200),19.4,7.4,6.0,9.8,HSPdataoriginal,22,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+22.0,Polyurethane (DESMOPHEN 1700),17.9,9.6,5.9,8.2,HSPdataoriginal,23,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+23.0,Polyurethane (DESMOLAC 4200),18.7,9.6,9.9,8.2,HSPdataoriginal,24,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+24.0,Polyurethane (MACRYNAL SM 510N),19.9,8.1,6.0,9.8,HSPdataoriginal,25,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+25.0,Phenolic Resin (SUPER BECKACITE 1001),23.26,6.55,8.35,19.85,HSPdataoriginal,26,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+26.0,Phenolic Resin (PHENODUR 373U),19.74,11.62,14.59,12.69,HSPdataoriginal,27,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+27.0,Hydrocarbon Resin (PLIOLYTE S-100),16.47,0.37,2.84,8.59,HSPdataoriginal,28,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+28.0,Hydrocarbon Resin (PICCOPALE 110),17.55,1.19,3.6,6.55,HSPdataoriginal,29,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+29.0,Hydrocarbon Resin (PICCORONE 450L),19.42,5.48,5.77,9.62,HSPdataoriginal,30,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+30.0,"Styrene-Butadiene Rubber (SBR, POLYSAR 5630)",17.55,3.35,2.7,6.55,HSPdataoriginal,31,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+31.0,Acrylonitrile-Butadiene Rubber (HYCAR 1052),18.62,8.78,4.17,9.6,HSPdataoriginal,32,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+32.0,Polybutadiene (BUNA HULS B10),17.53,2.25,3.42,6.55,HSPdataoriginal,33,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+33.0,Polyisoprene (CARIFLEX IR 305),16.57,1.41,,9.62,HSPdataoriginal,34,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+34.0,Polyisobutylene (LUTONAL IC/1203),14.2,2.5,4.6,12.4,HSPdataoriginal,35,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+35.0,Polyisobutylene (LUTANAL I60),16.9,2.5,4.0,7.2,HSPdataoriginal,36,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+36.0,Polyvinyl Butyl Ether,17.4,4.3,8.4,7.4,HSPdataoriginal,37,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+37.0,Lignin,20.17,14.61,15.04,11.66,HSPdataoriginal,38,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+38.0,MODAFLOW,16.1,3.7,7.9,8.9,HSPdataoriginal,39,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+39.0,"Polyvinylchloride (PVC, VIPLA KR)",18.4,6.6,8.0,3.0,HSPdataoriginal,40,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+40.0,Chloroparaffin (CERECLOR 70),20.0,8.3,6.8,9.8,HSPdataoriginal,41,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+41.0,Chloroparaffin (CHLOROPAR 40),17.0,7.6,7.9,11.9,HSPdataoriginal,42,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+42.0,Chlorinated Rubber (PERGUT S 5),17.4,9.5,3.8,10.0,HSPdataoriginal,43,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+43.0,Chlorinated Rubber (ALLOPREN R10),17.4,4.3,3.9,6.1,HSPdataoriginal,44,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+44.0,Chlorinated Polypropylene (PARLON P 10),20.26,6.32,5.4,10.64,HSPdataoriginal,45,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+45.0,Chlorosulfonated Polyethylene (HYPALON 20),18.1,3.4,4.9,3.6,HSPdataoriginal,46,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+46.0,Chlorosulfonated Polyethylene (HYPALON 30),18.2,4.7,2.0,5.0,HSPdataoriginal,47,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+47.0,Cyclized Rubber (ALPEX),19.9,0.0,0.0,9.4,HSPdataoriginal,48,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+48.0,Nitrocellulose (H 23),15.41,14.73,8.84,11.46,HSPdataoriginal,49,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+49.0,Rosin Derivative (CELLOLYN 102),21.73,0.94,8.53,15.75,HSPdataoriginal,50,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+50.0,Rosin Derivative (PENTALYN 255),17.55,9.37,14.32,10.64,HSPdataoriginal,51,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+51.0,Rosin Derivative (PENTALYN 830),20.03,5.81,10.93,11.66,HSPdataoriginal,52,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+52.0,Rosin Derivative (ESTER GUM BL),19.64,4.73,7.77,10.64,HSPdataoriginal,53,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+53.0,Polyamide (VERSAMID 930),17.43,,14.89,9.62,HSPdataoriginal,54,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+54.0,Polyamide (VERSAMID 961),18.9,9.6,11.1,6.2,HSPdataoriginal,55,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+55.0,Polyamide (VERSAMID 965),20.15,6.04,12.9,9.2,HSPdataoriginal,56,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+56.0,Isocyanate (DESMODUR L),17.5,11.3,5.9,8.5,HSPdataoriginal,57,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+57.0,Isocyanate (DESMODUR N),17.6,10.0,3.7,9.3,HSPdataoriginal,58,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+58.0,Isocyanate (SUPRASEC F-5100),19.7,12.9,12.8,11.4,HSPdataoriginal,59,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+59.0,Polyvinylbutyral (MOWITAL B 30 H),18.6,12.9,10.3,8.3,HSPdataoriginal,60,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+60.0,Polyvinylbutyral (MOWITAL B 60 H),20.2,11.2,13.3,11.2,HSPdataoriginal,61,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+61.0,Polyvinylbutyral (BUTVAR B 76),18.6,4.36,13.03,10.64,HSPdataoriginal,62,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+62.0,Polyacrylate (LUCITE 2042 PEMA),17.6,9.66,3.97,10.64,HSPdataoriginal,63,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+63.0,Polyacrylate (LUCITE 2044 PMMA),16.2,6.8,5.7,9.1,HSPdataoriginal,64,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+64.0,Polyacrylate (PLEXIGUM MB319),18.6,10.8,4.1,11.5,HSPdataoriginal,65,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+65.0,Polyacrylate (PLEXIGUM M527),18.4,9.4,6.5,10.7,HSPdataoriginal,66,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+66.0,Poly(methyl methacrylate) (PMMA),18.64,10.52,7.51,8.59,HSPdataoriginal,67,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+67.0,"Polyvinylacetate (PVAC, MOWILITH 50)",20.93,11.27,9.66,13.71,HSPdataoriginal,68,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+68.0,Polystyrene (POLYSTYRENE LG),22.28,5.75,4.3,12.68,HSPdataoriginal,69,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+69.0,Vinyl Chloride Copolymer (LAROFLEX MP 45),18.4,8.4,5.8,9.0,HSPdataoriginal,70,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+70.0,Vinyl Chloride Copolymer (VILIT MB 30),20.0,8.3,6.7,9.4,HSPdataoriginal,71,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+71.0,Vinyl Chloride Copolymer (VILIT MC 31),20.0,8.3,6.7,9.4,HSPdataoriginal,72,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+72.0,Vinyl Chloride Copolymer (VILIT MC 39),18.4,7.6,6.7,6.8,HSPdataoriginal,73,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+73.0,Vinyl Chloride Copolymer (VINYLITE VAGD),17.1,10.4,6.5,7.5,HSPdataoriginal,74,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+74.0,Vinyl Chloride Copolymer (VINYLITE VAGH),16.5,10.9,6.4,7.7,HSPdataoriginal,75,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+75.0,Vinyl Chloride Copolymer (VINYLITE VMCA),17.7,11.1,6.9,8.7,HSPdataoriginal,76,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+76.0,Vinyl Chloride Copolymer (VINYLITE VMCC),17.6,11.1,6.8,8.8,HSPdataoriginal,77,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+77.0,Vinyl Chloride Copolymer (VINYLITE VMCH),17.6,11.1,6.4,8.6,HSPdataoriginal,78,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+78.0,Vinyl Chloride Copolymer (VINYLITE VYHH),17.4,10.2,5.9,7.8,HSPdataoriginal,79,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+79.0,Vinyl Chloride Copolymer (VINYLITE VYLF),18.1,10.3,4.2,8.3,HSPdataoriginal,80,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+95.0,Amino Resin (BE 370),20.7,6.1,12.7,14.8,HSPdataoriginal,81,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+96.0,Amino Resin (BEETLE 681),22.2,,10.1,18.4,HSPdataoriginal,82,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+97.0,Amino Resin (CYMEL 300),19.35,12.83,12.87,9.82,HSPdataoriginal,83,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+98.0,Amino Resin (CYMEL 325),25.5,15.2,9.5,22.2,HSPdataoriginal,84,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+99.0,Amino Resin (DYNOMIN MM 9),18.8,14.0,12.3,10.5,HSPdataoriginal,85,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+100.0,Amino Resin (DYNOMIN UM 15),19.9,15.8,13.4,11.7,HSPdataoriginal,86,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+101.0,Amino Resin (SOAMIN M 60),15.9,8.1,6.5,10.6,HSPdataoriginal,87,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+102.0,Amino Resin (SYNRESIN A 560),22.1,5.0,11.3,15.5,HSPdataoriginal,88,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+103.0,Amino Resin (PLASTOPAL H),20.81,8.29,14.96,12.69,HSPdataoriginal,89,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+104.0,Amino Resin (UFORMITE MX-61),22.7,2.8,5.4,16.2,HSPdataoriginal,90,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+105.0,Acrylate Resin (URACRON 15),19.2,7.7,5.7,10.6,HSPdataoriginal,91,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+106.0,Acrylate Resin (PARALOID P 400),19.2,9.6,9.3,12.2,HSPdataoriginal,92,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+107.0,Acrylate Resin (PARALOID P 410),19.6,9.1,6.8,12.2,HSPdataoriginal,93,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+108.0,Acrylate Resin (PARALOID EXPER. RES. QR 954),18.4,9.8,10.0,12.4,HSPdataoriginal,94,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+109.0,Silicone Resin (BAYSILON UD 125),19.4,9.9,10.1,6.9,HSPdataoriginal,95,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+110.0,Polytetrafluoroethylene (TEFLON),17.1,8.1,1.3,4.7,HSPdataoriginal,96,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+111.0,Epoxy Novolac (DOW 438),20.3,15.4,5.3,15.1,HSPdataoriginal,97,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+112.0,Epoxy Novolac (DOW 444),19.5,11.6,9.3,10.0,HSPdataoriginal,98,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+113.0,Zinc Silicate Chemical Resistant Coating,23.5,17.5,16.8,15.6,HSPdataoriginal,99,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+114.0,2-Component Epoxy Chemical Resistant Coating,18.4,9.4,10.1,7.0,HSPdataoriginal,100,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+115.0,Polyvinylidene Fluoride Solution (PVDF),17.0,12.1,10.2,4.1,HSPdataoriginal,101,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+116.0,Coal Tar Pitch Solution,18.7,7.5,8.9,5.8,HSPdataoriginal,102,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+145.0,Polyethersulfone (PES) L C=1,18.7,10.5,7.6,9.1,HSPdataoriginal,103,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+146.0,Polyethersulfone (PES) L B + C =1,17.7,9.7,6.4,9.3,HSPdataoriginal,104,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+147.0,Polyphenylene Sulfide (PPS) CR 93°C,18.8,4.8,6.8,2.8,HSPdataoriginal,105,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+148.0,Polyphenylene Sulfide (PPS) TS60%12MO,18.7,5.3,3.7,6.7,HSPdataoriginal,106,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+149.0,Polyamide 6 (PA6) CR,17.0,3.4,10.6,5.1,HSPdataoriginal,107,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+150.0,Polyamide 66 (PA66) SOL,17.4,9.8,14.6,5.1,HSPdataoriginal,108,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+151.0,Polyamide 11 (PA11) CR,17.0,4.4,10.6,5.1,HSPdataoriginal,109,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+152.0,Polyoxymethylene (POMH+POMC) CR,17.1,3.1,10.7,5.2,HSPdataoriginal,110,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+153.0,Polyethylene Terephthalate (PETP) CR,18.2,6.4,6.6,5.0,HSPdataoriginal,111,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+154.0,Polytetrafluoroethylene (PTFE) L80 CR,16.2,1.8,3.4,3.9,HSPdataoriginal,112,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+155.0,Poly(methyl methacrylate) (PMMA) CR,16.0,5.0,12.0,13.0,HSPdataoriginal,113,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+156.0,Polyethylene (PE?) CR (Questionable Values),16.8,5.4,2.4,4.7,HSPdataoriginal,114,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+157.0,Polyphenylene Oxide (PPO) CR,17.9,3.1,8.5,8.6,HSPdataoriginal,115,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+158.0,Polyurethane (PUR) CR,18.1,9.3,4.5,9.7,HSPdataoriginal,116,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+159.0,Acrylonitrile Butadiene Styrene (ABS) CR,16.3,2.7,7.1,7.8,HSPdataoriginal,117,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+160.0,Polysulfone (PSU) CR,16.0,6.0,6.6,9.0,HSPdataoriginal,118,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+161.0,Vinyl Silane,16.4,3.7,4.5,10.0,HSPdataoriginal,119,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+168.0,Acetal (CELANESE),21.1,9.3,5.9,11.4,HSPdataoriginal,120,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+169.0,Acetal Homo-Duo,19.0,5.0,8.0,5.0,HSPdataoriginal,121,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+170.0,Cellulose Acetate,16.9,16.3,3.7,13.7,HSPdataoriginal,122,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+171.0,Cellulose Acetate Butyrate,17.2,13.8,2.8,12.6,HSPdataoriginal,123,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+172.0,Cellulose Acetate Propionate,9.8,13.6,11.4,15.2,HSPdataoriginal,124,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+173.0,Polychlorotrifluoroethylene (PCTFE),14.1,2.7,5.5,6.6,HSPdataoriginal,125,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+174.0,Fluorinated Ethylene Propylene (FEP),19.0,4.0,3.0,4.0,HSPdataoriginal,126,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+175.0,Furan Resin,19.0,6.0,8.0,5.0,HSPdataoriginal,127,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+176.0,Furfuryl Alcohol,19.9,3.9,5.1,3.8,HSPdataoriginal,128,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+177.0,Perfluoroalkoxy (PFA?),16.7,7.7,,8.1,HSPdataoriginal,129,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+178.0,Phenolic Resin,21.6,5.2,18.8,15.4,HSPdataoriginal,130,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+179.0,Polyethylene Terephthalate Glycol (PETG),18.0,3.0,4.0,6.0,HSPdataoriginal,131,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+180.0,High-Density Polyethylene (HDPE),18.0,0.0,2.0,2.0,HSPdataoriginal,132,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+181.0,Polypropylene (PP),18.0,0.0,1.0,6.0,HSPdataoriginal,133,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+183.0,Polyacrylonitrile (PAN),21.7,14.1,9.1,10.9,HSPdataoriginal,134,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+213.0,Polyethylene Terephthalate Film (MYLAR PET),18.0,6.2,6.2,5.0,HSPdataoriginal,135,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+214.0,Vinyl Chloride-Vinyl Acetate Copolymer (VCVA Copoly),17.3,8.7,6.1,7.8,HSPdataoriginal,136,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+215.0,Polyurethane (PUR),17.9,6.9,3.7,2.7,HSPdataoriginal,137,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+216.0,Styrene-Acrylonitrile (SAN),16.6,9.8,7.6,4.8,HSPdataoriginal,138,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+217.0,Vinsol Rosin,17.4,10.0,13.0,10.5,HSPdataoriginal,139,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+218.0,Epoxy Resin (EPON 1001),17.0,9.6,7.8,7.1,HSPdataoriginal,140,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+219.0,Shellac,19.7,10.1,15.1,10.7,HSPdataoriginal,141,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+220.0,Polymethacrylonitrile,17.2,14.4,7.6,3.8,HSPdataoriginal,142,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+222.0,Cellulose Nitrate,16.9,13.5,10.3,9.9,HSPdataoriginal,144,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+223.0,"Polyvinyl Alcohol (PVOH) (Not Good, See Chap. 5)",17.0,9.0,18.0,4.0,HSPdataoriginal,145,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+224.0,Nylon 66,16.0,11.0,24.0,3.0,HSPdataoriginal,146,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+225.0,Acrylic Resin (ACRYLOID B-44),19.4,11.2,4.4,10.5,HSPdataoriginal,147,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+226.0,Acrylic Resin (ACRYLOID B-66),18.0,9.0,3.0,9.0,HSPdataoriginal,148,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+227.0,Acrylic Resin (ACRYLOID B-72),19.2,11.2,1.8,11.0,HSPdataoriginal,149,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+228.0,Acrylic Resin (ACRYLOID B-82),19.1,9.1,3.3,9.0,HSPdataoriginal,150,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+229.0,Acrylic Resin (R+H PBA),16.0,8.0,8.0,12.0,HSPdataoriginal,151,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+230.0,Acrylic Resin (R+H PiMBA),20.7,4.1,10.7,11.5,HSPdataoriginal,152,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+231.0,Acrylic Resin (R+H PNBMA),16.0,6.2,6.6,9.5,HSPdataoriginal,153,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+232.0,Acrylic Resin (R+H PEMA),19.0,9.0,8.0,11.0,HSPdataoriginal,154,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+233.0,Acrylic Resin (R+H PMAA),25.6,11.2,19.6,20.3,HSPdataoriginal,155,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+234.0,Acrylic Resin (R+H PMMA),19.1,11.3,4.1,10.3,HSPdataoriginal,156,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+235.0,Acrylic Copolymer (BMA/AN 80/20),17.5,9.9,4.1,9.5,HSPdataoriginal,157,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+236.0,Acrylic Copolymer (ISOB MALANH/CYCLOL 75/25),16.8,,7.2,8.5,HSPdataoriginal,158,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+237.0,Acrylic Copolymer (MAA/EA/ST 15/38/47),17.6,5.2,7.0,4.5,HSPdataoriginal,159,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+238.0,Acrylic Copolymer (MAA/MA/VA 15/27.5/57.5),28.5,15.7,18.1,21.5,HSPdataoriginal,160,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+239.0,Acrylic Copolymer (MAA/MA/VA 15/17.5/67.5),25.5,15.7,18.1,21.5,HSPdataoriginal,161,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+240.0,Acrylic Copolymer (MMA/CYCLOL 58/42),18.7,9.9,8.7,8.8,HSPdataoriginal,162,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+241.0,Acrylic Copolymer (MMA/EA 50/50),17.5,9.9,4.1,9.5,HSPdataoriginal,163,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+242.0,Acrylic Copolymer (MMA/EA 25/75),19.0,9.0,15.0,12.0,HSPdataoriginal,164,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+243.0,Acrylic Copolymer (MMA/EA/AGE 40/40/20),17.6,9.8,5.6,9.7,HSPdataoriginal,165,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+244.0,Acrylic Copolymer (MMA/EA/AA),15.9,15.9,11.5,11.1,HSPdataoriginal,166,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+245.0,Acrylic Copolymer (MMA/EA/AN 55/30/15?),16.7,10.9,8.5,8.5,HSPdataoriginal,167,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+246.0,Acrylic Copolymer (MMA/EA/AN 40/40/20),20.4,13.2,11.0,12.3,HSPdataoriginal,168,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+247.0,Acrylic Copolymer (MMA/EA/BAMA 40/40/20),17.9,8.5,11.7,12.9,HSPdataoriginal,169,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+248.0,Acrylic Copolymer (MMA/EA/CYCLOL),17.6,9.8,6.4,9.8,HSPdataoriginal,170,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+249.0,Acrylic Copolymer (MMA/EA/MAM 40/40/20),19.0,9.0,15.0,12.0,HSPdataoriginal,171,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+250.0,Acrylic Copolymer (MMA/EA/MAM 45/45/10?),19.5,11.1,8.7,11.2,HSPdataoriginal,172,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+251.0,Acrylic Copolymer (MMA/EA/BVBE 40/40/20),17.8,10.0,6.6,9.8,HSPdataoriginal,173,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+252.0,Polyester (ACID DEGMP),15.3,13.3,14.9,15.6,HSPdataoriginal,174,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+253.0,Polyester (CARB DEG PTH),19.4,13.4,11.6,11.1,HSPdataoriginal,175,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+254.0,Polyester (CRYPLEX 1473-5),19.2,9.4,5.6,8.9,HSPdataoriginal,176,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+255.0,Polyester (DEG ISOPH),19.2,17.2,14.6,11.8,HSPdataoriginal,177,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+256.0,Polyester (DEG PHTH),21.0,15.2,13.2,13.7,HSPdataoriginal,178,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+257.0,Polyester (DPG PHTH),20.1,11.5,6.7,11.6,HSPdataoriginal,179,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+258.0,Polyester (DOW ADIP TEREP),17.8,10.4,6.8,9.3,HSPdataoriginal,180,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+259.0,Polyester (DOW X-2635 MALEATE),17.8,5.6,6.8,4.5,HSPdataoriginal,181,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+260.0,Polyester (VITEL PE LINEAR),14.9,10.1,2.9,6.1,HSPdataoriginal,182,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+261.0,Polyester (VITEL PE101-X),21.3,6.3,4.7,7.3,HSPdataoriginal,183,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+262.0,Polyester (HYD BIS A FUM ISPH),17.0,4.4,6.2,5.0,HSPdataoriginal,184,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+263.0,Polyester (HYD BIS A PG FUM ISPH),18.7,8.9,5.5,8.4,HSPdataoriginal,185,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+264.0,Polyester (PENTA BENZ MAL),19.4,12.2,10.2,10.8,HSPdataoriginal,186,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+265.0,Polyester (SOL MYLAR 49001),19.0,5.0,4.0,5.0,HSPdataoriginal,187,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+266.0,Polyester (SOL MYLAR 49002),19.0,5.0,5.0,5.0,HSPdataoriginal,188,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+267.0,Polyester (TEG EG MAL TEREP),18.8,11.4,9.2,10.2,HSPdataoriginal,189,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+268.0,Polyester (TEG MALEATE),18.1,13.9,12.1,9.7,HSPdataoriginal,190,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+269.0,Polyester (VAREZ 123),17.3,10.9,11.9,10.7,HSPdataoriginal,191,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+270.0,Styrene Polymer (AMOCO 18-290),19.3,3.7,7.9,7.8,HSPdataoriginal,192,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+271.0,Styrene-Butadiene Copolymer (BUTON 100),17.0,4.0,3.0,7.3,HSPdataoriginal,193,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+272.0,Styrene Polymer (BUTON 300),17.3,3.7,7.3,7.0,HSPdataoriginal,194,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+273.0,Styrene Polymer (KOPPERS KTPL-A),19.3,3.7,7.9,7.8,HSPdataoriginal,195,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+274.0,Rubber Modified Polystyrene,20.0,5.0,1.0,7.0,HSPdataoriginal,196,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+275.0,Styrene Maleic Anhydride Copolymer,23.4,13.8,15.2,16.5,HSPdataoriginal,197,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+276.0,Styrene Copolymer (LYTRON 820),21.1,13.1,14.5,14.4,HSPdataoriginal,198,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+277.0,Styrene Polymer (MARBON 9200),19.0,4.0,4.0,6.0,HSPdataoriginal,199,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+278.0,Styrene Polymer (PARAPOL S-50),17.9,3.9,4.9,3.9,HSPdataoriginal,200,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+279.0,Styrene Polymer (PARAPOL S-60),17.9,3.9,4.9,3.9,HSPdataoriginal,201,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+280.0,Styrene Copolymer (PICCOFLEX 120),17.4,7.8,3.8,7.7,HSPdataoriginal,202,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+281.0,Polyaldehyde (SHELL EX 39),19.6,10.0,3.6,9.4,HSPdataoriginal,203,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+282.0,Polyaldehyde (SHELL EX 40),19.6,10.0,3.6,9.4,HSPdataoriginal,204,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+283.0,Styrene Copolymer (SHELL X-450),19.3,9.5,11.1,11.1,HSPdataoriginal,205,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+284.0,Styrene Maleic Anhydride Copolymer (SMA 1430A),18.8,11.4,16.4,14.1,HSPdataoriginal,206,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+285.0,Styrene-Acrylonitrile Copolymer (SAN 85/15),19.1,9.5,3.1,8.7,HSPdataoriginal,207,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+286.0,Styrene/Butenol Copolymer (85/15),17.4,7.8,3.8,7.7,HSPdataoriginal,208,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+287.0,Styrene/Cyclol Copolymer (82/18),18.2,5.6,7.2,5.7,HSPdataoriginal,209,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+288.0,Styrene/2EHA/AA Copolymer (81/11/8),17.7,4.9,5.9,5.9,HSPdataoriginal,210,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+289.0,Styrene/MAA Copolymer (90/10),18.7,6.3,7.3,6.7,HSPdataoriginal,211,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+290.0,Styrene/MA Copolymer (85/15),18.0,9.0,3.0,9.0,HSPdataoriginal,212,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+291.0,Styrene/MA Half Ester Copolymer (60/40),18.9,10.9,10.7,9.7,HSPdataoriginal,213,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+292.0,Styrene/Propyl Half Ester MA Copolymer (57/43),18.0,9.8,8.4,10.1,HSPdataoriginal,214,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+293.0,Styrene/VBE Copolymer (85/15),17.4,7.8,3.8,7.7,HSPdataoriginal,215,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+294.0,Rubber Modified Polystyrene (STYRON 44OM-27),20.0,5.0,1.0,7.0,HSPdataoriginal,216,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+295.0,Polystyrene (STYRON 475M-27),20.0,5.0,1.0,7.0,HSPdataoriginal,217,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+296.0,Polystyrene (STYRON 480-27),20.0,6.0,4.0,5.3,HSPdataoriginal,218,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+297.0,Acrylic Resin (ACRYLOID K120N),17.6,10.0,3.8,9.5,HSPdataoriginal,219,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+298.0,Vinyl Resin (DODA 6225),19.0,2.0,1.0,3.0,HSPdataoriginal,220,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+299.0,Vinyl Resin (DODA 3457),19.0,2.0,1.0,3.0,HSPdataoriginal,221,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+300.0,Ethylene-Vinyl Acetate Copolymer (ELVAX 250),19.0,2.0,1.0,3.0,HSPdataoriginal,222,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+301.0,Ethylene-Vinyl Acetate Copolymer (ELVAX 150),18.7,2.3,0.7,6.0,HSPdataoriginal,223,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+302.0,Ethylene-Vinyl Acetate Copolymer (ELVAX EOD 3602-1),17.7,3.3,2.7,5.4,HSPdataoriginal,224,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+303.0,"Polyvinyl Chloride (PVC, EXON 470)",17.4,7.8,3.8,7.7,HSPdataoriginal,225,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+304.0,Vinyl Resin (EXON 471),17.9,8.7,2.5,9.0,HSPdataoriginal,226,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+305.0,Vinyl Resin (EXON 473),17.4,7.8,3.8,7.7,HSPdataoriginal,227,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+306.0,Polyvinyl Chloride (GEON 121),19.5,6.7,11.1,8.0,HSPdataoriginal,228,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+307.0,POLYCYCLOLa,19.0,9.0,15.0,12.0,HSPdataoriginal,229,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+308.0,Polyvinyl Butyl Ether (PVBE),16.7,3.7,8.3,8.6,HSPdataoriginal,230,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+309.0,Polyvinyl Ethyl Ether (PVEE),16.0,4.0,12.0,14.0,HSPdataoriginal,231,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+310.0,Polyvinyl Formal (FORMVAR 7/70E),22.2,12.6,14.2,14.0,HSPdataoriginal,232,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+311.0,Polyvinyl Formal (FORMVAR 15/95E),22.2,12.6,14.2,14.0,HSPdataoriginal,233,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+312.0,Polyvinyl Isobutyl Ether (PVIBE),16.0,1.0,8.0,10.0,HSPdataoriginal,234,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+313.0,Vinyl Chloride-Acrylonitrile Copolymer? (SARAN F-120),28.8,16.8,0.8,23.7,HSPdataoriginal,235,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+314.0,Vinyl Copolymer (SARAN F-220),28.8,16.8,0.8,23.7,HSPdataoriginal,236,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+315.0,Vinyl Resin (SINCLAIR 3840A),18.4,4.0,9.6,7.3,HSPdataoriginal,237,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+316.0,Vinyl Acetate/EHA/MA Copolymer (63/33/4),17.7,6.3,7.7,5.3,HSPdataoriginal,238,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+317.0,Vinyl Acetate/EHA/CYC/MAA Copolymer (76/12/8/4),21.2,12.4,13.0,12.6,HSPdataoriginal,239,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+318.0,Vinyl Acetate/EA/CY Copolymer (70/20/10),20.0,12.0,11.0,15.0,HSPdataoriginal,240,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+319.0,VBE/AN/MAA Copolymer (46/27/27),18.9,11.7,11.1,9.6,HSPdataoriginal,241,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+320.0,VBE/MA/MAC Copolymer (46/27/27),19.4,13.0,13.8,12.3,HSPdataoriginal,242,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+321.0,Vinylidene Chloride/Acrylic Acid Copolymer? (VDC/AA 75/25),20.4,11.0,0.8,11.7,HSPdataoriginal,243,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+322.0,Polyvinyl Acetate (VINYLITE AYAA),22.9,18.3,7.7,20.4,HSPdataoriginal,244,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+325.0,Vinyl Chloride Copolymer (VINYLITE VXCC),18.0,9.4,4.6,8.4,HSPdataoriginal,247,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+328.0,Polyvinyl Butyral (VINYLITE XYHL),19.0,9.0,15.0,12.0,HSPdataoriginal,250,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+329.0,Polyvinyl Butyral (VINYLITE XYSG),19.0,9.0,15.0,12.0,HSPdataoriginal,251,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+330.0,Vinyl Resin (VYSET 69),17.9,3.5,7.5,5.9,HSPdataoriginal,252,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+362.0,"Polysulfone (PSU, ULTRASON S)",19.7,8.3,8.3,8.0,HSPdataoriginal,253,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+363.0,Barex 210 CR,20.1,9.1,12.7,10.9,HSPdataoriginal,254,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+364.0,Barex 210 CR-Styrene,17.7,8.9,10.9,6.4,HSPdataoriginal,255,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+459.0,Ethylene Vinylacetate (EVA 4055 SOL),17.7,3.5,3.7,4.7,HSPdataoriginal,256,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+462.0,Kauri Gum,18.7,8.1,13.0,8.2,HSPdataoriginal,257,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+463.0,Polyvinylpyrrolidone (PVP),21.4,11.6,21.6,17.3,HSPdataoriginal,258,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+464.0,Palm Oil,17.7,3.5,3.7,4.7,HSPdataoriginal,259,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+465.0,Bethoxazin,22.4,7.6,10.8,13.9,HSPdataoriginal,260,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
+,Polyvinyl acetate (PVA),20.9,11.3,9.7,13.7,polytable,2,1.0,https://www.accudynetest.com/polytable_02.html,9003-20-7,37.7,24.8,13.0,44.5,42.6,1.9,0.04,22.3,25.7
+,Polystyrene (PS),22.8,5.8,4.3,12.7,polytable,3,1.0,https://www.accudynetest.com/polytable_02.html,9003-53-6,41.7,37.0,5.0,36.9,37.9,-0.9,0.1,2.2,23.9
+,Cellulose acetate butyrate (CAB),17.2,13.8,2.8,12.6,polytable,4,1.0,https://www.accudynetest.com/polytable_02.html,9004-36-8,,,,,,,,,22.2
+,Epoxies,19.2,10.9,9.6,11.1,polytable,5,1.0,https://www.accudynetest.com/polytable_02.html,,45.0,37.2,7.8,,,,,,24.1
+,"Polymethyl methacrylate (PMMA, acrylic, plexiglas)",17.9,10.1,5.4,11.0,polytable,6,1.0,https://www.accudynetest.com/polytable_02.html,9011-14-7,43.5,35.9,7.8,42.2,41.6,0.6,0.0,11.1,21.3
+,Nitrocellulose (cellulose nitrate),16.2,14.1,9.5,10.7,polytable,8,1.0,https://www.accudynetest.com/polytable_02.html,9004-70-0,,,,45.1,44.8,0.3,0.01,13.3,23.5
+,Cellulose acetate (CA),17.1,13.1,9.4,10.6,polytable,9,1.0,https://www.accudynetest.com/polytable_02.html,9004-35-7,42.0,31.0,11.1,43.5,39.0,4.5,0.3,22.2,23.5
+,Polyvinyl alcohol (PVOH),14.7,14.1,14.9,10.5,polytable,10,1.0,https://www.accudynetest.com/polytable_02.html,25213-24-5,,,,42.0,42.0,0.0,0.0,37.0,25.2
+,Polyisoprene (PIP),18.1,2.4,2.3,10.3,polytable,11,1.0,https://www.accudynetest.com/polytable_02.html,9003-31-0,,,,,,,,,18.4
+,Polycarbonate (PC),19.6,8.8,5.7,10.2,polytable,12,1.0,https://www.accudynetest.com/polytable_02.html,24936-68-3,43.4,38.2,5.2,,,,,,22.2
+,Polyvinyl butyral,19.1,9.5,12.2,10.0,polytable,13,1.0,https://www.accudynetest.com/polytable_02.html,63148-65-2,,,,,,,,,24.6
+,Polyurethanes,18.8,10.0,8.2,9.8,polytable,14,1.0,https://www.accudynetest.com/polytable_02.html,,39.3,30.8,8.6,30.0,30.9,-0.9,0.02,10.0,22.8
+,Polyethyl methacrylate (PEMA),17.5,8.5,4.7,9.6,polytable,15,1.0,https://www.accudynetest.com/polytable_02.html,9003-42-3,35.9,26.9,9.0,,,,,,20.0
+,Poly n-butyl methacrylate (PnBMA),16.0,6.2,6.6,9.5,polytable,16,1.0,https://www.accudynetest.com/polytable_02.html,95608-33-7,32.3,27.3,5.0,,,,,,18.4
+,Poly iso-butyl methacrylate (PIBMA),18.3,4.9,6.3,9.4,polytable,17,1.0,https://www.accudynetest.com/polytable_02.html,9011-15-8,30.9,26.3,4.7,,,,,,20.0
+,Polysulfone (PSU),18.5,8.5,7.0,9.4,polytable,18,1.0,https://www.accudynetest.com/polytable_02.html,25135-51-7,46.6,30.4,16.2,,,,,,21.5
+,Acrylonitrile butadiene styrene (ABS),17.0,5.7,6.8,9.4,polytable,19,1.0,https://www.accudynetest.com/polytable_02.html,9003-56-9,43.6,35.8,8.0,38.6,39.4,-0.8,0.9,3.7,19.2
+,Polyphenylene oxide (PPO),17.9,3.1,8.5,8.6,polytable,20,1.0,https://www.accudynetest.com/polytable_02.html,25134-01-04,46.0,36.0,10.0,,,,,,20.1
+,Polyvinyl chloride (PVC),16.8,8.9,6.1,8.5,polytable,21,1.0,https://www.accudynetest.com/polytable_02.html,9002-86-2,40.1,37.4,2.8,39.8,38.7,1.0,0.1,3.1,20.0
+,"Polyisobutylene (PIB, butyl (rubber)",16.4,1.7,4.7,7.9,polytable,22,1.0,https://www.accudynetest.com/polytable_02.html,9003-27-4,33.6,33.6,0.0,25.0,25.0,0.0,0.0,0.0,17.1
+,Ethyl cellulose,19.0,5.6,4.9,7.9,polytable,23,1.0,https://www.accudynetest.com/polytable_02.html,9004-57-3,,,,28.6,27.4,1.2,0.04,8.6,20.4
+,Cellophane,16.1,18.5,14.5,7.3,polytable,24,1.0,https://www.accudynetest.com/polytable_02.html,9005-81-6,45.4,29.8,15.6,,,,,,28.5
+,Polyphenylene sulfide (PPS),18.7,5.3,3.7,6.7,polytable,25,1.0,https://www.accudynetest.com/polytable_02.html,26125-40-6,46.8,44.0,2.8,,,,,,19.8
+,Polybutadiene,17.5,2.3,3.4,6.6,polytable,26,1.0,https://www.accudynetest.com/polytable_02.html,9003-17-2,,,,,,,,,18.0
+,Polyethylene (PE),16.8,3.8,3.8,6.6,polytable,27,1.0,https://www.accudynetest.com/polytable_02.html,9002-88-4,34.2,32.8,1.4,31.7,31.5,0.2,0.1,0.9,17.6
+,Polyethylene terephthalate (PET),18.7,6.3,6.7,6.5,polytable,28,1.0,https://www.accudynetest.com/polytable_02.html,25038-59-9,43.7,36.6,7.2,45.3,42.6,1.8,0.3,3.7,20.8
+,Polyethersulfone (PES),18.3,8.2,6.4,6.3,polytable,29,1.0,https://www.accudynetest.com/polytable_02.html,25154-01-02,47.0,40.0,7.0,,,,,,21.0
+,Nylon 12,18.5,8.1,9.1,6.3,polytable,30,1.0,https://www.accudynetest.com/polytable_02.html,24937-16-4,38.2,33.1,5.2,41.3,37.0,4.3,0.6,7.6,22.2
+,Polychlorotrifluoroethylene,15.6,2.5,4.7,5.8,polytable,32,1.0,https://www.accudynetest.com/polytable_02.html,9002-83-9,29.5,22.6,6.9,,,,,,16.5
+,"Polyvinylidene chloride (PVDC, Saran)",19.0,9.6,9.0,5.8,polytable,33,1.0,https://www.accudynetest.com/polytable_02.html,9002-85-1,45.3,40.4,4.9,40.3,40.4,-0.1,0.0,2.6,23.1
+,Nylon 11,17.0,4.4,10.6,5.1,polytable,34,1.0,https://www.accudynetest.com/polytable_02.html,25587-80-8,,,,,,,,,20.5
+,"Nylon 6 (polycaprolactum, aramid 6)",17.0,3.4,10.6,5.1,polytable,35,1.0,https://www.accudynetest.com/polytable_02.html,25038-54-4,42.7,33.1,9.6,45.3,42.5,2.8,0.2,9.6,20.3
+,Polyetherimide (PEI),17.7,6.0,6.4,4.8,polytable,36,1.0,https://www.accudynetest.com/polytable_02.html,61128-46-9,,,,,,,,,19.8
+,"Nylon 6,6",17.2,9.9,16.5,4.4,polytable,37,1.0,https://www.accudynetest.com/polytable_02.html,32131-17-2,44.8,36.3,9.8,40.2,36.9,3.3,1.5,12.1,25.8
+,Polyvinylidene fluoride (PVDF),17.0,12.1,10.2,4.1,polytable,38,1.0,https://www.accudynetest.com/polytable_02.html,24937-79-9,34.4,25.7,8.7,30.5,28.6,1.9,10.5,0.08,23.2
+,Fluorinated ethylene polypropylene (FEP),19.0,4.0,3.0,4.0,polytable,39,1.0,https://www.accudynetest.com/polytable_02.html,25067-11-02,19.9,17.1,2.8,17.9,17.9,0.0,0.0,0.0,19.6
+,Polytetrafluoroethylene (PTFE),16.2,1.8,3.4,3.9,polytable,40,1.0,https://www.accudynetest.com/polytable_02.html,9002-84-0,22.2,21.3,0.9,20.8,19.9,0.9,0.1,1.6,16.7
+,Polymethacrylonitrile (PMAN),17.2,14.4,7.6,3.8,polytable,41,1.0,https://www.accudynetest.com/polytable_02.html,25067-61-2,,,,,,,,,23.7
