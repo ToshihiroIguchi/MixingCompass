@@ -162,27 +162,37 @@
                     <div class="search-input-panel">
                         <h2>Solvent Search</h2>
 
-                        <!-- Target HSP Input -->
+                        <!-- Target 1 -->
                         <div class="search-section">
-                            <h3>Target HSP Values</h3>
-                            <div class="hsp-input-grid">
-                                <div class="input-group">
-                                    <label for="target-delta-d">δD (MPa<sup>0.5</sup>)</label>
-                                    <input type="number" id="target-delta-d" step="0.1" placeholder="15.5">
-                                </div>
-                                <div class="input-group">
-                                    <label for="target-delta-p">δP (MPa<sup>0.5</sup>)</label>
-                                    <input type="number" id="target-delta-p" step="0.1" placeholder="7.0">
-                                </div>
-                                <div class="input-group">
-                                    <label for="target-delta-h">δH (MPa<sup>0.5</sup>)</label>
-                                    <input type="number" id="target-delta-h" step="0.1" placeholder="8.0">
-                                </div>
-                            </div>
+                            <h3>Target 1</h3>
                             <div class="input-group">
-                                <label for="target-radius">Interaction Radius R0 (MPa<sup>0.5</sup>)</label>
-                                <input type="number" id="target-radius" step="0.1" placeholder="5.0" value="5.0">
-                                <small>Leave empty for unlimited distance</small>
+                                <label for="target1-data-source">Data Source</label>
+                                <select id="target1-data-source">
+                                    <option value="none">None</option>
+                                    <option value="manual" selected>Manual</option>
+                                    <option value="solute">Solute</option>
+                                    <option value="solute-user-only">Solute (User Added Only)</option>
+                                </select>
+                            </div>
+                            <div id="target1-content">
+                                <!-- Content will be dynamically populated based on selection -->
+                            </div>
+                        </div>
+
+                        <!-- Target 2 -->
+                        <div class="search-section">
+                            <h3>Target 2</h3>
+                            <div class="input-group">
+                                <label for="target2-data-source">Data Source</label>
+                                <select id="target2-data-source">
+                                    <option value="none" selected>None</option>
+                                    <option value="manual">Manual</option>
+                                    <option value="solute">Solute</option>
+                                    <option value="solute-user-only">Solute (User Added Only)</option>
+                                </select>
+                            </div>
+                            <div id="target2-content">
+                                <!-- Content will be dynamically populated based on selection -->
                             </div>
                         </div>
 
@@ -215,21 +225,6 @@
                                         <option value="3">WGK 3 (High hazard)</option>
                                     </select>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Search Mode -->
-                        <div class="search-section">
-                            <h3>Search Mode</h3>
-                            <div class="mode-selector">
-                                <label>
-                                    <input type="radio" name="search-mode" value="single" checked>
-                                    Single Solvent
-                                </label>
-                                <label>
-                                    <input type="radio" name="search-mode" value="blend">
-                                    2-Component Blend
-                                </label>
                             </div>
                         </div>
 

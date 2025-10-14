@@ -7,23 +7,65 @@ class SolventSearch {
     constructor() {
         this.searchResults = [];
         this.currentSort = 'distance';
+        this.polymersData = [];
+        this.experimentalResults = [];
         this.init();
     }
 
     init() {
+        this.loadPolymersData();
+        this.loadExperimentalResults();
         this.setupEventListeners();
+        this.updateTargetContent('target1', 'manual'); // Initialize with manual mode
         console.log('Solvent Search initialized');
     }
 
-    setupEventListeners() {
-        // Target HSP inputs - enable search button when all are filled
-        const targetInputs = ['target-delta-d', 'target-delta-p', 'target-delta-h'];
-        targetInputs.forEach(id => {
-            const input = document.querySelector(`#${id}`);
-            if (input) {
-                input.addEventListener('input', () => this.validateSearchButton());
+    async loadPolymersData() {
+        try {
+            const response = await fetch('/api/polymer-data/polymer-names');
+            if (response.ok) {
+                this.polymersData = await response.json();
+                console.log(`Loaded ${this.polymersData.length} polymer names`);
+            } else {
+                console.error('Failed to load polymer names');
+                this.polymersData = [];
             }
-        });
+        } catch (error) {
+            console.error('Failed to load polymers data:', error);
+            this.polymersData = [];
+        }
+    }
+
+    async loadExperimentalResults() {
+        try {
+            const allResults = Storage.getAllExperimentalResults();
+            // Extract unique solvent names from experimental results
+            this.experimentalResults = allResults.map(result => result.sample_name);
+            console.log(`Loaded ${this.experimentalResults.length} experimental result names`);
+        } catch (error) {
+            console.error('Failed to load experimental results:', error);
+            this.experimentalResults = [];
+        }
+    }
+
+    setupEventListeners() {
+        // Target1 dropdown
+        const target1Select = document.querySelector('#target1-data-source');
+        if (target1Select) {
+            target1Select.addEventListener('change', (e) => {
+                this.updateTargetContent('target1', e.target.value);
+                this.validateSearchButton();
+            });
+        }
+
+        // Target2 dropdown
+        const target2Select = document.querySelector('#target2-data-source');
+        if (target2Select) {
+            target2Select.addEventListener('change', (e) => {
+                this.updateTargetContent('target2', e.target.value);
+                this.validateSearchButton();
+            });
+        }
 
         // Search button
         const searchBtn = document.querySelector('#search-solvents-btn');
@@ -47,19 +89,187 @@ class SolventSearch {
         }
     }
 
-    validateSearchButton() {
-        const deltaD = document.querySelector('#target-delta-d').value;
-        const deltaP = document.querySelector('#target-delta-p').value;
-        const deltaH = document.querySelector('#target-delta-h').value;
-        const searchBtn = document.querySelector('#search-solvents-btn');
+    updateTargetContent(targetId, dataSource) {
+        const contentDiv = document.querySelector(`#${targetId}-content`);
+        if (!contentDiv) return;
 
-        if (deltaD && deltaP && deltaH) {
+        switch (dataSource) {
+            case 'none':
+                contentDiv.innerHTML = '';
+                break;
+
+            case 'manual':
+                contentDiv.innerHTML = `
+                    <div class="target-manual-inline">
+                        <div class="inline-input-group">
+                            <label>Name:</label>
+                            <input type="text" id="${targetId}-name" placeholder="Sample">
+                        </div>
+                        <div class="inline-input-group">
+                            <label>δD:</label>
+                            <input type="number" id="${targetId}-delta-d" step="0.1" placeholder="15.5">
+                        </div>
+                        <div class="inline-input-group">
+                            <label>δP:</label>
+                            <input type="number" id="${targetId}-delta-p" step="0.1" placeholder="7.0">
+                        </div>
+                        <div class="inline-input-group">
+                            <label>δH:</label>
+                            <input type="number" id="${targetId}-delta-h" step="0.1" placeholder="8.0">
+                        </div>
+                        <div class="inline-input-group">
+                            <label>R0:</label>
+                            <input type="number" id="${targetId}-r0" step="0.1" placeholder="5.0" value="5.0">
+                        </div>
+                    </div>
+                `;
+                // Add input listeners for validation
+                ['delta-d', 'delta-p', 'delta-h'].forEach(param => {
+                    const input = document.querySelector(`#${targetId}-${param}`);
+                    if (input) {
+                        input.addEventListener('input', () => this.validateSearchButton());
+                    }
+                });
+                break;
+
+            case 'solute':
+                const allNames = [...this.polymersData, ...this.experimentalResults];
+                contentDiv.innerHTML = `
+                    <div class="target-solute-search">
+                        <input type="text"
+                               id="${targetId}-solute-input"
+                               class="solute-search-input"
+                               placeholder="Type to search solute..."
+                               list="${targetId}-solute-datalist">
+                        <datalist id="${targetId}-solute-datalist">
+                            ${allNames.map(name => `<option value="${name}">`).join('')}
+                        </datalist>
+                    </div>
+                `;
+
+                const soluteInput = document.querySelector(`#${targetId}-solute-input`);
+                if (soluteInput) {
+                    soluteInput.addEventListener('input', () => this.validateSearchButton());
+                    soluteInput.addEventListener('blur', () => this.validateSearchButton());
+                }
+                break;
+
+            case 'solute-user-only':
+                contentDiv.innerHTML = `
+                    <div class="target-solute-search">
+                        <input type="text"
+                               id="${targetId}-solute-input"
+                               class="solute-search-input"
+                               placeholder="Type to search user added solute..."
+                               list="${targetId}-solute-datalist">
+                        <datalist id="${targetId}-solute-datalist">
+                            ${this.experimentalResults.map(name => `<option value="${name}">`).join('')}
+                        </datalist>
+                    </div>
+                `;
+
+                const userSoluteInput = document.querySelector(`#${targetId}-solute-input`);
+                if (userSoluteInput) {
+                    userSoluteInput.addEventListener('input', () => this.validateSearchButton());
+                    userSoluteInput.addEventListener('blur', () => this.validateSearchButton());
+                }
+                break;
+        }
+    }
+
+    validateSearchButton() {
+        const searchBtn = document.querySelector('#search-solvents-btn');
+        const target1Valid = this.isTargetValid('target1');
+        const target2Valid = this.isTargetValid('target2');
+
+        // At least one target must be valid
+        if (target1Valid || target2Valid) {
             searchBtn.disabled = false;
             searchBtn.title = 'Search for suitable solvents';
         } else {
             searchBtn.disabled = true;
-            searchBtn.title = 'Please enter all target HSP values';
+            searchBtn.title = 'Please configure at least one target';
         }
+    }
+
+    isTargetValid(targetId) {
+        const dataSource = document.querySelector(`#${targetId}-data-source`).value;
+
+        if (dataSource === 'none') {
+            return false;
+        }
+
+        if (dataSource === 'manual') {
+            const deltaD = document.querySelector(`#${targetId}-delta-d`)?.value;
+            const deltaP = document.querySelector(`#${targetId}-delta-p`)?.value;
+            const deltaH = document.querySelector(`#${targetId}-delta-h`)?.value;
+            return deltaD && deltaP && deltaH;
+        }
+
+        if (dataSource === 'solute' || dataSource === 'solute-user-only') {
+            const soluteInput = document.querySelector(`#${targetId}-solute-input`)?.value;
+            return soluteInput && soluteInput.trim() !== '';
+        }
+
+        return false;
+    }
+
+    async getTargetData(targetId) {
+        const dataSource = document.querySelector(`#${targetId}-data-source`).value;
+
+        if (dataSource === 'none' || !this.isTargetValid(targetId)) {
+            return null;
+        }
+
+        if (dataSource === 'manual') {
+            return {
+                name: document.querySelector(`#${targetId}-name`)?.value || 'Target',
+                delta_d: parseFloat(document.querySelector(`#${targetId}-delta-d`).value),
+                delta_p: parseFloat(document.querySelector(`#${targetId}-delta-p`).value),
+                delta_h: parseFloat(document.querySelector(`#${targetId}-delta-h`).value),
+                r0: parseFloat(document.querySelector(`#${targetId}-r0`)?.value) || 5.0
+            };
+        }
+
+        if (dataSource === 'solute' || dataSource === 'solute-user-only') {
+            const soluteName = document.querySelector(`#${targetId}-solute-input`).value.trim();
+            if (!soluteName) return null;
+
+            // First check experimental results
+            const allResults = Storage.getAllExperimentalResults();
+            const expResult = allResults.find(r => r.sample_name === soluteName);
+
+            if (expResult) {
+                return {
+                    name: expResult.sample_name,
+                    delta_d: expResult.hsp_result.delta_d,
+                    delta_p: expResult.hsp_result.delta_p,
+                    delta_h: expResult.hsp_result.delta_h,
+                    r0: expResult.hsp_result.radius
+                };
+            }
+
+            // If not found in experimental results, fetch from polymer API
+            try {
+                const response = await fetch(`/api/polymer-data/polymer/${encodeURIComponent(soluteName)}`);
+                if (response.ok) {
+                    const polymerData = await response.json();
+                    return {
+                        name: polymerData.polymer,
+                        delta_d: polymerData.delta_d,
+                        delta_p: polymerData.delta_p,
+                        delta_h: polymerData.delta_h,
+                        r0: polymerData.ra
+                    };
+                }
+            } catch (error) {
+                console.error('Error fetching polymer data:', error);
+            }
+
+            return null;
+        }
+
+        return null;
     }
 
     toggleFilters() {
@@ -70,24 +280,26 @@ class SolventSearch {
     }
 
     async performSearch() {
-        // Get target values
-        const targetDeltaD = parseFloat(document.querySelector('#target-delta-d').value);
-        const targetDeltaP = parseFloat(document.querySelector('#target-delta-p').value);
-        const targetDeltaH = parseFloat(document.querySelector('#target-delta-h').value);
-        const targetRadius = parseFloat(document.querySelector('#target-radius').value) || null;
+        // Get target data (now async)
+        const target1Data = await this.getTargetData('target1');
+        const target2Data = await this.getTargetData('target2');
+
+        // For now, use Target1 as the primary target (Target2 can be for future multi-target search)
+        const targetData = target1Data || target2Data;
+        if (!targetData) {
+            this.showError('Please configure at least one target.');
+            return;
+        }
 
         // Get filter values
-        const bpMin = parseFloat(document.querySelector('#bp-min').value) || null;
-        const bpMax = parseFloat(document.querySelector('#bp-max').value) || null;
-        const costMin = parseFloat(document.querySelector('#cost-min').value) || null;
-        const costMax = parseFloat(document.querySelector('#cost-max').value) || null;
+        const bpMin = parseFloat(document.querySelector('#bp-min')?.value) || null;
+        const bpMax = parseFloat(document.querySelector('#bp-max')?.value) || null;
+        const costMin = parseFloat(document.querySelector('#cost-min')?.value) || null;
+        const costMax = parseFloat(document.querySelector('#cost-max')?.value) || null;
 
         // Get WGK filter
         const wgkSelect = document.querySelector('#wgk-filter');
-        const wgkFilter = Array.from(wgkSelect.selectedOptions).map(opt => opt.value);
-
-        // Get search mode
-        const searchMode = document.querySelector('input[name="search-mode"]:checked').value;
+        const wgkFilter = wgkSelect ? Array.from(wgkSelect.selectedOptions).map(opt => opt.value) : [];
 
         // Show loading
         const searchBtn = document.querySelector('#search-solvents-btn');
@@ -96,21 +308,13 @@ class SolventSearch {
         searchBtn.disabled = true;
 
         try {
-            let results;
-
-            if (searchMode === 'single') {
-                results = await this.searchSingleSolvents(
-                    targetDeltaD, targetDeltaP, targetDeltaH, targetRadius,
-                    bpMin, bpMax, costMin, costMax, wgkFilter
-                );
-            } else {
-                results = await this.searchBlendSolvents(
-                    targetDeltaD, targetDeltaP, targetDeltaH, targetRadius
-                );
-            }
+            const results = await this.searchSingleSolvents(
+                targetData.delta_d, targetData.delta_p, targetData.delta_h, targetData.r0,
+                bpMin, bpMax, costMin, costMax, wgkFilter
+            );
 
             this.searchResults = results.results;
-            this.displayResults(searchMode);
+            this.displayResults('single');
             this.updateResultsCount(results.count);
 
         } catch (error) {
