@@ -38,10 +38,16 @@ class SolventSearch {
 
     async loadExperimentalResults() {
         try {
-            const allResults = Storage.getAllExperimentalResults();
-            // Extract unique solvent names from experimental results
-            this.experimentalResults = allResults.map(result => result.sample_name);
-            console.log(`Loaded ${this.experimentalResults.length} experimental result names`);
+            // Wait for experimentalResultsManager to be initialized
+            if (window.experimentalResultsManager) {
+                const allResults = window.experimentalResultsManager.getExperimentalResults();
+                // Extract unique solvent names from experimental results
+                this.experimentalResults = allResults.map(result => result.sample_name);
+                console.log(`Loaded ${this.experimentalResults.length} experimental result names`);
+            } else {
+                console.warn('ExperimentalResultsManager not yet initialized');
+                this.experimentalResults = [];
+            }
         } catch (error) {
             console.error('Failed to load experimental results:', error);
             this.experimentalResults = [];
@@ -144,13 +150,33 @@ class SolventSearch {
                         <datalist id="${targetId}-solute-datalist">
                             ${allNames.map(name => `<option value="${name}">`).join('')}
                         </datalist>
+                        <div id="${targetId}-hsp-display" class="solute-hsp-display" style="display: none;">
+                            <div class="hsp-header">
+                                <div>&delta;D (MPa<sup>0.5</sup>)</div>
+                                <div>&delta;P (MPa<sup>0.5</sup>)</div>
+                                <div>&delta;H (MPa<sup>0.5</sup>)</div>
+                                <div>R0 (MPa<sup>0.5</sup>)</div>
+                            </div>
+                            <div class="hsp-values-row">
+                                <div id="${targetId}-display-dd" class="hsp-cell">-</div>
+                                <div id="${targetId}-display-dp" class="hsp-cell">-</div>
+                                <div id="${targetId}-display-dh" class="hsp-cell">-</div>
+                                <div id="${targetId}-display-r0" class="hsp-cell">-</div>
+                            </div>
+                        </div>
                     </div>
                 `;
 
                 const soluteInput = document.querySelector(`#${targetId}-solute-input`);
                 if (soluteInput) {
-                    soluteInput.addEventListener('input', () => this.validateSearchButton());
-                    soluteInput.addEventListener('blur', () => this.validateSearchButton());
+                    soluteInput.addEventListener('input', () => {
+                        this.validateSearchButton();
+                        this.updateSoluteHSPDisplay(targetId);
+                    });
+                    soluteInput.addEventListener('blur', () => {
+                        this.validateSearchButton();
+                        this.updateSoluteHSPDisplay(targetId);
+                    });
                 }
                 break;
 
@@ -165,13 +191,33 @@ class SolventSearch {
                         <datalist id="${targetId}-solute-datalist">
                             ${this.experimentalResults.map(name => `<option value="${name}">`).join('')}
                         </datalist>
+                        <div id="${targetId}-hsp-display" class="solute-hsp-display" style="display: none;">
+                            <div class="hsp-header">
+                                <div>&delta;D (MPa<sup>0.5</sup>)</div>
+                                <div>&delta;P (MPa<sup>0.5</sup>)</div>
+                                <div>&delta;H (MPa<sup>0.5</sup>)</div>
+                                <div>R0 (MPa<sup>0.5</sup>)</div>
+                            </div>
+                            <div class="hsp-values-row">
+                                <div id="${targetId}-display-dd" class="hsp-cell">-</div>
+                                <div id="${targetId}-display-dp" class="hsp-cell">-</div>
+                                <div id="${targetId}-display-dh" class="hsp-cell">-</div>
+                                <div id="${targetId}-display-r0" class="hsp-cell">-</div>
+                            </div>
+                        </div>
                     </div>
                 `;
 
                 const userSoluteInput = document.querySelector(`#${targetId}-solute-input`);
                 if (userSoluteInput) {
-                    userSoluteInput.addEventListener('input', () => this.validateSearchButton());
-                    userSoluteInput.addEventListener('blur', () => this.validateSearchButton());
+                    userSoluteInput.addEventListener('input', () => {
+                        this.validateSearchButton();
+                        this.updateSoluteHSPDisplay(targetId);
+                    });
+                    userSoluteInput.addEventListener('blur', () => {
+                        this.validateSearchButton();
+                        this.updateSoluteHSPDisplay(targetId);
+                    });
                 }
                 break;
         }
@@ -236,7 +282,8 @@ class SolventSearch {
             if (!soluteName) return null;
 
             // First check experimental results
-            const allResults = Storage.getAllExperimentalResults();
+            const allResults = window.experimentalResultsManager ?
+                window.experimentalResultsManager.getExperimentalResults() : [];
             const expResult = allResults.find(r => r.sample_name === soluteName);
 
             if (expResult) {
@@ -270,6 +317,52 @@ class SolventSearch {
         }
 
         return null;
+    }
+
+    async updateSoluteHSPDisplay(targetId) {
+        const displayDiv = document.querySelector(`#${targetId}-hsp-display`);
+        if (!displayDiv) return;
+
+        const soluteName = document.querySelector(`#${targetId}-solute-input`)?.value.trim();
+
+        if (!soluteName) {
+            displayDiv.style.display = 'none';
+            return;
+        }
+
+        try {
+            // First check experimental results
+            const allResults = window.experimentalResultsManager ?
+                window.experimentalResultsManager.getExperimentalResults() : [];
+            const expResult = allResults.find(r => r.sample_name === soluteName);
+
+            if (expResult) {
+                // Display experimental data
+                document.querySelector(`#${targetId}-display-dd`).textContent = expResult.hsp_result.delta_d.toFixed(1);
+                document.querySelector(`#${targetId}-display-dp`).textContent = expResult.hsp_result.delta_p.toFixed(1);
+                document.querySelector(`#${targetId}-display-dh`).textContent = expResult.hsp_result.delta_h.toFixed(1);
+                document.querySelector(`#${targetId}-display-r0`).textContent = expResult.hsp_result.radius.toFixed(1);
+                displayDiv.style.display = 'block';
+                return;
+            }
+
+            // If not found in experimental results, fetch from polymer API
+            const response = await fetch(`/api/polymer-data/polymer/${encodeURIComponent(soluteName)}`);
+            if (response.ok) {
+                const polymerData = await response.json();
+                document.querySelector(`#${targetId}-display-dd`).textContent = polymerData.delta_d.toFixed(1);
+                document.querySelector(`#${targetId}-display-dp`).textContent = polymerData.delta_p.toFixed(1);
+                document.querySelector(`#${targetId}-display-dh`).textContent = polymerData.delta_h.toFixed(1);
+                document.querySelector(`#${targetId}-display-r0`).textContent = polymerData.ra.toFixed(1);
+                displayDiv.style.display = 'block';
+            } else {
+                // Not found, hide display
+                displayDiv.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Error fetching HSP data:', error);
+            displayDiv.style.display = 'none';
+        }
     }
 
     toggleFilters() {

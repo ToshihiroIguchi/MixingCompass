@@ -1712,6 +1712,50 @@ body {
     font-size: 0.875rem;
 }
 
+/* Solute HSP Display */
+.solute-hsp-display {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.hsp-header {
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #374151;
+}
+
+.hsp-header > div {
+    flex: 1;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.hsp-values-row {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.hsp-cell {
+    flex: 1;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #1e3a8a;
+    text-align: center;
+    padding: 0.25rem 0.5rem;
+    background-color: white;
+    border-radius: 3px;
+}
+
 .filter-group {
     margin-bottom: 1rem;
 }
