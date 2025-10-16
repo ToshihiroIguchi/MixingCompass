@@ -9,15 +9,47 @@ class SolventSearch {
         this.currentSort = 'distance';
         this.polymersData = [];
         this.experimentalResults = [];
+        this.visualization = null;
         this.init();
     }
 
     init() {
+        // Initialize visualization module
+        this.visualization = new HSPVisualization('search-plotly-visualization');
+        this.visualization.showPlaceholder('Configure targets and search solvents to display visualization');
+
         this.loadPolymersData();
         this.loadExperimentalResults();
         this.setupEventListeners();
         this.updateTargetContent('target1', 'manual'); // Initialize with manual mode
         console.log('Solvent Search initialized');
+
+        // Log computed CSS styles for debugging
+        this.logLayoutStyles();
+    }
+
+    logLayoutStyles() {
+        const solventSection = document.querySelector('#solvent-search');
+        const splitLayout = document.querySelector('#solvent-search .split-layout');
+
+        if (splitLayout) {
+            const computedStyle = window.getComputedStyle(splitLayout);
+            console.log('=== Split Layout CSS Debug ===');
+            console.log('grid-template-columns:', computedStyle.gridTemplateColumns);
+            console.log('display:', computedStyle.display);
+            console.log('width:', computedStyle.width);
+            console.log('gap:', computedStyle.gap);
+            console.log('padding:', computedStyle.padding);
+
+            // Check if there are any inline styles
+            console.log('Inline style:', splitLayout.getAttribute('style'));
+
+            // Log screen width to check media query
+            console.log('Screen width:', window.innerWidth);
+            console.log('===========================');
+        } else {
+            console.warn('Split layout element not found');
+        }
     }
 
     async loadPolymersData() {
@@ -92,6 +124,37 @@ class SolventSearch {
                 this.currentSort = e.target.value;
                 this.sortAndDisplayResults();
             });
+        }
+
+        // Visualization tabs (3D/2D switching)
+        const tab3D = document.querySelector('#search-tab-3d');
+        const tab2D = document.querySelector('#search-tab-2d');
+
+        if (tab3D) {
+            tab3D.addEventListener('click', () => this.switchVisualizationTab('3d'));
+        }
+        if (tab2D) {
+            tab2D.addEventListener('click', () => this.switchVisualizationTab('2d'));
+        }
+    }
+
+    switchVisualizationTab(tabName) {
+        // Update tab states
+        const tab3D = document.querySelector('#search-tab-3d');
+        const tab2D = document.querySelector('#search-tab-2d');
+        const view3D = document.querySelector('#search-view-3d');
+        const view2D = document.querySelector('#search-view-2d');
+
+        if (tabName === '3d') {
+            tab3D?.classList.add('active');
+            tab2D?.classList.remove('active');
+            if (view3D) view3D.style.display = 'flex';
+            if (view2D) view2D.style.display = 'none';
+        } else {
+            tab3D?.classList.remove('active');
+            tab2D?.classList.add('active');
+            if (view3D) view3D.style.display = 'none';
+            if (view2D) view2D.style.display = 'flex';
         }
     }
 
@@ -377,9 +440,8 @@ class SolventSearch {
         const target1Data = await this.getTargetData('target1');
         const target2Data = await this.getTargetData('target2');
 
-        // For now, use Target1 as the primary target (Target2 can be for future multi-target search)
-        const targetData = target1Data || target2Data;
-        if (!targetData) {
+        // Check if at least one target is configured
+        if (!target1Data && !target2Data) {
             this.showError('Please configure at least one target.');
             return;
         }
@@ -401,8 +463,11 @@ class SolventSearch {
         searchBtn.disabled = true;
 
         try {
+            // Use Target1 as primary target for search
+            const primaryTarget = target1Data || target2Data;
+
             const results = await this.searchSingleSolvents(
-                targetData.delta_d, targetData.delta_p, targetData.delta_h, targetData.r0,
+                primaryTarget.delta_d, primaryTarget.delta_p, primaryTarget.delta_h, primaryTarget.r0,
                 bpMin, bpMax, costMin, costMax, wgkFilter
             );
 
@@ -410,12 +475,60 @@ class SolventSearch {
             this.displayResults('single');
             this.updateResultsCount(results.count);
 
+            // Generate visualization with both targets
+            this.generateVisualization(target1Data, target2Data, this.searchResults);
+
         } catch (error) {
             console.error('Search error:', error);
             this.showError('Search failed. Please try again.');
         } finally {
             searchBtn.textContent = originalText;
             searchBtn.disabled = false;
+        }
+    }
+
+    generateVisualization(target1Data, target2Data, solventResults) {
+        // Convert target data to format expected by visualization module
+        if (!target1Data && !target2Data) {
+            this.visualization.showPlaceholder('Configure targets and search solvents to display visualization');
+            return;
+        }
+
+        // Prepare target data with proper field names
+        const target1 = target1Data ? {
+            name: target1Data.name,
+            delta_d: target1Data.delta_d,
+            delta_p: target1Data.delta_p,
+            delta_h: target1Data.delta_h,
+            radius: target1Data.r0
+        } : null;
+
+        const target2 = target2Data ? {
+            name: target2Data.name,
+            delta_d: target2Data.delta_d,
+            delta_p: target2Data.delta_p,
+            delta_h: target2Data.delta_h,
+            radius: target2Data.r0
+        } : null;
+
+        // Prepare solvent data (top 20 results for visualization clarity)
+        const topSolvents = solventResults.slice(0, 20).map(s => ({
+            name: s.name,
+            delta_d: s.delta_d,
+            delta_p: s.delta_p,
+            delta_h: s.delta_h
+        }));
+
+        // Generate visualization
+        if (target1 && !target2) {
+            // Single target visualization
+            this.visualization.generateDualTargetVisualization(target1, null, topSolvents);
+        } else if (target1 && target2) {
+            // Dual target visualization
+            this.visualization.generateDualTargetVisualization(target1, target2, topSolvents);
+        } else if (target2) {
+            // Only target2 is set
+            this.visualization.generateDualTargetVisualization(target2, null, topSolvents);
         }
     }
 

@@ -92,7 +92,7 @@ body {
     display: block;
 }
 
-/* Split Layout */
+/* Split Layout - Base (default for all sections) */
 .split-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -100,6 +100,16 @@ body {
     min-height: calc(100vh - 160px);
     padding: 0 2rem;
     box-sizing: border-box;
+}
+
+/* HSP (Experimental): 左右50%ずつ */
+#hsp-experimental .split-layout {
+    grid-template-columns: 1fr 1fr;
+}
+
+/* Solvent Search: 左400px固定、右は残り */
+#solvent-search .split-layout {
+    grid-template-columns: 400px 1fr;
 }
 
 .left-panel, .right-panel {
@@ -977,8 +987,17 @@ body {
 /* Large screen optimizations */
 @media (min-width: 1400px) {
     .split-layout {
-        grid-template-columns: 50% 50%;
         padding: 0 3rem;
+    }
+
+    /* HSP (Experimental): 左右50%ずつ */
+    #hsp-experimental .split-layout {
+        grid-template-columns: 50% 50%;
+    }
+
+    /* Solvent Search: 左400px固定、右は残り */
+    #solvent-search .split-layout {
+        grid-template-columns: 400px 1fr;
     }
 }
 
@@ -1432,8 +1451,17 @@ body {
 /* Extra large screen optimizations */
 @media (min-width: 1600px) {
     .split-layout {
-        grid-template-columns: 50% 50%;
         padding: 0 4rem;
+    }
+
+    /* HSP (Experimental): 左右50%ずつ */
+    #hsp-experimental .split-layout {
+        grid-template-columns: 50% 50%;
+    }
+
+    /* Solvent Search: 左400px固定、右は残り */
+    #solvent-search .split-layout {
+        grid-template-columns: 400px 1fr;
     }
 
     .solvent-sets-list {
@@ -2461,4 +2489,17 @@ body {
 .panel-action-buttons .btn-secondary {
     min-width: auto;
     padding: 0.75rem 1rem;
+}
+
+/* Solvent Search Right Panel Layout */
+.search-results-section {
+    margin-top: 1.5rem;
+    border-top: 2px solid #e5e7eb;
+    padding-top: 1rem;
+}
+
+.search-results-section h3 {
+    font-size: 1.1rem;
+    margin: 0 0 1rem 0;
+    color: #374151;
 }
