@@ -2694,3 +2694,145 @@ body {
 .red-na {
     color: #9ca3af;
 }
+
+/* ============================================================
+   Tabulator Custom Styles for Solvent Results
+   ============================================================ */
+
+/* Container adjustments for Tabulator */
+#solvent-search .results-table-container {
+    height: 100%;
+    overflow: hidden;
+}
+
+#solvent-results-table {
+    height: 100%;
+}
+
+/* Tabulator base styling */
+#solvent-results-table.tabulator {
+    background-color: white;
+    border: none;
+    font-size: 0.8rem;
+}
+
+/* Header styling */
+#solvent-results-table .tabulator-header {
+    background-color: #f9fafb;
+    border-bottom: 2px solid #e5e7eb;
+    font-weight: 600;
+}
+
+#solvent-results-table .tabulator-col {
+    background-color: #f9fafb;
+    border-right: 1px solid #e2e8f0;
+}
+
+#solvent-results-table .tabulator-col:last-child {
+    border-right: none;
+}
+
+#solvent-results-table .tabulator-col-title {
+    font-size: 0.75rem;
+    color: #374151;
+    font-weight: 600;
+}
+
+/* Header filter inputs */
+#solvent-results-table .tabulator-header-filter input {
+    font-size: 0.7rem;
+    padding: 3px 5px;
+    border: 1px solid #cbd5e0;
+    border-radius: 3px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+#solvent-results-table .tabulator-header-filter input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+/* Row styling */
+#solvent-results-table .tabulator-row {
+    border-bottom: 1px solid #f3f4f6;
+    min-height: 32px;
+}
+
+#solvent-results-table .tabulator-row:hover {
+    background-color: #f7fafc !important;
+}
+
+#solvent-results-table .tabulator-row.tabulator-row-even {
+    background-color: #ffffff;
+}
+
+#solvent-results-table .tabulator-row.tabulator-row-odd {
+    background-color: #f9fafb;
+}
+
+/* Cell styling */
+#solvent-results-table .tabulator-cell {
+    font-size: 0.8rem;
+    padding: 6px 8px;
+    border-right: 1px solid #f3f4f6;
+}
+
+#solvent-results-table .tabulator-cell:last-child {
+    border-right: none;
+}
+
+/* RED color classes (matching existing styles) */
+#solvent-results-table .red-good {
+    color: #10b981;
+    font-weight: 600;
+}
+
+#solvent-results-table .red-partial {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+#solvent-results-table .red-poor {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+/* Sort arrow styling */
+#solvent-results-table .tabulator-col.tabulator-sortable[aria-sort="ascending"] .tabulator-col-sorter {
+    color: #3b82f6;
+}
+
+#solvent-results-table .tabulator-col.tabulator-sortable[aria-sort="descending"] .tabulator-col-sorter {
+    color: #3b82f6;
+}
+
+/* Placeholder */
+#solvent-results-table .tabulator-placeholder {
+    padding: 40px;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+/* Scrollbar styling */
+#solvent-results-table .tabulator-tableholder {
+    overflow-y: auto;
+}
+
+#solvent-results-table .tabulator-tableholder::-webkit-scrollbar {
+    width: 8px;
+}
+
+#solvent-results-table .tabulator-tableholder::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+#solvent-results-table .tabulator-tableholder::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 4px;
+}
+
+#solvent-results-table .tabulator-tableholder::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}

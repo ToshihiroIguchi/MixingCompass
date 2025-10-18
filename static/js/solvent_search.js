@@ -13,6 +13,7 @@ class SolventSearch {
         this.currentTarget1 = null;
         this.currentTarget2 = null;
         this.filteredResults = [];
+        this.resultsTable = null; // Tabulator instance
         this.init();
     }
 
@@ -26,6 +27,9 @@ class SolventSearch {
         this.setupEventListeners();
         this.updateTargetContent('target1', 'manual'); // Initialize with manual mode
         console.log('Solvent Search initialized');
+
+        // Initialize Tabulator
+        this.initializeResultsTable();
 
         // Log computed CSS styles for debugging
         this.logLayoutStyles();
@@ -144,6 +148,16 @@ class SolventSearch {
         const applyFilterBtn = document.querySelector('#apply-results-filter');
         if (applyFilterBtn) {
             applyFilterBtn.addEventListener('click', () => this.applyREDFilter());
+        }
+
+        // CSV Export button
+        const exportCsvBtn = document.querySelector('#export-csv-btn');
+        if (exportCsvBtn) {
+            exportCsvBtn.addEventListener('click', () => {
+                if (this.resultsTable) {
+                    this.resultsTable.download("csv", "solvent_results.csv");
+                }
+            });
         }
     }
 
@@ -756,48 +770,147 @@ class SolventSearch {
     }
 
     /**
-     * Populate the right panel results table with solvent data
+     * Initialize Tabulator for results table
      */
-    populateResultsTable() {
-        const tbody = document.querySelector('#solvent-results-tbody');
-        if (!tbody) return;
-
-        if (this.filteredResults.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">No results to display</td></tr>';
-            this.updateResultsCountBadge(0);
+    initializeResultsTable() {
+        const container = document.querySelector('#solvent-results-table');
+        if (!container) {
+            console.error('Tabulator container not found');
             return;
         }
 
-        // Generate table rows
-        const rows = this.filteredResults.map(solvent => {
+        // Tabulator configuration
+        this.resultsTable = new Tabulator(container, {
+            data: [],
+            layout: "fitColumns",
+            height: "100%",
+            placeholder: "Search solvents to see results",
+
+            columns: [
+                {
+                    title: "Solvent",
+                    field: "name",
+                    sorter: "string",
+                    headerFilter: "input",
+                    headerFilterPlaceholder: "Filter...",
+                    minWidth: 120,
+                    widthGrow: 2
+                },
+                {
+                    title: "Target 1 RED",
+                    field: "red1_value",
+                    sorter: "number",
+                    headerFilter: "number",
+                    headerFilterPlaceholder: "Filter...",
+                    formatter: (cell) => {
+                        const value = cell.getValue();
+                        if (value === null || value === 999) return '—';
+                        const redClass = this.getREDClass(value);
+                        return `<span class="${redClass}">${value.toFixed(2)}</span>`;
+                    },
+                    headerTooltip: "RED for Target 1",
+                    minWidth: 100,
+                    hozAlign: "center",
+                    headerHozAlign: "center"
+                },
+                {
+                    title: "Target 2 RED",
+                    field: "red2_value",
+                    sorter: "number",
+                    headerFilter: "number",
+                    headerFilterPlaceholder: "Filter...",
+                    formatter: (cell) => {
+                        const value = cell.getValue();
+                        if (value === null || value === 999) return '—';
+                        const redClass = this.getREDClass(value);
+                        return `<span class="${redClass}">${value.toFixed(2)}</span>`;
+                    },
+                    headerTooltip: "RED for Target 2",
+                    minWidth: 100,
+                    hozAlign: "center",
+                    headerHozAlign: "center"
+                },
+                {
+                    title: "δD",
+                    field: "delta_d",
+                    sorter: "number",
+                    headerFilter: "number",
+                    headerFilterPlaceholder: "Filter...",
+                    formatter: (cell) => cell.getValue().toFixed(1),
+                    minWidth: 80,
+                    hozAlign: "center",
+                    headerHozAlign: "center"
+                },
+                {
+                    title: "δP",
+                    field: "delta_p",
+                    sorter: "number",
+                    headerFilter: "number",
+                    headerFilterPlaceholder: "Filter...",
+                    formatter: (cell) => cell.getValue().toFixed(1),
+                    minWidth: 80,
+                    hozAlign: "center",
+                    headerHozAlign: "center"
+                },
+                {
+                    title: "δH",
+                    field: "delta_h",
+                    sorter: "number",
+                    headerFilter: "number",
+                    headerFilterPlaceholder: "Filter...",
+                    formatter: (cell) => cell.getValue().toFixed(1),
+                    minWidth: 80,
+                    hozAlign: "center",
+                    headerHozAlign: "center"
+                }
+            ],
+
+            initialSort: [
+                {column: "red1_value", dir: "asc"}
+            ]
+        });
+    }
+
+    /**
+     * Populate the results table with solvent data (Tabulator version)
+     */
+    populateResultsTable() {
+        if (!this.resultsTable) {
+            console.error('Tabulator not initialized');
+            return;
+        }
+
+        if (this.filteredResults.length === 0) {
+            this.resultsTable.setData([]);
+            this.updateResultsCountBadge(0);
+            // Hide CSV button
+            const exportBtn = document.querySelector('#export-csv-btn');
+            if (exportBtn) exportBtn.style.display = 'none';
+            return;
+        }
+
+        // Prepare data for Tabulator
+        const tableData = this.filteredResults.map(solvent => {
             const red1 = this.calculateRED(solvent, this.currentTarget1);
             const red2 = this.calculateRED(solvent, this.currentTarget2);
 
-            const red1Class = this.getREDClass(red1);
-            const red2Class = this.getREDClass(red2);
+            return {
+                name: solvent.name,
+                red1_value: red1 !== null ? red1 : 999,
+                red2_value: red2 !== null ? red2 : 999,
+                delta_d: solvent.delta_d,
+                delta_p: solvent.delta_p,
+                delta_h: solvent.delta_h
+            };
+        });
 
-            const red1Display = red1 !== null
-                ? `<div>${this.currentTarget1.r0.toFixed(1)} / <span class="${red1Class}">${red1.toFixed(2)}</span></div>`
-                : '<div>—</div>';
-
-            const red2Display = red2 !== null
-                ? `<div>${this.currentTarget2.r0.toFixed(1)} / <span class="${red2Class}">${red2.toFixed(2)}</span></div>`
-                : '<div>—</div>';
-
-            return `
-                <tr>
-                    <td>${this.escapeHtml(solvent.name)}</td>
-                    <td>${red1Display}</td>
-                    <td>${red2Display}</td>
-                    <td>${solvent.delta_d.toFixed(1)}</td>
-                    <td>${solvent.delta_p.toFixed(1)}</td>
-                    <td>${solvent.delta_h.toFixed(1)}</td>
-                </tr>
-            `;
-        }).join('');
-
-        tbody.innerHTML = rows;
+        // Update table
+        this.resultsTable.setData(tableData);
         this.updateResultsCountBadge(this.filteredResults.length);
+
+        // Show CSV button
+        const exportBtn = document.querySelector('#export-csv-btn');
+        if (exportBtn) exportBtn.style.display = 'inline-block';
     }
 
     /**
