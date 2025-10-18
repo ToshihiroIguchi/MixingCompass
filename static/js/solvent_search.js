@@ -33,11 +33,11 @@ class SolventSearch {
 
     logLayoutStyles() {
         const solventSection = document.querySelector('#solvent-search');
-        const layout = document.querySelector('#solvent-search .three-column-layout');
+        const layout = document.querySelector('#solvent-search .split-layout');
 
         if (layout) {
             const computedStyle = window.getComputedStyle(layout);
-            console.log('=== Three Column Layout CSS Debug ===');
+            console.log('=== Split Layout CSS Debug ===');
             console.log('grid-template-columns:', computedStyle.gridTemplateColumns);
             console.log('display:', computedStyle.display);
             console.log('width:', computedStyle.width);
@@ -51,7 +51,7 @@ class SolventSearch {
             console.log('Screen width:', window.innerWidth);
             console.log('===========================');
         } else {
-            console.warn('Three-column layout element not found');
+            console.warn('Split layout element not found');
         }
     }
 

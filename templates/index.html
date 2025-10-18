@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ app_name }}</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <link rel="stylesheet" href="/static/css/styles.css?v=2025101606">
+    <link rel="stylesheet" href="/static/css/styles.css?v=2025101612">
 </head>
 <body>
     <header class="header">
@@ -156,7 +156,7 @@
 
         <!-- Solvent Search Section -->
         <section id="solvent-search" class="content-section">
-            <div class="three-column-layout">
+            <div class="split-layout">
                 <!-- Left Panel: Target Configuration -->
                 <div class="left-panel">
                     <div class="panel-header">
@@ -233,85 +233,89 @@
                     <button id="search-solvents-btn" class="btn btn-primary" disabled>Search Solvents</button>
                 </div>
 
-                <!-- Center Panel: Visualization -->
-                <div class="center-panel">
-                    <div class="hansen-sphere" id="search-hansen-sphere-container">
-                        <div class="viz-tabs">
-                            <button id="search-tab-3d" class="viz-tab active">3D View</button>
-                            <button id="search-tab-2d" class="viz-tab">2D Projections</button>
-                        </div>
-                        <div id="search-view-3d" class="view-panel active">
-                            <div id="search-plotly-visualization" class="plotly-container">
-                                <div class="visualization-placeholder">
-                                    <p>Configure targets to display Hansen sphere visualization</p>
-                                    <small>3D visualization will appear after setting target HSP values</small>
-                                </div>
-                            </div>
-                        </div>
-                        <div id="search-view-2d" class="view-panel" style="display: none;">
-                            <div class="grid-2d">
-                                <div class="plot-item">
-                                    <div id="search-plot-dd-dp" class="plot-2d"></div>
-                                </div>
-                                <div class="plot-item">
-                                    <div id="search-plot-dd-dh" class="plot-2d"></div>
-                                </div>
-                                <div class="plot-item">
-                                    <div id="search-plot-dp-dh" class="plot-2d"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Right Panel: Solvent Results Table -->
+                <!-- Right Panel: Split into Results Table (left) and Visualization (right) -->
                 <div class="right-panel">
-                    <div class="results-panel-header">
-                        <h3>Solvent Results</h3>
-                        <span id="results-count-badge" class="count-badge">0 results</span>
-                    </div>
+                    <div class="search-results-split">
+                        <!-- Left: Results Table -->
+                        <div class="results-area">
+                            <div class="results-panel-header">
+                                <h3>Solvent Results</h3>
+                                <span id="results-count-badge" class="count-badge">0 results</span>
+                            </div>
 
-                    <!-- Filter Controls -->
-                    <div class="results-filter-section">
-                        <div class="filter-group-compact">
-                            <label>RED Range (Target 1)</label>
-                            <div class="range-inputs-compact">
-                                <input type="number" id="red1-min" placeholder="Min" step="0.1" value="0">
-                                <span>—</span>
-                                <input type="number" id="red1-max" placeholder="Max" step="0.1" value="2">
+                            <!-- Filter Controls -->
+                            <div class="results-filter-section">
+                                <div class="filter-group-compact">
+                                    <label>RED Range (Target 1)</label>
+                                    <div class="range-inputs-compact">
+                                        <input type="number" id="red1-min" placeholder="Min" step="0.1" value="0">
+                                        <span>—</span>
+                                        <input type="number" id="red1-max" placeholder="Max" step="0.1" value="2">
+                                    </div>
+                                </div>
+                                <div class="filter-group-compact">
+                                    <label>RED Range (Target 2)</label>
+                                    <div class="range-inputs-compact">
+                                        <input type="number" id="red2-min" placeholder="Min" step="0.1" value="0">
+                                        <span>—</span>
+                                        <input type="number" id="red2-max" placeholder="Max" step="0.1" value="2">
+                                    </div>
+                                </div>
+                                <button id="apply-results-filter" class="btn btn-secondary btn-small">Apply Filter</button>
+                            </div>
+
+                            <!-- Results Table -->
+                            <div class="results-table-container">
+                                <table id="solvent-results-table" class="results-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Solvent</th>
+                                            <th>Target 1<br><small>R0 / RED</small></th>
+                                            <th>Target 2<br><small>R0 / RED</small></th>
+                                            <th>δD</th>
+                                            <th>δP</th>
+                                            <th>δH</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="solvent-results-tbody">
+                                        <tr>
+                                            <td colspan="6" class="empty-cell">Search solvents to see results</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-                        <div class="filter-group-compact">
-                            <label>RED Range (Target 2)</label>
-                            <div class="range-inputs-compact">
-                                <input type="number" id="red2-min" placeholder="Min" step="0.1" value="0">
-                                <span>—</span>
-                                <input type="number" id="red2-max" placeholder="Max" step="0.1" value="2">
+
+                        <!-- Right: Visualization -->
+                        <div class="visualization-area">
+                            <div class="hansen-sphere" id="search-hansen-sphere-container">
+                                <div class="viz-tabs">
+                                    <button id="search-tab-3d" class="viz-tab active">3D View</button>
+                                    <button id="search-tab-2d" class="viz-tab">2D Projections</button>
+                                </div>
+                                <div id="search-view-3d" class="view-panel active">
+                                    <div id="search-plotly-visualization" class="plotly-container">
+                                        <div class="visualization-placeholder">
+                                            <p>Configure targets to display Hansen sphere visualization</p>
+                                            <small>3D visualization will appear after setting target HSP values</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="search-view-2d" class="view-panel" style="display: none;">
+                                    <div class="grid-2d">
+                                        <div class="plot-item">
+                                            <div id="search-plot-dd-dp" class="plot-2d"></div>
+                                        </div>
+                                        <div class="plot-item">
+                                            <div id="search-plot-dd-dh" class="plot-2d"></div>
+                                        </div>
+                                        <div class="plot-item">
+                                            <div id="search-plot-dp-dh" class="plot-2d"></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <button id="apply-results-filter" class="btn btn-secondary btn-small">Apply Filter</button>
-                    </div>
-
-                    <!-- Results Table -->
-                    <div class="results-table-container">
-                        <table id="solvent-results-table" class="results-table">
-                            <thead>
-                                <tr>
-                                    <th>Solvent</th>
-                                    <th>Target 1<br><small>R0 / RED</small></th>
-                                    <th>Target 2<br><small>R0 / RED</small></th>
-                                    <th>δD</th>
-                                    <th>δP</th>
-                                    <th>δH</th>
-                                </tr>
-                            </thead>
-                            <tbody id="solvent-results-tbody">
-                                <tr>
-                                    <td colspan="6" class="empty-cell">Search solvents to see results</td>
-                                </tr>
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
@@ -627,7 +631,7 @@
     <script src="/static/js/experimental_results_manager.js"></script>
     <script src="/static/js/hsp_visualization.js"></script>
     <script src="/static/js/hsp_experimental.js"></script>
-    <script src="/static/js/solvent_search.js?v=2025101608"></script>
+    <script src="/static/js/solvent_search.js?v=2025101609"></script>
     <script src="/static/js/data_list.js"></script>
 </body>
 </html>

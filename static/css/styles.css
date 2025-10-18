@@ -107,17 +107,12 @@ body {
     grid-template-columns: 1fr 1fr;
 }
 
-/* Solvent Search: 3列レイアウト (左300px、中央1fr、右350px) */
-#solvent-search .three-column-layout {
-    display: grid;
-    grid-template-columns: 300px 1fr 350px;
-    gap: 1.5rem;
-    min-height: calc(100vh - 160px);
-    padding: 0 2rem;
-    box-sizing: border-box;
+/* Solvent Search: 2列レイアウト (左300px、右は1fr) */
+#solvent-search .split-layout {
+    grid-template-columns: 300px 1fr;
 }
 
-.left-panel, .right-panel, .center-panel {
+.left-panel, .right-panel {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -129,12 +124,30 @@ body {
     min-width: 0;
 }
 
-.center-panel {
+.right-panel {
     min-width: 0;
 }
 
-.right-panel {
-    min-width: 0;
+/* Right panel split: Visualization (left) and Results Table (right) - Equal split */
+#solvent-search .search-results-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    height: 100%;
+}
+
+.visualization-area {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.results-area {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
 }
 
 /* Buttons */
@@ -1008,9 +1021,9 @@ body {
         grid-template-columns: 50% 50%;
     }
 
-    /* Solvent Search: 左400px固定、右は残り */
+    /* Solvent Search: 左300px固定、右は残り */
     #solvent-search .split-layout {
-        grid-template-columns: 400px 1fr;
+        grid-template-columns: 300px 1fr;
     }
 }
 
@@ -1472,9 +1485,9 @@ body {
         grid-template-columns: 50% 50%;
     }
 
-    /* Solvent Search: 左400px固定、右は残り */
+    /* Solvent Search: 左300px固定、右は残り */
     #solvent-search .split-layout {
-        grid-template-columns: 400px 1fr;
+        grid-template-columns: 300px 1fr;
     }
 
     .solvent-sets-list {
