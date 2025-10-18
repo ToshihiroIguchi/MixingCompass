@@ -25,10 +25,9 @@ class HSPVisualization {
         const plotDiv = document.createElement('div');
         plotDiv.style.width = '100%';
         plotDiv.style.height = '100%';
-        plotDiv.style.minHeight = '350px';
         container.appendChild(plotDiv);
 
-        // Configure Plotly
+        // Configure Plotly (matching HSP Experimental settings)
         const config = {
             responsive: true,
             displayModeBar: true,
@@ -306,10 +305,11 @@ class HSPVisualization {
 
         // Layout
         const layout = {
-            title: {
-                text: 'Hansen Sphere Visualization',
-                x: 0.5,
-                font: { size: 16 }
+            margin: {
+                l: 0,
+                r: 0,
+                t: 0,
+                b: 0
             },
             scene: {
                 xaxis: {

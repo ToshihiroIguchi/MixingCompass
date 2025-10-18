@@ -10,6 +10,9 @@ class SolventSearch {
         this.polymersData = [];
         this.experimentalResults = [];
         this.visualization = null;
+        this.currentTarget1 = null;
+        this.currentTarget2 = null;
+        this.filteredResults = [];
         this.init();
     }
 
@@ -30,11 +33,11 @@ class SolventSearch {
 
     logLayoutStyles() {
         const solventSection = document.querySelector('#solvent-search');
-        const splitLayout = document.querySelector('#solvent-search .split-layout');
+        const layout = document.querySelector('#solvent-search .three-column-layout');
 
-        if (splitLayout) {
-            const computedStyle = window.getComputedStyle(splitLayout);
-            console.log('=== Split Layout CSS Debug ===');
+        if (layout) {
+            const computedStyle = window.getComputedStyle(layout);
+            console.log('=== Three Column Layout CSS Debug ===');
             console.log('grid-template-columns:', computedStyle.gridTemplateColumns);
             console.log('display:', computedStyle.display);
             console.log('width:', computedStyle.width);
@@ -42,13 +45,13 @@ class SolventSearch {
             console.log('padding:', computedStyle.padding);
 
             // Check if there are any inline styles
-            console.log('Inline style:', splitLayout.getAttribute('style'));
+            console.log('Inline style:', layout.getAttribute('style'));
 
             // Log screen width to check media query
             console.log('Screen width:', window.innerWidth);
             console.log('===========================');
         } else {
-            console.warn('Split layout element not found');
+            console.warn('Three-column layout element not found');
         }
     }
 
@@ -135,6 +138,12 @@ class SolventSearch {
         }
         if (tab2D) {
             tab2D.addEventListener('click', () => this.switchVisualizationTab('2d'));
+        }
+
+        // Right panel filter button
+        const applyFilterBtn = document.querySelector('#apply-results-filter');
+        if (applyFilterBtn) {
+            applyFilterBtn.addEventListener('click', () => this.applyREDFilter());
         }
     }
 
@@ -440,6 +449,10 @@ class SolventSearch {
         const target1Data = await this.getTargetData('target1');
         const target2Data = await this.getTargetData('target2');
 
+        // Store targets for RED calculations in results table
+        this.currentTarget1 = target1Data;
+        this.currentTarget2 = target2Data;
+
         // Check if at least one target is configured
         if (!target1Data && !target2Data) {
             this.showError('Please configure at least one target.');
@@ -472,11 +485,15 @@ class SolventSearch {
             );
 
             this.searchResults = results.results;
+            this.filteredResults = [...this.searchResults]; // Initialize filtered results
             this.displayResults('single');
             this.updateResultsCount(results.count);
 
             // Generate visualization with both targets
             this.generateVisualization(target1Data, target2Data, this.searchResults);
+
+            // Populate right panel results table
+            this.populateResultsTable();
 
         } catch (error) {
             console.error('Search error:', error);
@@ -609,23 +626,9 @@ class SolventSearch {
     }
 
     displayResults(searchMode) {
-        const resultsList = document.querySelector('#search-results-list');
-
-        if (this.searchResults.length === 0) {
-            resultsList.innerHTML = `
-                <div class="empty-state">
-                    <p>No solvents found matching your criteria.</p>
-                    <p>Try adjusting the search radius or removing some filters.</p>
-                </div>
-            `;
-            return;
-        }
-
-        if (searchMode === 'single') {
-            resultsList.innerHTML = this.searchResults.map(solvent => this.createSolventCardHTML(solvent)).join('');
-        } else {
-            resultsList.innerHTML = this.searchResults.map(blend => this.createBlendCardHTML(blend)).join('');
-        }
+        // Results are now displayed in the right panel table via populateResultsTable()
+        // This method is kept for compatibility but does nothing
+        return;
     }
 
     createSolventCardHTML(solvent) {
@@ -710,16 +713,144 @@ class SolventSearch {
     }
 
     showError(message) {
-        const resultsList = document.querySelector('#search-results-list');
-        resultsList.innerHTML = `
-            <div class="empty-state error">
-                <p style="color: #ef4444;">❌ ${message}</p>
-            </div>
-        `;
+        // Show error in right panel table
+        const tbody = document.querySelector('#solvent-results-tbody');
+        if (tbody) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="empty-cell" style="color: #ef4444;">❌ ${message}</td>
+                </tr>
+            `;
+        }
+        this.updateResultsCountBadge(0);
     }
 
     escapeHtml(text) {
         return Utils.escapeHtml(text);
+    }
+
+    /**
+     * Calculate RED (Relative Energy Difference) between a solvent and target
+     * RED = distance / R0
+     */
+    calculateRED(solvent, target) {
+        if (!target) return null;
+
+        const distance = Math.sqrt(
+            4 * Math.pow(solvent.delta_d - target.delta_d, 2) +
+            Math.pow(solvent.delta_p - target.delta_p, 2) +
+            Math.pow(solvent.delta_h - target.delta_h, 2)
+        );
+
+        return distance / target.r0;
+    }
+
+    /**
+     * Get CSS class for RED value based on solubility
+     */
+    getREDClass(red) {
+        if (red === null) return '';
+        if (red < 0.8) return 'red-good';
+        if (red < 1.2) return 'red-partial';
+        return 'red-poor';
+    }
+
+    /**
+     * Populate the right panel results table with solvent data
+     */
+    populateResultsTable() {
+        const tbody = document.querySelector('#solvent-results-tbody');
+        if (!tbody) return;
+
+        if (this.filteredResults.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="empty-cell">No results to display</td></tr>';
+            this.updateResultsCountBadge(0);
+            return;
+        }
+
+        // Generate table rows
+        const rows = this.filteredResults.map(solvent => {
+            const red1 = this.calculateRED(solvent, this.currentTarget1);
+            const red2 = this.calculateRED(solvent, this.currentTarget2);
+
+            const red1Class = this.getREDClass(red1);
+            const red2Class = this.getREDClass(red2);
+
+            const red1Display = red1 !== null
+                ? `<div>${this.currentTarget1.r0.toFixed(1)} / <span class="${red1Class}">${red1.toFixed(2)}</span></div>`
+                : '<div>—</div>';
+
+            const red2Display = red2 !== null
+                ? `<div>${this.currentTarget2.r0.toFixed(1)} / <span class="${red2Class}">${red2.toFixed(2)}</span></div>`
+                : '<div>—</div>';
+
+            return `
+                <tr>
+                    <td>${this.escapeHtml(solvent.name)}</td>
+                    <td>${red1Display}</td>
+                    <td>${red2Display}</td>
+                    <td>${solvent.delta_d.toFixed(1)}</td>
+                    <td>${solvent.delta_p.toFixed(1)}</td>
+                    <td>${solvent.delta_h.toFixed(1)}</td>
+                </tr>
+            `;
+        }).join('');
+
+        tbody.innerHTML = rows;
+        this.updateResultsCountBadge(this.filteredResults.length);
+    }
+
+    /**
+     * Update the results count badge
+     */
+    updateResultsCountBadge(count) {
+        const badge = document.querySelector('#results-count-badge');
+        if (badge) {
+            badge.textContent = `${count} result${count !== 1 ? 's' : ''}`;
+        }
+    }
+
+    /**
+     * Apply RED range filter to results
+     */
+    applyREDFilter() {
+        const red1Min = parseFloat(document.querySelector('#red1-min')?.value) || 0;
+        const red1Max = parseFloat(document.querySelector('#red1-max')?.value) || 999;
+        const red2Min = parseFloat(document.querySelector('#red2-min')?.value) || 0;
+        const red2Max = parseFloat(document.querySelector('#red2-max')?.value) || 999;
+
+        // Filter results based on RED ranges
+        this.filteredResults = this.searchResults.filter(solvent => {
+            let passesTarget1 = true;
+            let passesTarget2 = true;
+
+            // Check Target 1 filter
+            if (this.currentTarget1) {
+                const red1 = this.calculateRED(solvent, this.currentTarget1);
+                passesTarget1 = red1 >= red1Min && red1 <= red1Max;
+            }
+
+            // Check Target 2 filter
+            if (this.currentTarget2) {
+                const red2 = this.calculateRED(solvent, this.currentTarget2);
+                passesTarget2 = red2 >= red2Min && red2 <= red2Max;
+            }
+
+            // If both targets are configured, both filters must pass
+            // If only one target is configured, only that filter must pass
+            if (this.currentTarget1 && this.currentTarget2) {
+                return passesTarget1 && passesTarget2;
+            } else if (this.currentTarget1) {
+                return passesTarget1;
+            } else if (this.currentTarget2) {
+                return passesTarget2;
+            }
+
+            return true;
+        });
+
+        // Update table with filtered results
+        this.populateResultsTable();
     }
 }
 

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ app_name }}</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <link rel="stylesheet" href="/static/css/styles.css?v=2025101602">
+    <link rel="stylesheet" href="/static/css/styles.css?v=2025101606">
 </head>
 <body>
     <header class="header">
@@ -156,7 +156,7 @@
 
         <!-- Solvent Search Section -->
         <section id="solvent-search" class="content-section">
-            <div class="split-layout">
+            <div class="three-column-layout">
                 <!-- Left Panel: Target Configuration -->
                 <div class="left-panel">
                     <div class="panel-header">
@@ -233,8 +233,8 @@
                     <button id="search-solvents-btn" class="btn btn-primary" disabled>Search Solvents</button>
                 </div>
 
-                <!-- Right Panel: Visualization -->
-                <div class="right-panel">
+                <!-- Center Panel: Visualization -->
+                <div class="center-panel">
                     <div class="hansen-sphere" id="search-hansen-sphere-container">
                         <div class="viz-tabs">
                             <button id="search-tab-3d" class="viz-tab active">3D View</button>
@@ -263,25 +263,55 @@
                         </div>
                     </div>
 
-                    <!-- Search Results Below Visualization -->
-                    <div class="search-results-section">
-                        <div class="results-header">
-                            <h3>Search Results</h3>
-                            <div class="results-controls">
-                                <span id="results-count-display">0 results</span>
-                                <select id="sort-results">
-                                    <option value="distance">Sort by: Distance (RED)</option>
-                                    <option value="name">Sort by: Name</option>
-                                    <option value="bp">Sort by: Boiling Point</option>
-                                    <option value="cost">Sort by: Cost</option>
-                                </select>
+                </div>
+
+                <!-- Right Panel: Solvent Results Table -->
+                <div class="right-panel">
+                    <div class="results-panel-header">
+                        <h3>Solvent Results</h3>
+                        <span id="results-count-badge" class="count-badge">0 results</span>
+                    </div>
+
+                    <!-- Filter Controls -->
+                    <div class="results-filter-section">
+                        <div class="filter-group-compact">
+                            <label>RED Range (Target 1)</label>
+                            <div class="range-inputs-compact">
+                                <input type="number" id="red1-min" placeholder="Min" step="0.1" value="0">
+                                <span>—</span>
+                                <input type="number" id="red1-max" placeholder="Max" step="0.1" value="2">
                             </div>
                         </div>
-                        <div id="search-results-list" class="search-results-list">
-                            <div class="empty-state">
-                                <p>Enter target HSP values and click "Search Solvents" to find suitable solvents.</p>
+                        <div class="filter-group-compact">
+                            <label>RED Range (Target 2)</label>
+                            <div class="range-inputs-compact">
+                                <input type="number" id="red2-min" placeholder="Min" step="0.1" value="0">
+                                <span>—</span>
+                                <input type="number" id="red2-max" placeholder="Max" step="0.1" value="2">
                             </div>
                         </div>
+                        <button id="apply-results-filter" class="btn btn-secondary btn-small">Apply Filter</button>
+                    </div>
+
+                    <!-- Results Table -->
+                    <div class="results-table-container">
+                        <table id="solvent-results-table" class="results-table">
+                            <thead>
+                                <tr>
+                                    <th>Solvent</th>
+                                    <th>Target 1<br><small>R0 / RED</small></th>
+                                    <th>Target 2<br><small>R0 / RED</small></th>
+                                    <th>δD</th>
+                                    <th>δP</th>
+                                    <th>δH</th>
+                                </tr>
+                            </thead>
+                            <tbody id="solvent-results-tbody">
+                                <tr>
+                                    <td colspan="6" class="empty-cell">Search solvents to see results</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -597,7 +627,7 @@
     <script src="/static/js/experimental_results_manager.js"></script>
     <script src="/static/js/hsp_visualization.js"></script>
     <script src="/static/js/hsp_experimental.js"></script>
-    <script src="/static/js/solvent_search.js"></script>
+    <script src="/static/js/solvent_search.js?v=2025101608"></script>
     <script src="/static/js/data_list.js"></script>
 </body>
 </html>

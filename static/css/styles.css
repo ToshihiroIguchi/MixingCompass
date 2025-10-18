@@ -107,12 +107,17 @@ body {
     grid-template-columns: 1fr 1fr;
 }
 
-/* Solvent Search: 左400px固定、右は残り */
-#solvent-search .split-layout {
-    grid-template-columns: 400px 1fr;
+/* Solvent Search: 3列レイアウト (左300px、中央1fr、右350px) */
+#solvent-search .three-column-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr 350px;
+    gap: 1.5rem;
+    min-height: calc(100vh - 160px);
+    padding: 0 2rem;
+    box-sizing: border-box;
 }
 
-.left-panel, .right-panel {
+.left-panel, .right-panel, .center-panel {
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -121,6 +126,14 @@ body {
 }
 
 .left-panel {
+    min-width: 0;
+}
+
+.center-panel {
+    min-width: 0;
+}
+
+.right-panel {
     min-width: 0;
 }
 
@@ -719,7 +732,7 @@ body {
 .plotly-container {
     flex: 1;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     position: relative;
 }
@@ -2431,10 +2444,25 @@ body {
     flex-direction: column;
     min-height: 0;
     overflow: hidden;
+    padding: 0;
 }
 
 .view-panel.active {
     display: flex;
+}
+
+/* Solvent Search: Remove top spacing in plotly container */
+#solvent-search .view-panel .plotly-container {
+    margin-top: -51px;
+}
+
+/* Force Plotly content to top */
+#solvent-search .plotly-container .js-plotly-plot {
+    margin-top: -125px;
+}
+
+#solvent-search .plotly-container .js-plotly-plot .svg-container {
+    margin-top: 125px;
 }
 
 /* 2D Grid Layout */
@@ -2502,4 +2530,154 @@ body {
     font-size: 1.1rem;
     margin: 0 0 1rem 0;
     color: #374151;
+}
+/* Solvent Search Right Panel Styles */
+.results-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 1rem;
+}
+
+.results-panel-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #374151;
+}
+
+.results-filter-section {
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.filter-group-compact {
+    margin-bottom: 0.75rem;
+}
+
+.filter-group-compact:last-child {
+    margin-bottom: 0;
+}
+
+.filter-group-compact label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.range-inputs-compact {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.range-inputs-compact input {
+    flex: 1;
+    padding: 0.375rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.range-inputs-compact span {
+    color: #6b7280;
+    font-size: 0.8rem;
+}
+
+.results-filter-section .btn-small {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.results-table-container {
+    flex: 1;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    background-color: white;
+    overflow-y: auto;
+    max-height: calc(100vh - 400px);
+}
+
+.results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+.results-table thead {
+    position: sticky;
+    top: 0;
+    background-color: #f9fafb;
+    z-index: 10;
+}
+
+.results-table th {
+    padding: 0.5rem 0.375rem;
+    text-align: left;
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e5e7eb;
+    font-size: 0.75rem;
+}
+
+.results-table th small {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 400;
+    color: #6b7280;
+    margin-top: 0.125rem;
+}
+
+.results-table td {
+    padding: 0.5rem 0.375rem;
+    border-bottom: 1px solid #f3f4f6;
+    color: #1f2937;
+}
+
+.results-table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+.results-table .empty-cell {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+    font-style: italic;
+}
+
+/* Target RED Display */
+.target-red-display {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.red-value {
+    font-family: 'Courier New', monospace;
+    font-size: 0.75rem;
+}
+
+.red-good {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.red-partial {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.red-poor {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.red-na {
+    color: #9ca3af;
 }
