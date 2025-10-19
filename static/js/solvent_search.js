@@ -102,15 +102,18 @@ class SolventSearch {
         this.init();
     }
 
-    init() {
+    async init() {
         // Initialize visualization module
         this.visualization = new HSPVisualization('search-plotly-visualization');
         this.visualization.showPlaceholder('Configure targets and search solvents to display visualization');
 
-        this.loadPolymersData();
-        this.loadExperimentalResults();
+        // Load data before initializing UI
+        await this.loadPolymersData();
+        await this.loadExperimentalResults();
+
         this.setupEventListeners();
-        this.updateTargetContent('target1', 'manual'); // Initialize with manual mode
+        this.updateTargetContent('target1', 'polymer'); // Initialize with polymer mode
+        this.updateTargetContent('target2', 'polymer'); // Initialize with polymer mode
         console.log('Solvent Search initialized');
 
         // Initialize Tabulator
@@ -179,23 +182,22 @@ class SolventSearch {
     }
 
     setupEventListeners() {
-        // Target1 dropdown
-        const target1Select = document.querySelector('#target1-data-source');
-        if (target1Select) {
-            target1Select.addEventListener('change', (e) => {
-                this.updateTargetContent('target1', e.target.value);
-                this.validateSearchButton();
-            });
-        }
+        // Target toggle buttons (common for both Target 1 and Target 2)
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const source = e.target.dataset.source;
+                const target = e.target.dataset.target;
 
-        // Target2 dropdown
-        const target2Select = document.querySelector('#target2-data-source');
-        if (target2Select) {
-            target2Select.addEventListener('change', (e) => {
-                this.updateTargetContent('target2', e.target.value);
+                // Update active state
+                const parentToggle = e.target.closest('.source-toggle');
+                parentToggle.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+
+                // Update content
+                this.updateTargetContent(target, source);
                 this.validateSearchButton();
             });
-        }
+        });
 
         // Search button
         const searchBtn = document.querySelector('#search-solvents-btn');
@@ -265,11 +267,7 @@ class SolventSearch {
         if (!contentDiv) return;
 
         switch (dataSource) {
-            case 'none':
-                contentDiv.innerHTML = '';
-                break;
-
-            case 'manual':
+            case 'custom':
                 contentDiv.innerHTML = `
                     <div class="target-manual-inline">
                         <div class="inline-input-group">
@@ -303,15 +301,16 @@ class SolventSearch {
                 });
                 break;
 
-            case 'solute':
+            case 'polymer':
                 const allNames = [...this.polymersData, ...this.experimentalResults];
                 contentDiv.innerHTML = `
                     <div class="target-solute-search">
                         <input type="text"
                                id="${targetId}-solute-input"
                                class="solute-search-input"
-                               placeholder="Type to search solute..."
-                               list="${targetId}-solute-datalist">
+                               placeholder="Type to search polymer..."
+                               list="${targetId}-solute-datalist"
+                               autocomplete="off">
                         <datalist id="${targetId}-solute-datalist">
                             ${allNames.map(name => `<option value="${name}">`).join('')}
                         </datalist>
@@ -334,53 +333,18 @@ class SolventSearch {
 
                 const soluteInput = document.querySelector(`#${targetId}-solute-input`);
                 if (soluteInput) {
+                    let debounceTimer;
                     soluteInput.addEventListener('input', () => {
                         this.validateSearchButton();
-                        this.updateSoluteHSPDisplay(targetId);
+                        // Debounce HSP display update (wait 500ms after user stops typing)
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(() => {
+                            this.updateSoluteHSPDisplay(targetId);
+                        }, 500);
                     });
                     soluteInput.addEventListener('blur', () => {
                         this.validateSearchButton();
-                        this.updateSoluteHSPDisplay(targetId);
-                    });
-                }
-                break;
-
-            case 'solute-user-only':
-                contentDiv.innerHTML = `
-                    <div class="target-solute-search">
-                        <input type="text"
-                               id="${targetId}-solute-input"
-                               class="solute-search-input"
-                               placeholder="Type to search user added solute..."
-                               list="${targetId}-solute-datalist">
-                        <datalist id="${targetId}-solute-datalist">
-                            ${this.experimentalResults.map(name => `<option value="${name}">`).join('')}
-                        </datalist>
-                        <div id="${targetId}-hsp-display" class="solute-hsp-display" style="display: none;">
-                            <div class="hsp-header">
-                                <div>&delta;D (MPa<sup>0.5</sup>)</div>
-                                <div>&delta;P (MPa<sup>0.5</sup>)</div>
-                                <div>&delta;H (MPa<sup>0.5</sup>)</div>
-                                <div>R0 (MPa<sup>0.5</sup>)</div>
-                            </div>
-                            <div class="hsp-values-row">
-                                <div id="${targetId}-display-dd" class="hsp-cell">-</div>
-                                <div id="${targetId}-display-dp" class="hsp-cell">-</div>
-                                <div id="${targetId}-display-dh" class="hsp-cell">-</div>
-                                <div id="${targetId}-display-r0" class="hsp-cell">-</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                const userSoluteInput = document.querySelector(`#${targetId}-solute-input`);
-                if (userSoluteInput) {
-                    userSoluteInput.addEventListener('input', () => {
-                        this.validateSearchButton();
-                        this.updateSoluteHSPDisplay(targetId);
-                    });
-                    userSoluteInput.addEventListener('blur', () => {
-                        this.validateSearchButton();
+                        clearTimeout(debounceTimer);
                         this.updateSoluteHSPDisplay(targetId);
                     });
                 }
@@ -404,20 +368,20 @@ class SolventSearch {
     }
 
     isTargetValid(targetId) {
-        const dataSource = document.querySelector(`#${targetId}-data-source`).value;
+        // Get active source from toggle buttons
+        const activeBtn = document.querySelector(`#${targetId}-source-toggle .toggle-btn.active`);
+        if (!activeBtn) return false;
 
-        if (dataSource === 'none') {
-            return false;
-        }
+        const dataSource = activeBtn.dataset.source;
 
-        if (dataSource === 'manual') {
+        if (dataSource === 'custom') {
             const deltaD = document.querySelector(`#${targetId}-delta-d`)?.value;
             const deltaP = document.querySelector(`#${targetId}-delta-p`)?.value;
             const deltaH = document.querySelector(`#${targetId}-delta-h`)?.value;
             return deltaD && deltaP && deltaH;
         }
 
-        if (dataSource === 'solute' || dataSource === 'solute-user-only') {
+        if (dataSource === 'polymer') {
             const soluteInput = document.querySelector(`#${targetId}-solute-input`)?.value;
             return soluteInput && soluteInput.trim() !== '';
         }
@@ -426,13 +390,17 @@ class SolventSearch {
     }
 
     async getTargetData(targetId) {
-        const dataSource = document.querySelector(`#${targetId}-data-source`).value;
-
-        if (dataSource === 'none' || !this.isTargetValid(targetId)) {
+        if (!this.isTargetValid(targetId)) {
             return null;
         }
 
-        if (dataSource === 'manual') {
+        // Get active source from toggle buttons
+        const activeBtn = document.querySelector(`#${targetId}-source-toggle .toggle-btn.active`);
+        if (!activeBtn) return null;
+
+        const dataSource = activeBtn.dataset.source;
+
+        if (dataSource === 'custom') {
             return {
                 name: document.querySelector(`#${targetId}-name`)?.value || 'Target',
                 delta_d: parseFloat(document.querySelector(`#${targetId}-delta-d`).value),
@@ -442,7 +410,7 @@ class SolventSearch {
             };
         }
 
-        if (dataSource === 'solute' || dataSource === 'solute-user-only') {
+        if (dataSource === 'polymer') {
             const soluteName = document.querySelector(`#${targetId}-solute-input`).value.trim();
             if (!soluteName) return null;
 
@@ -901,23 +869,6 @@ class SolventSearch {
                     }
                 },
                 {
-                    title: "T1 Ra",
-                    field: "ra1_value",
-                    sorter: "number",
-                    headerFilter: minMaxFilterEditor,
-                    headerFilterFunc: minMaxFilterFunction,
-                    headerFilterLiveFilter: false,
-                    formatter: (cell) => {
-                        const value = cell.getValue();
-                        if (value === null || value === 999) return '—';
-                        return value.toFixed(2);
-                    },
-                    headerTooltip: "Target 1: Interaction radius (Ra)",
-                    minWidth: 60,
-                    hozAlign: "center",
-                    headerHozAlign: "center"
-                },
-                {
                     title: "T1 RED",
                     field: "red1_value",
                     sorter: "number",
@@ -932,23 +883,6 @@ class SolventSearch {
                     },
                     headerTooltip: "Target 1: Relative Energy Difference",
                     minWidth: 65,
-                    hozAlign: "center",
-                    headerHozAlign: "center"
-                },
-                {
-                    title: "T2 Ra",
-                    field: "ra2_value",
-                    sorter: "number",
-                    headerFilter: minMaxFilterEditor,
-                    headerFilterFunc: minMaxFilterFunction,
-                    headerFilterLiveFilter: false,
-                    formatter: (cell) => {
-                        const value = cell.getValue();
-                        if (value === null || value === 999) return '—';
-                        return value.toFixed(2);
-                    },
-                    headerTooltip: "Target 2: Interaction radius (Ra)",
-                    minWidth: 60,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },

@@ -2884,3 +2884,81 @@ body {
 #solvent-results-table .tabulator-tableholder::-webkit-scrollbar-thumb:hover {
     background: #a0aec0;
 }
+
+/* ============================================================
+   Target Header and Source Toggle Buttons
+   ============================================================ */
+
+.target-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.target-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #1e3a8a;
+}
+
+.optional-label {
+    font-size: 0.75rem;
+    color: #9ca3af;
+    font-weight: normal;
+    margin-left: 4px;
+}
+
+.checkbox-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.875rem;
+    color: #4b5563;
+    cursor: pointer;
+    user-select: none;
+}
+
+.checkbox-inline input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+}
+
+.source-toggle {
+    display: inline-flex;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    overflow: hidden;
+    background: white;
+}
+
+.toggle-btn {
+    padding: 6px 16px;
+    border: none;
+    background: white;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563;
+    transition: all 0.2s ease;
+}
+
+.toggle-btn:not(:last-child) {
+    border-right: 1px solid #cbd5e0;
+}
+
+.toggle-btn.active {
+    background: #3b82f6;
+    color: white;
+}
+
+.toggle-btn:hover:not(.active) {
+    background: #f7fafc;
+    color: #1e40af;
+}
+
+.toggle-btn:active {
+    transform: scale(0.98);
+}
