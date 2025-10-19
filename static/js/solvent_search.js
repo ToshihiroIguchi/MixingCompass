@@ -589,8 +589,8 @@ class SolventSearch {
             radius: target2Data.r0
         } : null;
 
-        // Prepare solvent data (top 100 results for visualization)
-        const topSolvents = solventResults.slice(0, 100).map(s => ({
+        // Prepare solvent data (all results for visualization, up to API limit)
+        const solventsToVisualize = solventResults.map(s => ({
             name: s.name,
             delta_d: s.delta_d,
             delta_p: s.delta_p,
@@ -600,13 +600,13 @@ class SolventSearch {
         // Generate visualization
         if (target1 && !target2) {
             // Single target visualization
-            this.visualization.generateDualTargetVisualization(target1, null, topSolvents);
+            this.visualization.generateDualTargetVisualization(target1, null, solventsToVisualize);
         } else if (target1 && target2) {
             // Dual target visualization
-            this.visualization.generateDualTargetVisualization(target1, target2, topSolvents);
+            this.visualization.generateDualTargetVisualization(target1, target2, solventsToVisualize);
         } else if (target2) {
             // Only target2 is set
-            this.visualization.generateDualTargetVisualization(target2, null, topSolvents);
+            this.visualization.generateDualTargetVisualization(target2, null, solventsToVisualize);
         }
     }
 
@@ -615,6 +615,7 @@ class SolventSearch {
             target_delta_d: deltaD,
             target_delta_p: deltaP,
             target_delta_h: deltaH,
+            max_results: 2000  // Request up to 2000 results for visualization
         });
 
         if (radius) params.append('target_radius', radius);

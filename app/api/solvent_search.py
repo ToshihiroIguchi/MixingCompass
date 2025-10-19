@@ -70,16 +70,16 @@ async def get_all_solvents():
 
 @router.post("/search")
 async def search_solvents(
-    target_delta_d: float,
-    target_delta_p: float,
-    target_delta_h: float,
-    target_radius: Optional[float] = None,
-    bp_min: Optional[float] = None,
-    bp_max: Optional[float] = None,
-    cost_min: Optional[float] = None,
-    cost_max: Optional[float] = None,
-    wgk_filter: Optional[List[int]] = None,
-    max_results: int = Query(default=100, le=500)
+    target_delta_d: float = Query(...),
+    target_delta_p: float = Query(...),
+    target_delta_h: float = Query(...),
+    target_radius: Optional[float] = Query(None),
+    bp_min: Optional[float] = Query(None),
+    bp_max: Optional[float] = Query(None),
+    cost_min: Optional[float] = Query(None),
+    cost_max: Optional[float] = Query(None),
+    wgk_filter: Optional[List[int]] = Query(None),
+    max_results: int = Query(default=2000, le=5000)
 ):
     """
     Search for solvents matching target HSP values

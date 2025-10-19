@@ -264,25 +264,36 @@ class HSPVisualization {
             const solventX = [];
             const solventY = [];
             const solventZ = [];
-            const solventNames = [];
-            const solventColors = [];
+            const solventHoverTexts = [];
 
             solventData.forEach(s => {
                 solventX.push(s.delta_d);
                 solventY.push(s.delta_p);
                 solventZ.push(s.delta_h);
-                solventNames.push(s.name);
-                // Color by distance to nearest target
-                const dist1 = this.calculateDistance(
+
+                // Calculate RED for both targets
+                const red1 = this.calculateDistance(
                     s.delta_d, s.delta_p, s.delta_h,
                     target1Data.delta_d, target1Data.delta_p, target1Data.delta_h
-                );
-                const dist2 = target2Data ? this.calculateDistance(
+                ) / target1Data.radius;
+
+                const red2 = target2Data ? this.calculateDistance(
                     s.delta_d, s.delta_p, s.delta_h,
                     target2Data.delta_d, target2Data.delta_p, target2Data.delta_h
-                ) : Infinity;
+                ) / target2Data.radius : null;
 
-                solventColors.push(dist1 < dist2 ? '#2196F3' : '#FF9800');
+                // Build hover text with RED values
+                let hoverText = `<b>${s.name}</b><br>` +
+                    `δD: ${s.delta_d.toFixed(1)}<br>` +
+                    `δP: ${s.delta_p.toFixed(1)}<br>` +
+                    `δH: ${s.delta_h.toFixed(1)}<br>` +
+                    `RED (${target1Data.name || 'Target 1'}): ${red1.toFixed(2)}`;
+
+                if (red2 !== null) {
+                    hoverText += `<br>RED (${target2Data.name || 'Target 2'}): ${red2.toFixed(2)}`;
+                }
+
+                solventHoverTexts.push(hoverText);
             });
 
             traces.push({
@@ -295,11 +306,11 @@ class HSPVisualization {
                 showlegend: false,
                 marker: {
                     size: 3,
-                    color: solventColors,
+                    color: '#9E9E9E',  // Neutral gray color for all solvents
                     opacity: 0.8
                 },
-                text: solventNames,
-                hovertemplate: '<b>%{text}</b><br>δD: %{x:.1f}<br>δP: %{y:.1f}<br>δH: %{z:.1f}<extra></extra>'
+                hovertext: solventHoverTexts,
+                hovertemplate: '%{hovertext}<extra></extra>'
             });
         }
 
