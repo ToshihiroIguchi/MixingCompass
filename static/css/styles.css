@@ -2833,6 +2833,19 @@ body {
     font-weight: 600;
 }
 
+/* Source link icon styling */
+#solvent-results-table .source-link-icon {
+    font-size: 0.7rem;
+    text-decoration: none;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+    flex-shrink: 0;
+}
+
+#solvent-results-table .source-link-icon:hover {
+    opacity: 1;
+}
+
 /* Sort arrow styling */
 #solvent-results-table .tabulator-col.tabulator-sortable[aria-sort="ascending"] .tabulator-col-sorter {
     color: #3b82f6;

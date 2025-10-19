@@ -877,7 +877,28 @@ class SolventSearch {
                     headerFilter: "input",
                     headerFilterPlaceholder: "Filter...",
                     minWidth: 120,
-                    widthGrow: 2
+                    widthGrow: 2,
+                    formatter: (cell) => {
+                        const data = cell.getRow().getData();
+                        const sourceUrl = data.source_url;
+                        const sourceFile = data.source_file;
+                        const name = cell.getValue();
+
+                        if (sourceUrl) {
+                            return `
+                                <span style="display: flex; justify-content: space-between; align-items: center; gap: 4px;">
+                                    <span style="flex: 1; overflow: hidden; text-overflow: ellipsis;">${name}</span>
+                                    <a href="${sourceUrl}"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       title="${sourceUrl}"
+                                       class="source-link-icon"
+                                       onclick="event.stopPropagation()">🔗</a>
+                                </span>
+                            `;
+                        }
+                        return name;
+                    }
                 },
                 {
                     title: "T1 Ra",
@@ -1054,7 +1075,9 @@ class SolventSearch {
                 red2_value: red2 !== null ? red2 : 999,
                 delta_d: solvent.delta_d,
                 delta_p: solvent.delta_p,
-                delta_h: solvent.delta_h
+                delta_h: solvent.delta_h,
+                source_url: solvent.source_url || '',
+                source_file: solvent.source_file || ''
             };
         });
 

@@ -151,6 +151,8 @@ async def search_solvents(
             'cas': row['Cas'] if pd.notna(row['Cas']) else None,
             'wgk': float(row['WGK']) if pd.notna(row['WGK']) else None,
             'ghs': row['GHS'] if pd.notna(row['GHS']) else None,
+            'source_file': row['source_file'] if pd.notna(row['source_file']) else None,
+            'source_url': row['source_url'] if pd.notna(row['source_url']) else None,
         })
 
     return {

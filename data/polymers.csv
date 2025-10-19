@@ -1,4 +1,4 @@
-﻿No,Polymer,delta_D,delta_P,delta_H,Ra,source_file,source_row,completeness,source_url,Cas,gamma_s(Polar),gamma_sd,gamma_sP,gamma_s(Acid-Base),gamma_sLW,gamma_sAB,gamma_s-,gamma_s+,delta_total
+﻿No,Polymer,delta_D,delta_P,delta_H,Ra,source_file,source_row,completeness,source_url,CAS,gamma_s(Polar),gamma_sd,gamma_sP,gamma_s(Acid-Base),gamma_sLW,gamma_sAB,gamma_s-,gamma_s+,delta_total
 1.0,Cellulose Acetobutyrate (CELLIT BP-300),16.6,12.0,6.7,10.2,HSPdataoriginal,2,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
 2.0,Cellulose Acetate (CELLIDORA A),18.2,12.4,10.8,7.4,HSPdataoriginal,3,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,
 3.0,Ethyl Cellulose (ETHOCEL HE10),17.9,4.3,3.9,5.9,HSPdataoriginal,4,1.0,https://www.hansen-solubility.com/Charles-Hansen/thehandbook.php,,,,,,,,,,

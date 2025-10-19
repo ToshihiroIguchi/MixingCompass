@@ -556,16 +556,15 @@ class DataListManager {
             return '-';
         }
 
-        // If there's a URL, show link icon
+        // If there's a URL, show link icon that opens URL
         if (sourceUrl) {
-            const sourceName = this.formatSource(sourceFile);
-            return `<a href="${this.escapeHtml(sourceUrl)}" target="_blank" class="source-link" title="Open source: ${this.escapeHtml(sourceName)}">🔗</a>`;
+            return `<a href="${this.escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer" class="source-link" title="${this.escapeHtml(sourceUrl)}">🔗</a>`;
         }
 
-        // If no URL but has source file, show icon without link
+        // If no URL but has source file, show link icon without href (not clickable)
         if (sourceFile && sourceFile !== 'user_added') {
             const sourceName = this.formatSource(sourceFile);
-            return `<span class="source-icon" title="Source: ${this.escapeHtml(sourceName)}">📄</span>`;
+            return `<span class="source-icon" title="Source: ${this.escapeHtml(sourceName)} (no URL available)">🔗</span>`;
         }
 
         return '-';
