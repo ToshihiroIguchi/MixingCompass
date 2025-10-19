@@ -108,10 +108,6 @@ async def search_solvents(
         ra=target_radius if target_radius else 1.0
     )
 
-    # Apply distance filter if radius is specified
-    if target_radius:
-        df = df[df['distance'] <= 1.0]  # RED <= 1 means within sphere
-
     # Apply boiling point filter
     if bp_min is not None:
         df = df[df['Tv'] >= bp_min]
