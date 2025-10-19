@@ -3,6 +3,91 @@
  * Search for single solvents or solvent blends based on target HSP values
  */
 
+// Min-Max Filter Editor for Tabulator (Vertical Layout)
+function minMaxFilterEditor(cell, onRendered, success, cancel, editorParams) {
+    const container = document.createElement("div");
+    container.style.cssText = `
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 2px;
+        width: 100%;
+        min-height: 42px;
+        height: auto;
+    `;
+
+    const minInput = document.createElement("input");
+    minInput.setAttribute("type", "number");
+    minInput.setAttribute("placeholder", "Min");
+    minInput.style.cssText = `
+        width: 100%;
+        padding: 1px 2px;
+        box-sizing: border-box;
+        font-size: 0.65rem;
+        height: 18px;
+        margin: 0;
+        display: block;
+    `;
+
+    const maxInput = document.createElement("input");
+    maxInput.setAttribute("type", "number");
+    maxInput.setAttribute("placeholder", "Max");
+    maxInput.style.cssText = `
+        width: 100%;
+        padding: 1px 2px;
+        box-sizing: border-box;
+        font-size: 0.65rem;
+        height: 18px;
+        margin: 0;
+        display: block;
+    `;
+
+    const buildValues = () => {
+        return {
+            start: minInput.value !== "" ? parseFloat(minInput.value) : null,
+            end: maxInput.value !== "" ? parseFloat(maxInput.value) : null
+        };
+    };
+
+    const update = () => {
+        success(buildValues());
+    };
+
+    minInput.addEventListener("change", update);
+    minInput.addEventListener("blur", update);
+    maxInput.addEventListener("change", update);
+    maxInput.addEventListener("blur", update);
+
+    container.appendChild(minInput);
+    container.appendChild(maxInput);
+
+    return container;
+}
+
+// Min-Max Filter Function for Tabulator
+function minMaxFilterFunction(headerValue, rowValue, rowData, filterParams) {
+    if (!headerValue || (headerValue.start === null && headerValue.end === null)) {
+        return true;
+    }
+
+    if (rowValue === null || rowValue === undefined || rowValue === 999) {
+        return false;
+    }
+
+    if (headerValue.start !== null && headerValue.end !== null) {
+        return rowValue >= headerValue.start && rowValue <= headerValue.end;
+    }
+
+    if (headerValue.start !== null) {
+        return rowValue >= headerValue.start;
+    }
+
+    if (headerValue.end !== null) {
+        return rowValue <= headerValue.end;
+    }
+
+    return true;
+}
+
 class SolventSearch {
     constructor() {
         this.searchResults = [];
@@ -142,12 +227,6 @@ class SolventSearch {
         }
         if (tab2D) {
             tab2D.addEventListener('click', () => this.switchVisualizationTab('2d'));
-        }
-
-        // Right panel filter button
-        const applyFilterBtn = document.querySelector('#apply-results-filter');
-        if (applyFilterBtn) {
-            applyFilterBtn.addEventListener('click', () => this.applyREDFilter());
         }
 
         // CSV Export button
@@ -542,8 +621,8 @@ class SolventSearch {
             radius: target2Data.r0
         } : null;
 
-        // Prepare solvent data (top 20 results for visualization clarity)
-        const topSolvents = solventResults.slice(0, 20).map(s => ({
+        // Prepare solvent data (top 100 results for visualization)
+        const topSolvents = solventResults.slice(0, 100).map(s => ({
             name: s.name,
             delta_d: s.delta_d,
             delta_p: s.delta_p,
@@ -747,15 +826,19 @@ class SolventSearch {
      * Calculate RED (Relative Energy Difference) between a solvent and target
      * RED = distance / R0
      */
-    calculateRED(solvent, target) {
+    calculateDistance(solvent, target) {
         if (!target) return null;
 
-        const distance = Math.sqrt(
+        return Math.sqrt(
             4 * Math.pow(solvent.delta_d - target.delta_d, 2) +
             Math.pow(solvent.delta_p - target.delta_p, 2) +
             Math.pow(solvent.delta_h - target.delta_h, 2)
         );
+    }
 
+    calculateRED(solvent, target) {
+        if (!target) return null;
+        const distance = this.calculateDistance(solvent, target);
         return distance / target.r0;
     }
 
@@ -797,36 +880,72 @@ class SolventSearch {
                     widthGrow: 2
                 },
                 {
-                    title: "Target 1 RED",
-                    field: "red1_value",
+                    title: "T1 Ra",
+                    field: "ra1_value",
                     sorter: "number",
-                    headerFilter: "number",
-                    headerFilterPlaceholder: "Filter...",
+                    headerFilter: minMaxFilterEditor,
+                    headerFilterFunc: minMaxFilterFunction,
+                    headerFilterLiveFilter: false,
                     formatter: (cell) => {
                         const value = cell.getValue();
                         if (value === null || value === 999) return '—';
-                        const redClass = this.getREDClass(value);
-                        return `<span class="${redClass}">${value.toFixed(2)}</span>`;
+                        return value.toFixed(2);
                     },
-                    headerTooltip: "RED for Target 1",
-                    minWidth: 100,
+                    headerTooltip: "Target 1: Interaction radius (Ra)",
+                    minWidth: 60,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
                 {
-                    title: "Target 2 RED",
-                    field: "red2_value",
+                    title: "T1 RED",
+                    field: "red1_value",
                     sorter: "number",
-                    headerFilter: "number",
-                    headerFilterPlaceholder: "Filter...",
+                    headerFilter: minMaxFilterEditor,
+                    headerFilterFunc: minMaxFilterFunction,
+                    headerFilterLiveFilter: false,
                     formatter: (cell) => {
                         const value = cell.getValue();
                         if (value === null || value === 999) return '—';
                         const redClass = this.getREDClass(value);
                         return `<span class="${redClass}">${value.toFixed(2)}</span>`;
                     },
-                    headerTooltip: "RED for Target 2",
-                    minWidth: 100,
+                    headerTooltip: "Target 1: Relative Energy Difference",
+                    minWidth: 65,
+                    hozAlign: "center",
+                    headerHozAlign: "center"
+                },
+                {
+                    title: "T2 Ra",
+                    field: "ra2_value",
+                    sorter: "number",
+                    headerFilter: minMaxFilterEditor,
+                    headerFilterFunc: minMaxFilterFunction,
+                    headerFilterLiveFilter: false,
+                    formatter: (cell) => {
+                        const value = cell.getValue();
+                        if (value === null || value === 999) return '—';
+                        return value.toFixed(2);
+                    },
+                    headerTooltip: "Target 2: Interaction radius (Ra)",
+                    minWidth: 60,
+                    hozAlign: "center",
+                    headerHozAlign: "center"
+                },
+                {
+                    title: "T2 RED",
+                    field: "red2_value",
+                    sorter: "number",
+                    headerFilter: minMaxFilterEditor,
+                    headerFilterFunc: minMaxFilterFunction,
+                    headerFilterLiveFilter: false,
+                    formatter: (cell) => {
+                        const value = cell.getValue();
+                        if (value === null || value === 999) return '—';
+                        const redClass = this.getREDClass(value);
+                        return `<span class="${redClass}">${value.toFixed(2)}</span>`;
+                    },
+                    headerTooltip: "Target 2: Relative Energy Difference",
+                    minWidth: 65,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
@@ -834,10 +953,12 @@ class SolventSearch {
                     title: "δD",
                     field: "delta_d",
                     sorter: "number",
-                    headerFilter: "number",
-                    headerFilterPlaceholder: "Filter...",
+                    headerFilter: minMaxFilterEditor,
+                    headerFilterFunc: minMaxFilterFunction,
+                    headerFilterLiveFilter: false,
                     formatter: (cell) => cell.getValue().toFixed(1),
-                    minWidth: 80,
+                    headerTooltip: "Dispersion parameter (δD)",
+                    minWidth: 55,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
@@ -845,10 +966,12 @@ class SolventSearch {
                     title: "δP",
                     field: "delta_p",
                     sorter: "number",
-                    headerFilter: "number",
-                    headerFilterPlaceholder: "Filter...",
+                    headerFilter: minMaxFilterEditor,
+                    headerFilterFunc: minMaxFilterFunction,
+                    headerFilterLiveFilter: false,
                     formatter: (cell) => cell.getValue().toFixed(1),
-                    minWidth: 80,
+                    headerTooltip: "Polar parameter (δP)",
+                    minWidth: 55,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
@@ -856,10 +979,12 @@ class SolventSearch {
                     title: "δH",
                     field: "delta_h",
                     sorter: "number",
-                    headerFilter: "number",
-                    headerFilterPlaceholder: "Filter...",
+                    headerFilter: minMaxFilterEditor,
+                    headerFilterFunc: minMaxFilterFunction,
+                    headerFilterLiveFilter: false,
                     formatter: (cell) => cell.getValue().toFixed(1),
-                    minWidth: 80,
+                    headerTooltip: "Hydrogen bonding parameter (δH)",
+                    minWidth: 55,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 }
@@ -868,6 +993,31 @@ class SolventSearch {
             initialSort: [
                 {column: "red1_value", dir: "asc"}
             ]
+        });
+
+        // Add dataFiltered event handler with debounce for visualization update
+        let vizUpdateTimeout;
+        this.resultsTable.on("dataFiltered", (filters, rows) => {
+            // Update count badge with filtered count
+            this.updateResultsCountBadge(rows.length);
+
+            // Debounce visualization update (300ms delay)
+            clearTimeout(vizUpdateTimeout);
+            vizUpdateTimeout = setTimeout(() => {
+                // Get filtered data from rows
+                const filteredData = rows.map(row => {
+                    const data = row.getData();
+                    return {
+                        name: data.name,
+                        delta_d: data.delta_d,
+                        delta_p: data.delta_p,
+                        delta_h: data.delta_h
+                    };
+                });
+
+                // Update visualization with filtered data
+                this.generateVisualization(this.currentTarget1, this.currentTarget2, filteredData);
+            }, 300);
         });
     }
 
@@ -880,7 +1030,7 @@ class SolventSearch {
             return;
         }
 
-        if (this.filteredResults.length === 0) {
+        if (this.searchResults.length === 0) {
             this.resultsTable.setData([]);
             this.updateResultsCountBadge(0);
             // Hide CSV button
@@ -889,14 +1039,18 @@ class SolventSearch {
             return;
         }
 
-        // Prepare data for Tabulator
-        const tableData = this.filteredResults.map(solvent => {
+        // Prepare data for Tabulator (use searchResults instead of filteredResults)
+        const tableData = this.searchResults.map(solvent => {
+            const ra1 = this.calculateDistance(solvent, this.currentTarget1);
             const red1 = this.calculateRED(solvent, this.currentTarget1);
+            const ra2 = this.calculateDistance(solvent, this.currentTarget2);
             const red2 = this.calculateRED(solvent, this.currentTarget2);
 
             return {
                 name: solvent.name,
+                ra1_value: ra1 !== null ? ra1 : 999,
                 red1_value: red1 !== null ? red1 : 999,
+                ra2_value: ra2 !== null ? ra2 : 999,
                 red2_value: red2 !== null ? red2 : 999,
                 delta_d: solvent.delta_d,
                 delta_p: solvent.delta_p,
@@ -906,7 +1060,7 @@ class SolventSearch {
 
         // Update table
         this.resultsTable.setData(tableData);
-        this.updateResultsCountBadge(this.filteredResults.length);
+        this.updateResultsCountBadge(this.searchResults.length);
 
         // Show CSV button
         const exportBtn = document.querySelector('#export-csv-btn');
@@ -923,48 +1077,6 @@ class SolventSearch {
         }
     }
 
-    /**
-     * Apply RED range filter to results
-     */
-    applyREDFilter() {
-        const red1Min = parseFloat(document.querySelector('#red1-min')?.value) || 0;
-        const red1Max = parseFloat(document.querySelector('#red1-max')?.value) || 999;
-        const red2Min = parseFloat(document.querySelector('#red2-min')?.value) || 0;
-        const red2Max = parseFloat(document.querySelector('#red2-max')?.value) || 999;
-
-        // Filter results based on RED ranges
-        this.filteredResults = this.searchResults.filter(solvent => {
-            let passesTarget1 = true;
-            let passesTarget2 = true;
-
-            // Check Target 1 filter
-            if (this.currentTarget1) {
-                const red1 = this.calculateRED(solvent, this.currentTarget1);
-                passesTarget1 = red1 >= red1Min && red1 <= red1Max;
-            }
-
-            // Check Target 2 filter
-            if (this.currentTarget2) {
-                const red2 = this.calculateRED(solvent, this.currentTarget2);
-                passesTarget2 = red2 >= red2Min && red2 <= red2Max;
-            }
-
-            // If both targets are configured, both filters must pass
-            // If only one target is configured, only that filter must pass
-            if (this.currentTarget1 && this.currentTarget2) {
-                return passesTarget1 && passesTarget2;
-            } else if (this.currentTarget1) {
-                return passesTarget1;
-            } else if (this.currentTarget2) {
-                return passesTarget2;
-            }
-
-            return true;
-        });
-
-        // Update table with filtered results
-        this.populateResultsTable();
-    }
 }
 
 // Initialize when DOM is loaded

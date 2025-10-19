@@ -2721,11 +2721,27 @@ body {
     background-color: #f9fafb;
     border-bottom: 2px solid #e5e7eb;
     font-weight: 600;
+    overflow: visible !important;
+}
+
+#solvent-results-table .tabulator-header .tabulator-col {
+    overflow: visible !important;
+    height: auto !important;
 }
 
 #solvent-results-table .tabulator-col {
     background-color: #f9fafb;
     border-right: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+
+#solvent-results-table .tabulator-col-content {
+    min-height: 75px !important;
+    height: auto !important;
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+    overflow: visible !important;
 }
 
 #solvent-results-table .tabulator-col:last-child {
@@ -2736,6 +2752,15 @@ body {
     font-size: 0.75rem;
     color: #374151;
     font-weight: 600;
+}
+
+/* Header filter container - ensure enough height for vertical layout */
+#solvent-results-table .tabulator-header-filter {
+    min-height: 45px !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: flex;
+    align-items: stretch;
 }
 
 /* Header filter inputs */
