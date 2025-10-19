@@ -2736,12 +2736,17 @@ body {
 }
 
 #solvent-results-table .tabulator-col-content {
-    min-height: 75px !important;
+    min-height: 42px !important;
     height: auto !important;
     display: flex;
     flex-direction: column;
     padding: 4px;
     overflow: visible !important;
+}
+
+/* Higher min-height for columns with min-max filters (numeric columns) */
+#solvent-results-table .tabulator-col-content:has(> div[style*="flex-direction: column"]) {
+    min-height: 62px !important;
 }
 
 #solvent-results-table .tabulator-col:last-child {
@@ -2754,13 +2759,18 @@ body {
     font-weight: 600;
 }
 
-/* Header filter container - ensure enough height for vertical layout */
+/* Header filter container - default for text inputs */
 #solvent-results-table .tabulator-header-filter {
-    min-height: 45px !important;
+    min-height: 22px !important;
     height: auto !important;
     overflow: visible !important;
     display: flex;
     align-items: stretch;
+}
+
+/* Higher min-height for columns with min-max filters (contains a div container) */
+#solvent-results-table .tabulator-header-filter:has(div) {
+    min-height: 42px !important;
 }
 
 /* Header filter inputs */
