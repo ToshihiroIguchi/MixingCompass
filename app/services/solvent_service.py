@@ -91,13 +91,13 @@ class SolventService:
         df = df.drop_duplicates(subset=['Solvent'], keep='first')
 
         # Convert numeric columns
-        numeric_cols = ['delta_D', 'delta_P', 'delta_H', 'MWt', 'MVol', 'Density', 'Tv', 'Pv']
+        numeric_cols = ['delta_D', 'delta_P', 'delta_H', 'MWt', 'MVol', 'Density', 'Tb', 'Pv']
         for col in numeric_cols:
             if col in df.columns:
                 df[col] = pd.to_numeric(df[col], errors='coerce')
 
         # Clean string columns
-        string_cols = ['Cas', 'Smiles', 'InChIKey', 'GHS', 'H']
+        string_cols = ['CAS', 'Smiles', 'InChIKey', 'GHS', 'H']
         for col in string_cols:
             if col in df.columns:
                 df[col] = df[col].astype(str).replace('nan', '')
@@ -136,13 +136,13 @@ class SolventService:
             delta_d=float(row['delta_D']),
             delta_p=float(row['delta_P']),
             delta_h=float(row['delta_H']),
-            cas=row.get('Cas') if pd.notna(row.get('Cas')) else None,
+            cas=row.get('CAS') if pd.notna(row.get('CAS')) else None,
             smiles=row.get('Smiles') if pd.notna(row.get('Smiles')) else None,
             inchi_key=row.get('InChIKey') if pd.notna(row.get('InChIKey')) else None,
             molecular_weight=float(row['MWt']) if pd.notna(row.get('MWt')) else None,
             molar_volume=float(row['MVol']) if pd.notna(row.get('MVol')) else None,
             density=float(row['Density']) if pd.notna(row.get('Density')) else None,
-            boiling_point=float(row['Tv']) if pd.notna(row.get('Tv')) else None,
+            boiling_point=float(row['Tb']) if pd.notna(row.get('Tb')) else None,
             vapor_pressure=float(row['Pv']) if pd.notna(row.get('Pv')) else None,
             ghs_classification=str(row['GHS']) if pd.notna(row.get('GHS')) else None,
             hazard_statements=str(row['H']) if pd.notna(row.get('H')) else None,
@@ -194,7 +194,7 @@ class SolventService:
             search_term = query.query.lower()
             mask = (
                 df['Solvent'].str.lower().str.contains(search_term, na=False, regex=False) |
-                df['Cas'].astype(str).str.lower().str.contains(search_term, na=False, regex=False) |
+                df['CAS'].astype(str).str.lower().str.contains(search_term, na=False, regex=False) |
                 df['Smiles'].astype(str).str.lower().str.contains(search_term, na=False, regex=False)
             )
             df = df[mask]
@@ -224,9 +224,9 @@ class SolventService:
 
         if query.has_cas is not None:
             if query.has_cas:
-                df = df[df['Cas'].notna() & (df['Cas'] != '')]
+                df = df[df['CAS'].notna() & (df['CAS'] != '')]
             else:
-                df = df[df['Cas'].isna() | (df['Cas'] == '')]
+                df = df[df['CAS'].isna() | (df['CAS'] == '')]
 
         # Get total count before pagination
         total_count = len(df)

@@ -127,11 +127,18 @@ class CSVConsolidator:
             'δt': 'delta_total',
             'Volume': 'MVol',
             'MWt (g/mol)': 'MWt',
+            'Molecular Weight': 'MWt',
             'MVol (cm³/mol)': 'MVol',
-            'Tv     (°C)': 'Tv',
+            'Molar Volume': 'MVol',
+            'Tv     (°C)': 'Tb',
+            'Tv': 'Tb',
+            'T_b': 'Tb',
+            'Boiling Point (C)': 'Tb',
             'Pv  (hPa)': 'Pv',
             'Density     (g/cm³)': 'Density',
-            'Cost      (€/mL)': 'Cost'
+            'Density (g/L)': 'Density',
+            'Cost      (€/mL)': 'Cost',
+            'Cas': 'CAS'  # Normalize CAS number column name
         }
 
         # Apply mappings

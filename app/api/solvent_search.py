@@ -51,17 +51,24 @@ async def get_all_solvents():
     # Convert to list of dictionaries
     solvents = []
     for _, row in df.iterrows():
+        # Safely convert numeric columns
+        tb_val = pd.to_numeric(row['Tb'], errors='coerce')
+        density_val = pd.to_numeric(row['Density'], errors='coerce')
+        mwt_val = pd.to_numeric(row['MWt'], errors='coerce')
+        cost_val = pd.to_numeric(row['Cost'], errors='coerce')
+        wgk_val = pd.to_numeric(row['WGK'], errors='coerce')
+
         solvents.append({
             'name': row['Solvent'],
             'delta_d': float(row['delta_D']) if pd.notna(row['delta_D']) else None,
             'delta_p': float(row['delta_P']) if pd.notna(row['delta_P']) else None,
             'delta_h': float(row['delta_H']) if pd.notna(row['delta_H']) else None,
-            'boiling_point': float(row['Tv']) if pd.notna(row['Tv']) else None,
-            'density': float(row['Density']) if pd.notna(row['Density']) else None,
-            'molecular_weight': float(row['MWt']) if pd.notna(row['MWt']) else None,
-            'cost': float(row['Cost']) if pd.notna(row['Cost']) else None,
-            'cas': row['Cas'] if pd.notna(row['Cas']) else None,
-            'wgk': float(row['WGK']) if pd.notna(row['WGK']) else None,
+            'boiling_point': float(tb_val) if pd.notna(tb_val) else None,
+            'density': float(density_val) if pd.notna(density_val) else None,
+            'molecular_weight': float(mwt_val) if pd.notna(mwt_val) else None,
+            'cost': float(cost_val) if pd.notna(cost_val) else None,
+            'cas': row['CAS'] if pd.notna(row['CAS']) else None,
+            'wgk': float(wgk_val) if pd.notna(wgk_val) else None,
             'ghs': row['GHS'] if pd.notna(row['GHS']) else None,
         })
 
@@ -110,9 +117,9 @@ async def search_solvents(
 
     # Apply boiling point filter
     if bp_min is not None:
-        df = df[df['Tv'] >= bp_min]
+        df = df[df['Tb'] >= bp_min]
     if bp_max is not None:
-        df = df[df['Tv'] <= bp_max]
+        df = df[df['Tb'] <= bp_max]
 
     # Apply cost filter
     if cost_min is not None:
@@ -133,6 +140,13 @@ async def search_solvents(
     # Convert to list of dictionaries
     results = []
     for _, row in df.iterrows():
+        # Safely convert numeric columns
+        tb_val = pd.to_numeric(row['Tb'], errors='coerce')
+        density_val = pd.to_numeric(row['Density'], errors='coerce')
+        mwt_val = pd.to_numeric(row['MWt'], errors='coerce')
+        cost_val = pd.to_numeric(row['Cost'], errors='coerce')
+        wgk_val = pd.to_numeric(row['WGK'], errors='coerce')
+
         results.append({
             'name': row['Solvent'],
             'delta_d': float(row['delta_D']),
@@ -140,12 +154,12 @@ async def search_solvents(
             'delta_h': float(row['delta_H']),
             'distance': float(row['distance']),
             'red': float(row['distance']),  # RED value
-            'boiling_point': float(row['Tv']) if pd.notna(row['Tv']) else None,
-            'density': float(row['Density']) if pd.notna(row['Density']) else None,
-            'molecular_weight': float(row['MWt']) if pd.notna(row['MWt']) else None,
-            'cost': float(row['Cost']) if pd.notna(row['Cost']) else None,
-            'cas': row['Cas'] if pd.notna(row['Cas']) else None,
-            'wgk': float(row['WGK']) if pd.notna(row['WGK']) else None,
+            'boiling_point': float(tb_val) if pd.notna(tb_val) else None,
+            'density': float(density_val) if pd.notna(density_val) else None,
+            'molecular_weight': float(mwt_val) if pd.notna(mwt_val) else None,
+            'cost': float(cost_val) if pd.notna(cost_val) else None,
+            'cas': row['CAS'] if pd.notna(row['CAS']) else None,
+            'wgk': float(wgk_val) if pd.notna(wgk_val) else None,
             'ghs': row['GHS'] if pd.notna(row['GHS']) else None,
             'source_file': row['source_file'] if pd.notna(row['source_file']) else None,
             'source_url': row['source_url'] if pd.notna(row['source_url']) else None,

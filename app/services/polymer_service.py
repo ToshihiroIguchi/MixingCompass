@@ -119,7 +119,7 @@ class PolymerService:
                 df[col] = pd.to_numeric(df[col], errors='coerce')
 
         # Clean string columns
-        string_cols = ['Cas', 'source_file', 'source_url']
+        string_cols = ['CAS', 'source_file', 'source_url']
         for col in string_cols:
             if col in df.columns:
                 df[col] = df[col].astype(str).replace('nan', '')
@@ -159,7 +159,7 @@ class PolymerService:
             delta_p=float(row['delta_P']),
             delta_h=float(row['delta_H']),
             ra=float(row['Ra']),
-            cas=row.get('Cas') if pd.notna(row.get('Cas')) else None,
+            cas=row.get('CAS') if pd.notna(row.get('CAS')) else None,
             source_file=str(row['source_file']) if pd.notna(row.get('source_file')) else None,
             source_url=str(row['source_url']) if pd.notna(row.get('source_url')) else None,
         )
