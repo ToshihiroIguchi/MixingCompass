@@ -43,34 +43,55 @@ def calculate_red(delta_d1, delta_p1, delta_h1, delta_d2, delta_p2, delta_h2, ra
     return distance / ra if ra > 0 else distance
 
 
+def safe_float_convert(value):
+    """
+    Safely convert a value to float, returning None if conversion fails
+    """
+    numeric_val = pd.to_numeric(value, errors='coerce')
+    return float(numeric_val) if pd.notna(numeric_val) else None
+
+
+def convert_row_to_dict(row, include_distance=False):
+    """
+    Convert a DataFrame row to a dictionary with safe type conversions
+
+    Args:
+        row: pandas Series representing a row from the solvent database
+        include_distance: whether to include distance/RED fields
+
+    Returns:
+        dict with solvent properties
+    """
+    result = {
+        'name': row['Solvent'],
+        'delta_d': float(row['delta_D']) if pd.notna(row['delta_D']) else None,
+        'delta_p': float(row['delta_P']) if pd.notna(row['delta_P']) else None,
+        'delta_h': float(row['delta_H']) if pd.notna(row['delta_H']) else None,
+        'boiling_point': safe_float_convert(row['Tb']),
+        'density': safe_float_convert(row['Density']),
+        'molecular_weight': safe_float_convert(row['MWt']),
+        'cost': safe_float_convert(row['Cost']),
+        'cas': row['CAS'] if pd.notna(row['CAS']) else None,
+        'wgk': safe_float_convert(row['WGK']),
+        'ghs': row['GHS'] if pd.notna(row['GHS']) else None,
+    }
+
+    if include_distance:
+        result['distance'] = float(row['distance'])
+        result['red'] = float(row['distance'])
+        result['source_file'] = row['source_file'] if pd.notna(row['source_file']) else None
+        result['source_url'] = row['source_url'] if pd.notna(row['source_url']) else None
+
+    return result
+
+
 @router.get("/solvents")
 async def get_all_solvents():
     """Get all solvents from database"""
     df = get_solvent_database()
 
     # Convert to list of dictionaries
-    solvents = []
-    for _, row in df.iterrows():
-        # Safely convert numeric columns
-        tb_val = pd.to_numeric(row['Tb'], errors='coerce')
-        density_val = pd.to_numeric(row['Density'], errors='coerce')
-        mwt_val = pd.to_numeric(row['MWt'], errors='coerce')
-        cost_val = pd.to_numeric(row['Cost'], errors='coerce')
-        wgk_val = pd.to_numeric(row['WGK'], errors='coerce')
-
-        solvents.append({
-            'name': row['Solvent'],
-            'delta_d': float(row['delta_D']) if pd.notna(row['delta_D']) else None,
-            'delta_p': float(row['delta_P']) if pd.notna(row['delta_P']) else None,
-            'delta_h': float(row['delta_H']) if pd.notna(row['delta_H']) else None,
-            'boiling_point': float(tb_val) if pd.notna(tb_val) else None,
-            'density': float(density_val) if pd.notna(density_val) else None,
-            'molecular_weight': float(mwt_val) if pd.notna(mwt_val) else None,
-            'cost': float(cost_val) if pd.notna(cost_val) else None,
-            'cas': row['CAS'] if pd.notna(row['CAS']) else None,
-            'wgk': float(wgk_val) if pd.notna(wgk_val) else None,
-            'ghs': row['GHS'] if pd.notna(row['GHS']) else None,
-        })
+    solvents = [convert_row_to_dict(row) for _, row in df.iterrows()]
 
     return {'solvents': solvents, 'count': len(solvents)}
 
@@ -138,32 +159,7 @@ async def search_solvents(
     df = df.head(max_results)
 
     # Convert to list of dictionaries
-    results = []
-    for _, row in df.iterrows():
-        # Safely convert numeric columns
-        tb_val = pd.to_numeric(row['Tb'], errors='coerce')
-        density_val = pd.to_numeric(row['Density'], errors='coerce')
-        mwt_val = pd.to_numeric(row['MWt'], errors='coerce')
-        cost_val = pd.to_numeric(row['Cost'], errors='coerce')
-        wgk_val = pd.to_numeric(row['WGK'], errors='coerce')
-
-        results.append({
-            'name': row['Solvent'],
-            'delta_d': float(row['delta_D']),
-            'delta_p': float(row['delta_P']),
-            'delta_h': float(row['delta_H']),
-            'distance': float(row['distance']),
-            'red': float(row['distance']),  # RED value
-            'boiling_point': float(tb_val) if pd.notna(tb_val) else None,
-            'density': float(density_val) if pd.notna(density_val) else None,
-            'molecular_weight': float(mwt_val) if pd.notna(mwt_val) else None,
-            'cost': float(cost_val) if pd.notna(cost_val) else None,
-            'cas': row['CAS'] if pd.notna(row['CAS']) else None,
-            'wgk': float(wgk_val) if pd.notna(wgk_val) else None,
-            'ghs': row['GHS'] if pd.notna(row['GHS']) else None,
-            'source_file': row['source_file'] if pd.notna(row['source_file']) else None,
-            'source_url': row['source_url'] if pd.notna(row['source_url']) else None,
-        })
+    results = [convert_row_to_dict(row, include_distance=True) for _, row in df.iterrows()]
 
     return {
         'results': results,
@@ -261,7 +257,3 @@ async def search_blend_solvents(
     }
 
 
-@router.get("/test")
-async def test_solvent_search():
-    """Test endpoint for solvent search functionality"""
-    return {"message": "Solvent Search API is working", "status": "ok"}
