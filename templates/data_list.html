@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data List - MixingCompass</title>
     <link rel="stylesheet" href="/static/css/styles.css">
+    <link href="https://unpkg.com/tabulator-tables@5.5/dist/css/tabulator.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/tabulator-tables@5.5/dist/js/tabulator.min.js"></script>
 </head>
 <body>
     <header>
@@ -34,11 +36,11 @@
                     <span id="results-count" class="count-badge">0 results</span>
                 </div>
 
-                <div id="experimental-results-list" class="experimental-results-list">
-                    <div class="empty-state">
-                        <p>No experimental results saved yet.</p>
-                        <p>Run HSP calculations in the <a href="/">HSP Analysis</a> page and save results to manage them here.</p>
-                    </div>
+                <div id="experimental-results-table"></div>
+
+                <div id="experimental-results-empty" class="empty-state" style="display: none;">
+                    <p>No experimental results saved yet.</p>
+                    <p>Run HSP calculations in the <a href="/">HSP Analysis</a> page and save results to manage them here.</p>
                 </div>
             </div>
 
@@ -94,6 +96,6 @@
     <script src="/static/js/main.js"></script>
     <script src="/static/js/solvent_set_manager.js"></script>
     <script src="/static/js/experimental_results_manager.js"></script>
-    <script src="/static/js/data_list.js"></script>
+    <script src="/static/js/data_list.js?v=2025102101"></script>
 </body>
 </html>

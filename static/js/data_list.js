@@ -849,9 +849,12 @@ class DataListManager {
     // === Experimental Results Management ===
 
     loadExperimentalResultsDisplay() {
-        const listContainer = document.querySelector('#experimental-results-list');
-        if (!listContainer) {
-            console.warn('Experimental results list container not found');
+        const tableContainer = document.querySelector('#experimental-results-table');
+        const emptyState = document.querySelector('#experimental-results-empty');
+        const countBadge = document.querySelector('#results-count');
+
+        if (!tableContainer) {
+            console.warn('Experimental results table container not found');
             return;
         }
 
@@ -859,108 +862,146 @@ class DataListManager {
         const results = window.experimentalResultsManager ?
             window.experimentalResultsManager.getExperimentalResults() : [];
 
+        // Update count badge
+        if (countBadge) {
+            countBadge.textContent = `${results.length} result${results.length !== 1 ? 's' : ''}`;
+        }
+
         if (results.length === 0) {
-            listContainer.innerHTML = `
-                <div class="empty-state">
-                    <h4>No Experimental Results</h4>
-                    <p>Saved experimental results will appear here after you run HSP calculations.</p>
-                </div>
-            `;
+            tableContainer.style.display = 'none';
+            if (emptyState) {
+                emptyState.style.display = 'block';
+            }
             return;
         }
 
-        // Generate results cards HTML
-        const resultsHTML = results.map(result => this.createExperimentalResultCard(result)).join('');
+        // Show table and hide empty state
+        tableContainer.style.display = 'block';
+        if (emptyState) {
+            emptyState.style.display = 'none';
+        }
 
-        listContainer.innerHTML = resultsHTML;
+        // Initialize Tabulator
+        this.experimentalResultsTable = new Tabulator("#experimental-results-table", {
+            data: results,
+            layout: "fitColumns",
+            responsiveLayout: "collapse",
+            pagination: true,
+            paginationSize: 10,
+            paginationSizeSelector: [5, 10, 20, 50],
+            movableColumns: true,
+            resizableColumns: true,
+            columns: [
+                {
+                    title: "Name",
+                    field: "sample_name",
+                    minWidth: 150,
+                    headerFilter: "input",
+                    editor: "input",
+                    cellEdited: (cell) => {
+                        const row = cell.getRow().getData();
+                        window.experimentalResultsManager.updateExperimentalResultMetadata(
+                            row.id,
+                            row.sample_name,
+                            row.metadata.notes
+                        );
+                        this.showNotification('Sample name updated', 'success');
+                    }
+                },
+                {
+                    title: "δD",
+                    field: "hsp_result.delta_d",
+                    minWidth: 80,
+                    formatter: (cell) => {
+                        const value = cell.getValue();
+                        return value != null ? value.toFixed(1) : '-';
+                    },
+                    sorter: "number"
+                },
+                {
+                    title: "δP",
+                    field: "hsp_result.delta_p",
+                    minWidth: 80,
+                    formatter: (cell) => {
+                        const value = cell.getValue();
+                        return value != null ? value.toFixed(1) : '-';
+                    },
+                    sorter: "number"
+                },
+                {
+                    title: "δH",
+                    field: "hsp_result.delta_h",
+                    minWidth: 80,
+                    formatter: (cell) => {
+                        const value = cell.getValue();
+                        return value != null ? value.toFixed(1) : '-';
+                    },
+                    sorter: "number"
+                },
+                {
+                    title: "R₀",
+                    field: "hsp_result.radius",
+                    minWidth: 80,
+                    formatter: (cell) => {
+                        const value = cell.getValue();
+                        return value != null ? value.toFixed(1) : '-';
+                    },
+                    sorter: "number"
+                },
+                {
+                    title: "Solvents",
+                    field: "metadata.solvent_count",
+                    minWidth: 90,
+                    hozAlign: "center",
+                    sorter: "number"
+                },
+                {
+                    title: "Created",
+                    field: "created",
+                    minWidth: 140,
+                    formatter: (cell) => {
+                        return Utils.formatDateTime(cell.getValue());
+                    },
+                    sorter: "date"
+                },
+                {
+                    title: "Actions",
+                    minWidth: 200,
+                    width: 200,
+                    hozAlign: "center",
+                    headerSort: false,
+                    formatter: (cell) => {
+                        return `
+                            <button class="btn-icon" title="Load" data-action="load">📖</button>
+                            <button class="btn-icon" title="Edit" data-action="edit">✏️</button>
+                            <button class="btn-icon" title="Export" data-action="export">📤</button>
+                            <button class="btn-icon" title="Delete" data-action="delete">🗑️</button>
+                        `;
+                    },
+                    cellClick: (e, cell) => {
+                        const target = e.target;
+                        if (!target.classList.contains('btn-icon')) return;
 
-        // Add event listeners for result actions
-        this.setupExperimentalResultsListeners();
-    }
+                        const action = target.dataset.action;
+                        const row = cell.getRow().getData();
 
-    createExperimentalResultCard(result) {
-        const created = result.created;
-        const lastModified = result.last_modified || result.created;
-
-        return `
-            <div class="experimental-result-card" data-result-id="${result.id}">
-                <div class="result-card-header">
-                    <h4 class="result-sample-name">${this.escapeHtml(result.sample_name)}</h4>
-                    <div class="result-actions">
-                        <button class="btn-icon load-result-btn" title="Load result" data-result-id="${result.id}">📖</button>
-                        <button class="btn-icon edit-result-btn" title="Edit metadata" data-result-id="${result.id}">✏️</button>
-                        <button class="btn-icon export-single-result-btn" title="Export result" data-result-id="${result.id}">📤</button>
-                        <button class="btn-icon delete-result-btn" title="Delete result" data-result-id="${result.id}">🗑️</button>
-                    </div>
-                </div>
-                <div class="result-card-content">
-                    <div class="result-metadata">
-                        <div class="metadata-item">
-                            <span class="metadata-label">Created:</span>
-                            <span class="metadata-value">${Utils.formatDateTime(created)}</span>
-                        </div>
-                        ${result.last_modified && result.last_modified !== result.created ? `
-                        <div class="metadata-item">
-                            <span class="metadata-label">Modified:</span>
-                            <span class="metadata-value">${Utils.formatDateTime(lastModified)}</span>
-                        </div>
-                        ` : ''}
-                        <div class="metadata-item">
-                            <span class="metadata-label">Solvents:</span>
-                            <span class="metadata-value">${result.metadata.solvent_count}</span>
-                        </div>
-                    </div>
-                    <div class="result-hsp-values">
-                        <div class="hsp-summary">
-                            <span class="hsp-label">HSP:</span>
-                            <span class="hsp-value">δD: ${result.hsp_result.delta_d.toFixed(1)}</span>
-                            <span class="hsp-value">δP: ${result.hsp_result.delta_p.toFixed(1)}</span>
-                            <span class="hsp-value">δH: ${result.hsp_result.delta_h.toFixed(1)}</span>
-                            <span class="hsp-value">R0: ${result.hsp_result.radius.toFixed(1)}</span>
-                        </div>
-                    </div>
-                    ${result.metadata.notes ? `
-                    <div class="result-notes">
-                        <span class="notes-label">Notes:</span>
-                        <span class="notes-value">${this.escapeHtml(result.metadata.notes)}</span>
-                    </div>
-                    ` : ''}
-                </div>
-            </div>
-        `;
-    }
-
-    setupExperimentalResultsListeners() {
-        // Load result buttons
-        document.querySelectorAll('.load-result-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const resultId = e.target.dataset.resultId;
-                this.loadExperimentalResult(resultId);
-            });
-        });
-
-        // Edit result buttons
-        document.querySelectorAll('.edit-result-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const resultId = e.target.dataset.resultId;
-                this.editExperimentalResult(resultId);
-            });
-        });
-
-        // Export single result buttons
-        document.querySelectorAll('.export-single-result-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const resultId = e.target.dataset.resultId;
-                this.exportSingleExperimentalResult(resultId);
-            });
-        });
-
-        // Delete result buttons
-        document.querySelectorAll('.delete-result-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const resultId = e.target.dataset.resultId;
-                this.deleteExperimentalResult(resultId);
-            });
+                        switch(action) {
+                            case 'load':
+                                this.loadExperimentalResult(row.id);
+                                break;
+                            case 'edit':
+                                this.editExperimentalResult(row.id);
+                                break;
+                            case 'export':
+                                this.exportSingleExperimentalResult(row.id);
+                                break;
+                            case 'delete':
+                                this.deleteExperimentalResult(row.id);
+                                break;
+                        }
+                    }
+                }
+            ]
         });
     }
 
@@ -992,9 +1033,46 @@ class DataListManager {
     }
 
     editExperimentalResult(resultId) {
-        // Show edit modal for result metadata (sample name, notes)
-        // Implementation would go here - for now, show placeholder
-        alert('Edit experimental result feature - to be implemented');
+        try {
+            if (!window.experimentalResultsManager) {
+                this.showNotification('Experimental results manager not available', 'error');
+                return;
+            }
+
+            const result = window.experimentalResultsManager.getExperimentalResultById(resultId);
+            if (!result) {
+                this.showNotification('Experimental result not found', 'error');
+                return;
+            }
+
+            // Prompt for new sample name
+            const newName = prompt('Edit sample name:', result.sample_name);
+            if (newName === null) return; // User cancelled
+
+            if (newName.trim() === '') {
+                this.showNotification('Sample name cannot be empty', 'error');
+                return;
+            }
+
+            // Prompt for notes
+            const newNotes = prompt('Edit notes (optional):', result.metadata.notes || '');
+            if (newNotes === null) return; // User cancelled
+
+            // Update the result
+            window.experimentalResultsManager.updateExperimentalResultMetadata(
+                resultId,
+                newName.trim(),
+                newNotes.trim()
+            );
+
+            // Refresh the table
+            this.loadExperimentalResultsDisplay();
+            this.showNotification('Experimental result updated', 'success');
+
+        } catch (error) {
+            console.error('Error editing experimental result:', error);
+            this.showNotification('Failed to edit experimental result', 'error');
+        }
     }
 
     exportSingleExperimentalResult(resultId) {
