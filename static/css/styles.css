@@ -2962,3 +2962,107 @@ body {
 .toggle-btn:active {
     transform: scale(0.98);
 }
+
+/* === Panel Collapse/Expand Functionality === */
+
+/* Panel toggle button in header */
+.panel-toggle-btn {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.25));
+    border: 1px solid rgba(99, 102, 241, 0.4);
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 12px;
+    margin-right: 12px;
+    color: var(--primary-color);
+    transition: all 0.2s ease;
+    line-height: 1;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.panel-toggle-btn:hover {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.25), rgba(99, 102, 241, 0.35));
+    border-color: var(--primary-color);
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(99, 102, 241, 0.2);
+}
+
+/* Solvent search specific positioning */
+#solvent-search .left-panel {
+    position: relative;
+}
+
+/* Boundary toggle button - positioned at right edge of left panel */
+.panel-boundary-btn {
+    position: absolute;
+    right: -18px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    border: none;
+    border-radius: 4px;
+    padding: 24px 8px;
+    font-size: 16px;
+    color: white;
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    font-weight: bold;
+}
+
+.panel-boundary-btn:hover {
+    background: linear-gradient(135deg, #4f46e5, #4338ca);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+}
+
+/* Expand button (visible when collapsed) */
+.panel-expand-btn {
+    position: fixed;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    border: none;
+    border-radius: 0 8px 8px 0;
+    padding: 24px 12px;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.3s ease;
+    box-shadow: 2px 0 16px rgba(99, 102, 241, 0.5);
+}
+
+.panel-expand-btn:hover {
+    padding-right: 16px;
+    background: linear-gradient(135deg, #4f46e5, #4338ca);
+    box-shadow: 4px 0 20px rgba(99, 102, 241, 0.6);
+}
+
+/* Collapsed state for Solvent Search */
+#solvent-search .split-layout.collapsed {
+    grid-template-columns: 0 1fr !important;
+}
+
+#solvent-search .split-layout.collapsed .left-panel {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+#solvent-search .split-layout.collapsed .panel-boundary-btn {
+    display: none;
+}
+
+/* Smooth transitions only for Solvent Search */
+#solvent-search .split-layout {
+    transition: grid-template-columns 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#solvent-search .left-panel {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+}

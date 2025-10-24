@@ -159,8 +159,9 @@
         <section id="solvent-search" class="content-section">
             <div class="split-layout">
                 <!-- Left Panel: Target Configuration -->
-                <div class="left-panel">
+                <div class="left-panel" id="solvent-search-left-panel">
                     <div class="panel-header">
+                        <button id="panel-collapse-btn" class="panel-toggle-btn" title="Collapse panel">☰</button>
                         <h2>Solvent Search</h2>
                     </div>
 
@@ -227,6 +228,12 @@
                     <!-- Search Button -->
                     <button id="search-solvents-btn" class="btn btn-primary" disabled>Search Solvents</button>
                 </div>
+
+                <!-- Panel Boundary Toggle Button -->
+                <button id="panel-boundary-btn" class="panel-boundary-btn" title="Toggle panel">◀</button>
+
+                <!-- Collapsed State Toggle Button -->
+                <button id="panel-expand-btn" class="panel-expand-btn" title="Expand panel" style="display: none;">☰</button>
 
                 <!-- Right Panel: Split into Results Table (left) and Visualization (right) -->
                 <div class="right-panel">

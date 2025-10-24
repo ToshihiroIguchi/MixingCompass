@@ -112,6 +112,7 @@ class SolventSearch {
         await this.loadExperimentalResults();
 
         this.setupEventListeners();
+        this.setupPanelToggle(); // Setup panel collapse/expand
         this.updateTargetContent('target1', 'polymer'); // Initialize with polymer mode
         this.updateTargetContent('target2', 'polymer'); // Initialize with polymer mode
         console.log('Solvent Search initialized');
@@ -1035,6 +1036,42 @@ class SolventSearch {
         }
     }
 
+    setupPanelToggle() {
+        const splitLayout = document.querySelector('#solvent-search .split-layout');
+        const collapseBtn = document.getElementById('panel-collapse-btn');
+        const boundaryBtn = document.getElementById('panel-boundary-btn');
+        const expandBtn = document.getElementById('panel-expand-btn');
+
+        if (!splitLayout || !collapseBtn || !boundaryBtn || !expandBtn) {
+            console.warn('Panel toggle elements not found');
+            return;
+        }
+
+        // Toggle function
+        const togglePanel = () => {
+            const isCollapsed = splitLayout.classList.contains('collapsed');
+
+            if (isCollapsed) {
+                // Expand
+                splitLayout.classList.remove('collapsed');
+                expandBtn.style.display = 'none';
+                boundaryBtn.style.display = 'block';
+                boundaryBtn.innerHTML = '◀';
+            } else {
+                // Collapse
+                splitLayout.classList.add('collapsed');
+                expandBtn.style.display = 'block';
+                boundaryBtn.style.display = 'none';
+            }
+        };
+
+        // Event listeners
+        collapseBtn.addEventListener('click', togglePanel);
+        boundaryBtn.addEventListener('click', togglePanel);
+        expandBtn.addEventListener('click', togglePanel);
+
+        console.log('Panel toggle setup complete');
+    }
 }
 
 // Initialize when DOM is loaded
