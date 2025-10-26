@@ -2481,10 +2481,9 @@ body {
 /* 2D Grid Layout */
 .grid-2d {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: 1fr;
     gap: 1rem;
     padding: 1rem;
-    height: 100%;
     overflow: auto;
 }
 
@@ -2493,7 +2492,7 @@ body {
     border-radius: 4px;
     padding: 0.5rem;
     background-color: white;
-    min-height: 240px;
+    min-height: 600px;
     display: flex;
     flex-direction: column;
 }
@@ -2502,16 +2501,6 @@ body {
     flex: 1;
     width: 100%;
     min-height: 0;
-}
-
-@media (max-width: 1200px) {
-    .grid-2d {
-        grid-template-columns: 1fr;
-    }
-
-    .plot-item {
-        min-height: 210px;
-    }
 }
 
 /* Panel Action Buttons (Above HSP results) */

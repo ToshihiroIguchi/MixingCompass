@@ -104,6 +104,10 @@ class PolymerCSVConsolidator:
             'delta_H': 'delta_H',
             'R0': 'Ra',
             'Resin': 'Polymer',
+            'Sample': 'Polymer',  # PVB.csv uses 'Sample'
+            'dD': 'delta_D',      # PVB.csv uses 'dD'
+            'dP': 'delta_P',      # PVB.csv uses 'dP'
+            'dH': 'delta_H',      # PVB.csv uses 'dH'
         }
 
         # Apply mappings
