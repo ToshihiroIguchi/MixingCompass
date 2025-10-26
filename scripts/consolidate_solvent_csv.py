@@ -113,6 +113,18 @@ class CSVConsolidator:
 
         return name
 
+    def extract_base_name(self, name: str) -> str:
+        """Extract base name without common name in parentheses for duplicate detection"""
+        # Remove content in parentheses if it looks like a common name
+        # Keep if it's a chemical formula (contains numbers or special patterns)
+        match = re.match(r'^(.+?)\s*\([^)]+\)\s*$', name)
+        if match:
+            base = match.group(1).strip()
+            # Only use base name if something meaningful remains
+            if base:
+                return base
+        return name
+
     def normalize_column_names(self, df: pd.DataFrame, file_name: str) -> pd.DataFrame:
         """Normalize column names to standard format"""
         df = df.copy()
@@ -172,10 +184,7 @@ class CSVConsolidator:
         # Data completeness bonus
         completeness_bonus = int(completeness_ratio * 100)
 
-        # File size bonus (more data = higher priority)
-        size_bonus = total_rows * 10
-
-        total_score = base_weight + position_bonus + completeness_bonus + size_bonus
+        total_score = base_weight + position_bonus + completeness_bonus
 
         return total_score
 
@@ -234,6 +243,11 @@ class CSVConsolidator:
                 if not solvent_name or solvent_name.lower() in ['nan', '']:
                     continue
 
+                # Extract base name for duplicate detection (remove common names in parentheses)
+                base_name = self.extract_base_name(solvent_name)
+                # Use lowercase base_name as key for case-insensitive matching
+                base_name_lower = base_name.lower()
+
                 # Calculate completeness and priority
                 completeness = self.calculate_completeness(row, essential_cols)
                 priority_score = self.calculate_priority_score(
@@ -243,7 +257,7 @@ class CSVConsolidator:
                 # Add source information
                 row_dict = row.to_dict()
 
-                # Update cleaned solvent name in row_dict
+                # Update cleaned solvent name in row_dict (keep full name with common name)
                 row_dict['Solvent'] = solvent_name
 
                 # Clean numeric fields
@@ -266,34 +280,35 @@ class CSVConsolidator:
                 else:
                     row_dict['source_url'] = None
 
-                # Handle duplicates
-                if solvent_name in solvent_registry:
-                    existing_score = solvent_registry[solvent_name]['priority_score']
+                # Handle duplicates (use base_name_lower as key for case-insensitive matching)
+                if base_name_lower in solvent_registry:
+                    existing_score = solvent_registry[base_name_lower]['priority_score']
+                    existing_name = solvent_registry[base_name_lower]['Solvent']
 
                     if priority_score > existing_score:
                         # Replace with higher priority data
-                        logger.debug(f"Replacing {solvent_name}: {existing_score} -> {priority_score}")
-                        solvent_registry[solvent_name] = row_dict
+                        logger.debug(f"Replacing '{existing_name}' with '{solvent_name}': {existing_score} -> {priority_score}")
+                        solvent_registry[base_name_lower] = row_dict
 
                         # Update duplicate stats
-                        if solvent_name not in self.duplicate_stats:
-                            self.duplicate_stats[solvent_name] = {'count': 0, 'sources': []}
-                        self.duplicate_stats[solvent_name]['count'] += 1
-                        self.duplicate_stats[solvent_name]['sources'].append(
-                            f"{file_name}:{idx+2} (score: {priority_score})"
+                        if base_name_lower not in self.duplicate_stats:
+                            self.duplicate_stats[base_name_lower] = {'count': 0, 'sources': []}
+                        self.duplicate_stats[base_name_lower]['count'] += 1
+                        self.duplicate_stats[base_name_lower]['sources'].append(
+                            f"{file_name}:{idx+2} '{solvent_name}' (score: {priority_score})"
                         )
                     else:
                         # Log duplicate found but not used
-                        logger.debug(f"Duplicate found for {solvent_name}, keeping existing (higher priority)")
-                        if solvent_name not in self.duplicate_stats:
-                            self.duplicate_stats[solvent_name] = {'count': 0, 'sources': []}
-                        self.duplicate_stats[solvent_name]['count'] += 1
-                        self.duplicate_stats[solvent_name]['sources'].append(
-                            f"{file_name}:{idx+2} (score: {priority_score}) [REJECTED]"
+                        logger.debug(f"Duplicate found for {solvent_name}, keeping existing '{existing_name}' (higher priority)")
+                        if base_name_lower not in self.duplicate_stats:
+                            self.duplicate_stats[base_name_lower] = {'count': 0, 'sources': []}
+                        self.duplicate_stats[base_name_lower]['count'] += 1
+                        self.duplicate_stats[base_name_lower]['sources'].append(
+                            f"{file_name}:{idx+2} '{solvent_name}' (score: {priority_score}) [REJECTED]"
                         )
                 else:
                     # First occurrence
-                    solvent_registry[solvent_name] = row_dict
+                    solvent_registry[base_name_lower] = row_dict
 
         # Convert to list for DataFrame creation
         final_data = list(solvent_registry.values())
