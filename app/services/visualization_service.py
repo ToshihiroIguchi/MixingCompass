@@ -450,17 +450,73 @@ class HansenSphereVisualizationService:
         # Build Plotly traces
         traces = []
 
-        # Hansen sphere surface (transparent green - scientific standard)
+        # Hansen sphere as wireframe (lines) to allow hovering points inside
+        # Draw multiple circular cross-sections of the ellipsoid
+        sphere_lines_x = []
+        sphere_lines_y = []
+        sphere_lines_z = []
+
+        # Extract center and radius
+        center_d, center_p, center_h = hsp_result.delta_d, hsp_result.delta_p, hsp_result.delta_h
+        r = radius
+
+        # Number of latitude and longitude lines
+        n_lat = 12  # latitude circles
+        n_lon = 12  # longitude lines
+        n_points = 50  # points per circle
+
+        import numpy as np
+
+        # Latitude circles (horizontal slices)
+        for i in range(n_lat):
+            phi = np.pi * i / (n_lat - 1)  # 0 to π
+            circle_x = []
+            circle_y = []
+            circle_z = []
+            for j in range(n_points + 1):
+                theta = 2 * np.pi * j / n_points
+                # Ellipsoid: δD has half radius
+                x = center_d + (r / 2) * np.cos(theta) * np.sin(phi)
+                y = center_p + r * np.sin(theta) * np.sin(phi)
+                z = center_h + r * np.cos(phi)
+                circle_x.append(x)
+                circle_y.append(y)
+                circle_z.append(z)
+            sphere_lines_x.extend(circle_x + [None])  # None creates line break
+            sphere_lines_y.extend(circle_y + [None])
+            sphere_lines_z.extend(circle_z + [None])
+
+        # Longitude lines (vertical slices)
+        for i in range(n_lon):
+            theta = 2 * np.pi * i / n_lon
+            line_x = []
+            line_y = []
+            line_z = []
+            for j in range(n_points + 1):
+                phi = np.pi * j / n_points  # 0 to π
+                x = center_d + (r / 2) * np.cos(theta) * np.sin(phi)
+                y = center_p + r * np.sin(theta) * np.sin(phi)
+                z = center_h + r * np.cos(phi)
+                line_x.append(x)
+                line_y.append(y)
+                line_z.append(z)
+            sphere_lines_x.extend(line_x + [None])
+            sphere_lines_y.extend(line_y + [None])
+            sphere_lines_z.extend(line_z + [None])
+
         traces.append({
-            'type': 'surface',
-            'x': sphere_coords['x'],
-            'y': sphere_coords['y'],
-            'z': sphere_coords['z'],
+            'type': 'scatter3d',
+            'mode': 'lines',
+            'x': sphere_lines_x,
+            'y': sphere_lines_y,
+            'z': sphere_lines_z,
             'name': 'Hansen Sphere',
-            'opacity': 0.35,  # Optimal transparency for scientific visualization
-            'colorscale': [[0, 'rgba(76, 175, 80, 0.3)'], [1, 'rgba(76, 175, 80, 0.3)']],  # Uniform green
-            'showscale': False,
-            'hovertemplate': f'Hansen Sphere<br>Center: ({hsp_result.delta_d:.1f}, {hsp_result.delta_p:.1f}, {hsp_result.delta_h:.1f})<br>Radius: {hsp_result.radius:.1f}<extra></extra>'
+            'line': {
+                'color': 'rgba(76, 175, 80, 0.6)',
+                'width': 2
+            },
+            'hoverinfo': 'skip',  # No hover on wireframe
+            'showlegend': True
         })
 
         # Solvent points with scientific color coding
