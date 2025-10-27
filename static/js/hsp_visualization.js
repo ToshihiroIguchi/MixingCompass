@@ -151,61 +151,24 @@ class HSPVisualization {
      * This creates a simplified visualization without backend API calls
      */
     generateDualTargetVisualization(target1Data, target2Data, solventData = []) {
-        // Generate sphere coordinates for both targets
-        const sphere1 = this.generateSphereCoordinates(
-            [target1Data.delta_d, target1Data.delta_p, target1Data.delta_h],
-            target1Data.radius
-        );
-
-        const sphere2 = target2Data ? this.generateSphereCoordinates(
-            [target2Data.delta_d, target2Data.delta_p, target2Data.delta_h],
-            target2Data.radius
-        ) : null;
-
-        // Calculate axis ranges
-        const allValues = [
-            target1Data.delta_d, target1Data.delta_p, target1Data.delta_h,
-            target1Data.delta_d + target1Data.radius,
-            target1Data.delta_p + target1Data.radius,
-            target1Data.delta_h + target1Data.radius
-        ];
-
-        if (target2Data) {
-            allValues.push(
-                target2Data.delta_d, target2Data.delta_p, target2Data.delta_h,
-                target2Data.delta_d + target2Data.radius,
-                target2Data.delta_p + target2Data.radius,
-                target2Data.delta_h + target2Data.radius
-            );
-        }
-
-        // Add solvent coordinates
-        if (solventData && solventData.length > 0) {
-            solventData.forEach(s => {
-                allValues.push(s.delta_d, s.delta_p, s.delta_h);
-            });
-        }
-
-        const maxVal = Math.max(...allValues);
-        const xRange = [Math.max(0, Math.min(...allValues.filter((_, i) => i % 3 === 0)) - 2), Math.min(25, maxVal + 2)];
-        const yRange = [0, Math.min(30, maxVal + 2)];
-        const zRange = [0, Math.min(30, maxVal + 2)];
+        // Fixed axis ranges (same as HSP Experimental)
+        // δD: 5-30 (covers wide range of solvents)
+        // δP: 0-50 (covers highly polar solvents)
+        // δH: 0-50 (covers strong hydrogen bonding solvents like water)
+        const xRange = [5, 30];   // δD
+        const yRange = [0, 50];   // δP
+        const zRange = [0, 50];   // δH
 
         // Build traces
         const traces = [];
 
-        // Target 1 sphere (blue)
-        traces.push({
-            type: 'surface',
-            x: sphere1.x,
-            y: sphere1.y,
-            z: sphere1.z,
-            name: target1Data.name || 'Target 1',
-            opacity: 0.35,
-            colorscale: [[0, 'rgba(33, 150, 243, 0.3)'], [1, 'rgba(33, 150, 243, 0.3)']],
-            showscale: false,
-            hovertemplate: `<b>${target1Data.name || 'Target 1'}</b><br>Center: (${target1Data.delta_d.toFixed(1)}, ${target1Data.delta_p.toFixed(1)}, ${target1Data.delta_h.toFixed(1)})<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
-        });
+        // Target 1 sphere as wireframe (blue)
+        traces.push(this.generateSphereWireframe(
+            [target1Data.delta_d, target1Data.delta_p, target1Data.delta_h],
+            target1Data.radius,
+            'rgba(33, 150, 243, 0.6)',
+            target1Data.name || 'Target 1'
+        ));
 
         // Target 1 center
         traces.push({
@@ -217,29 +180,26 @@ class HSPVisualization {
             name: `${target1Data.name || 'Target 1'} Center`,
             showlegend: false,
             marker: {
-                size: 5,
+                size: 3,
                 color: '#2196F3',
                 symbol: 'circle',
                 opacity: 1.0,
-                line: { width: 1, color: 'rgba(33, 150, 243, 0.8)' }
+                line: { width: 0.5, color: 'rgba(33, 150, 243, 0.8)' }
             },
             hovertemplate: `<b>${target1Data.name || 'Target 1'} Center</b><br>δD: ${target1Data.delta_d.toFixed(1)}<br>δP: ${target1Data.delta_p.toFixed(1)}<br>δH: ${target1Data.delta_h.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
         });
 
         // Target 2 sphere and center (orange) if provided
-        if (sphere2 && target2Data) {
-            traces.push({
-                type: 'surface',
-                x: sphere2.x,
-                y: sphere2.y,
-                z: sphere2.z,
-                name: target2Data.name || 'Target 2',
-                opacity: 0.35,
-                colorscale: [[0, 'rgba(255, 152, 0, 0.3)'], [1, 'rgba(255, 152, 0, 0.3)']],
-                showscale: false,
-                hovertemplate: `<b>${target2Data.name || 'Target 2'}</b><br>Center: (${target2Data.delta_d.toFixed(1)}, ${target2Data.delta_p.toFixed(1)}, ${target2Data.delta_h.toFixed(1)})<br>R0: ${target2Data.radius.toFixed(1)}<extra></extra>`
-            });
+        if (target2Data) {
+            // Target 2 sphere as wireframe (orange)
+            traces.push(this.generateSphereWireframe(
+                [target2Data.delta_d, target2Data.delta_p, target2Data.delta_h],
+                target2Data.radius,
+                'rgba(255, 152, 0, 0.6)',
+                target2Data.name || 'Target 2'
+            ));
 
+            // Target 2 center
             traces.push({
                 type: 'scatter3d',
                 mode: 'markers',
@@ -249,11 +209,11 @@ class HSPVisualization {
                 name: `${target2Data.name || 'Target 2'} Center`,
                 showlegend: false,
                 marker: {
-                    size: 5,
+                    size: 3,
                     color: '#FF9800',
                     symbol: 'circle',
                     opacity: 1.0,
-                    line: { width: 1, color: 'rgba(255, 152, 0, 0.8)' }
+                    line: { width: 0.5, color: 'rgba(255, 152, 0, 0.8)' }
                 },
                 hovertemplate: `<b>${target2Data.name || 'Target 2'} Center</b><br>δD: ${target2Data.delta_d.toFixed(1)}<br>δP: ${target2Data.delta_p.toFixed(1)}<br>δH: ${target2Data.delta_h.toFixed(1)}<br>R0: ${target2Data.radius.toFixed(1)}<extra></extra>`
             });
@@ -405,6 +365,72 @@ class HSPVisualization {
      */
     calculateDistance(d1, p1, h1, d2, p2, h2) {
         return Math.sqrt(4 * Math.pow(d1 - d2, 2) + Math.pow(p1 - p2, 2) + Math.pow(h1 - h2, 2));
+    }
+
+    /**
+     * Generate wireframe lines for Hansen sphere
+     */
+    generateSphereWireframe(center, radius, color, name) {
+        const [center_d, center_p, center_h] = center;
+        const r = radius;
+
+        const sphere_lines_x = [];
+        const sphere_lines_y = [];
+        const sphere_lines_z = [];
+
+        const n_lat = 12;  // latitude circles
+        const n_lon = 12;  // longitude lines
+        const n_points = 50;  // points per circle
+
+        // Latitude circles (horizontal slices)
+        for (let i = 0; i < n_lat; i++) {
+            const phi = Math.PI * i / (n_lat - 1);
+            for (let j = 0; j <= n_points; j++) {
+                const theta = 2 * Math.PI * j / n_points;
+                // Ellipsoid: δD has half radius
+                const x = center_d + (r / 2) * Math.cos(theta) * Math.sin(phi);
+                const y = center_p + r * Math.sin(theta) * Math.sin(phi);
+                const z = center_h + r * Math.cos(phi);
+                sphere_lines_x.push(x);
+                sphere_lines_y.push(y);
+                sphere_lines_z.push(z);
+            }
+            sphere_lines_x.push(null);  // Line break
+            sphere_lines_y.push(null);
+            sphere_lines_z.push(null);
+        }
+
+        // Longitude lines (vertical slices)
+        for (let i = 0; i < n_lon; i++) {
+            const theta = 2 * Math.PI * i / n_lon;
+            for (let j = 0; j <= n_points; j++) {
+                const phi = Math.PI * j / n_points;
+                const x = center_d + (r / 2) * Math.cos(theta) * Math.sin(phi);
+                const y = center_p + r * Math.sin(theta) * Math.sin(phi);
+                const z = center_h + r * Math.cos(phi);
+                sphere_lines_x.push(x);
+                sphere_lines_y.push(y);
+                sphere_lines_z.push(z);
+            }
+            sphere_lines_x.push(null);
+            sphere_lines_y.push(null);
+            sphere_lines_z.push(null);
+        }
+
+        return {
+            type: 'scatter3d',
+            mode: 'lines',
+            x: sphere_lines_x,
+            y: sphere_lines_y,
+            z: sphere_lines_z,
+            name: name,
+            line: {
+                color: color,
+                width: 2
+            },
+            hoverinfo: 'skip',
+            showlegend: true
+        };
     }
 
     /**
