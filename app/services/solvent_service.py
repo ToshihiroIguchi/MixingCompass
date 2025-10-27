@@ -156,13 +156,23 @@ class SolventService:
         )
 
     def get_solvent_by_name(self, name: str) -> Optional[SolventData]:
-        """Get solvent data by name (case-insensitive)"""
+        """Get solvent data by name (case-insensitive, supports partial matching)"""
 
         if not self._ensure_data_loaded():
             return None
 
-        key = name.lower().strip()
-        return self._indexed_data.get(key)
+        query = name.lower().strip()
+
+        # First try exact match (faster)
+        if query in self._indexed_data:
+            return self._indexed_data[query]
+
+        # If not found, try partial match in Solvent column
+        for solvent_data in self._indexed_data.values():
+            if query in solvent_data.solvent.lower():
+                return solvent_data
+
+        return None
 
     def get_solvent_by_cas(self, cas: str) -> Optional[SolventData]:
         """Get solvent data by CAS number"""
