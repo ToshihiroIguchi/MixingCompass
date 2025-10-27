@@ -205,13 +205,10 @@ class HansenSphereVisualizationService:
         # Extract solvent points
         solvent_points = HansenSphereVisualizationService.create_solvent_points(solvent_data)
 
-        # Calculate axis maximum for consistent ranges with origin at (0,0)
-        all_values = (
-            solvent_points['x'] + solvent_points['y'] + solvent_points['z'] +
-            [center_d, center_p, center_h] +
-            [center_d + radius, center_p + radius, center_h + radius]
-        )
-        axis_max = max(25.0, max(all_values) + 2) if all_values else 25.0
+        # Fixed axis ranges for 2D projections (matching 3D visualization)
+        axis_max_d = 30  # δD range: [0, 30]
+        axis_max_p = 50  # δP range: [0, 50]
+        axis_max_h = 50  # δH range: [0, 50]
 
         # 1. δD vs δP (fixing δH)
         # δD has semi-axis radius/2, δP has semi-axis radius (ellipse)
@@ -260,8 +257,8 @@ class HansenSphereVisualizationService:
                 'title': {'text': 'δD vs δP Projection', 'font': {'size': 14}},
                 'width': width,
                 'height': height,
-                'xaxis': {'title': 'δD [MPa<sup>0.5</sup>]', 'range': [0, axis_max]},
-                'yaxis': {'title': 'δP [MPa<sup>0.5</sup>]', 'range': [0, axis_max]},
+                'xaxis': {'title': 'δD [MPa<sup>0.5</sup>]', 'range': [0, axis_max_d]},
+                'yaxis': {'title': 'δP [MPa<sup>0.5</sup>]', 'range': [0, axis_max_p]},
                 'hovermode': 'closest',
                 'showlegend': False,
                 'margin': {'l': 50, 'r': 20, 't': 40, 'b': 50}
@@ -312,8 +309,8 @@ class HansenSphereVisualizationService:
                 'title': {'text': 'δD vs δH Projection', 'font': {'size': 14}},
                 'width': width,
                 'height': height,
-                'xaxis': {'title': 'δD [MPa<sup>0.5</sup>]', 'range': [0, axis_max]},
-                'yaxis': {'title': 'δH [MPa<sup>0.5</sup>]', 'range': [0, axis_max]},
+                'xaxis': {'title': 'δD [MPa<sup>0.5</sup>]', 'range': [0, axis_max_d]},
+                'yaxis': {'title': 'δH [MPa<sup>0.5</sup>]', 'range': [0, axis_max_h]},
                 'hovermode': 'closest',
                 'showlegend': False,
                 'margin': {'l': 50, 'r': 20, 't': 40, 'b': 50}
@@ -361,8 +358,8 @@ class HansenSphereVisualizationService:
                 'title': {'text': 'δP vs δH Projection', 'font': {'size': 14}},
                 'width': width,
                 'height': height,
-                'xaxis': {'title': 'δP [MPa<sup>0.5</sup>]', 'range': [0, axis_max]},
-                'yaxis': {'title': 'δH [MPa<sup>0.5</sup>]', 'range': [0, axis_max], 'scaleanchor': 'x', 'scaleratio': 1},
+                'xaxis': {'title': 'δP [MPa<sup>0.5</sup>]', 'range': [0, axis_max_p]},
+                'yaxis': {'title': 'δH [MPa<sup>0.5</sup>]', 'range': [0, axis_max_h], 'scaleanchor': 'x', 'scaleratio': 1},
                 'hovermode': 'closest',
                 'showlegend': False,
                 'margin': {'l': 50, 'r': 20, 't': 40, 'b': 50}
@@ -412,13 +409,13 @@ class HansenSphereVisualizationService:
         # Create solvent scatter points using original data
         solvent_points = cls.create_solvent_points(solvent_data)
 
-        # Fixed axis ranges (standard Hansen parameter ranges)
-        # δD: 10-25 (typical organic solvents range from 14-22)
-        # δP: 0-30 (covers most polar interactions)
-        # δH: 0-30 (covers hydrogen bonding range)
-        fixed_x_range = [10, 25]  # δD
-        fixed_y_range = [0, 30]   # δP
-        fixed_z_range = [0, 30]   # δH
+        # Fixed axis ranges (extended Hansen parameter ranges)
+        # δD: 5-30 (covers wide range of solvents including fluorinated compounds)
+        # δP: 0-50 (covers highly polar solvents)
+        # δH: 0-50 (covers strong hydrogen bonding solvents like water)
+        fixed_x_range = [5, 30]   # δD
+        fixed_y_range = [0, 50]   # δP
+        fixed_z_range = [0, 50]   # δH
 
         # Check for out-of-range data and log warnings
         all_x = []
@@ -442,13 +439,13 @@ class HansenSphereVisualizationService:
             delta_d = solvent.get('delta_d', 0)
             delta_p = solvent.get('delta_p', 0)
             delta_h = solvent.get('delta_h', 0)
-            if not (10 <= delta_d <= 25 and 0 <= delta_p <= 30 and 0 <= delta_h <= 30):
+            if not (5 <= delta_d <= 30 and 0 <= delta_p <= 50 and 0 <= delta_h <= 50):
                 out_of_range_solvents.append(f"{solvent.get('name', 'Unknown')} (δD={delta_d:.1f}, δP={delta_p:.1f}, δH={delta_h:.1f})")
 
         if out_of_range_solvents:
-            logger.info(f"Solvents outside standard range [δD:10-25, δP:0-30, δH:0-30]: {', '.join(out_of_range_solvents)}")
+            logger.info(f"Solvents outside extended range [δD:5-30, δP:0-50, δH:0-50]: {', '.join(out_of_range_solvents)}")
 
-        logger.info(f"Fixed axis ranges: δD=[10, 25], δP=[0, 30], δH=[0, 30]")
+        logger.info(f"Fixed axis ranges: δD=[5, 30], δP=[0, 50], δH=[0, 50]")
 
         # Build Plotly traces
         traces = []
@@ -516,7 +513,7 @@ class HansenSphereVisualizationService:
         # Layout configuration
         layout = {
             'title': {
-                'text': f'HSP (δD: {hsp_result.delta_d:.1f}, δP: {hsp_result.delta_p:.1f}, δH: {hsp_result.delta_h:.1f}, Ra: {hsp_result.radius:.1f})<br><sub>Range: δD[10-25], δP/δH[0-30] MPa<sup>0.5</sup></sub>',
+                'text': f'HSP (δD: {hsp_result.delta_d:.1f}, δP: {hsp_result.delta_p:.1f}, δH: {hsp_result.delta_h:.1f}, Ra: {hsp_result.radius:.1f})<br><sub>Range: δD[5-30], δP/δH[0-50] MPa<sup>0.5</sup></sub>',
                 'x': 0.5,
                 'font': {'size': 16}
             },
