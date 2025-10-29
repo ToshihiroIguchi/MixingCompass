@@ -841,7 +841,7 @@ class SolventSearch {
 
             columns: [
                 {
-                    title: "Solvent",
+                    title: "Solvent<br>Name",
                     field: "name",
                     sorter: "string",
                     headerFilter: "input",
@@ -871,7 +871,7 @@ class SolventSearch {
                     }
                 },
                 {
-                    title: "T1 RED",
+                    title: "Target 1<br>RED",
                     field: "red1_value",
                     sorter: "number",
                     headerFilter: minMaxFilterEditor,
@@ -884,12 +884,12 @@ class SolventSearch {
                         return `<span class="${redClass}">${value.toFixed(2)}</span>`;
                     },
                     headerTooltip: "Target 1: Relative Energy Difference",
-                    minWidth: 65,
+                    width: 80,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
                 {
-                    title: "T2 RED",
+                    title: "Target 2<br>RED",
                     field: "red2_value",
                     sorter: "number",
                     headerFilter: minMaxFilterEditor,
@@ -902,46 +902,67 @@ class SolventSearch {
                         return `<span class="${redClass}">${value.toFixed(2)}</span>`;
                     },
                     headerTooltip: "Target 2: Relative Energy Difference",
-                    minWidth: 65,
+                    width: 80,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
                 {
-                    title: "δD",
+                    title: "δD<br>(MPa<sup>0.5</sup>)",
                     field: "delta_d",
                     sorter: "number",
                     headerFilter: minMaxFilterEditor,
                     headerFilterFunc: minMaxFilterFunction,
                     headerFilterLiveFilter: false,
                     formatter: (cell) => cell.getValue().toFixed(1),
-                    headerTooltip: "Dispersion parameter (δD)",
-                    minWidth: 55,
+                    headerTooltip: "Dispersion parameter (δD) in MPa^0.5",
+                    width: 80,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
                 {
-                    title: "δP",
+                    title: "δP<br>(MPa<sup>0.5</sup>)",
                     field: "delta_p",
                     sorter: "number",
                     headerFilter: minMaxFilterEditor,
                     headerFilterFunc: minMaxFilterFunction,
                     headerFilterLiveFilter: false,
                     formatter: (cell) => cell.getValue().toFixed(1),
-                    headerTooltip: "Polar parameter (δP)",
-                    minWidth: 55,
+                    headerTooltip: "Polar parameter (δP) in MPa^0.5",
+                    width: 80,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
                 {
-                    title: "δH",
+                    title: "δH<br>(MPa<sup>0.5</sup>)",
                     field: "delta_h",
                     sorter: "number",
                     headerFilter: minMaxFilterEditor,
                     headerFilterFunc: minMaxFilterFunction,
                     headerFilterLiveFilter: false,
                     formatter: (cell) => cell.getValue().toFixed(1),
-                    headerTooltip: "Hydrogen bonding parameter (δH)",
-                    minWidth: 55,
+                    headerTooltip: "Hydrogen bonding parameter (δH) in MPa^0.5",
+                    width: 80,
+                    hozAlign: "center",
+                    headerHozAlign: "center"
+                },
+                {
+                    title: "C,H,O<br>Only",
+                    field: "cho",
+                    sorter: "boolean",
+                    headerFilter: "tickCross",
+                    headerFilterParams: {"tristate": true},
+                    headerFilterEmptyCheck: (value) => value === null,
+                    formatter: (cell) => {
+                        const value = cell.getValue();
+                        if (value === true) {
+                            return '<span class="cho-yes" title="Contains only C, H, O elements">✔</span>';
+                        } else if (value === false) {
+                            return '<span class="cho-no" title="Contains other elements">✘</span>';
+                        }
+                        return '—';
+                    },
+                    headerTooltip: "Contains only C, H, O elements",
+                    width: 68,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 }
@@ -1012,6 +1033,7 @@ class SolventSearch {
                 delta_d: solvent.delta_d,
                 delta_p: solvent.delta_p,
                 delta_h: solvent.delta_h,
+                cho: solvent.cho,
                 source_url: solvent.source_url || '',
                 source_file: solvent.source_file || ''
             };

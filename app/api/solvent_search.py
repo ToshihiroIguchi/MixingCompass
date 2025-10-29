@@ -67,6 +67,7 @@ def convert_row_to_dict(row, include_distance=False):
         'delta_d': float(row['delta_D']) if pd.notna(row['delta_D']) else None,
         'delta_p': float(row['delta_P']) if pd.notna(row['delta_P']) else None,
         'delta_h': float(row['delta_H']) if pd.notna(row['delta_H']) else None,
+        'cho': bool(row['CHO']) if pd.notna(row['CHO']) else None,
         'boiling_point': safe_float_convert(row['Tb']),
         'density': safe_float_convert(row['Density']),
         'molecular_weight': safe_float_convert(row['MWt']),

@@ -247,9 +247,9 @@ class HSPExperimental {
                     <thead>
                         <tr>
                             <th>Solvent Name</th>
-                            <th>&delta;D (MPa<sup>0.5</sup>)</th>
-                            <th>&delta;P (MPa<sup>0.5</sup>)</th>
-                            <th>&delta;H (MPa<sup>0.5</sup>)</th>
+                            <th>&delta;D<br>(MPa<sup>0.5</sup>)</th>
+                            <th>&delta;P<br>(MPa<sup>0.5</sup>)</th>
+                            <th>&delta;H<br>(MPa<sup>0.5</sup>)</th>
                             <th>Solubility</th>
                             <th>Notes</th>
                             <th>Actions</th>

@@ -1,221 +1,221 @@
-No.,Formula,Solvent,Name (French),CAS,Hansen Set,Green Set,dD,dP,dH,CMR,I_low,T_b
-1,H2O,Water,Eau,7732-18-5,(X),X,15.5,16,42.3,-,6,100
-2,CCl4,Carbon tetrachloride,Tétrachlorométhane,56-23-5,X,,17.8,0,0.6,2,4,77
-3,CS2,Carbon disulfide,Sulfure de carbone,75-15-0,X,,20.2,0,0.6,2,4,46
-4,CHCl3,Chloroform,Chloroforme,67-66-3,X,,17.8,3.1,5.7,2,4,61
-5,CH2Cl2,Dichloromethane,Dichlorométhane,75-09-2,X,,17,7.3,7.1,2,4,40
-6,CH2O2,Formic acid,Acide formique,64-18-6,X,X,14.6,10,14,-,4,101
-7,CH3NO2,Nitromethane,Nitrométhane,75-52-5,X,,15.8,18.8,6.1,-,4,101
-8,CH4O,Methanol,Méthanol,67-56-1,X,X,14.7,12.3,22.3,-,5,65
-9,C2HCl3,Trichloroethylene,Trichloroéthylène,79-01-6,X,,18,3.1,5.3,1B,5,87
-10,C2H2Cl3,"1,1,1-Trichloroethane","1,1,1-Trichloroéthane",71-55-6,X,,16.8,4.3,2,-,5,74
-11,C2H3N,Acetonitrile,Acétonitrile,75-05-8,X,X,15.3,18,6.1,-,4,82
-12,C2H4Cl2,"1,2-Dichloroethane","1,2-Dichloroéthane",107-06-2,X,,18,7.4,4.1,1B,4,83
-13,C2H4O2,Acetic acid,Acide acétique,64-19-7,X,,14.5,8,13.5,-,4,118
-14,C2H5NO2,Nitroethane,Nitroéthane,79-24-3,X,,16,15.5,4.5,-,4,114
-15,C2H6O,Ethanol,Éthanol,64-17-5,X,,15.8,8.8,19.4,-,5,79
-16,C2H6OS,Dimethyl sulfoxide,Diméthyl sulfoxyde,67-68-5,X,X,18.4,16.4,10.2,-,5,189
-17,C2H6O2,Ethylene glycol,Éthylène glycol,107-21-1,X,X,17,11,26,-,4,198
-18,C2H7NO2,Ethanolamine,Éthanolamine,141-43-5,X,X,17,15.5,21,-,4,171
-19,C3H6O,Acetone,Acétone,67-64-1,X,X,15.5,10.4,7,-,5,56
-20,C3H6O2,"1,3-Dioxolane","1,3-Dioxolane",646-06-0,X,,18.1,6.6,9.3,-,4,76
-21,C3H6O2,Propanoic acid,Acide propanoïque,79-09-4,X,,14.7,5.3,12.4,-,4,141
-22,C3H6O2,Methyl acetate,Acétate de méthyle,79-20-9,X,X,15.5,7.2,7.6,-,5,57
-23,C3H6O3,β-Lactic acid,Acide β-lactique,503-66-2,X,X,16.8,9.6,25.3,-,5,263
-24,C3H7NO2,"N,N-Dimethylformamide","N,N-Diméthyl formamide",68-12-2,X,,17.4,13.7,11.3,1B,4,153
-25,C3H7NO2,2-Nitropropane,2-Nitropropane,79-46-9,X,,16.2,12.1,4.1,1B,4,120
-26,C3H8O,1-Propanol,1-Propan-1-ol,71-23-8,X,,16,6.8,17.4,-,4,97
-27,C3H8O,Isopropanol,Propan-2-ol,67-63-0,X,,15.8,6.1,16.4,-,5,82
-28,C3H8O2,"1,3-Propanediol","Propane-1,3-diol",504-63-2,X,X,16.8,13.5,23.2,-,4,214
-29,C3H8O2,Propylene glycol,Propylène glycol,57-55-6,X,X,16.8,10.4,21.3,-,6,188
-30,C3H8O2,2-Methoxyethanol,2-Méthoxyéthanol,109-86-4,X,,16,8.2,15,1B,4,125
-31,C3H8O2,Methylal,Methylal,109-87-5,X,,15,1.8,8.6,-,5,42
-32,C3H8O3,Glycerol,Glycérol,56-81-5,X,X,17.4,11.3,27.2,-,5,290
-33,C4H4O,Furan,Furane,110-00-9,X,,17,1.8,5.3,1B,4,31
-34,C4H6O2,γ-Butyrolactone,γ-Butyrolactone,96-48-0,X,X,18,16.6,7.4,-,4,204
-35,C4H6O3,Propylene carbonate,Carbonate de propylène,108-32-7,X,X,20,18,4.1,-,4,242
-36,C4H6O3,Acetic anhydride,Anhydride acétique,108-24-7,X,,16,11.7,10.2,-,4,140
-37,C4H6O4,Glycerol carbonate,Carbonate de glycérol,931-40-8,X,X,17.9,25.5,17.4,-,5,354
-38,C4H7N,Butyronitrile,Butyronitrile,109-74-0,X,,15.3,12.4,5.1,-,2,118
-39,C4H7NO2,2-Pyrrolidinone,2-Pyrrolidinone,616-45-5,X,,18.2,12,9,-,4,245
-40,C4H8Cl2O,Di-(2-chloroethyl) ether,Di-(2-Chloroethyl) ether,111-44-4,X,,18.8,9,5.7,2,3,179
-41,C4H8O,Tetrahydrofuran,Tétrahydrofurane,109-99-9,X,,16.8,5.7,8,-,4,66
-42,C4H8O,Butan-2-one,Butan-2-one,78-93-3,X,,16,9,5.1,-,4,80
-43,C4H8O2,"1,4-Dioxane","1,4-Dioxane",123-91-1,X,,17.5,1.8,9,2,4,101
-44,C4H8O2,Butyric acid,Acide butyrique,107-92-6,X,,15.7,4.8,12,-,4,164
-45,C4H8O2,Ethyl acetate,Acétate d'éthyle,141-78-6,X,,15.8,5.3,7.2,-,5,77
-46,C4H8O3,"1,3-Dioxan-5-ol","1,3-Dioxan-5-ol",4740-78-7,X,,18.4,10.6,16.5,-,5,194
-47,C4H8O3,"1,3-Dioxolane-4-methanol","1,3-Dioxolane-4-méthanol",5464-28-8,X,,18.4,10.6,16.5,-,5,193
-48,C4H9Cl,1-Chlorobutane,1-Chlorobutane,109-69-3,X,,16.2,5.5,2,-,4,78
-49,C4H9NO,Morpholine,Morpholine,110-91-8,X,,18,4.9,11,-,4,129
-50,C4H10S,Diethyl sulfide,Sulfure de diéthyle,352-93-2,X,,16.8,3.1,2,-,4,92
-51,C4H10O,Butan-1-ol,Butan-1-ol,71-36-3,X,,16,5.7,15.8,-,4,118
-52,C4H10O,Diethyl ether,Éther diéthylique,60-29-7,X,,14.5,2.9,4.6,-,4,34
-53,C4H10O2,"1,3-Butanediol","1,3-Butanediol",107-88-0,X,,16.5,8.1,20.9,-,6,208
-54,C4H10O2,2-Ethoxyethanol,2-Éthoxyéthanol,110-80-5,X,,15.9,7.2,14,1B,4,136
-55,C4H10O3,Diethylene glycol,Diéthylène glycol,111-46-6,X,,16.6,12,19,-,5,246
-56,C4H10O3,"3-Methoxypropane-1,2-diol","3-Méthoxypropane-1,2-diol",623-39-2,X,,16.2,9.7,18.8,-,4,220
-57,C4H10O3,"2-Methoxypropane-1,3-diol","2-Méthoxypropane-1,3-diol",761-06-8,X,,16.3,10.1,23.7,-,5,232
-58,C4H11N,"N,N-Diethylamine","N,N-Diéthylamine",109-89-7,X,,14.9,2.3,6.1,-,4,56
-59,C5H4O2,Furfural,Furfural,98-01-1,X,,18.6,14.9,5.1,2,3,162
-60,C5H5N,Pyridine,Pyridine,110-86-1,X,,19,8.8,5.9,-,4,115
-61,C5H6O2,Furfuryl alcohol,Alcool furfurylique,98-00-0,X,,17.4,7.6,15.1,2,3,170
-62,C5H8O2,γ-Valerolactone,γ-Valérolactone,108-29-2,X,,17.1,11.9,6.2,-,5,187
-63,C5H10N2O,"N,N'-Dimethylethylurea","N,N'-Diméthyléthylurée",80-73-9,X,,17.6,10.5,9.1,-,4,227
-64,C5H10O,2-Methyltetrahydrofuran,2-Méthyl tétrahydrofurane,96-47-9,X,,16.9,5,4.3,-,5,80
-65,C5H10O2,Tetrahydrofurfuryl alcohol,Alcool tétrahydrofurfurylique,97-99-4,X,,17.8,8.2,12.9,-,4,178
-66,C5H10O2,n-Propyl acetate,Acétate de n-propyle,109-60-4,X,,15.3,4.3,7.6,-,5,102
-67,C5H10O3,Ethyl lactate,Lactate d'éthyle,97-64-3,X,,16,7.6,12.5,-,5,155
-68,C5H12O,Pentan-1-ol,Pentan-1-ol,71-41-0,X,,15.9,5.9,13.9,-,4,138
-69,C5H12O,Isopentyl alcohol,Alcool isoamylique,123-51-3,X,,15.8,5.2,13.3,-,4,131
-70,C5H12O3,2-Ethoxyglycerol,2-Éthoxyglycerol,22598-16-9,X,,16.2,9.1,20.1,-,5,229
-71,C5H12O3,"3-Ethoxypropane-1,2-diol","3-Éthoxypropane-1,2-diol",1874-62-0,X,,16.1,8.7,15.9,-,4,241
-72,C5H12O3,Methyldiglycol,Méthyldiglycol,111-77-3,X,,16.2,7.8,12.6,2,2,194
-73,C5H12O3,"2,3-Dimethoxypropane-1-ol","2,3-Diméthoxypropane-1-ol",40453-77-8,X,,15.8,7.5,15.5,-,5,180
-74,C5H12O3,"1,3-Dimethoxypropane-2-ol","1,3-Diméthoxypropane-2-ol",623-69-8,X,,15.8,8,12.5,-,5,173
-75,C6H4Cl2,o-Dichlorobenzene,o-Dichlorobenzène,95-50-1,X,,19.2,6.3,3.3,-,3,180
-76,C6H5Cl,Chlorobenzene,Chlorobenzène,108-90-7,X,,19,4.3,2,-,4,132
-77,C6H5NO2,Nitrobenzene,Nitrobenzène,98-95-3,X,,20,10.6,3.1,2,3,211
-78,C6H6,Benzene,Benzène,71-43-2,X,,18.4,0,2,1A,4,80
-79,C6H6O3,5-(Hydroxymethyl)furfural,5-(Hydroxymethyl)furfural,67-47-0,X,,18.1,14.1,18.7,-,4,261
-80,C6H7N,Aniline,Aniline,62-53-3,X,,20.1,5.8,11.2,2,3,184
-81,C6H10O,Cyclohexanone,Cyclohexanone,108-94-1,X,,17.8,8.4,5.1,-,4,156
-82,C6H10O,4-Methylpent-3-en-2-one,4-Methylpent-3-ène-2-one,141-79-7,X,,16.4,7.2,5,-,4,130
-83,C6H10O4,Dimethyl succinate,Succinate de diméthyle,106-65-0,X,,16.1,7.7,8.8,-,5,195
-84,C6H11Cl,Chlorocyclohexane,Chlorocyclohexane,542-18-7,X,,17.3,5.5,2,-,4,142
-85,C6H12,Cyclohexane,Cyclohexane,110-82-7,X,X,16.8,0,0.2,-,5,81
-86,C6H12N2O,"N,N'-Dimethylpropylurea","N,N'-Diméthylpropylurée",7226-23-5,X,,17.4,10.2,8.5,2,5,246
-87,C6H12O,Methoxycyclopentane,Méthoxycyclopentane,5614-37-9,X,,16.7,4.3,4.3,-,4,105
-88,C6H12O,Cyclohexanol,Cyclohexanol,108-93-0,X,X,17.4,4.1,13.5,-,4,161
-89,C6H12O,4-Methylpentan-2-one,4-Methylpentan-2-one,108-10-1,X,,15.3,6.1,4.1,-,4,117
-90,C6H12O2,Diacetone alcohol,Diacétone-alcool,123-42-2,X,,15.8,8.2,10.8,-,4,168
-91,C6H12O2,n-Butyl acetate,Acétate de n-butyle,123-86-4,X,,15.8,3.7,6.3,-,2,126
-92,C6H12O2,Isobutyl acetate,Acétate d'isobutyle,110-19-0,X,,15.1,3.7,6.3,-,5,117
-93,C6H12O3,Solketal,Solketal,100-79-8,X,,16,7.2,19.3,-,5,189
-94,C6H12O3,2-Ethoxyethyl acetate,Acétate de 2-éthoxyéthyle,111-15-9,X,,15.9,4.7,10.6,1B,4,156
-95,C6H13N,Cyclohexanamine,Cyclohexanamine,108-91-8,X,,17.2,3.1,6.5,2,2,134
-96,C6H14,n-Hexane,n-Hexane,110-54-3,X,(X),14.9,0,0,2,6,69
-97,C7H16,n-Heptane,n-Heptane,142-82-5,X,X,15.3,0,0,-,6,98
-98,C6H14O,2-Ethyl-1-butanol,2-Éthyl-1-butanol,97-95-0,X,,15.8,4.3,13.5,-,4,147
-99,C6H14O,4-Methylpentan-2-ol,4-Methylpentan-2-ol,108-11-2,X,,15.4,3.3,12.3,-,4,132
-100,C6H14O2,3-Methoxy-3-methylbutan-1-ol,3-Méthoxy-3-méthylbutan-1-ol,56539-66-3,X,,16,6.3,12.9,-,4,173
-101,C6H14O2,2-Butoxyethanol,2-Butoxyéthanol,111-76-2,X,,16,5.1,12.3,-,3,170
-102,C6H14O3,Dipropylene glycol,Dipropylène glycol,2396-61-4,X,,16.5,10.6,17.7,-,5,264
-103,C6H14O3,Diglyme,Diglyme,111-96-6,X,,15.7,6.1,6.5,1B,5,160
-104,C6H14O3,"1,2,3-Trimethoxypropane","1,2,3-Triméthoxypropane",20637-49-4,X,,15.5,5.7,7.5,-,4,143
-105,C6H14O4,Triethylene glycol,Triéthylène glycol,112-27-6,X,,16,12.5,18.6,-,6,288
-106,C6H15N,Dipropylamine,Dipropylamine,142-84-7,X,,15.3,1.4,4.1,-,3,109
-107,C7H6O,Benzaldehyde,Benzaldéhyde,100-52-7,X,,19.4,7.4,5.3,-,4,179
-108,C7H8,Toluene,Toluène,108-88-3,X,,18,1.4,2,2,4,111
-109,C7H8O,Benzyl alcohol,Alcool benzylique,100-51-6,X,,18.4,6.3,13.7,-,4,205
-110,C7H8O,m-Cresol,m-Crésol,108-39-4,X,,18.5,6.5,13.7,-,3,202
-111,C7H12O4,Dimethyl glutarate,Glutarate de diméthyle,1119-40-0,X,,16.1,7.7,8.3,-,5,211
-112,C7H14O,5-Methylhexan-2-one,5-Méthylhexane-2-one,110-12-3,X,,16,5.7,4.1,-,4,144
-113,C7H14O2,Isoamyl acetate,Acétate d'isoamyle,123-92-2,X,,15.3,3.1,7,-,6,142
-114,C7H14O3,Butyl lactate,Lactate de butyle,138-22-7,X,,15.8,6.5,10.2,-,5,189
-115,C7H16O3,"3-Butoxypropane-1,2-diol","3-Butoxypropane-1,2-diol",624-52-2,X,,16.1,8.2,19.6,-,5,270
-116,C7H16O3,"2-Butoxypropane-1,3-diol","2-Butoxypropane-1,3-diol",100078-36-2,X,,16.1,8.2,19.6,-,5,260
-117,C7H16O3,"1,3-Diethoxypropane-2-ol","1,3-Diéthoxypropane-2-ol",4043-59-8,X,,15.4,6.3,6,-,4,210
-118,C7H16O3,"2,3-Diethoxypropan-1-ol","2,3-Diéthoxypropan-1-ol",4756-20-1,X,,15.8,6.4,11.2,-,5,220
-119,C8F18,Perfluorooctane,Perfluorooctane,307-34-6,X,,12.7,0,0,-,3,103
-120,C8H8,Styrene,Styrène,100-42-5,X,,18.6,1,4.1,-,4,145
-121,C8H8O,Acetophenone,Acétophénone,98-86-2,X,,18.8,9,4,-,4,202
-122,C8H10,o-Xylene,o-Xylène,95-47-6,X,,17.8,1,3.1,-,4,144
-123,C8H10,p-Xylene,p-Xylène,106-42-3,X,,17.8,1,3.1,-,4,138
-124,C8H10,Ethylbenzene,Éthylbenzène,100-41-4,X,,17.8,0.6,1.4,-,4,136
-125,C8H14O4,Dimethyl isosorbide,Diméthyl isosorbide,5306-85-4,X,,17.6,7.1,7.5,-,5,236
-126,C8H14O4,Diethyl succinate,Succinate de diéthyle,123-25-1,X,,16.2,6.8,8.7,-,5,218
-127,C8H14O4,Dimethyl adipate,Adipate de diméthyle,627-93-0,X,,16.3,6.8,8.5,-,4,229
-128,C8H14O4,Dimethyl ethylsuccinate,Éthylsuccinate de diméthyle,14035-95-1,X,,16,5.5,8.4,-,5,204
-129,C8H14O4,Dimethyl 2-methylglutarate,2-Méthylglutarate de diméthyle,14035-94-0,X,,16.6,8.7,5,-,4,223
-130,C8H16O2,Isobutyl isobutyrate,Isobutyrate d'isobutyle,97-85-8,X,,15.1,2.8,5.8,-,5,148
-131,C8H18O,Octan-1-ol,Octan-1-ol,111-87-5,X,,16,5,11.2,-,4,195
-132,C8H18O,2-Ethylhexanol,2-Éthyl-hexanol,104-76-7,X,,15.9,3.3,11.8,-,4,184
-133,C8H18O3,Butyldiglycol,Butyldiglycol,112-34-5,X,,16,7,10.6,-,5,230
-134,C8H24O4Si4,Octamethylcyclotetrasiloxane,Octaméthylcyclotetrasiloxane,556-67-2,X,,12.8,1.3,1,2,4,175
-135,C9H14O,Isophorone,Isophorone,78-59-1,X,,17,8,5,2,4,215
-136,C9H14O6,Triacetin,Triacétate de glycérol,102-76-1,X,,16.5,4.5,9.1,-,4,258
-137,C9H16O4,Diethyl glutarate,Glutarate de diéthyle,818-38-2,X,,16.3,7,7.8,-,4,237
-138,C9H17NO3,Methyl 5-(dimethylamino)-5-oxopentanoate,Méthyl 5-(diméthylamino)-5-oxopentanoate,368212-04-8,X,,16.5,8.5,9.4,-,5,273
-139,C9H17NO3,Polarclean,Polarclean,117467-69-9,X,,15.8,10.7,9.2,-,4,280
-140,C9H18O,"2,6-Dimethylheptan-4-one","2,6-Diméthylheptane-4-one",108-83-8,X,,16,3.7,4.1,-,5,168
-141,C9H18O4,Glycofurol (n=2),Glycofurol (n=2),52814-38-7,X,,17.1,8,11.8,-,5,303
-142,C9H20O3,"1,2,3-Triethoxypropane","1,2,3-Triéthoxypropane",162614-45-1,X,,15.5,4.8,3.6,-,5,210
-143,C10H7Br,1-Bromonaphthalene,1-Bromonaphtalène,90-11-9,X,,20.6,3.1,4.1,-,4,281
-144,C10H8O4,Dimethyl phthalate,Phtalate de diméthyle,131-11-3,X,,18.6,10.8,4.9,-,5,283
-145,C10H12,Tetralin,Tétrahydronaphtalène,119-64-2,X,,19.6,2,2.9,-,4,208
-146,C10H14,p-Cymene,p-Cymène,99-87-6,X,,18.5,2.6,1.9,-,4,177
-147,C10H16,β-Pinene,β-Pinène,127-91-3,X,,16.9,1.6,1.8,-,4,166
-148,C10H16,α-Pinene,α-Pinène,80-56-8,X,,16.9,1.8,3.1,-,4,156
-149,C10H16,Terpinolene,Terpinolène,586-62-9,X,,16.9,1.8,4.8,-,4,182
-150,C10H16,d-Limonene,d-Limonène,5989-27-5,X,,17.2,1.8,4.3,-,4,175
-151,C10H18O,"1,4-Cineole","1,4-Cinéole",470-67-7,X,,17,3.4,3.7,-,4,174
-152,C10H18O,α-Terpineol,α-Terpinéol,98-55-5,X,,17,3.8,10,-,4,218
-153,C10H18O,Eucalyptol,Eucalyptol,470-82-6,X,,16.7,4.6,3.4,-,4,176
-154,C10H18O,β-Terpineol,β-Terpinéol,138-87-4,X,,17.5,6.3,10.3,-,5,206
-155,C10H18O,Geraniol,Géraniol,106-24-1,X,,16.4,3.7,10,-,4,230
-156,C10H18O4,Diethyl adipate,Adipate de diéthyle,141-28-6,X,,16.4,6.2,7.5,-,4,247
-157,C10H20O,α-Dihydroterpineol,α-Dihydroterpinéol,498-81-7,X,,16.9,4.1,9.1,-,5,212
-158,C10H20O,Cyclademol,Cycladémol,25225-09-6,X,,16.5,5,10,-,5,214
-159,C10H20O,Dihydromyrcenol,Dihydromyrcénol,18479-58-8,X,,16.1,4.6,10,-,4,188
-160,C10H21NO,"N,N-Dimethyloctanamide","N,N-Diméthyloctanamide",1118-92-9,X,,16.3,7.4,6.3,-,4,257
-161,C10H22O,Decan-1-ol,Décan-1-ol,112-30-1,X,,16,4.7,10.5,-,4,228
-162,C10H30O5Si5,Cyclopentasiloxane,Cyclopentasiloxane,541-02-6,X,,12.9,1.3,1,-,4,210
-163,C11H18O,Nopol,Nopol,128-50-7,X,,17.4,3.7,1.8,-,4,235
-164,C11H24O3,"2,3-Dibutoxypropan-1-ol","2,3-Dibutoxypropan-1-ol",91337-36-9,X,,15.8,5.4,10.9,-,5,293
-165,C11H24O3,"1,3-Dibutoxypropan-2-ol","1,3-Dibutoxypropan-2-ol",2216-77-5,X,,15.8,5.7,7.2,-,4,285
-166,C12H14O4,Diethyl phthalate,Phtalate de diéthyle,84-66-2,,,17.6,9.6,4.5,-,5,294
-167,C12H20O2,Geranyl acetate,Acétate de géranyle,105-87-3,X,,16.3,3.2,6.1,-,5,248
-168,C12H22O4,Triethyl citrate,Citrate de triéthyle,77-93-0,,,16.5,4.9,12,-,5,294
-169,C12H22O2,Dihydroterpinyl acetate,Acétate de dihydroterpényle,80-25-1,,,16.6,4,4.3,-,4,234
-170,C12H22O4,Diisobutyl succinate,Succinate de diisobutyle,925-06-4,,,16.5,4,6.7,-,5,253
-171,C12H25NO,"N,N-Dimethyldecanamide","N,N-Diméthyldécanamide",14433-76-2,,,16.6,7.4,8.7,-,4,260
-172,C12H25NO3,"N,N-bis(2-hydroxyethyl)octanamide","N,N-bis(2-hydroxyléthyl)-octanamide",3077-30-3,X,,17,9.6,15.9,-,5,392
-173,C12H24O4,Diisobutyl glutarate,Glutarate de diisobutyle,71195-64-7,,,16.4,4.3,6.8,-,5,267
-174,C12H26O2,Methyl laurate,Laurate de méthyle,111-82-0,,,16.2,3.4,5.1,-,4,263
-175,C14H12O2,Benzyl benzoate,Benzoate de benzyle,120-51-4,,,20,5.1,5.2,-,4,323
-176,C14H26O4,Diisobutyl adipate,Adipate de diisobutyle,141-04-8,,,16.7,2.5,6.2,-,5,293
-177,C14H28O2,Ethyl laurate,Laurate d'éthyle,106-33-2,,,16.2,3.4,5.3,-,5,278
-178,C14H28O2,Butyl decanoate,Décanoate de butyle,30673-36-0,,,16.2,2.8,3.8,-,5,275
-179,C14H29NO3,"N,N-bis(2-hydroxyethyl)decanamide","N,N-bis(2-hydroxyéthyl)-décanamide",136-26-5,,,16.8,9.1,15.2,-,5,418
-180,C15H30O2,Methyl myristate,Myristate de méthyle,124-10-7,,,16.4,2.6,4.5,-,5,296
-181,C15H30O2,Isopropyl laurate,Laurate d'isopropyle,10233-13-3,,,16,4.8,4.5,-,4,281
-182,C15H32O3,"1,2,3-Tributoxypropane","1,2,3-Tributoxypropane",131570-29-1,,,15.7,3.8,3.2,-,5,321
-183,C16H32O2,Ethyl myristate,Myristate d'éthyle,124-06-1,,,16.3,2.7,5,-,5,306
-184,C16H32O2,Butyl laurate,Laurate de butyle,106-18-3,,,16.2,2.9,4,-,5,306
-185,C16H34,n-Hexadecane,n-Hexadécane,544-76-3,,,16.3,0,0,-,5,287
-186,C17H34O2,Methyl palmitate,Palmitate de méthyle,112-39-0,,,16.3,2.7,4.6,-,4,327
-187,C17H34O2,Isopropyl myristate,Myristate d'isopropyle,110-27-0,,,16.2,2.3,3.8,-,6,320
-188,C17H34O2,Isoamyl laurate,Laurate d'isoamyle,6309-51-9,,,16.1,2.8,4.5,-,5,312
-189,C18H32O6,Tributyl citrate,Citrate de tributyle,77-94-1,,,16.6,3.8,10.1,-,5,390
-190,C18H34O2,Oleic acid,Acide oléique,112-80-1,,,16,2.8,6.2,-,6,360
-191,C18H34O3,Ricinoleic acid,Acide richoléique,141-22-0,,,15.9,4.6,12,-,5,416
-192,C18H36O4,Dibutyl sebacate,Sébagate de dibutyle,109-43-3,,,16.7,4.5,4.1,-,5,349
-193,C18H36O,Oleyl alcohol,Alcool oléylique,143-28-2,,,16.5,2.6,8,-,5,333
-194,C18H36O2,Butyl myristate,Myristate de butyle,110-36-1,,,16.3,2.2,3.3,-,5,335
-195,C18H36O2,Ethyl palmitate,Palmitate d'éthyle,628-97-7,,,16.3,2.7,5,-,5,335
-196,C18H30O2,Methyl linolenate,Linolénate de méthyle,301-00-8,,,16.2,4,4.3,-,5,351
-197,C18H32O2,Methyl linoleate,Linoléate de méthyle,112-63-0,,,16.2,3.3,4.1,-,5,349
-198,C18H34O2,Methyl oleate,Oléate de méthyle,112-62-9,,,16.2,3.8,4.5,-,4,344
-199,C18H34O3,Methyl ricinoleate,Richoléate de méthyle,141-24-2,,,16.3,5,8,-,5,170
-200,C19H38O2,Methyl stearate,Stéarate de méthyle,112-61-8,,,16.5,2,4.1,-,5,350
-201,C19H38O2,Isopropyl palmitate,Palmitate d'isopropyle,142-91-6,,,14.3,3.9,3.7,-,5,341
-202,C20H34O2,Ethyl linolenate,Linolénate d'éthyle,1191-41-9,,,16.2,4,4.5,-,6,359
-203,C20H34O6,Acetyl tributyl citrate,Citrate d'acétyl tributyle,77-90-7,,,16.7,2.5,7.4,-,6,418
-204,C20H36O2,Ethyl linoleate,Linoléate d'éthyle,544-35-4,,,16.2,3.4,4.3,-,5,388
-205,C20H38O2,Ethyl oleate,Oléate d'éthyle,111-62-6,,,14.5,3.8,3.7,-,5,360
-206,C20H40O2,Ethyl stearate,Stéarate d'éthyle,111-61-5,,,16.4,2.1,4.8,-,5,356
-207,C20H40O2,Butyl palmitate,Palmitate de butyle,111-06-8,,,16.3,2.3,3.5,-,5,362
-208,C20H40O2,2-Ethylhexyl laurate,Laurate de 2-éthylhexyle,20292-08-4,,,16.1,3.3,5.4,-,4,355
-209,C21H32O2,Methyl abietate,Abiétate de méthyle,127-25-3,,,17.5,3.3,4.2,-,5,404
-210,C21H40O2,Isopropyl oleate,Oléate d'isopropyle,112-11-8,,,16.1,4.1,3.6,-,5,397
-211,C21H42O2,Methyl eicosanoate,Eicosanoate de méthyle,1120-28-1,,,16.5,2.1,4.2,-,4,375
-212,C22H34O2,Ethyl abietate,Abiétate d'éthyle,631-71-0,,,17.1,3.4,4.2,-,5,418
-213,C22H38O6,Isosorbide dioctanoate,Dioctanoate d'isosorbide,64896-70-4,,,16.5,4.8,5.6,-,5,477
-214,C22H42O2,Erucic acid,Acide érucique,112-86-7,(X),,16.3,3,5,-,6,417
-215,C22H42O2,Butyl oleate,Oléate de butyle,142-77-8,,,16.3,3.7,4.2,-,5,415
-216,C22H44O2,Butyl stearate,Stéarate de butyle,123-95-5,X,,14.5,3.7,3.5,-,6,350
-217,C22H44O2,Ethyl eicosanoate,Eicosanoate d'éthyle,18281-05-5,,,16.4,2.2,4.8,-,5,369
-218,C23H44O2,Methyl erucate,Erucate de méthyle,1120-34-9,,,16.3,2.6,3.9,-,5,423
-219,C23H46O2,Methyl docosanoate,Docosanoate de méthyle,929-77-1,,,16.6,1.5,3.8,-,5,393
-220,C24H46O2,Ethyl docos-13-enoate,Docos-13-énoate d'éthyle,37910-77-3,,,16.2,2.6,4.5,-,6,437
+﻿No.,Formula,Solvent,Name (French),CAS,Hansen Set,Green Set,dD,dP,dH,CMR,I_low,T_b,CHO
+1,H2O,Water,Eau,7732-18-5,(X),X,15.5,16,42.3,-,6,100,True
+2,CCl4,Carbon tetrachloride,Tétrachlorométhane,56-23-5,X,,17.8,0,0.6,2,4,77,False
+3,CS2,Carbon disulfide,Sulfure de carbone,75-15-0,X,,20.2,0,0.6,2,4,46,False
+4,CHCl3,Chloroform,Chloroforme,67-66-3,X,,17.8,3.1,5.7,2,4,61,False
+5,CH2Cl2,Dichloromethane,Dichlorométhane,75-09-2,X,,17,7.3,7.1,2,4,40,False
+6,CH2O2,Formic acid,Acide formique,64-18-6,X,X,14.6,10,14,-,4,101,True
+7,CH3NO2,Nitromethane,Nitrométhane,75-52-5,X,,15.8,18.8,6.1,-,4,101,False
+8,CH4O,Methanol,Méthanol,67-56-1,X,X,14.7,12.3,22.3,-,5,65,True
+9,C2HCl3,Trichloroethylene,Trichloroéthylène,79-01-6,X,,18,3.1,5.3,1B,5,87,False
+10,C2H2Cl3,"1,1,1-Trichloroethane","1,1,1-Trichloroéthane",71-55-6,X,,16.8,4.3,2,-,5,74,False
+11,C2H3N,Acetonitrile,Acétonitrile,75-05-8,X,X,15.3,18,6.1,-,4,82,False
+12,C2H4Cl2,"1,2-Dichloroethane","1,2-Dichloroéthane",107-06-2,X,,18,7.4,4.1,1B,4,83,False
+13,C2H4O2,Acetic acid,Acide acétique,64-19-7,X,,14.5,8,13.5,-,4,118,True
+14,C2H5NO2,Nitroethane,Nitroéthane,79-24-3,X,,16,15.5,4.5,-,4,114,False
+15,C2H6O,Ethanol,Éthanol,64-17-5,X,,15.8,8.8,19.4,-,5,79,True
+16,C2H6OS,Dimethyl sulfoxide,Diméthyl sulfoxyde,67-68-5,X,X,18.4,16.4,10.2,-,5,189,False
+17,C2H6O2,Ethylene glycol,Éthylène glycol,107-21-1,X,X,17,11,26,-,4,198,True
+18,C2H7NO2,Ethanolamine,Éthanolamine,141-43-5,X,X,17,15.5,21,-,4,171,False
+19,C3H6O,Acetone,Acétone,67-64-1,X,X,15.5,10.4,7,-,5,56,True
+20,C3H6O2,"1,3-Dioxolane","1,3-Dioxolane",646-06-0,X,,18.1,6.6,9.3,-,4,76,True
+21,C3H6O2,Propanoic acid,Acide propanoïque,79-09-4,X,,14.7,5.3,12.4,-,4,141,True
+22,C3H6O2,Methyl acetate,Acétate de méthyle,79-20-9,X,X,15.5,7.2,7.6,-,5,57,True
+23,C3H6O3,β-Lactic acid,Acide β-lactique,503-66-2,X,X,16.8,9.6,25.3,-,5,263,True
+24,C3H7NO2,"N,N-Dimethylformamide","N,N-Diméthyl formamide",68-12-2,X,,17.4,13.7,11.3,1B,4,153,False
+25,C3H7NO2,2-Nitropropane,2-Nitropropane,79-46-9,X,,16.2,12.1,4.1,1B,4,120,False
+26,C3H8O,1-Propanol,1-Propan-1-ol,71-23-8,X,,16,6.8,17.4,-,4,97,True
+27,C3H8O,Isopropanol,Propan-2-ol,67-63-0,X,,15.8,6.1,16.4,-,5,82,True
+28,C3H8O2,"1,3-Propanediol","Propane-1,3-diol",504-63-2,X,X,16.8,13.5,23.2,-,4,214,True
+29,C3H8O2,Propylene glycol,Propylène glycol,57-55-6,X,X,16.8,10.4,21.3,-,6,188,True
+30,C3H8O2,2-Methoxyethanol,2-Méthoxyéthanol,109-86-4,X,,16,8.2,15,1B,4,125,True
+31,C3H8O2,Methylal,Methylal,109-87-5,X,,15,1.8,8.6,-,5,42,True
+32,C3H8O3,Glycerol,Glycérol,56-81-5,X,X,17.4,11.3,27.2,-,5,290,True
+33,C4H4O,Furan,Furane,110-00-9,X,,17,1.8,5.3,1B,4,31,True
+34,C4H6O2,γ-Butyrolactone,γ-Butyrolactone,96-48-0,X,X,18,16.6,7.4,-,4,204,True
+35,C4H6O3,Propylene carbonate,Carbonate de propylène,108-32-7,X,X,20,18,4.1,-,4,242,True
+36,C4H6O3,Acetic anhydride,Anhydride acétique,108-24-7,X,,16,11.7,10.2,-,4,140,True
+37,C4H6O4,Glycerol carbonate,Carbonate de glycérol,931-40-8,X,X,17.9,25.5,17.4,-,5,354,True
+38,C4H7N,Butyronitrile,Butyronitrile,109-74-0,X,,15.3,12.4,5.1,-,2,118,False
+39,C4H7NO2,2-Pyrrolidinone,2-Pyrrolidinone,616-45-5,X,,18.2,12,9,-,4,245,False
+40,C4H8Cl2O,Di-(2-chloroethyl) ether,Di-(2-Chloroethyl) ether,111-44-4,X,,18.8,9,5.7,2,3,179,False
+41,C4H8O,Tetrahydrofuran,Tétrahydrofurane,109-99-9,X,,16.8,5.7,8,-,4,66,True
+42,C4H8O,Butan-2-one,Butan-2-one,78-93-3,X,,16,9,5.1,-,4,80,True
+43,C4H8O2,"1,4-Dioxane","1,4-Dioxane",123-91-1,X,,17.5,1.8,9,2,4,101,True
+44,C4H8O2,Butyric acid,Acide butyrique,107-92-6,X,,15.7,4.8,12,-,4,164,True
+45,C4H8O2,Ethyl acetate,Acétate d'éthyle,141-78-6,X,,15.8,5.3,7.2,-,5,77,True
+46,C4H8O3,"1,3-Dioxan-5-ol","1,3-Dioxan-5-ol",4740-78-7,X,,18.4,10.6,16.5,-,5,194,True
+47,C4H8O3,"1,3-Dioxolane-4-methanol","1,3-Dioxolane-4-méthanol",5464-28-8,X,,18.4,10.6,16.5,-,5,193,True
+48,C4H9Cl,1-Chlorobutane,1-Chlorobutane,109-69-3,X,,16.2,5.5,2,-,4,78,False
+49,C4H9NO,Morpholine,Morpholine,110-91-8,X,,18,4.9,11,-,4,129,False
+50,C4H10S,Diethyl sulfide,Sulfure de diéthyle,352-93-2,X,,16.8,3.1,2,-,4,92,False
+51,C4H10O,Butan-1-ol,Butan-1-ol,71-36-3,X,,16,5.7,15.8,-,4,118,True
+52,C4H10O,Diethyl ether,Éther diéthylique,60-29-7,X,,14.5,2.9,4.6,-,4,34,True
+53,C4H10O2,"1,3-Butanediol","1,3-Butanediol",107-88-0,X,,16.5,8.1,20.9,-,6,208,True
+54,C4H10O2,2-Ethoxyethanol,2-Éthoxyéthanol,110-80-5,X,,15.9,7.2,14,1B,4,136,True
+55,C4H10O3,Diethylene glycol,Diéthylène glycol,111-46-6,X,,16.6,12,19,-,5,246,True
+56,C4H10O3,"3-Methoxypropane-1,2-diol","3-Méthoxypropane-1,2-diol",623-39-2,X,,16.2,9.7,18.8,-,4,220,True
+57,C4H10O3,"2-Methoxypropane-1,3-diol","2-Méthoxypropane-1,3-diol",761-06-8,X,,16.3,10.1,23.7,-,5,232,True
+58,C4H11N,"N,N-Diethylamine","N,N-Diéthylamine",109-89-7,X,,14.9,2.3,6.1,-,4,56,False
+59,C5H4O2,Furfural,Furfural,98-01-1,X,,18.6,14.9,5.1,2,3,162,True
+60,C5H5N,Pyridine,Pyridine,110-86-1,X,,19,8.8,5.9,-,4,115,False
+61,C5H6O2,Furfuryl alcohol,Alcool furfurylique,98-00-0,X,,17.4,7.6,15.1,2,3,170,True
+62,C5H8O2,γ-Valerolactone,γ-Valérolactone,108-29-2,X,,17.1,11.9,6.2,-,5,187,True
+63,C5H10N2O,"N,N'-Dimethylethylurea","N,N'-Diméthyléthylurée",80-73-9,X,,17.6,10.5,9.1,-,4,227,False
+64,C5H10O,2-Methyltetrahydrofuran,2-Méthyl tétrahydrofurane,96-47-9,X,,16.9,5,4.3,-,5,80,True
+65,C5H10O2,Tetrahydrofurfuryl alcohol,Alcool tétrahydrofurfurylique,97-99-4,X,,17.8,8.2,12.9,-,4,178,True
+66,C5H10O2,n-Propyl acetate,Acétate de n-propyle,109-60-4,X,,15.3,4.3,7.6,-,5,102,True
+67,C5H10O3,Ethyl lactate,Lactate d'éthyle,97-64-3,X,,16,7.6,12.5,-,5,155,True
+68,C5H12O,Pentan-1-ol,Pentan-1-ol,71-41-0,X,,15.9,5.9,13.9,-,4,138,True
+69,C5H12O,Isopentyl alcohol,Alcool isoamylique,123-51-3,X,,15.8,5.2,13.3,-,4,131,True
+70,C5H12O3,2-Ethoxyglycerol,2-Éthoxyglycerol,22598-16-9,X,,16.2,9.1,20.1,-,5,229,True
+71,C5H12O3,"3-Ethoxypropane-1,2-diol","3-Éthoxypropane-1,2-diol",1874-62-0,X,,16.1,8.7,15.9,-,4,241,True
+72,C5H12O3,Methyldiglycol,Méthyldiglycol,111-77-3,X,,16.2,7.8,12.6,2,2,194,True
+73,C5H12O3,"2,3-Dimethoxypropane-1-ol","2,3-Diméthoxypropane-1-ol",40453-77-8,X,,15.8,7.5,15.5,-,5,180,True
+74,C5H12O3,"1,3-Dimethoxypropane-2-ol","1,3-Diméthoxypropane-2-ol",623-69-8,X,,15.8,8,12.5,-,5,173,True
+75,C6H4Cl2,o-Dichlorobenzene,o-Dichlorobenzène,95-50-1,X,,19.2,6.3,3.3,-,3,180,False
+76,C6H5Cl,Chlorobenzene,Chlorobenzène,108-90-7,X,,19,4.3,2,-,4,132,False
+77,C6H5NO2,Nitrobenzene,Nitrobenzène,98-95-3,X,,20,10.6,3.1,2,3,211,False
+78,C6H6,Benzene,Benzène,71-43-2,X,,18.4,0,2,1A,4,80,True
+79,C6H6O3,5-(Hydroxymethyl)furfural,5-(Hydroxymethyl)furfural,67-47-0,X,,18.1,14.1,18.7,-,4,261,True
+80,C6H7N,Aniline,Aniline,62-53-3,X,,20.1,5.8,11.2,2,3,184,False
+81,C6H10O,Cyclohexanone,Cyclohexanone,108-94-1,X,,17.8,8.4,5.1,-,4,156,True
+82,C6H10O,4-Methylpent-3-en-2-one,4-Methylpent-3-ène-2-one,141-79-7,X,,16.4,7.2,5,-,4,130,True
+83,C6H10O4,Dimethyl succinate,Succinate de diméthyle,106-65-0,X,,16.1,7.7,8.8,-,5,195,True
+84,C6H11Cl,Chlorocyclohexane,Chlorocyclohexane,542-18-7,X,,17.3,5.5,2,-,4,142,False
+85,C6H12,Cyclohexane,Cyclohexane,110-82-7,X,X,16.8,0,0.2,-,5,81,True
+86,C6H12N2O,"N,N'-Dimethylpropylurea","N,N'-Diméthylpropylurée",7226-23-5,X,,17.4,10.2,8.5,2,5,246,False
+87,C6H12O,Methoxycyclopentane,Méthoxycyclopentane,5614-37-9,X,,16.7,4.3,4.3,-,4,105,True
+88,C6H12O,Cyclohexanol,Cyclohexanol,108-93-0,X,X,17.4,4.1,13.5,-,4,161,True
+89,C6H12O,4-Methylpentan-2-one,4-Methylpentan-2-one,108-10-1,X,,15.3,6.1,4.1,-,4,117,True
+90,C6H12O2,Diacetone alcohol,Diacétone-alcool,123-42-2,X,,15.8,8.2,10.8,-,4,168,True
+91,C6H12O2,n-Butyl acetate,Acétate de n-butyle,123-86-4,X,,15.8,3.7,6.3,-,2,126,True
+92,C6H12O2,Isobutyl acetate,Acétate d'isobutyle,110-19-0,X,,15.1,3.7,6.3,-,5,117,True
+93,C6H12O3,Solketal,Solketal,100-79-8,X,,16,7.2,19.3,-,5,189,True
+94,C6H12O3,2-Ethoxyethyl acetate,Acétate de 2-éthoxyéthyle,111-15-9,X,,15.9,4.7,10.6,1B,4,156,True
+95,C6H13N,Cyclohexanamine,Cyclohexanamine,108-91-8,X,,17.2,3.1,6.5,2,2,134,False
+96,C6H14,n-Hexane,n-Hexane,110-54-3,X,(X),14.9,0,0,2,6,69,True
+97,C7H16,n-Heptane,n-Heptane,142-82-5,X,X,15.3,0,0,-,6,98,True
+98,C6H14O,2-Ethyl-1-butanol,2-Éthyl-1-butanol,97-95-0,X,,15.8,4.3,13.5,-,4,147,True
+99,C6H14O,4-Methylpentan-2-ol,4-Methylpentan-2-ol,108-11-2,X,,15.4,3.3,12.3,-,4,132,True
+100,C6H14O2,3-Methoxy-3-methylbutan-1-ol,3-Méthoxy-3-méthylbutan-1-ol,56539-66-3,X,,16,6.3,12.9,-,4,173,True
+101,C6H14O2,2-Butoxyethanol,2-Butoxyéthanol,111-76-2,X,,16,5.1,12.3,-,3,170,True
+102,C6H14O3,Dipropylene glycol,Dipropylène glycol,2396-61-4,X,,16.5,10.6,17.7,-,5,264,True
+103,C6H14O3,Diglyme,Diglyme,111-96-6,X,,15.7,6.1,6.5,1B,5,160,True
+104,C6H14O3,"1,2,3-Trimethoxypropane","1,2,3-Triméthoxypropane",20637-49-4,X,,15.5,5.7,7.5,-,4,143,True
+105,C6H14O4,Triethylene glycol,Triéthylène glycol,112-27-6,X,,16,12.5,18.6,-,6,288,True
+106,C6H15N,Dipropylamine,Dipropylamine,142-84-7,X,,15.3,1.4,4.1,-,3,109,False
+107,C7H6O,Benzaldehyde,Benzaldéhyde,100-52-7,X,,19.4,7.4,5.3,-,4,179,True
+108,C7H8,Toluene,Toluène,108-88-3,X,,18,1.4,2,2,4,111,True
+109,C7H8O,Benzyl alcohol,Alcool benzylique,100-51-6,X,,18.4,6.3,13.7,-,4,205,True
+110,C7H8O,m-Cresol,m-Crésol,108-39-4,X,,18.5,6.5,13.7,-,3,202,True
+111,C7H12O4,Dimethyl glutarate,Glutarate de diméthyle,1119-40-0,X,,16.1,7.7,8.3,-,5,211,True
+112,C7H14O,5-Methylhexan-2-one,5-Méthylhexane-2-one,110-12-3,X,,16,5.7,4.1,-,4,144,True
+113,C7H14O2,Isoamyl acetate,Acétate d'isoamyle,123-92-2,X,,15.3,3.1,7,-,6,142,True
+114,C7H14O3,Butyl lactate,Lactate de butyle,138-22-7,X,,15.8,6.5,10.2,-,5,189,True
+115,C7H16O3,"3-Butoxypropane-1,2-diol","3-Butoxypropane-1,2-diol",624-52-2,X,,16.1,8.2,19.6,-,5,270,True
+116,C7H16O3,"2-Butoxypropane-1,3-diol","2-Butoxypropane-1,3-diol",100078-36-2,X,,16.1,8.2,19.6,-,5,260,True
+117,C7H16O3,"1,3-Diethoxypropane-2-ol","1,3-Diéthoxypropane-2-ol",4043-59-8,X,,15.4,6.3,6,-,4,210,True
+118,C7H16O3,"2,3-Diethoxypropan-1-ol","2,3-Diéthoxypropan-1-ol",4756-20-1,X,,15.8,6.4,11.2,-,5,220,True
+119,C8F18,Perfluorooctane,Perfluorooctane,307-34-6,X,,12.7,0,0,-,3,103,False
+120,C8H8,Styrene,Styrène,100-42-5,X,,18.6,1,4.1,-,4,145,True
+121,C8H8O,Acetophenone,Acétophénone,98-86-2,X,,18.8,9,4,-,4,202,True
+122,C8H10,o-Xylene,o-Xylène,95-47-6,X,,17.8,1,3.1,-,4,144,True
+123,C8H10,p-Xylene,p-Xylène,106-42-3,X,,17.8,1,3.1,-,4,138,True
+124,C8H10,Ethylbenzene,Éthylbenzène,100-41-4,X,,17.8,0.6,1.4,-,4,136,True
+125,C8H14O4,Dimethyl isosorbide,Diméthyl isosorbide,5306-85-4,X,,17.6,7.1,7.5,-,5,236,True
+126,C8H14O4,Diethyl succinate,Succinate de diéthyle,123-25-1,X,,16.2,6.8,8.7,-,5,218,True
+127,C8H14O4,Dimethyl adipate,Adipate de diméthyle,627-93-0,X,,16.3,6.8,8.5,-,4,229,True
+128,C8H14O4,Dimethyl ethylsuccinate,Éthylsuccinate de diméthyle,14035-95-1,X,,16,5.5,8.4,-,5,204,True
+129,C8H14O4,Dimethyl 2-methylglutarate,2-Méthylglutarate de diméthyle,14035-94-0,X,,16.6,8.7,5,-,4,223,True
+130,C8H16O2,Isobutyl isobutyrate,Isobutyrate d'isobutyle,97-85-8,X,,15.1,2.8,5.8,-,5,148,True
+131,C8H18O,Octan-1-ol,Octan-1-ol,111-87-5,X,,16,5,11.2,-,4,195,True
+132,C8H18O,2-Ethylhexanol,2-Éthyl-hexanol,104-76-7,X,,15.9,3.3,11.8,-,4,184,True
+133,C8H18O3,Butyldiglycol,Butyldiglycol,112-34-5,X,,16,7,10.6,-,5,230,True
+134,C8H24O4Si4,Octamethylcyclotetrasiloxane,Octaméthylcyclotetrasiloxane,556-67-2,X,,12.8,1.3,1,2,4,175,False
+135,C9H14O,Isophorone,Isophorone,78-59-1,X,,17,8,5,2,4,215,True
+136,C9H14O6,Triacetin,Triacétate de glycérol,102-76-1,X,,16.5,4.5,9.1,-,4,258,True
+137,C9H16O4,Diethyl glutarate,Glutarate de diéthyle,818-38-2,X,,16.3,7,7.8,-,4,237,True
+138,C9H17NO3,Methyl 5-(dimethylamino)-5-oxopentanoate,Méthyl 5-(diméthylamino)-5-oxopentanoate,368212-04-8,X,,16.5,8.5,9.4,-,5,273,False
+139,C9H17NO3,Polarclean,Polarclean,117467-69-9,X,,15.8,10.7,9.2,-,4,280,False
+140,C9H18O,"2,6-Dimethylheptan-4-one","2,6-Diméthylheptane-4-one",108-83-8,X,,16,3.7,4.1,-,5,168,True
+141,C9H18O4,Glycofurol (n=2),Glycofurol (n=2),52814-38-7,X,,17.1,8,11.8,-,5,303,True
+142,C9H20O3,"1,2,3-Triethoxypropane","1,2,3-Triéthoxypropane",162614-45-1,X,,15.5,4.8,3.6,-,5,210,True
+143,C10H7Br,1-Bromonaphthalene,1-Bromonaphtalène,90-11-9,X,,20.6,3.1,4.1,-,4,281,False
+144,C10H8O4,Dimethyl phthalate,Phtalate de diméthyle,131-11-3,X,,18.6,10.8,4.9,-,5,283,True
+145,C10H12,Tetralin,Tétrahydronaphtalène,119-64-2,X,,19.6,2,2.9,-,4,208,True
+146,C10H14,p-Cymene,p-Cymène,99-87-6,X,,18.5,2.6,1.9,-,4,177,True
+147,C10H16,β-Pinene,β-Pinène,127-91-3,X,,16.9,1.6,1.8,-,4,166,True
+148,C10H16,α-Pinene,α-Pinène,80-56-8,X,,16.9,1.8,3.1,-,4,156,True
+149,C10H16,Terpinolene,Terpinolène,586-62-9,X,,16.9,1.8,4.8,-,4,182,True
+150,C10H16,d-Limonene,d-Limonène,5989-27-5,X,,17.2,1.8,4.3,-,4,175,True
+151,C10H18O,"1,4-Cineole","1,4-Cinéole",470-67-7,X,,17,3.4,3.7,-,4,174,True
+152,C10H18O,α-Terpineol,α-Terpinéol,98-55-5,X,,17,3.8,10,-,4,218,True
+153,C10H18O,Eucalyptol,Eucalyptol,470-82-6,X,,16.7,4.6,3.4,-,4,176,True
+154,C10H18O,β-Terpineol,β-Terpinéol,138-87-4,X,,17.5,6.3,10.3,-,5,206,True
+155,C10H18O,Geraniol,Géraniol,106-24-1,X,,16.4,3.7,10,-,4,230,True
+156,C10H18O4,Diethyl adipate,Adipate de diéthyle,141-28-6,X,,16.4,6.2,7.5,-,4,247,True
+157,C10H20O,α-Dihydroterpineol,α-Dihydroterpinéol,498-81-7,X,,16.9,4.1,9.1,-,5,212,True
+158,C10H20O,Cyclademol,Cycladémol,25225-09-6,X,,16.5,5,10,-,5,214,True
+159,C10H20O,Dihydromyrcenol,Dihydromyrcénol,18479-58-8,X,,16.1,4.6,10,-,4,188,True
+160,C10H21NO,"N,N-Dimethyloctanamide","N,N-Diméthyloctanamide",1118-92-9,X,,16.3,7.4,6.3,-,4,257,False
+161,C10H22O,Decan-1-ol,Décan-1-ol,112-30-1,X,,16,4.7,10.5,-,4,228,True
+162,C10H30O5Si5,Cyclopentasiloxane,Cyclopentasiloxane,541-02-6,X,,12.9,1.3,1,-,4,210,False
+163,C11H18O,Nopol,Nopol,128-50-7,X,,17.4,3.7,1.8,-,4,235,True
+164,C11H24O3,"2,3-Dibutoxypropan-1-ol","2,3-Dibutoxypropan-1-ol",91337-36-9,X,,15.8,5.4,10.9,-,5,293,True
+165,C11H24O3,"1,3-Dibutoxypropan-2-ol","1,3-Dibutoxypropan-2-ol",2216-77-5,X,,15.8,5.7,7.2,-,4,285,True
+166,C12H14O4,Diethyl phthalate,Phtalate de diéthyle,84-66-2,,,17.6,9.6,4.5,-,5,294,True
+167,C12H20O2,Geranyl acetate,Acétate de géranyle,105-87-3,X,,16.3,3.2,6.1,-,5,248,True
+168,C12H22O4,Triethyl citrate,Citrate de triéthyle,77-93-0,,,16.5,4.9,12,-,5,294,True
+169,C12H22O2,Dihydroterpinyl acetate,Acétate de dihydroterpényle,80-25-1,,,16.6,4,4.3,-,4,234,True
+170,C12H22O4,Diisobutyl succinate,Succinate de diisobutyle,925-06-4,,,16.5,4,6.7,-,5,253,True
+171,C12H25NO,"N,N-Dimethyldecanamide","N,N-Diméthyldécanamide",14433-76-2,,,16.6,7.4,8.7,-,4,260,False
+172,C12H25NO3,"N,N-bis(2-hydroxyethyl)octanamide","N,N-bis(2-hydroxyléthyl)-octanamide",3077-30-3,X,,17,9.6,15.9,-,5,392,False
+173,C12H24O4,Diisobutyl glutarate,Glutarate de diisobutyle,71195-64-7,,,16.4,4.3,6.8,-,5,267,True
+174,C12H26O2,Methyl laurate,Laurate de méthyle,111-82-0,,,16.2,3.4,5.1,-,4,263,True
+175,C14H12O2,Benzyl benzoate,Benzoate de benzyle,120-51-4,,,20,5.1,5.2,-,4,323,True
+176,C14H26O4,Diisobutyl adipate,Adipate de diisobutyle,141-04-8,,,16.7,2.5,6.2,-,5,293,True
+177,C14H28O2,Ethyl laurate,Laurate d'éthyle,106-33-2,,,16.2,3.4,5.3,-,5,278,True
+178,C14H28O2,Butyl decanoate,Décanoate de butyle,30673-36-0,,,16.2,2.8,3.8,-,5,275,True
+179,C14H29NO3,"N,N-bis(2-hydroxyethyl)decanamide","N,N-bis(2-hydroxyéthyl)-décanamide",136-26-5,,,16.8,9.1,15.2,-,5,418,False
+180,C15H30O2,Methyl myristate,Myristate de méthyle,124-10-7,,,16.4,2.6,4.5,-,5,296,True
+181,C15H30O2,Isopropyl laurate,Laurate d'isopropyle,10233-13-3,,,16,4.8,4.5,-,4,281,True
+182,C15H32O3,"1,2,3-Tributoxypropane","1,2,3-Tributoxypropane",131570-29-1,,,15.7,3.8,3.2,-,5,321,True
+183,C16H32O2,Ethyl myristate,Myristate d'éthyle,124-06-1,,,16.3,2.7,5,-,5,306,True
+184,C16H32O2,Butyl laurate,Laurate de butyle,106-18-3,,,16.2,2.9,4,-,5,306,True
+185,C16H34,n-Hexadecane,n-Hexadécane,544-76-3,,,16.3,0,0,-,5,287,True
+186,C17H34O2,Methyl palmitate,Palmitate de méthyle,112-39-0,,,16.3,2.7,4.6,-,4,327,True
+187,C17H34O2,Isopropyl myristate,Myristate d'isopropyle,110-27-0,,,16.2,2.3,3.8,-,6,320,True
+188,C17H34O2,Isoamyl laurate,Laurate d'isoamyle,6309-51-9,,,16.1,2.8,4.5,-,5,312,True
+189,C18H32O6,Tributyl citrate,Citrate de tributyle,77-94-1,,,16.6,3.8,10.1,-,5,390,True
+190,C18H34O2,Oleic acid,Acide oléique,112-80-1,,,16,2.8,6.2,-,6,360,True
+191,C18H34O3,Ricinoleic acid,Acide richoléique,141-22-0,,,15.9,4.6,12,-,5,416,True
+192,C18H36O4,Dibutyl sebacate,Sébagate de dibutyle,109-43-3,,,16.7,4.5,4.1,-,5,349,True
+193,C18H36O,Oleyl alcohol,Alcool oléylique,143-28-2,,,16.5,2.6,8,-,5,333,True
+194,C18H36O2,Butyl myristate,Myristate de butyle,110-36-1,,,16.3,2.2,3.3,-,5,335,True
+195,C18H36O2,Ethyl palmitate,Palmitate d'éthyle,628-97-7,,,16.3,2.7,5,-,5,335,True
+196,C18H30O2,Methyl linolenate,Linolénate de méthyle,301-00-8,,,16.2,4,4.3,-,5,351,True
+197,C18H32O2,Methyl linoleate,Linoléate de méthyle,112-63-0,,,16.2,3.3,4.1,-,5,349,True
+198,C18H34O2,Methyl oleate,Oléate de méthyle,112-62-9,,,16.2,3.8,4.5,-,4,344,True
+199,C18H34O3,Methyl ricinoleate,Richoléate de méthyle,141-24-2,,,16.3,5,8,-,5,170,True
+200,C19H38O2,Methyl stearate,Stéarate de méthyle,112-61-8,,,16.5,2,4.1,-,5,350,True
+201,C19H38O2,Isopropyl palmitate,Palmitate d'isopropyle,142-91-6,,,14.3,3.9,3.7,-,5,341,True
+202,C20H34O2,Ethyl linolenate,Linolénate d'éthyle,1191-41-9,,,16.2,4,4.5,-,6,359,True
+203,C20H34O6,Acetyl tributyl citrate,Citrate d'acétyl tributyle,77-90-7,,,16.7,2.5,7.4,-,6,418,True
+204,C20H36O2,Ethyl linoleate,Linoléate d'éthyle,544-35-4,,,16.2,3.4,4.3,-,5,388,True
+205,C20H38O2,Ethyl oleate,Oléate d'éthyle,111-62-6,,,14.5,3.8,3.7,-,5,360,True
+206,C20H40O2,Ethyl stearate,Stéarate d'éthyle,111-61-5,,,16.4,2.1,4.8,-,5,356,True
+207,C20H40O2,Butyl palmitate,Palmitate de butyle,111-06-8,,,16.3,2.3,3.5,-,5,362,True
+208,C20H40O2,2-Ethylhexyl laurate,Laurate de 2-éthylhexyle,20292-08-4,,,16.1,3.3,5.4,-,4,355,True
+209,C21H32O2,Methyl abietate,Abiétate de méthyle,127-25-3,,,17.5,3.3,4.2,-,5,404,True
+210,C21H40O2,Isopropyl oleate,Oléate d'isopropyle,112-11-8,,,16.1,4.1,3.6,-,5,397,True
+211,C21H42O2,Methyl eicosanoate,Eicosanoate de méthyle,1120-28-1,,,16.5,2.1,4.2,-,4,375,True
+212,C22H34O2,Ethyl abietate,Abiétate d'éthyle,631-71-0,,,17.1,3.4,4.2,-,5,418,True
+213,C22H38O6,Isosorbide dioctanoate,Dioctanoate d'isosorbide,64896-70-4,,,16.5,4.8,5.6,-,5,477,True
+214,C22H42O2,Erucic acid,Acide érucique,112-86-7,(X),,16.3,3,5,-,6,417,True
+215,C22H42O2,Butyl oleate,Oléate de butyle,142-77-8,,,16.3,3.7,4.2,-,5,415,True
+216,C22H44O2,Butyl stearate,Stéarate de butyle,123-95-5,X,,14.5,3.7,3.5,-,6,350,True
+217,C22H44O2,Ethyl eicosanoate,Eicosanoate d'éthyle,18281-05-5,,,16.4,2.2,4.8,-,5,369,True
+218,C23H44O2,Methyl erucate,Erucate de méthyle,1120-34-9,,,16.3,2.6,3.9,-,5,423,True
+219,C23H46O2,Methyl docosanoate,Docosanoate de méthyle,929-77-1,,,16.6,1.5,3.8,-,5,393,True
+220,C24H46O2,Ethyl docos-13-enoate,Docos-13-énoate d'éthyle,37910-77-3,,,16.2,2.6,4.5,-,6,437,True

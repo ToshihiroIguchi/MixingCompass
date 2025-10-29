@@ -25,6 +25,7 @@ class CSVConsolidator:
         self.output_file = Path(output_file)
         self.consolidated_data = []
         self.duplicate_stats = {}
+        self.rdkit_warning_shown = False  # Track if RDKit warning has been shown
 
     def load_csv_files(self) -> Dict[str, pd.DataFrame]:
         """Load all CSV files from input directory"""
@@ -112,6 +113,56 @@ class CSVConsolidator:
         name = name.strip()
 
         return name
+
+    def determine_cho_only(self, smiles: str = None, molecular_formula: str = None, cho_value: str = None) -> bool:
+        """
+        Determine if solvent contains only C, H, O elements
+
+        Args:
+            smiles: SMILES string
+            molecular_formula: Molecular formula
+            cho_value: Existing CHO value from CSV
+
+        Returns:
+            True if CHO only, False if not, None if cannot determine
+        """
+        # Priority 1: Use existing CHO value from CSV if available
+        if cho_value is not None and str(cho_value).strip() not in ['', 'nan', 'NaN', 'NA', 'N/A', '-']:
+            cho_str = str(cho_value).strip().lower()
+            if cho_str in ['true', 't', '1', 'yes', 'y']:
+                return True
+            elif cho_str in ['false', 'f', '0', 'no', 'n']:
+                return False
+
+        # Priority 2: Determine from SMILES using RDKit
+        if smiles is not None and str(smiles).strip() not in ['', 'nan', 'NaN', 'NA', 'N/A', '-']:
+            try:
+                from rdkit import Chem
+                mol = Chem.MolFromSmiles(smiles)
+                if mol:
+                    atoms = [atom.GetSymbol() for atom in mol.GetAtoms()]
+                    unique_elements = set(atoms)
+                    return unique_elements.issubset({'C', 'H', 'O'})
+            except ImportError:
+                if not self.rdkit_warning_shown:
+                    logger.warning("RDKit not available for SMILES analysis. CHO determination will be limited.")
+                    self.rdkit_warning_shown = True
+            except Exception as e:
+                logger.debug(f"Error parsing SMILES '{smiles}': {e}")
+
+        # Priority 3: Determine from Molecular Formula using regex
+        if molecular_formula is not None and str(molecular_formula).strip() not in ['', 'nan', 'NaN', 'NA', 'N/A', '-']:
+            try:
+                formula_str = str(molecular_formula).strip()
+                # Extract all element symbols (uppercase letter optionally followed by lowercase)
+                elements = re.findall(r'([A-Z][a-z]?)', formula_str)
+                unique_elements = set(elements)
+                return unique_elements.issubset({'C', 'H', 'O'})
+            except Exception as e:
+                logger.debug(f"Error parsing formula '{molecular_formula}': {e}")
+
+        # Cannot determine
+        return None
 
     def extract_base_name(self, name: str) -> str:
         """Extract base name without common name in parentheses for duplicate detection"""
@@ -268,6 +319,17 @@ class CSVConsolidator:
                             field_type=dtype,
                             allow_negative=allow_neg
                         )
+
+                # Determine CHO (C, H, O only) flag
+                smiles = row_dict.get('Smiles', None)
+                molecular_formula = row_dict.get('Molecular Formula', None)
+                existing_cho = row_dict.get('CHO', None)
+                cho_result = self.determine_cho_only(
+                    smiles=smiles,
+                    molecular_formula=molecular_formula,
+                    cho_value=existing_cho
+                )
+                row_dict['CHO'] = cho_result
 
                 row_dict['source_file'] = file_name
                 row_dict['source_row'] = idx + 2  # +2 for header and 0-based index

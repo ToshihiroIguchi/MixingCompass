@@ -1,7 +1,7 @@
-Solvent,delta_D,delta_P,delta_H,CAS,Formula,Tb,Density,MWt
-"Di(2-ethylhexyl phthalate) (DEHP, DOP)",16.6,7,3.1,117-81-7,C24H38O4,385,0.985,390.56
-2-Ethylhexyl phthalate (MEHP),17.3,6.2,6.8,4376-20-9 , C16H22O4,,,278.34
-Dioctyl adipate (DOA),16.7,2,5.1,103-23-1, C22H42O4,417,0.93,370.574
-Di(isononyl phthalate) (DiNP),16.6,6.6,2.9,28553-12-0,C26H42O4,,0.98,418.618
-tetrabromobisphenol A (TBBPA),20.2,9.1,13.8,79-94-7,C15H12Br4O2,250,2.12,543.9
-Pentachlorophenol ,21.5,6.9,12.8,87-86-5,C6HCl5O,,1.978,266.34
+Solvent,delta_D,delta_P,delta_H,CAS,Formula,Tb,Density,MWt,CHO
+"Di(2-ethylhexyl phthalate) (DEHP, DOP)",16.6,7,3.1,117-81-7,C24H38O4,385,0.985,390.56,True
+2-Ethylhexyl phthalate (MEHP),17.3,6.2,6.8,4376-20-9 , C16H22O4,,,278.34,True
+Dioctyl adipate (DOA),16.7,2,5.1,103-23-1, C22H42O4,417,0.93,370.574,True
+Di(isononyl phthalate) (DiNP),16.6,6.6,2.9,28553-12-0,C26H42O4,,0.98,418.618,True
+tetrabromobisphenol A (TBBPA),20.2,9.1,13.8,79-94-7,C15H12Br4O2,250,2.12,543.9,False
+Pentachlorophenol ,21.5,6.9,12.8,87-86-5,C6HCl5O,,1.978,266.34,False

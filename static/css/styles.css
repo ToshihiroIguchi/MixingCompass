@@ -3061,3 +3061,16 @@ body {
 #solvent-search .left-panel {
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
 }
+
+/* CHO Column Styles */
+.cho-yes {
+    color: #2E7D32;
+    font-weight: 900;
+    font-size: 1.4em;
+}
+
+.cho-no {
+    color: #D32F2F;
+    font-weight: 900;
+    font-size: 1.4em;
+}
