@@ -965,6 +965,25 @@ class SolventSearch {
                     width: 68,
                     hozAlign: "center",
                     headerHozAlign: "center"
+                },
+                {
+                    title: "Tb<br>(°C)",
+                    field: "boiling_point",
+                    sorter: "number",
+                    headerFilter: minMaxFilterEditor,
+                    headerFilterFunc: minMaxFilterFunction,
+                    headerFilterLiveFilter: false,
+                    formatter: (cell) => {
+                        const value = cell.getValue();
+                        if (value === null || value === undefined) {
+                            return '—';
+                        }
+                        return value.toFixed(1);
+                    },
+                    headerTooltip: "Boiling point (Tb) in °C",
+                    width: 70,
+                    hozAlign: "center",
+                    headerHozAlign: "center"
                 }
             ],
 
@@ -1034,6 +1053,7 @@ class SolventSearch {
                 delta_p: solvent.delta_p,
                 delta_h: solvent.delta_h,
                 cho: solvent.cho,
+                boiling_point: solvent.boiling_point,
                 source_url: solvent.source_url || '',
                 source_file: solvent.source_file || ''
             };

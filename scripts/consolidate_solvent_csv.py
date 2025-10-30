@@ -264,7 +264,7 @@ class CSVConsolidator:
             'MWt': ('float', False),
             'MVol': ('float', False),
             'Density': ('float', False),
-            'Tv': ('float', True),           # boiling point can be negative
+            'Tb': ('float', True),           # boiling point can be negative
             'Pv': ('float', False),
             'Cost': ('float', False),
         }
