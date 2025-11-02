@@ -1,0 +1,28 @@
+No,Solvent,dD,dP,dH,MVol,CHO
+598,"Pyridine",19,8.8,5.9,80.9,False
+521,"N-Methyl-2-pyrrolidone",18,12.3,7.2,96.6,False
+524,"Methylene dichloride",17,7.3,7.1,64.4,False
+307,"1,3-Dioxolane",18.1,6.6,9.3,69.9,True
+481,"Methyl ethyl ketone",16,9,5.1,90.2,True
+617,"Tetrahydrofuran",16.8,5.7,8,81.9,True
+156,"Chloroform",17.8,3.1,5.7,80.5,False
+7,"Acetone",15.5,10.4,7,73.8,True
+297,"N,N-Dimethylformamide",17.4,13.7,11.3,77.4,False
+303,"Dimethyl sulfoxide",18.4,16.4,10.2,71.3,False
+306,"1,4-Dioxane",17.5,1.8,9,85.7,True
+328,"Ethyl acetate",15.8,5.3,7.2,98.6,True
+403,"Furan",17,1.8,5.3,73.1,True
+169,"m-Cresol",18.5,6.5,13.7,105,True
+637,"Toluene",18,1.4,2,106.6,True
+697,"Xylene",17.8,1,3.1,121.1,True
+52,"Benzene",18.4,0,2,89.5,True
+414,"Hexafluoroisopropanol",17.2,4.5,14.7,105.3,False
+754,"Isoamyl alcohol (3-methyl-1-butanol)",15.8,5.2,13.3,109.3,True
+10,"Acetonitrile",15.3,18,6.1,52.9,False
+255,"Diethyl ether",14.5,2.9,4.6,104.7,True
+181,"Cyclohexane",16.8,0,0.2,108.9,True
+443,"Isopropyl ether",15.1,3.2,3.2,141.8,True
+417,"Hexane",14.9,0,0,131.4,True
+325,"Ethanol",15.8,8.8,19.4,58.6,True
+456,"Methanol",14.7,12.3,22.3,40.6,True
+696,"Water",15.5,16,42.3,18,True

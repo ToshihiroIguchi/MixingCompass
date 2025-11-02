@@ -1,0 +1,249 @@
+"Solvent","V (cm3/mol)","dD","dP","dH","dT","CHO"
+"Methanol",40.70,15.10,12.30,22.30,29.61,True
+"Ethanol",58.50,15.80,8.80,19.40,26.52,True
+"1-Propanol",75.20,16.00,6.80,17.40,24.60,True
+"2-Propanol",76.80,15.80,6.10,16.40,23.58,True
+"1-Butanol",91.50,16.00,5.70,15.80,23.20,True
+"2-Methyl-1-propanol",92.80,15.10,5.70,15.90,22.66,True
+"2-Methyl-2-propanol",95.80,15.20,5.10,14.70,21.75,True
+"2-Butanol",92.00,15.80,5.70,14.50,22.19,True
+"1-Pentanol",108.60,15.90,4.50,13.90,21.59,True
+"3-Methyl-1-butanol",109.40,15.80,5.20,13.30,21.30,True
+"2-Methyl-1-butanol",108.20,16.00,5.10,14.30,22.06,True
+"2-Pentanol",109.60,15.60,6.40,13.30,21.48,True
+"2-Methyl-2-butanol",108.20,15.30,6.10,13.30,21.17,True
+"1-Hexanol",124.90,15.90,5.80,12.50,21.04,True
+"4-Methyl-2-pentanol",127.20,15.40,3.30,12.30,19.98,True
+"1,3-Dimethyl-1-butanol",124.00,15.80,4.90,13.50,21.35,True
+"1-Heptanol",141.90,16.00,5.30,11.70,20.52,True
+"1-Octanol",157.70,17.00,3.30,11.90,21.01,True
+"2-Octanol",159.10,16.10,4.90,11.00,20.11,True
+"1-Nonanol",174.40,16.00,4.80,10.60,19.78,True
+"1-Decanol",191.80,17.50,2.60,10.00,20.32,True
+"1-Dodecanol",224.30,16.00,4.00,9.30,18.93,True
+"Cyclohexanol",106.00,17.40,4.10,13.50,22.40,True
+"Allyl alcohol",68.40,16.20,10.80,16.80,25.72,True
+"Benzyl alcohol",103.60,18.40,6.30,13.70,23.79,True
+"3-Cresol",104.70,18.00,5.10,12.90,22.72,True
+"2-Methoxyphenol (guaiacol)",97.00,18.00,8.20,13.30,23.84,True
+"2-Chlorophenol",102.30,20.30,5.50,13.90,25.21,False
+"Methyl salicylate",129.60,18.10,8.00,13.90,24.18,True
+"2-Propanone",74.00,15.50,10.40,7.00,19.94,True
+"2-Butanone",90.10,16.00,9.00,5.10,19.05,True
+"2-Pentanone",106.70,16.00,7.60,4.70,18.33,True
+"3-Pentanone",106.40,15.80,7.60,4.70,18.15,True
+"2-Hexanone",123.60,15.30,6.10,4.10,16.97,True
+"2-Heptanone",139.80,16.20,5.70,4.10,17.66,True
+"3-Heptanone",139.00,16.20,5.00,4.10,17.44,True
+"4-Heptanone",140.80,15.80,5.70,4.90,17.50,True
+"3-Octanone",156.00,16.20,4.50,4.10,17.31,True
+"5-Nonanone",173.40,16.00,7.70,4.40,18.29,True
+"Acetophenone",117.40,19.60,8.60,3.70,21.72,True
+"Benzophenone",164.20,13.60,8.60,5.70,17.07,True
+"Cyclopentanone",89.10,17.90,11.90,5.20,22.11,True
+"Cyclohexanone",104.00,17.80,6.30,5.10,19.56,True
+"Methyl formate",62.20,15.30,8.40,10.20,20.22,True
+"Ethyl formate",80.20,15.50,8.40,8.40,19.53,True
+"n-Butyl formate",114.80,15.70,6.50,9.20,19.32,True
+"Methyl acetate",79.70,15.50,7.20,7.60,18.70,True
+"Ethyl acetate",98.50,15.80,5.30,7.20,18.15,True
+"n-Propyl acetate",115.30,15.30,4.30,7.60,17.62,True
+"Isopropyl acetate",117.10,14.90,4.50,8.20,17.59,True
+"n-Butyl acetate",132.50,15.80,3.70,6.30,17.41,True
+"iso-Butyl acetate",133.50,15.10,3.70,6.30,16.77,True
+"tert-Butyl acetate",134.10,15.40,6.20,6.20,17.72,True
+"sec-Butyl acetate",133.60,15.00,3.70,7.60,17.22,True
+"n-Pentyl acetate",148.00,15.80,3.30,6.10,17.26,True
+"iso-Pentyl acetate",150.26,15.30,3.10,7.00,17.11,True
+"n-Hexyl acetate",165.00,15.80,2.90,5.90,17.11,True
+"Methyl propionate",96.80,15.50,6.50,7.70,18.49,True
+"Ethyl propionate",115.50,15.50,6.10,4.90,17.36,True
+"n-Butyl propionate",149.70,15.70,5.50,5.90,17.65,True
+"n-Ethyl butyrate",132.90,15.50,5.60,5.00,17.22,True
+"n-Butyl butyrate",166.70,15.60,2.90,5.60,16.83,True
+"iso-Butyl isobutyrate",167.70,15.10,2.90,5.90,16.47,True
+"Ethyl acetoacetate",125.60,16.50,10.80,8.30,21.40,True
+"Methyl benzoate",124.90,17.00,8.20,4.70,19.45,True
+"Ethyl benzoate",144.30,17.90,6.20,6.00,19.87,True
+"Butyl benzoate",178.00,18.30,2.90,5.50,19.33,True
+"Benzyl benzoate",191.20,20.00,5.10,5.20,21.28,True
+"Dimethyl maleate",125.80,16.30,8.30,9.80,20.75,True
+"Dibutyl maleate",230.40,16.50,6.10,7.20,19.01,True
+"Diethyl malonate",152.50,16.10,7.70,8.30,19.68,True
+"Diethyl phthalate",198.00,17.60,9.60,4.50,20.55,True
+"Diethyl oxalate",136.60,16.20,8.00,8.80,20.10,True
+"Ethyl lactate",115.00,16.00,7.60,12.50,21.68,True
+"Diethyl carbonate",122.00,16.60,3.10,6.10,17.95,True
+"Dimethyl carbonate",84.20,15.50,3.90,9.70,18.70,True
+"Propanal",73.40,15.10,6.70,10.00,19.31,True
+"Butanal",88.50,14.70,5.30,7.00,17.12,True
+"Pentanal",106.40,15.70,9.40,5.80,19.20,True
+"3-Methylbutanal",106.00,14.70,9.50,5.00,18.20,True
+"Hexanal",122.50,15.80,8.50,5.40,18.74,True
+"Paraldehyde",132.40,16.60,7.50,7.30,19.62,True
+"Benzaldehyde",101.50,19.40,7.40,5.30,21.43,True
+"2-Hydroxybenzaldehyde",104.60,19.40,10.70,14.70,26.59,True
+"Limonene",162.90,17.20,1.80,4.30,17.82,True
+"alpha-Pinene",159.50,16.90,1.80,3.10,17.28,True
+"Diethyl ether",104.80,14.50,2.90,5.10,15.64,True
+"Dibutyl ether",170.30,15.30,3.40,3.30,16.02,True
+"Methyl tert-butyl ether",119.80,14.80,4.30,5.00,16.20,True
+"Ethyl methyl ether",84.10,14.70,4.90,6.20,16.69,True
+"Dipropyl ether",137.70,15.10,4.20,3.70,16.10,True
+"Diisopropyl ether",140.90,13.70,3.90,2.30,14.43,True
+"Dipentyl ether",203.20,15.60,3.10,3.00,16.19,True
+"1,1-Dimethoxyethane",106.70,15.10,4.90,4.90,16.61,True
+"1,1-Diethoxyethane",143.90,15.00,3.40,4.00,15.89,True
+"Methyl phenyl ether (anisole)",119.10,17.80,4.10,6.70,19.46,True
+"Ethyl phenyl ether (phenetole)",127.30,18.40,4.50,4.00,19.36,True
+"Anethole",150.00,19.00,4.30,8.70,21.33,True
+"Diphenyl ether",160.40,19.60,3.20,5.80,20.69,True
+"Chloromethane",55.40,15.30,6.10,3.90,16.93,False
+"Dichloromethane",63.90,18.20,6.30,6.10,20.20,False
+"Trichloromethane",80.70,17.80,3.10,5.70,18.95,False
+"Tetrachloromethane",97.10,17.80,0.00,0.60,17.81,False
+"1,1-Dichloroethane",84.73,16.50,7.80,3.00,18.50,False
+"1,2-Dichloroethane",79.40,19.00,7.40,4.10,20.80,False
+"1,1,1-Trichloroethane",99.30,16.80,4.30,2.00,17.46,False
+"1,1,2-Trichloroethane",92.90,18.20,5.30,6.80,20.14,False
+"1-Chloropropane",88.10,16.00,7.80,2.00,17.91,False
+"2-Chloropropane",91.70,15.90,8.30,2.10,18.06,False
+"1,3-Dichloropropane",95.10,18.60,8.20,3.00,20.55,False
+"1,4-Dichlorobutane",109.50,18.30,7.70,2.80,20.05,False
+"1,5-Dichloropentane",127.50,19.00,7.80,1.50,20.59,False
+"1-Chlorobutane",104.50,16.20,5.50,2.00,17.22,False
+"2-Chlorobutane",106.80,15.80,7.60,2.00,17.65,False
+"1-Chloropentane",120.90,16.00,6.90,1.90,17.53,False
+"3-Chloropropene",82.30,17.00,6.20,2.30,18.24,False
+"Dibromomethane",69.80,17.80,6.40,7.00,20.17,False
+"Tribromomethane",87.50,21.40,4.10,6.10,22.63,False
+"Bromoethane",74.60,16.50,8.40,2.30,18.66,False
+"1,1,2,2-Tetrabromoethane",117.00,22.60,5.10,8.20,24.58,False
+"1-Bromopropane",90.90,16.40,7.90,4.80,18.83,False
+"2-Bromopropane",93.60,16.10,8.30,4.70,18.71,False
+"Iodomethane",62.30,17.50,7.70,5.30,19.84,False
+"Iodoethane",81.20,17.30,7.90,7.20,20.34,False
+"Diiodomethane",80.50,17.80,3.90,5.50,19.03,False
+"Trichlorosilane",101.10,14.20,3.60,3.80,15.13,False
+"1-Methylnaphthalene",139.00,20.60,0.80,4.70,21.14,True
+"cis-Decahydronaphthalene",156.90,18.80,0.00,0.00,18.80,True
+"1,2,3,4-Tetrahydronaphthalene",136.00,19.60,2.00,2.90,19.91,True
+"1-Pentene",110.40,13.90,1.40,3.80,14.48,True
+"2-Methyl-1-butene",108.70,14.20,1.80,2.30,14.50,True
+"2-Methyl-2-butene",106.70,14.30,2.00,3.90,14.96,True
+"3-Methyl-1-butene",112.90,14.00,1.40,3.80,14.57,True
+"1-Hexene",126.10,14.70,1.10,0.00,14.74,True
+"1-Heptene",141.90,15.00,1.10,2.60,15.26,True
+"1-Octene",158.00,15.30,1.00,2.40,15.52,True
+"1-Nonene",170.50,15.40,1.00,2.20,15.59,True
+"1-Decene",190.60,15.80,1.00,2.20,15.98,True
+"1-Tetradecene",253.40,16.10,0.50,1.90,16.22,True
+"Cyclopentene",89.00,16.70,3.80,1.70,17.21,True
+"Fluorobenzene",94.70,18.70,6.10,2.00,19.77,False
+"Chlorobenzene",102.10,19.00,4.30,2.00,19.58,False
+"4-Chlorotoluene",118.20,19.10,6.20,2.60,20.25,False
+"Bromobenzene",105.30,20.50,5.50,4.10,21.62,False
+"Iodobenzene",112.00,19.50,6.00,6.10,21.29,False
+"1,2-Dichlorobenzene",112.60,19.20,6.30,3.30,20.47,False
+"1,3-Dichlorobenzene",114.80,19.70,5.10,2.70,20.53,False
+"Benzene",89.40,18.40,0.00,2.00,18.51,True
+"Toluene",106.80,18.00,1.40,2.00,18.16,True
+"Ethylbenzene",123.00,17.80,0.60,1.40,17.87,True
+"1,2-Dimethylbenzene",121.20,17.80,1.00,3.10,18.10,True
+"1,3-Dimethylbenzene",123.44,17.40,1.00,3.10,17.70,True
+"1,4-Dimethylbenzene",123.30,17.60,1.00,3.10,17.90,True
+"1,2-Diethylbenzene",153.50,17.70,0.10,1.00,17.73,True
+"1,4-Diethylbenzene",156.90,18.00,0.00,0.60,18.01,True
+"Isopropylbenzene",139.10,18.10,1.20,1.20,18.18,True
+"1,2,4-Trimethylbenzene",133.60,17.80,0.40,1.00,17.83,True
+"1,3,5-Trimethylbenzene (mesitylene)",139.80,18.00,0.00,0.60,18.01,True
+"1-Butylbenzene",157.00,17.40,0.10,1.10,17.44,True
+"Styrene",115.60,18.60,1.00,4.10,19.07,True
+"Methylal",88.80,15.00,1.80,8.60,17.38,True
+"Nitromethane",54.30,15.80,18.80,5.10,25.08,False
+"Nitroethane",71.50,16.00,15.50,4.50,22.73,False
+"1-Nitropropane",88.40,16.60,12.30,5.50,21.38,False
+"2-Nitropropane",86.90,16.20,12.10,4.10,20.63,False
+"Ethylene glycol",55.80,17.00,11.00,26.00,32.95,True
+"Diethylene glycol",94.90,16.60,12.00,20.70,29.12,True
+"Triethylene glycol",114.00,16.00,12.50,18.60,27.54,True
+"Trimethylene glycol",72.50,16.80,13.50,23.20,31.67,True
+"Ethylene glycol monomethyl ether",79.10,16.20,9.20,16.40,24.82,True
+"Ethylene glycol monoethyl ether",97.80,16.20,9.20,14.30,23.49,True
+"Ethylene glycol monobutyl ether",131.60,16.00,5.10,12.30,20.82,True
+"Diethylene glycol dimethyl ether",142.00,15.70,6.10,6.50,18.05,True
+"Diethylene glycol diethyl ether",179.80,15.80,5.90,5.60,17.77,True
+"Dichloroethyl ether",117.20,18.80,9.00,5.70,21.61,False
+"1,4-Dioxane",85.70,19.00,1.80,7.40,20.47,True
+"Water",18.00,15.50,16.00,42.30,47.81,True
+"Acetonitrile",52.60,15.30,18.00,6.10,24.40,False
+"Propionitrile",70.90,15.30,14.30,5.50,21.65,False
+"Butyronitrile",87.30,15.30,12.40,5.10,20.34,False
+"Valeronitrile",103.80,15.30,11.00,4.80,19.45,False
+"Benzonitrile",103.00,17.40,9.00,3.30,19.87,False
+"3-Butenenitrile",80.50,16.00,14.30,5.60,22.18,False
+"Formamide",39.80,17.20,26.20,19.00,36.65,False
+"Hydrazine",32.10,14.20,8.30,8.90,18.70,False
+"Methylamine",44.40,13.00,7.30,17.30,22.84,False
+"Ethylamine",65.60,15.00,5.60,10.70,19.26,False
+"n-Propylamine",83.00,16.90,4.90,8.60,19.59,False
+"n-Butylamine",99.00,16.20,4.50,8.00,18.62,False
+"Dimethylamine",66.20,15.30,4.80,11.20,19.56,False
+"Diethylamine",103.20,14.90,2.30,6.10,16.26,False
+"Di-n-propylamine",136.90,15.30,1.40,4.10,15.90,False
+"Diisopropylamine",136.90,15.30,1.40,4.10,15.90,False
+"Di-n-butylamine",170.00,15.00,3.00,4.30,15.89,False
+"Trimethylamine",90.30,14.60,3.40,1.80,15.10,False
+"Ethylenediamine",67.30,16.60,8.80,17.00,25.34,False
+"Aniline",91.50,19.40,5.10,10.20,22.50,False
+"N-Methylaniline",108.40,19.50,6.00,11.50,23.42,False
+"Dimethylaniline",123.70,19.20,5.20,8.70,21.71,False
+"Ethanolamine",59.80,17.00,15.50,21.20,31.28,False
+"Triethanolamine",133.20,17.30,22.40,23.30,36.66,False
+"Benzylamine",109.20,19.20,4.60,11.70,22.95,False
+"Cyclohexylamine",113.80,17.20,3.10,6.50,18.65,False
+"Allylamine",74.90,15.50,5.70,10.60,19.62,False
+"Carbon disulfide",60.00,20.50,0.00,0.60,20.51,False
+"N,N-Dimethyl sulfoxide",71.30,18.40,16.40,10.20,26.68,False
+"Dimethyl sulfide",88.60,17.30,7.80,6.50,20.06,False
+"Diethyl sulfide",107.40,16.80,3.10,2.00,17.20,False
+"Furfural",83.20,18.60,14.90,5.10,24.37,True
+"Thiophene",79.00,18.90,2.40,7.80,20.59,False
+"Pyridine",80.90,19.00,8.80,5.90,21.75,False
+"2-Methylpyridine",98.00,17.93,8.60,3.80,20.24,False
+"Pyridazine",72.60,20.20,17.40,11.70,29.12,False
+"Piperidine",98.90,17.60,4.50,8.90,20.23,False
+"Quinoline",118.00,19.40,7.00,7.60,21.98,False
+"Pyrrole",69.20,19.20,7.40,6.70,21.64,False
+"Pyrrolidine",83.50,17.90,6.50,7.40,20.43,False
+"Methanethiol",54.10,16.60,7.70,8.60,20.22,False
+"Ethanethiol (ethyl mercaptan)",74.30,15.70,6.50,7.10,18.42,False
+"1-Propanethiol",90.50,16.10,5.80,5.70,18.04,False
+"2-Propanethiol",94.10,16.30,6.80,6.50,18.82,False
+"1-Butanethiol",107.80,16.30,5.30,4.50,17.72,False
+"Benzenethiol",102.40,20.00,4.50,10.30,22.94,False
+"Acetic anhydride",94.50,16.00,11.70,10.20,22.29,True
+"Formic acid",37.80,14.30,11.90,16.60,24.93,True
+"Acetic acid",57.10,14.50,8.00,13.50,21.37,True
+"Propanoic acid",75.00,14.70,5.30,12.40,19.95,True
+"Butanoic acid",110.00,14.90,4.10,10.60,18.74,True
+"Pentanoic acid",109.20,15.00,4.10,10.30,18.65,True
+"iso-Pentanoic acid",111.00,16.40,4.10,10.70,20.01,True
+"Dichloroacetic acid",82.50,18.20,8.10,12.20,23.36,False
+"Pentane",116.20,14.50,0.00,0.00,14.50,True
+"iso-Pentane",116.46,13.70,0.00,0.00,13.70,True
+"Hexane",131.40,14.90,0.00,0.00,14.90,True
+"Heptane",147.40,15.30,0.00,0.00,15.30,True
+"2,2,4-Trimethylpentane",165.10,14.10,0.00,0.00,14.10,True
+"Octane",163.50,15.50,0.00,0.00,15.50,True
+"Nonane",179.67,15.70,0.00,0.00,15.70,True
+"Decane",195.90,15.70,0.00,0.00,15.70,True
+"Undecane",212.70,16.00,0.00,0.00,16.00,True
+"Dodecane",228.60,16.00,0.00,0.00,16.00,True
+"Tetradecane",261.30,16.20,0.00,0.00,16.20,True
+"Hexadecane",294.10,16.30,0.00,0.00,16.30,True
+"Octadecane",326.90,16.40,0.00,0.00,16.40,True
+"Eicosane",363.70,16.50,0.00,0.00,16.50,True
+"Cyclopentane",94.90,16.40,0.00,1.80,16.50,True
+"Cyclohexane",108.70,16.80,0.00,0.20,16.80,True
+"Methylcyclohexane",128.30,16.00,0.00,1.00,16.03,True

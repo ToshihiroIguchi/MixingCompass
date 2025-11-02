@@ -997,21 +997,39 @@ class SolventSearch {
                         const sourceUrl = data.source_url;
                         const sourceFile = data.source_file;
                         const name = cell.getValue();
+                        const cas = data.cas;
 
+                        // Build Google search query
+                        const searchQuery = cas
+                            ? `${name} CAS ${cas}`
+                            : name;
+                        const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
+
+                        let html = `
+                            <span style="display: flex; justify-content: space-between; align-items: center; gap: 4px;">
+                                <span style="flex: 1; overflow: hidden; text-overflow: ellipsis;">${name}</span>
+                                <span style="display: flex; gap: 4px;">`;
+
+                        // Data source link
                         if (sourceUrl) {
-                            return `
-                                <span style="display: flex; justify-content: space-between; align-items: center; gap: 4px;">
-                                    <span style="flex: 1; overflow: hidden; text-overflow: ellipsis;">${name}</span>
-                                    <a href="${sourceUrl}"
+                            html += `<a href="${sourceUrl}"
                                        target="_blank"
                                        rel="noopener noreferrer"
-                                       title="${sourceUrl}"
+                                       title="View original data source"
                                        class="source-link-icon"
-                                       onclick="event.stopPropagation()">🔗</a>
-                                </span>
-                            `;
+                                       onclick="event.stopPropagation()">🔗</a>`;
                         }
-                        return name;
+
+                        // Google search link (always show)
+                        html += `<a href="${googleUrl}"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   title="Search on Google"
+                                   class="google-search-icon"
+                                   onclick="event.stopPropagation()">🔍</a>`;
+
+                        html += `</span></span>`;
+                        return html;
                     }
                 },
                 {
@@ -1194,6 +1212,7 @@ class SolventSearch {
 
             return {
                 name: solvent.name,
+                cas: solvent.cas || '',
                 ra1_value: ra1 !== null ? ra1 : 999,
                 red1_value: red1 !== null ? red1 : 999,
                 ra2_value: ra2 !== null ? ra2 : 999,
