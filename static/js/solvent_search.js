@@ -206,12 +206,6 @@ class SolventSearch {
             searchBtn.addEventListener('click', () => this.performSearch());
         }
 
-        // Toggle filters
-        const toggleFiltersBtn = document.querySelector('#toggle-filters');
-        if (toggleFiltersBtn) {
-            toggleFiltersBtn.addEventListener('click', () => this.toggleFilters());
-        }
-
         // Sort selector
         const sortSelect = document.querySelector('#sort-results');
         if (sortSelect) {
@@ -515,13 +509,6 @@ class SolventSearch {
         }
     }
 
-    toggleFilters() {
-        const filterOptions = document.querySelector('#filter-options');
-        if (filterOptions) {
-            filterOptions.style.display = filterOptions.style.display === 'none' ? 'block' : 'none';
-        }
-    }
-
     async performSearch() {
         // Get target data (now async)
         const target1Data = await this.getTargetData('target1');
@@ -537,16 +524,6 @@ class SolventSearch {
             return;
         }
 
-        // Get filter values
-        const bpMin = parseFloat(document.querySelector('#bp-min')?.value) || null;
-        const bpMax = parseFloat(document.querySelector('#bp-max')?.value) || null;
-        const costMin = parseFloat(document.querySelector('#cost-min')?.value) || null;
-        const costMax = parseFloat(document.querySelector('#cost-max')?.value) || null;
-
-        // Get WGK filter
-        const wgkSelect = document.querySelector('#wgk-filter');
-        const wgkFilter = wgkSelect ? Array.from(wgkSelect.selectedOptions).map(opt => opt.value) : [];
-
         // Show loading
         const searchBtn = document.querySelector('#search-solvents-btn');
         const originalText = searchBtn.textContent;
@@ -558,8 +535,7 @@ class SolventSearch {
             const primaryTarget = target1Data || target2Data;
 
             const results = await this.searchSingleSolvents(
-                primaryTarget.delta_d, primaryTarget.delta_p, primaryTarget.delta_h, primaryTarget.r0,
-                bpMin, bpMax, costMin, costMax, wgkFilter
+                primaryTarget.delta_d, primaryTarget.delta_p, primaryTarget.delta_h, primaryTarget.r0
             );
 
             this.searchResults = results.results;
@@ -790,7 +766,7 @@ class SolventSearch {
         });
     }
 
-    async searchSingleSolvents(deltaD, deltaP, deltaH, radius, bpMin, bpMax, costMin, costMax, wgkFilter) {
+    async searchSingleSolvents(deltaD, deltaP, deltaH, radius) {
         const params = new URLSearchParams({
             target_delta_d: deltaD,
             target_delta_p: deltaP,
@@ -799,10 +775,6 @@ class SolventSearch {
         });
 
         if (radius) params.append('target_radius', radius);
-        if (bpMin) params.append('bp_min', bpMin);
-        if (bpMax) params.append('bp_max', bpMax);
-        if (costMin) params.append('cost_min', costMin);
-        if (costMax) params.append('cost_max', costMax);
 
         const response = await fetch(`/api/solvent-search/search?${params}`, {
             method: 'POST',
@@ -854,11 +826,6 @@ class SolventSearch {
                         return (a.boiling_point || 999) - (b.boiling_point || 999);
                     }
                     return 0; // Blend mode doesn't have BP
-                case 'cost':
-                    if (searchMode === 'single') {
-                        return (a.cost || 999) - (b.cost || 999);
-                    }
-                    return 0; // Blend mode doesn't have cost
                 default:
                     return 0;
             }
@@ -891,8 +858,6 @@ class SolventSearch {
                     <div class="solvent-properties">
                         ${solvent.boiling_point ? `<span>BP: ${solvent.boiling_point.toFixed(1)}°C</span>` : ''}
                         ${solvent.density ? `<span>ρ: ${solvent.density.toFixed(3)} g/cm³</span>` : ''}
-                        ${solvent.cost !== null ? `<span>Cost: $${solvent.cost.toFixed(3)}/mL</span>` : ''}
-                        ${solvent.wgk ? `<span>WGK: ${solvent.wgk}</span>` : ''}
                     </div>
                     ${solvent.cas ? `<div class="solvent-cas">CAS: ${solvent.cas}</div>` : ''}
                 </div>
