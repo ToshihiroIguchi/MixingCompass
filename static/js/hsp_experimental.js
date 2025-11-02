@@ -1534,73 +1534,109 @@ class HSPExperimental {
             return;
         }
 
-        // Check if DOM elements exist
-        const ddDpElement = document.getElementById('plot-dd-dp');
-        const ddDhElement = document.getElementById('plot-dd-dh');
-        const dpDhElement = document.getElementById('plot-dp-dh');
+        // Use unified subplot container
+        const containerId = 'plot-2d-subplots';
+        const element = document.getElementById(containerId);
 
-        console.log('DOM elements:', {
-            'plot-dd-dp': ddDpElement ? 'found' : 'NOT FOUND',
-            'plot-dd-dh': ddDhElement ? 'found' : 'NOT FOUND',
-            'plot-dp-dh': dpDhElement ? 'found' : 'NOT FOUND'
+        if (!element) {
+            console.warn(`Container #${containerId} not found`);
+            return;
+        }
+
+        // Prepare all traces with subplot assignments
+        const allTraces = [];
+
+        // δD vs δP (subplot 1)
+        if (projections.dd_dp) {
+            projections.dd_dp.data.forEach(trace => {
+                allTraces.push({...trace, xaxis: 'x', yaxis: 'y'});
+            });
+        }
+
+        // δD vs δH (subplot 2)
+        if (projections.dd_dh) {
+            projections.dd_dh.data.forEach(trace => {
+                allTraces.push({...trace, xaxis: 'x2', yaxis: 'y2'});
+            });
+        }
+
+        // δP vs δH (subplot 3)
+        if (projections.dp_dh) {
+            projections.dp_dh.data.forEach(trace => {
+                allTraces.push({...trace, xaxis: 'x3', yaxis: 'y3'});
+            });
+        }
+
+        // Helper function to ensure axis range minimum is not below 0
+        const ensurePositiveRange = (axisConfig) => {
+            if (axisConfig.range && axisConfig.range.length === 2) {
+                return {
+                    ...axisConfig,
+                    range: [Math.max(0, axisConfig.range[0]), axisConfig.range[1]]
+                };
+            }
+            return axisConfig;
+        };
+
+        // Create layout with 3 subplots in a row
+        const layout = {
+            grid: {rows: 1, columns: 3, pattern: 'independent', subplots: [['xy'], ['x2y2'], ['x3y3']]},
+            showlegend: false,
+            margin: {l: 50, r: 50, t: 30, b: 50},
+
+            // Subplot 1: δD vs δP
+            xaxis: {
+                ...ensurePositiveRange(projections.dd_dp.layout.xaxis),
+                domain: [0, 0.28],
+                title: {text: 'δD (MPa<sup>0.5</sup>)', font: {size: 11}},
+                showticklabels: true
+            },
+            yaxis: {
+                ...ensurePositiveRange(projections.dd_dp.layout.yaxis),
+                domain: [0, 1],
+                title: {text: 'δP (MPa<sup>0.5</sup>)', font: {size: 11}},
+                showticklabels: true
+            },
+
+            // Subplot 2: δD vs δH
+            xaxis2: {
+                ...ensurePositiveRange(projections.dd_dh.layout.xaxis),
+                domain: [0.37, 0.65],
+                title: {text: 'δD (MPa<sup>0.5</sup>)', font: {size: 11}},
+                showticklabels: true
+            },
+            yaxis2: {
+                ...ensurePositiveRange(projections.dd_dh.layout.yaxis),
+                domain: [0, 1],
+                title: {text: 'δH (MPa<sup>0.5</sup>)', font: {size: 11}},
+                showticklabels: true,
+                anchor: 'x2'
+            },
+
+            // Subplot 3: δP vs δH
+            xaxis3: {
+                ...ensurePositiveRange(projections.dp_dh.layout.xaxis),
+                domain: [0.72, 1],
+                title: {text: 'δP (MPa<sup>0.5</sup>)', font: {size: 11}},
+                showticklabels: true
+            },
+            yaxis3: {
+                ...ensurePositiveRange(projections.dp_dh.layout.yaxis),
+                domain: [0, 1],
+                title: {text: 'δH (MPa<sup>0.5</sup>)', font: {size: 11}},
+                showticklabels: true,
+                anchor: 'x3'
+            }
+        };
+
+        // Render all subplots in one plot
+        Plotly.newPlot(containerId, allTraces, layout, {
+            responsive: true,
+            displayModeBar: true,
+            displaylogo: false
         });
 
-        // Render δD vs δP
-        if (projections.dd_dp) {
-            console.log('Rendering dd_dp projection...');
-            if (ddDpElement) {
-                // Override layout size to 60% of original
-                const layout = {...projections.dd_dp.layout, width: 240, height: 240};
-                Plotly.newPlot('plot-dd-dp', projections.dd_dp.data, layout, {
-                    responsive: true,
-                    displayModeBar: true,
-                    displaylogo: false
-                });
-                console.log('dd_dp rendered successfully');
-            } else {
-                console.error('plot-dd-dp element not found');
-            }
-        } else {
-            console.warn('dd_dp projection data not available');
-        }
-
-        // Render δD vs δH
-        if (projections.dd_dh) {
-            console.log('Rendering dd_dh projection...');
-            if (ddDhElement) {
-                // Override layout size to 60% of original
-                const layout = {...projections.dd_dh.layout, width: 240, height: 240};
-                Plotly.newPlot('plot-dd-dh', projections.dd_dh.data, layout, {
-                    responsive: true,
-                    displayModeBar: true,
-                    displaylogo: false
-                });
-                console.log('dd_dh rendered successfully');
-            } else {
-                console.error('plot-dd-dh element not found');
-            }
-        } else {
-            console.warn('dd_dh projection data not available');
-        }
-
-        // Render δP vs δH
-        if (projections.dp_dh) {
-            console.log('Rendering dp_dh projection...');
-            if (dpDhElement) {
-                // Override layout size to 60% of original
-                const layout = {...projections.dp_dh.layout, width: 240, height: 240};
-                Plotly.newPlot('plot-dp-dh', projections.dp_dh.data, layout, {
-                    responsive: true,
-                    displayModeBar: true,
-                    displaylogo: false
-                });
-                console.log('dp_dh rendered successfully');
-            } else {
-                console.error('plot-dp-dh element not found');
-            }
-        } else {
-            console.warn('dp_dh projection data not available');
-        }
+        console.log('2D projections rendered successfully with subplots');
     }
 
     async exportGraphsAsZip() {

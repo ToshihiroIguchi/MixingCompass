@@ -91,6 +91,17 @@ class HSPVisualization {
             });
         }
 
+        // Helper function to ensure axis range minimum is not below 0
+        const ensurePositiveRange = (axisConfig) => {
+            if (axisConfig.range && axisConfig.range.length === 2) {
+                return {
+                    ...axisConfig,
+                    range: [Math.max(0, axisConfig.range[0]), axisConfig.range[1]]
+                };
+            }
+            return axisConfig;
+        };
+
         // Create layout with 3 subplots in a row
         const layout = {
             grid: {rows: 1, columns: 3, pattern: 'independent', subplots: [['xy'], ['x2y2'], ['x3y3']]},
@@ -99,13 +110,13 @@ class HSPVisualization {
 
             // Subplot 1: δD vs δP
             xaxis: {
-                ...projections.dd_dp.layout.xaxis,
+                ...ensurePositiveRange(projections.dd_dp.layout.xaxis),
                 domain: [0, 0.28],
                 title: {text: 'δD (MPa<sup>0.5</sup>)', font: {size: 11}},
                 showticklabels: true
             },
             yaxis: {
-                ...projections.dd_dp.layout.yaxis,
+                ...ensurePositiveRange(projections.dd_dp.layout.yaxis),
                 domain: [0, 1],
                 title: {text: 'δP (MPa<sup>0.5</sup>)', font: {size: 11}},
                 showticklabels: true
@@ -113,13 +124,13 @@ class HSPVisualization {
 
             // Subplot 2: δD vs δH
             xaxis2: {
-                ...projections.dd_dh.layout.xaxis,
+                ...ensurePositiveRange(projections.dd_dh.layout.xaxis),
                 domain: [0.37, 0.65],
                 title: {text: 'δD (MPa<sup>0.5</sup>)', font: {size: 11}},
                 showticklabels: true
             },
             yaxis2: {
-                ...projections.dd_dh.layout.yaxis,
+                ...ensurePositiveRange(projections.dd_dh.layout.yaxis),
                 domain: [0, 1],
                 title: {text: 'δH (MPa<sup>0.5</sup>)', font: {size: 11}},
                 showticklabels: true,
@@ -128,13 +139,13 @@ class HSPVisualization {
 
             // Subplot 3: δP vs δH
             xaxis3: {
-                ...projections.dp_dh.layout.xaxis,
+                ...ensurePositiveRange(projections.dp_dh.layout.xaxis),
                 domain: [0.72, 1],
                 title: {text: 'δP (MPa<sup>0.5</sup>)', font: {size: 11}},
                 showticklabels: true
             },
             yaxis3: {
-                ...projections.dp_dh.layout.yaxis,
+                ...ensurePositiveRange(projections.dp_dh.layout.yaxis),
                 domain: [0, 1],
                 title: {text: 'δH (MPa<sup>0.5</sup>)', font: {size: 11}},
                 showticklabels: true,

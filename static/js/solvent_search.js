@@ -221,15 +221,19 @@ class SolventSearch {
             });
         }
 
-        // Visualization tabs (3D/2D switching)
+        // Visualization tabs (3D/2D/RED switching)
         const tab3D = document.querySelector('#search-tab-3d');
         const tab2D = document.querySelector('#search-tab-2d');
+        const tabRED = document.querySelector('#search-tab-red');
 
         if (tab3D) {
             tab3D.addEventListener('click', () => this.switchVisualizationTab('3d'));
         }
         if (tab2D) {
             tab2D.addEventListener('click', () => this.switchVisualizationTab('2d'));
+        }
+        if (tabRED) {
+            tabRED.addEventListener('click', () => this.switchVisualizationTab('red'));
         }
 
         // CSV Export button
@@ -247,19 +251,31 @@ class SolventSearch {
         // Update tab states
         const tab3D = document.querySelector('#search-tab-3d');
         const tab2D = document.querySelector('#search-tab-2d');
+        const tabRED = document.querySelector('#search-tab-red');
         const view3D = document.querySelector('#search-view-3d');
         const view2D = document.querySelector('#search-view-2d');
+        const viewRED = document.querySelector('#search-view-red');
 
+        // Remove all active states
+        tab3D?.classList.remove('active');
+        tab2D?.classList.remove('active');
+        tabRED?.classList.remove('active');
+
+        // Hide all views
+        if (view3D) view3D.style.display = 'none';
+        if (view2D) view2D.style.display = 'none';
+        if (viewRED) viewRED.style.display = 'none';
+
+        // Activate selected tab
         if (tabName === '3d') {
             tab3D?.classList.add('active');
-            tab2D?.classList.remove('active');
             if (view3D) view3D.style.display = 'flex';
-            if (view2D) view2D.style.display = 'none';
-        } else {
-            tab3D?.classList.remove('active');
+        } else if (tabName === '2d') {
             tab2D?.classList.add('active');
-            if (view3D) view3D.style.display = 'none';
             if (view2D) view2D.style.display = 'flex';
+        } else if (tabName === 'red') {
+            tabRED?.classList.add('active');
+            if (viewRED) viewRED.style.display = 'flex';
         }
     }
 
@@ -554,6 +570,15 @@ class SolventSearch {
             // Generate visualization with both targets
             this.generateVisualization(target1Data, target2Data, this.searchResults);
 
+            // Generate RED Plot if both targets are set
+            const tabRED = document.querySelector('#search-tab-red');
+            if (target1Data && target2Data) {
+                this.generateREDPlot(target1Data, target2Data, this.searchResults);
+                if (tabRED) tabRED.style.display = 'inline-block';
+            } else {
+                if (tabRED) tabRED.style.display = 'none';
+            }
+
             // Populate right panel results table
             this.populateResultsTable();
 
@@ -609,6 +634,160 @@ class SolventSearch {
             // Only target2 is set
             this.visualization.generateDualTargetVisualization(target2, null, solventsToVisualize);
         }
+    }
+
+    generateREDPlot(target1Data, target2Data, solventResults) {
+        const containerId = 'search-plot-red-scatter';
+        const element = document.getElementById(containerId);
+
+        if (!element) {
+            console.warn(`Container #${containerId} not found`);
+            return;
+        }
+
+        // RED Plot requires both targets
+        if (!target1Data || !target2Data) {
+            element.innerHTML = '<div class="visualization-placeholder"><p>RED Plot requires both Target 1 and Target 2</p></div>';
+            return;
+        }
+
+        // Prepare data
+        const redX = [];
+        const redY = [];
+        const solventNames = [];
+        const hoverTexts = [];
+        const colors = [];
+
+        solventResults.forEach(s => {
+            const red1 = this.calculateRED(s, target1Data);
+            const red2 = this.calculateRED(s, target2Data);
+
+            if (red1 !== null && red2 !== null) {
+                redX.push(red1);
+                redY.push(red2);
+                solventNames.push(s.name);
+
+                // Determine solubility status
+                let status = '';
+                let color = '';
+                if (red1 < 1.0 && red2 < 1.0) {
+                    status = 'Both dissolve';
+                    color = '#10b981'; // Green
+                } else if (red1 < 1.0) {
+                    status = 'Target 1 only';
+                    color = '#3b82f6'; // Blue
+                } else if (red2 < 1.0) {
+                    status = 'Target 2 only';
+                    color = '#f59e0b'; // Orange
+                } else {
+                    status = 'Neither dissolve';
+                    color = '#9ca3af'; // Gray
+                }
+
+                hoverTexts.push(
+                    `<b>${s.name}</b><br>` +
+                    `${target1Data.name} RED: ${red1.toFixed(2)}<br>` +
+                    `${target2Data.name} RED: ${red2.toFixed(2)}<br>` +
+                    `Status: ${status}`
+                );
+                colors.push(color);
+            }
+        });
+
+        // Calculate axis range based on data
+        const maxX = redX.length > 0 ? Math.max(...redX) : 1.5;
+        const maxY = redY.length > 0 ? Math.max(...redY) : 1.5;
+        const maxRED = Math.max(maxX, maxY, 1.5);
+        const upperLimit = maxRED * 1.1; // Add 10% margin
+
+        // Create traces
+        const traces = [
+            {
+                type: 'scatter',
+                mode: 'markers',
+                x: redX,
+                y: redY,
+                marker: {
+                    size: 6,
+                    color: colors,
+                    opacity: 0.7,
+                    line: {
+                        width: 1,
+                        color: 'rgba(0,0,0,0.3)'
+                    }
+                },
+                text: solventNames,
+                hovertext: hoverTexts,
+                hovertemplate: '%{hovertext}<extra></extra>',
+                showlegend: false
+            }
+        ];
+
+        // Layout with reference lines and quadrant shading
+        const layout = {
+            shapes: [
+                // Vertical line at RED = 1.0
+                {
+                    type: 'line',
+                    x0: 1.0,
+                    y0: 0,
+                    x1: 1.0,
+                    y1: upperLimit,
+                    line: {
+                        color: '#ef4444',
+                        width: 2,
+                        dash: 'dash'
+                    }
+                },
+                // Horizontal line at RED = 1.0
+                {
+                    type: 'line',
+                    x0: 0,
+                    y0: 1.0,
+                    x1: upperLimit,
+                    y1: 1.0,
+                    line: {
+                        color: '#ef4444',
+                        width: 2,
+                        dash: 'dash'
+                    }
+                },
+                // Green shaded area (both dissolve)
+                {
+                    type: 'rect',
+                    x0: 0,
+                    y0: 0,
+                    x1: 1.0,
+                    y1: 1.0,
+                    fillcolor: 'rgba(16, 185, 129, 0.1)',
+                    line: {
+                        width: 0
+                    },
+                    layer: 'below'
+                }
+            ],
+            xaxis: {
+                title: `${target1Data.name} RED`,
+                range: [0, upperLimit],
+                showgrid: true,
+                zeroline: true
+            },
+            yaxis: {
+                title: `${target2Data.name} RED`,
+                range: [0, upperLimit],
+                showgrid: true,
+                zeroline: true
+            },
+            hovermode: 'closest',
+            margin: {l: 60, r: 30, t: 30, b: 60}
+        };
+
+        // Render plot
+        Plotly.newPlot(containerId, traces, layout, {
+            responsive: true,
+            displayModeBar: true,
+            displaylogo: false
+        });
     }
 
     async searchSingleSolvents(deltaD, deltaP, deltaH, radius, bpMin, bpMax, costMin, costMax, wgkFilter) {
@@ -1014,6 +1193,11 @@ class SolventSearch {
 
                 // Update visualization with filtered data
                 this.generateVisualization(this.currentTarget1, this.currentTarget2, filteredData);
+
+                // Update RED Plot with filtered data if both targets are set
+                if (this.currentTarget1 && this.currentTarget2) {
+                    this.generateREDPlot(this.currentTarget1, this.currentTarget2, filteredData);
+                }
             }, 300);
         });
     }
