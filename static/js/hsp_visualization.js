@@ -50,7 +50,7 @@ class HSPVisualization {
     }
 
     /**
-     * Render 2D projections
+     * Render 2D projections using plotly subplots
      */
     render2DProjections(projections, containerPrefix = '') {
         if (!projections) {
@@ -58,48 +58,96 @@ class HSPVisualization {
             return;
         }
 
-        const ddDpId = containerPrefix ? `${containerPrefix}-plot-dd-dp` : 'plot-dd-dp';
-        const ddDhId = containerPrefix ? `${containerPrefix}-plot-dd-dh` : 'plot-dd-dh';
-        const dpDhId = containerPrefix ? `${containerPrefix}-plot-dp-dh` : 'plot-dp-dh';
+        // Use different container ID based on prefix
+        const containerId = containerPrefix ? `${containerPrefix}-plot-2d-subplots` : 'plot-2d-subplots';
+        const element = document.getElementById(containerId);
 
-        // Render δD vs δP
+        if (!element) {
+            console.warn(`Container #${containerId} not found`);
+            return;
+        }
+
+        // Prepare all traces with subplot assignments
+        const allTraces = [];
+
+        // δD vs δP (subplot 1)
         if (projections.dd_dp) {
-            const element = document.getElementById(ddDpId);
-            if (element) {
-                const layout = {...projections.dd_dp.layout, width: 240, height: 240};
-                Plotly.newPlot(ddDpId, projections.dd_dp.data, layout, {
-                    responsive: true,
-                    displayModeBar: true,
-                    displaylogo: false
-                });
-            }
+            projections.dd_dp.data.forEach(trace => {
+                allTraces.push({...trace, xaxis: 'x', yaxis: 'y'});
+            });
         }
 
-        // Render δD vs δH
+        // δD vs δH (subplot 2)
         if (projections.dd_dh) {
-            const element = document.getElementById(ddDhId);
-            if (element) {
-                const layout = {...projections.dd_dh.layout, width: 240, height: 240};
-                Plotly.newPlot(ddDhId, projections.dd_dh.data, layout, {
-                    responsive: true,
-                    displayModeBar: true,
-                    displaylogo: false
-                });
-            }
+            projections.dd_dh.data.forEach(trace => {
+                allTraces.push({...trace, xaxis: 'x2', yaxis: 'y2'});
+            });
         }
 
-        // Render δP vs δH
+        // δP vs δH (subplot 3)
         if (projections.dp_dh) {
-            const element = document.getElementById(dpDhId);
-            if (element) {
-                const layout = {...projections.dp_dh.layout, width: 240, height: 240};
-                Plotly.newPlot(dpDhId, projections.dp_dh.data, layout, {
-                    responsive: true,
-                    displayModeBar: true,
-                    displaylogo: false
-                });
-            }
+            projections.dp_dh.data.forEach(trace => {
+                allTraces.push({...trace, xaxis: 'x3', yaxis: 'y3'});
+            });
         }
+
+        // Create layout with 3 subplots in a row
+        const layout = {
+            grid: {rows: 1, columns: 3, pattern: 'independent', subplots: [['xy'], ['x2y2'], ['x3y3']]},
+            showlegend: false,
+            margin: {l: 50, r: 50, t: 30, b: 50},
+
+            // Subplot 1: δD vs δP
+            xaxis: {
+                ...projections.dd_dp.layout.xaxis,
+                domain: [0, 0.28],
+                title: {text: 'δD (MPa<sup>0.5</sup>)', font: {size: 11}},
+                showticklabels: true
+            },
+            yaxis: {
+                ...projections.dd_dp.layout.yaxis,
+                domain: [0, 1],
+                title: {text: 'δP (MPa<sup>0.5</sup>)', font: {size: 11}},
+                showticklabels: true
+            },
+
+            // Subplot 2: δD vs δH
+            xaxis2: {
+                ...projections.dd_dh.layout.xaxis,
+                domain: [0.37, 0.65],
+                title: {text: 'δD (MPa<sup>0.5</sup>)', font: {size: 11}},
+                showticklabels: true
+            },
+            yaxis2: {
+                ...projections.dd_dh.layout.yaxis,
+                domain: [0, 1],
+                title: {text: 'δH (MPa<sup>0.5</sup>)', font: {size: 11}},
+                showticklabels: true,
+                anchor: 'x2'
+            },
+
+            // Subplot 3: δP vs δH
+            xaxis3: {
+                ...projections.dp_dh.layout.xaxis,
+                domain: [0.72, 1],
+                title: {text: 'δP (MPa<sup>0.5</sup>)', font: {size: 11}},
+                showticklabels: true
+            },
+            yaxis3: {
+                ...projections.dp_dh.layout.yaxis,
+                domain: [0, 1],
+                title: {text: 'δH (MPa<sup>0.5</sup>)', font: {size: 11}},
+                showticklabels: true,
+                anchor: 'x3'
+            }
+        };
+
+        // Render all subplots in one plot
+        Plotly.newPlot(containerId, allTraces, layout, {
+            responsive: true,
+            displayModeBar: true,
+            displaylogo: false
+        });
 
         // Store projections
         this.projections2D = projections;
