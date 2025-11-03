@@ -1151,7 +1151,36 @@ class SolventSearch {
 
             initialSort: [
                 {column: "red1_value", dir: "asc"}
-            ]
+            ],
+
+            // Row formatter for color-coding based on solubility
+            rowFormatter: (row) => {
+                const data = row.getData();
+                const red1 = data.red1_value;
+                const red2 = data.red2_value;
+
+                // Only color-code when Target 2 is set
+                if (red2 !== null && red2 !== 999) {
+                    const element = row.getElement();
+
+                    if (red1 < 1.0 && red2 < 1.0) {
+                        // Both dissolve - Green
+                        element.style.backgroundColor = "rgba(16, 185, 129, 0.1)";
+                    } else if (red1 < 1.0 && red2 >= 1.0) {
+                        // Target 1 only - Blue
+                        element.style.backgroundColor = "rgba(59, 130, 246, 0.1)";
+                    } else if (red1 >= 1.0 && red2 < 1.0) {
+                        // Target 2 only - Orange
+                        element.style.backgroundColor = "rgba(245, 158, 11, 0.1)";
+                    } else {
+                        // Neither dissolve - Light gray
+                        element.style.backgroundColor = "rgba(156, 163, 175, 0.05)";
+                    }
+                } else {
+                    // No color coding when Target 2 is not set
+                    row.getElement().style.backgroundColor = "";
+                }
+            }
         });
 
         // Add dataFiltered event handler with debounce for visualization update
@@ -1183,6 +1212,9 @@ class SolventSearch {
                 }
             }, 300);
         });
+
+        // Initially hide Target 2 RED column (will be shown when Target 2 is set)
+        this.resultsTable.hideColumn("red2_value");
     }
 
     /**
@@ -1230,6 +1262,13 @@ class SolventSearch {
         // Update table
         this.resultsTable.setData(tableData);
         this.updateResultsCountBadge(this.searchResults.length);
+
+        // Show/hide Target 2 RED column based on whether Target 2 is set
+        if (this.currentTarget2) {
+            this.resultsTable.showColumn("red2_value");
+        } else {
+            this.resultsTable.hideColumn("red2_value");
+        }
 
         // Show CSV button
         const exportBtn = document.querySelector('#export-csv-btn');
