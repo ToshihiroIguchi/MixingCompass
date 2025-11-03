@@ -10,7 +10,7 @@ MixingCompass is a comprehensive web application designed for Hansen Solubility 
 
 - **Interactive HSP Calculation**: Calculate Hansen Solubility Parameters using experimental solubility data
 - **3D Visualization**: Interactive 3D Hansen sphere visualization using Plotly
-- **Solvent Database**: Comprehensive database with 710+ solvents and their HSP values
+- **Comprehensive Databases**: 1,663 solvents and 306 polymers with HSP values
 - **Experimental Management**: Create, manage, and track multiple experiments
 - **Real-time Analysis**: Live calculation and visualization updates
 - **Export Capabilities**: Export results and visualizations
@@ -233,8 +233,12 @@ MixingCompass/
 │   ├── original/         # Original source data
 │   │   ├── solvents/    # Solvent database sources
 │   │   └── polymers/    # Polymer database sources
-│   ├── solvents.csv      # Consolidated solvent database
+│   ├── solvents.csv      # Consolidated solvent database (1,663 solvents)
+│   ├── polymers.csv      # Consolidated polymer database (306 polymers)
 │   └── experiments/      # Saved experiments
+├── scripts/               # Utility scripts
+│   ├── consolidate_solvent_csv.py   # Regenerate solvent database
+│   └── consolidate_polymer_csv.py  # Regenerate polymer database
 ├── start.py              # Application launcher
 └── requirements.txt      # Dependencies
 ```
@@ -249,6 +253,53 @@ The application includes:
 - Auto-reload on code changes
 - Comprehensive logging
 - Error handling and debugging
+
+### Database Regeneration
+
+MixingCompass consolidates solvent and polymer data from multiple sources into unified databases. If you need to regenerate these databases (e.g., after adding new source files), use the consolidation scripts:
+
+#### Regenerate Solvent Database
+
+```bash
+python scripts/consolidate_solvent_csv.py
+```
+
+This script:
+- Reads all CSV files from `data/original/solvents/`
+- Consolidates data with intelligent duplicate handling (priority-based merging)
+- Determines CHO (C, H, O only) status using SMILES or molecular formulas
+- Outputs to `data/solvents.csv`
+- **Result**: ~1,663 solvents (as of latest consolidation)
+
+#### Regenerate Polymer Database
+
+```bash
+python scripts/consolidate_polymer_csv.py
+```
+
+This script:
+- Reads all CSV files from `data/original/polymers/`
+- Consolidates data with duplicate handling
+- Outputs to `data/polymers.csv`
+- **Result**: ~306 polymers (as of latest consolidation)
+
+#### Database Features
+
+- **Duplicate Resolution**: When multiple sources contain the same solvent/polymer, the script selects the entry with highest data completeness
+- **Source Tracking**: Each entry preserves source file and URL information
+- **Data Cleaning**: Automatic handling of missing values, inconsistent formats, and special characters
+- **URL Mapping**: Links to original data sources via `list.csv` files
+
+#### Adding New Data Sources
+
+1. Place new CSV files in `data/original/solvents/` or `data/original/polymers/`
+2. (Optional) Add source URL to `data/original/solvents/list.csv` or `data/original/polymers/list.csv`:
+   ```csv
+   file,URL
+   new_source.csv,https://example.com/data
+   ```
+3. Run the appropriate consolidation script
+4. Restart the application to load the updated database
 
 ## Contributing
 
