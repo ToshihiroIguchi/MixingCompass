@@ -507,6 +507,8 @@ class DataListManager {
                     paginationSizeSelector: [10, 20, 50, 100],
                     movableColumns: true,
                     resizableColumns: true,
+                    virtualDomBuffer: 300,
+                    height: "600px",
                     initialSort: [
                         { column: "solvent", dir: "asc" }
                     ],
