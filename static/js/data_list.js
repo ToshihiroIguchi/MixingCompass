@@ -500,15 +500,13 @@ class DataListManager {
                 // Create new Tabulator instance
                 this.solventDatabaseTable = new Tabulator("#solvent-database-table", {
                     data: data.solvents,
-                    layout: "fitDataFill",
+                    layout: "fitColumns",
                     responsiveLayout: "collapse",
                     pagination: true,
                     paginationSize: 20,
                     paginationSizeSelector: [10, 20, 50, 100],
                     movableColumns: true,
                     resizableColumns: true,
-                    virtualDomBuffer: 300,
-                    height: "600px",
                     initialSort: [
                         { column: "solvent", dir: "asc" }
                     ],
@@ -750,7 +748,7 @@ class DataListManager {
                 } else {
                     this.userSolventsTable = new Tabulator("#user-solvents-table", {
                         data: solvents,
-                        layout: "fitDataFill",
+                        layout: "fitColumns",
                         responsiveLayout: "collapse",
                         pagination: true,
                         paginationSize: 10,
@@ -1220,7 +1218,7 @@ class DataListManager {
         } else {
             this.userPolymersTable = new Tabulator("#user-polymers-table", {
                 data: polymers,
-                layout: "fitDataFill",
+                layout: "fitColumns",
                 responsiveLayout: "collapse",
                 pagination: true,
                 paginationSize: 10,
