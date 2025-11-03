@@ -11,6 +11,8 @@ class DataListManager {
 
     init() {
         this.setupEventListeners();
+        this.setupUserSolventModalListeners();
+        this.setupUserPolymerModalListeners();
         this.loadUserAddedSolvents();
         this.loadUserAddedPolymers();
         this.loadSolventDatabase();
@@ -865,9 +867,6 @@ class DataListManager {
                             }
                         ]
                     });
-
-                    // Setup modal event listeners once
-                    this.setupUserSolventModalListeners();
                 }
             }, 50);
 
@@ -1244,7 +1243,6 @@ class DataListManager {
                     }
                 ]
             });
-            this.setupUserPolymerModalListeners();
         }
     }
 
