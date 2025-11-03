@@ -493,52 +493,52 @@ class DataListManager {
         }
 
         try {
-            // Fetch total count first
-            const response = await fetch('/api/data-list/solvents?limit=1&offset=0');
+            // Show loading state
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; padding: 60px; color: #666;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">⏳</div>
+                    <div style="font-size: 1.1rem; font-weight: 500;">Loading solvent database...</div>
+                    <div style="font-size: 0.9rem; margin-top: 5px;">Please wait...</div>
+                </div>
+            `;
+
+            // Build query parameters
+            const params = {
+                limit: '2000',
+                offset: '0'
+            };
+
+            if (searchQuery && searchQuery.trim()) {
+                params.search = searchQuery.trim();
+            }
+
+            // Fetch solvent data
+            const response = await fetch(`/api/data-list/solvents?${new URLSearchParams(params)}`);
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const initialData = await response.json();
+
+            const data = await response.json();
 
             // Update count badge
             if (countBadge) {
-                countBadge.textContent = `${initialData.total} solvents`;
+                countBadge.textContent = `${data.total} solvents`;
             }
 
             // Initialize or update Tabulator
             if (this.solventDatabaseTable) {
-                // Clear filters and reload data
-                this.solventDatabaseTable.clearFilter();
-                this.solventDatabaseTable.setData();
+                // Update existing table data
+                this.solventDatabaseTable.setData(data.solvents);
             } else {
-                // Create new Tabulator instance with progressive load
+                // Create new Tabulator instance
                 this.solventDatabaseTable = new Tabulator("#solvent-database-table", {
-                    ajaxURL: "/api/data-list/solvents",
-                    ajaxParams: { limit: 100, offset: 0 },
-                    progressiveLoad: "scroll",
-                    paginationSize: 100,
-                    ajaxURLGenerator: (url, config, params) => {
-                        // Convert Tabulator params to our API format
-                        const page = params.page || 1;
-                        const size = params.size || 100;
-                        const offset = (page - 1) * size;
-                        return `${url}?limit=${size}&offset=${offset}`;
-                    },
-                    ajaxResponse: (url, params, response) => {
-                        // Return data in format Tabulator expects
-                        return response.solvents || response.data || response;
-                    },
-                    dataLoader: true,
-                    dataLoaderLoading: `
-                        <div style="display: flex; flex-direction: column; align-items: center; padding: 40px; color: #666;">
-                            <div style="font-size: 3rem; margin-bottom: 10px;">⏳</div>
-                            <div style="font-size: 1.1rem; font-weight: 500;">Loading solvent database...</div>
-                            <div style="font-size: 0.9rem; margin-top: 5px;">${initialData.total} solvents available</div>
-                        </div>
-                    `,
+                    data: data.solvents,
                     layout: "fitDataFill",
                     responsiveLayout: "collapse",
-                    pagination: false,
+                    pagination: true,
+                    paginationSize: 20,
+                    paginationSizeSelector: [10, 20, 50, 100],
                     movableColumns: true,
                     resizableColumns: true,
                     initialSort: [
@@ -1005,18 +1005,19 @@ class DataListManager {
             emptyState.style.display = 'none';
         }
 
-        // Initialize Tabulator
-        this.experimentalResultsTable = new Tabulator("#experimental-results-table", {
-            data: results,
-            dataLoader: true,
-            dataLoaderLoading: `
-                <div style="display: flex; flex-direction: column; align-items: center; padding: 40px; color: #666;">
-                    <div style="font-size: 3rem; margin-bottom: 10px;">⏳</div>
-                    <div style="font-size: 1.1rem; font-weight: 500;">Loading experimental results...</div>
-                    <div style="font-size: 0.9rem; margin-top: 5px;">${results.length} result${results.length !== 1 ? 's' : ''} found</div>
-                </div>
-            `,
-            layout: "fitColumns",
+        // Show loading state briefly
+        tableContainer.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; padding: 40px; color: #666;">
+                <div style="font-size: 3rem; margin-bottom: 10px;">⏳</div>
+                <div style="font-size: 1.1rem; font-weight: 500;">Loading experimental results...</div>
+            </div>
+        `;
+
+        // Initialize Tabulator (will replace loading state)
+        setTimeout(() => {
+            this.experimentalResultsTable = new Tabulator("#experimental-results-table", {
+                data: results,
+                layout: "fitColumns",
             responsiveLayout: "collapse",
             pagination: true,
             paginationSize: 10,
@@ -1134,7 +1135,8 @@ class DataListManager {
                     }
                 }
             ]
-        });
+            });
+        }, 50); // Small delay to show loading state
     }
 
     loadExperimentalResult(resultId) {
