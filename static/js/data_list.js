@@ -18,14 +18,25 @@ class DataListManager {
     }
 
     setupEventListeners() {
-        // Solvent database search
+        // Solvent database search (global search across all columns)
         const dbSearchInput = document.querySelector('#solvent-database-search');
         if (dbSearchInput) {
             let searchTimeout;
             dbSearchInput.addEventListener('input', (e) => {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
-                    this.loadSolventDatabase(e.target.value);
+                    const searchTerm = e.target.value.trim();
+                    if (this.solventDatabaseTable) {
+                        if (searchTerm) {
+                            // Apply global filter across name, CAS fields
+                            this.solventDatabaseTable.setFilter([
+                                { field: "solvent", type: "like", value: searchTerm },
+                                { field: "cas", type: "like", value: searchTerm },
+                            ], "or");
+                        } else {
+                            this.solventDatabaseTable.clearFilter();
+                        }
+                    }
                 }, 300);
             });
         }
@@ -36,6 +47,9 @@ class DataListManager {
             refreshDbBtn.addEventListener('click', () => {
                 const searchInput = document.querySelector('#solvent-database-search');
                 if (searchInput) searchInput.value = '';
+                if (this.solventDatabaseTable) {
+                    this.solventDatabaseTable.clearFilter();
+                }
                 this.loadSolventDatabase();
             });
         }
@@ -470,73 +484,183 @@ class DataListManager {
     // === Solvent Database Management ===
 
     async loadSolventDatabase(searchQuery = '') {
-        const tbody = document.querySelector('#solvent-database-tbody');
+        const container = document.querySelector('#solvent-database-table');
         const countBadge = document.querySelector('#database-count');
 
-        if (!tbody) {
-            console.error('Solvent database table body not found');
+        if (!container) {
+            console.error('Solvent database table container not found');
             return;
         }
 
         try {
-            // Show loading state
-            tbody.innerHTML = '<tr><td colspan="7" class="loading-cell">Loading solvent database...</td></tr>';
-
-            // Build query parameters
-            const params = new URLSearchParams({
-                limit: '1000',
-                offset: '0'
-            });
-
-            if (searchQuery && searchQuery.trim()) {
-                params.append('search', searchQuery.trim());
-            }
-
-            // Fetch solvent data
-            const response = await fetch(`/api/data-list/solvents?${params}`);
-
+            // Fetch total count first
+            const response = await fetch('/api/data-list/solvents?limit=1&offset=0');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-
-            const data = await response.json();
+            const initialData = await response.json();
 
             // Update count badge
             if (countBadge) {
-                countBadge.textContent = `${data.total} solvents`;
+                countBadge.textContent = `${initialData.total} solvents`;
             }
 
-            // Display results
-            if (data.solvents.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-cell">No solvents found</td></tr>';
-                return;
+            // Initialize or update Tabulator
+            if (this.solventDatabaseTable) {
+                // Clear filters and reload data
+                this.solventDatabaseTable.clearFilter();
+                this.solventDatabaseTable.setData();
+            } else {
+                // Create new Tabulator instance with progressive load
+                this.solventDatabaseTable = new Tabulator("#solvent-database-table", {
+                    ajaxURL: "/api/data-list/solvents",
+                    ajaxParams: { limit: 100, offset: 0 },
+                    progressiveLoad: "scroll",
+                    paginationSize: 100,
+                    ajaxURLGenerator: (url, config, params) => {
+                        // Convert Tabulator params to our API format
+                        const page = params.page || 1;
+                        const size = params.size || 100;
+                        const offset = (page - 1) * size;
+                        return `${url}?limit=${size}&offset=${offset}`;
+                    },
+                    ajaxResponse: (url, params, response) => {
+                        // Return data in format Tabulator expects
+                        return response.solvents || response.data || response;
+                    },
+                    dataLoader: true,
+                    dataLoaderLoading: `
+                        <div style="display: flex; flex-direction: column; align-items: center; padding: 40px; color: #666;">
+                            <div style="font-size: 3rem; margin-bottom: 10px;">⏳</div>
+                            <div style="font-size: 1.1rem; font-weight: 500;">Loading solvent database...</div>
+                            <div style="font-size: 0.9rem; margin-top: 5px;">${initialData.total} solvents available</div>
+                        </div>
+                    `,
+                    layout: "fitDataFill",
+                    responsiveLayout: "collapse",
+                    pagination: false,
+                    movableColumns: true,
+                    resizableColumns: true,
+                    initialSort: [
+                        { column: "solvent", dir: "asc" }
+                    ],
+                    columns: [
+                        {
+                            title: "Solvent",
+                            field: "solvent",
+                            minWidth: 200,
+                            headerFilter: "input",
+                            headerFilterPlaceholder: "Filter...",
+                            sorter: "string"
+                        },
+                        {
+                            title: "δD",
+                            field: "delta_d",
+                            minWidth: 80,
+                            hozAlign: "right",
+                            headerFilter: "number",
+                            headerFilterPlaceholder: "Min",
+                            headerFilterFunc: ">=",
+                            formatter: (cell) => {
+                                const value = cell.getValue();
+                                return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                            },
+                            sorter: "number"
+                        },
+                        {
+                            title: "δP",
+                            field: "delta_p",
+                            minWidth: 80,
+                            hozAlign: "right",
+                            headerFilter: "number",
+                            headerFilterPlaceholder: "Min",
+                            headerFilterFunc: ">=",
+                            formatter: (cell) => {
+                                const value = cell.getValue();
+                                return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                            },
+                            sorter: "number"
+                        },
+                        {
+                            title: "δH",
+                            field: "delta_h",
+                            minWidth: 80,
+                            hozAlign: "right",
+                            headerFilter: "number",
+                            headerFilterPlaceholder: "Min",
+                            headerFilterFunc: ">=",
+                            formatter: (cell) => {
+                                const value = cell.getValue();
+                                return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                            },
+                            sorter: "number"
+                        },
+                        {
+                            title: "CAS",
+                            field: "cas",
+                            minWidth: 120,
+                            headerFilter: "input",
+                            headerFilterPlaceholder: "Filter...",
+                            formatter: (cell) => {
+                                const value = cell.getValue();
+                                return value || '-';
+                            }
+                        },
+                        {
+                            title: "BP (°C)",
+                            field: "boiling_point",
+                            minWidth: 100,
+                            hozAlign: "right",
+                            headerFilter: "number",
+                            headerFilterPlaceholder: "Min",
+                            headerFilterFunc: ">=",
+                            formatter: (cell) => {
+                                const value = cell.getValue();
+                                return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                            },
+                            sorter: "number"
+                        },
+                        {
+                            title: "Link",
+                            field: "source_url",
+                            minWidth: 80,
+                            hozAlign: "center",
+                            headerSort: false,
+                            formatter: (cell) => {
+                                const row = cell.getRow().getData();
+                                const sourceUrl = row.source_url;
+                                const sourceFile = row.source_file;
+
+                                // If no URL and it's a user-added solvent, show nothing
+                                if (!sourceUrl && sourceFile === 'user_added') {
+                                    return '-';
+                                }
+
+                                // If there's a URL, show link icon
+                                if (sourceUrl) {
+                                    return `<a href="${this.escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer" class="source-link" title="${this.escapeHtml(sourceUrl)}">🔗</a>`;
+                                }
+
+                                // If no URL but has source file, show link icon without href
+                                if (sourceFile && sourceFile !== 'user_added') {
+                                    const sourceName = this.formatSource(sourceFile);
+                                    return `<span class="source-icon" title="Source: ${this.escapeHtml(sourceName)} (no URL available)">🔗</span>`;
+                                }
+
+                                return '-';
+                            }
+                        }
+                    ]
+                });
             }
 
-            // Create table rows
-            const rows = data.solvents.map(solvent => {
-                const values = this.formatSolventValues(solvent);
-                const linkIcon = this.formatSourceLink(solvent.source_url, solvent.source_file);
-
-                return `
-                    <tr>
-                        <td class="solvent-name-cell" title="${this.escapeHtml(solvent.solvent)}">${this.escapeHtml(solvent.solvent)}</td>
-                        <td>${values.deltaD}</td>
-                        <td>${values.deltaP}</td>
-                        <td>${values.deltaH}</td>
-                        <td class="cas-cell" title="${this.escapeHtml(values.cas)}">${this.escapeHtml(values.cas)}</td>
-                        <td>${values.bp}</td>
-                        <td class="link-cell">${linkIcon}</td>
-                    </tr>
-                `;
-            }).join('');
-
-            tbody.innerHTML = rows;
-
-            console.log(`Loaded ${data.solvents.length} of ${data.total} solvents`);
+            console.log(`Loaded ${data.solvents.length} of ${data.total} solvents into Tabulator`);
 
         } catch (error) {
             console.error('Error loading solvent database:', error);
-            tbody.innerHTML = `<tr><td colspan="7" class="error-cell">Error loading solvent database: ${error.message}</td></tr>`;
+            if (container) {
+                container.innerHTML = `<div class="error-cell">Error loading solvent database: ${error.message}</div>`;
+            }
             Notification.error('Failed to load solvent database');
         }
     }
@@ -884,6 +1008,14 @@ class DataListManager {
         // Initialize Tabulator
         this.experimentalResultsTable = new Tabulator("#experimental-results-table", {
             data: results,
+            dataLoader: true,
+            dataLoaderLoading: `
+                <div style="display: flex; flex-direction: column; align-items: center; padding: 40px; color: #666;">
+                    <div style="font-size: 3rem; margin-bottom: 10px;">⏳</div>
+                    <div style="font-size: 1.1rem; font-weight: 500;">Loading experimental results...</div>
+                    <div style="font-size: 0.9rem; margin-top: 5px;">${results.length} result${results.length !== 1 ? 's' : ''} found</div>
+                </div>
+            `,
             layout: "fitColumns",
             responsiveLayout: "collapse",
             pagination: true,
