@@ -493,12 +493,11 @@ class DataListManager {
         }
 
         try {
-            // Show loading state
+            // Show loading state with spinner
             container.innerHTML = `
-                <div style="display: flex; flex-direction: column; align-items: center; padding: 60px; color: #666;">
-                    <div style="font-size: 3rem; margin-bottom: 10px;">⏳</div>
-                    <div style="font-size: 1.1rem; font-weight: 500;">Loading solvent database...</div>
-                    <div style="font-size: 0.9rem; margin-top: 5px;">Please wait...</div>
+                <div class="loading-container">
+                    <div class="loading-spinner"></div>
+                    <span class="loading-text">Loading solvent database...</span>
                 </div>
             `;
 
@@ -1005,11 +1004,11 @@ class DataListManager {
             emptyState.style.display = 'none';
         }
 
-        // Show loading state briefly
+        // Show loading state briefly with spinner
         tableContainer.innerHTML = `
-            <div style="display: flex; flex-direction: column; align-items: center; padding: 40px; color: #666;">
-                <div style="font-size: 3rem; margin-bottom: 10px;">⏳</div>
-                <div style="font-size: 1.1rem; font-weight: 500;">Loading experimental results...</div>
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <span class="loading-text">Loading experimental results...</span>
             </div>
         `;
 
