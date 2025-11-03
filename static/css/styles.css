@@ -3129,3 +3129,91 @@ body {
     color: #666;
     font-size: 1rem;
 }
+
+/* Collapsible Sections */
+.collapsible-section {
+    margin-bottom: 2rem;
+}
+
+.collapsible-header {
+    cursor: pointer;
+}
+
+.collapsible-header h3 {
+    margin: 0;
+}
+
+.collapse-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+}
+
+.collapse-toggle:hover {
+    color: #1e3a8a;
+}
+
+.collapse-icon {
+    display: inline-block;
+    transition: transform 0.3s ease;
+    font-size: 0.8em;
+    color: #666;
+}
+
+.collapse-toggle[aria-expanded="true"] .collapse-icon {
+    transform: rotate(90deg);
+}
+
+.collapsible-content {
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    overflow: hidden;
+}
+
+/* Section Grouping */
+.data-list-container > div {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* User Data Group */
+.experimental-results-section,
+.user-solvents-section,
+.user-polymers-section {
+    border-left: 4px solid #3b82f6;
+}
+
+/* Saved Sets Group */
+.solvent-sets-section {
+    border-left: 4px solid #10b981;
+}
+
+/* Reference Database Group */
+.solvent-database-section {
+    border-left: 4px solid #9ca3af;
+    background: #fafafa;
+}
+
+.solvent-database-section .section-header {
+    background: transparent;
+}
+
+/* Section spacing */
+.user-polymers-section {
+    margin-bottom: 2.5rem !important;
+}
+
+.solvent-sets-section {
+    margin-bottom: 2.5rem !important;
+}

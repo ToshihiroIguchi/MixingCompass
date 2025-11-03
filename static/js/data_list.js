@@ -13,11 +13,18 @@ class DataListManager {
         this.setupEventListeners();
         this.setupUserSolventModalListeners();
         this.setupUserPolymerModalListeners();
+        this.setupCollapsibleSections();
         this.loadUserAddedSolvents();
         this.loadUserAddedPolymers();
-        this.loadSolventDatabase();
+        // loadSolventDatabase() is now called only when section is expanded
         this.loadSolventSetsDisplay();
         this.loadExperimentalResultsDisplay();
+
+        // Load database immediately if section is expanded
+        const isExpanded = localStorage.getItem('databaseSectionExpanded') === 'true';
+        if (isExpanded) {
+            this.loadSolventDatabase();
+        }
     }
 
     setupEventListeners() {
@@ -1661,6 +1668,58 @@ class DataListManager {
             console.error('Error deleting experimental result:', error);
             this.showNotification('Failed to delete experimental result', 'error');
         }
+    }
+
+    // === Collapsible Sections Management ===
+
+    setupCollapsibleSections() {
+        const toggle = document.querySelector('#database-collapse-toggle');
+        const content = document.querySelector('#database-collapsible-content');
+
+        if (!toggle || !content) {
+            console.warn('Collapsible section elements not found');
+            return;
+        }
+
+        // Load saved state from LocalStorage
+        const isExpanded = localStorage.getItem('databaseSectionExpanded') === 'true';
+
+        // Set initial state
+        if (isExpanded) {
+            this.expandSection(toggle, content);
+        } else {
+            this.collapseSection(toggle, content);
+        }
+
+        // Add click handler
+        toggle.addEventListener('click', () => {
+            const currentlyExpanded = toggle.getAttribute('aria-expanded') === 'true';
+
+            if (currentlyExpanded) {
+                this.collapseSection(toggle, content);
+                localStorage.setItem('databaseSectionExpanded', 'false');
+            } else {
+                this.expandSection(toggle, content);
+                localStorage.setItem('databaseSectionExpanded', 'true');
+
+                // Load database if not already loaded and section is expanded
+                if (!this.solventDatabaseTable || this.solventDatabaseTable.getData().length === 0) {
+                    this.loadSolventDatabase();
+                }
+            }
+        });
+
+        console.log('Collapsible sections setup complete');
+    }
+
+    expandSection(toggle, content) {
+        toggle.setAttribute('aria-expanded', 'true');
+        content.style.display = 'block';
+    }
+
+    collapseSection(toggle, content) {
+        toggle.setAttribute('aria-expanded', 'false');
+        content.style.display = 'none';
     }
 }
 
