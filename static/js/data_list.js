@@ -16,13 +16,18 @@ class DataListManager {
         this.setupCollapsibleSections();
         this.loadUserAddedSolvents();
         this.loadUserAddedPolymers();
-        // loadSolventDatabase() is now called only when section is expanded
+        // Database loading is now called only when sections are expanded
         this.loadSolventSetsDisplay();
         this.loadExperimentalResultsDisplay();
 
-        // Load database immediately if section is expanded
-        const isExpanded = localStorage.getItem('databaseSectionExpanded') === 'true';
-        if (isExpanded) {
+        // Load databases immediately if sections are expanded
+        const polymerExpanded = localStorage.getItem('polymerDatabaseSectionExpanded') === 'true';
+        if (polymerExpanded) {
+            this.loadPolymerDatabase();
+        }
+
+        const solventExpanded = localStorage.getItem('databaseSectionExpanded') === 'true';
+        if (solventExpanded) {
             this.loadSolventDatabase();
         }
     }
@@ -637,6 +642,174 @@ class DataListManager {
                 container.innerHTML = `<div class="error-cell">Error loading solvent database: ${error.message}</div>`;
             }
             Notification.error('Failed to load solvent database');
+        }
+    }
+
+    // === Polymer Database Management ===
+
+    async loadPolymerDatabase() {
+        const container = document.querySelector('#polymer-database-table');
+        const countBadge = document.querySelector('#polymer-database-count');
+
+        if (!container) {
+            console.error('Polymer database table container not found');
+            return;
+        }
+
+        try {
+            // Show loading state with spinner
+            container.innerHTML = `
+                <div class="loading-container">
+                    <div class="loading-spinner"></div>
+                    <span class="loading-text">Loading polymer database...</span>
+                </div>
+            `;
+
+            // Fetch polymer data
+            const response = await fetch('/api/polymer-data/polymers');
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+
+            // Update count badge
+            if (countBadge) {
+                countBadge.textContent = `${data.total} polymers`;
+            }
+
+            // Initialize or update Tabulator
+            if (this.polymerDatabaseTable) {
+                // Update existing table data
+                this.polymerDatabaseTable.setData(data.polymers);
+            } else {
+                // Create new Tabulator instance
+                this.polymerDatabaseTable = new Tabulator("#polymer-database-table", {
+                    data: data.polymers,
+                    layout: "fitColumns",
+                    responsiveLayout: "collapse",
+                    pagination: true,
+                    paginationSize: 20,
+                    paginationSizeSelector: [10, 20, 50, 100],
+                    movableColumns: true,
+                    resizableColumns: true,
+                    initialSort: [
+                        { column: "polymer", dir: "asc" }
+                    ],
+                    columns: [
+                        {
+                            title: "Polymer",
+                            field: "polymer",
+                            minWidth: 200,
+                            headerFilter: "input",
+                            headerFilterPlaceholder: "Filter...",
+                            sorter: "string"
+                        },
+                        {
+                            title: "δD",
+                            field: "delta_d",
+                            minWidth: 80,
+                            hozAlign: "right",
+                            headerFilter: "number",
+                            headerFilterPlaceholder: "Min",
+                            headerFilterFunc: ">=",
+                            formatter: (cell) => {
+                                const value = cell.getValue();
+                                return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                            },
+                            sorter: "number"
+                        },
+                        {
+                            title: "δP",
+                            field: "delta_p",
+                            minWidth: 80,
+                            hozAlign: "right",
+                            headerFilter: "number",
+                            headerFilterPlaceholder: "Min",
+                            headerFilterFunc: ">=",
+                            formatter: (cell) => {
+                                const value = cell.getValue();
+                                return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                            },
+                            sorter: "number"
+                        },
+                        {
+                            title: "δH",
+                            field: "delta_h",
+                            minWidth: 80,
+                            hozAlign: "right",
+                            headerFilter: "number",
+                            headerFilterPlaceholder: "Min",
+                            headerFilterFunc: ">=",
+                            formatter: (cell) => {
+                                const value = cell.getValue();
+                                return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                            },
+                            sorter: "number"
+                        },
+                        {
+                            title: "R0",
+                            field: "ra",
+                            minWidth: 80,
+                            hozAlign: "right",
+                            headerFilter: "number",
+                            headerFilterPlaceholder: "Min",
+                            headerFilterFunc: ">=",
+                            formatter: (cell) => {
+                                const value = cell.getValue();
+                                return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                            },
+                            sorter: "number"
+                        },
+                        {
+                            title: "CAS",
+                            field: "cas",
+                            minWidth: 120,
+                            headerFilter: "input",
+                            headerFilterPlaceholder: "Filter...",
+                            formatter: (cell) => {
+                                const value = cell.getValue();
+                                return value || '-';
+                            }
+                        },
+                        {
+                            title: "Link",
+                            field: "source_url",
+                            minWidth: 80,
+                            hozAlign: "center",
+                            headerSort: false,
+                            formatter: (cell) => {
+                                const row = cell.getRow().getData();
+                                const sourceUrl = row.source_url;
+                                const sourceFile = row.source_file;
+
+                                // If there's a URL, show link icon
+                                if (sourceUrl) {
+                                    return `<a href="${this.escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer" class="source-link" title="${this.escapeHtml(sourceUrl)}">🔗</a>`;
+                                }
+
+                                // If no URL but has source file, show link icon without href
+                                if (sourceFile) {
+                                    const sourceName = this.formatSource(sourceFile);
+                                    return `<span class="source-icon" title="Source: ${this.escapeHtml(sourceName)} (no URL available)">🔗</span>`;
+                                }
+
+                                return '-';
+                            }
+                        }
+                    ]
+                });
+            }
+
+            console.log(`Loaded ${data.polymers.length} of ${data.total} polymers into Tabulator`);
+
+        } catch (error) {
+            console.error('Error loading polymer database:', error);
+            if (container) {
+                container.innerHTML = `<div class="error-cell">Error loading polymer database: ${error.message}</div>`;
+            }
+            Notification.error('Failed to load polymer database');
         }
     }
 
@@ -1673,16 +1846,44 @@ class DataListManager {
     // === Collapsible Sections Management ===
 
     setupCollapsibleSections() {
-        const toggle = document.querySelector('#database-collapse-toggle');
-        const content = document.querySelector('#database-collapsible-content');
+        // Setup Polymer Database collapsible
+        this.setupCollapsibleSection(
+            '#polymer-database-collapse-toggle',
+            '#polymer-database-collapsible-content',
+            'polymerDatabaseSectionExpanded',
+            () => {
+                if (!this.polymerDatabaseTable || this.polymerDatabaseTable.getData().length === 0) {
+                    this.loadPolymerDatabase();
+                }
+            }
+        );
+
+        // Setup Solvent Database collapsible
+        this.setupCollapsibleSection(
+            '#database-collapse-toggle',
+            '#database-collapsible-content',
+            'databaseSectionExpanded',
+            () => {
+                if (!this.solventDatabaseTable || this.solventDatabaseTable.getData().length === 0) {
+                    this.loadSolventDatabase();
+                }
+            }
+        );
+
+        console.log('Collapsible sections setup complete');
+    }
+
+    setupCollapsibleSection(toggleSelector, contentSelector, storageKey, loadCallback) {
+        const toggle = document.querySelector(toggleSelector);
+        const content = document.querySelector(contentSelector);
 
         if (!toggle || !content) {
-            console.warn('Collapsible section elements not found');
+            console.warn(`Collapsible section elements not found: ${toggleSelector}`);
             return;
         }
 
         // Load saved state from LocalStorage
-        const isExpanded = localStorage.getItem('databaseSectionExpanded') === 'true';
+        const isExpanded = localStorage.getItem(storageKey) === 'true';
 
         // Set initial state
         if (isExpanded) {
@@ -1697,19 +1898,17 @@ class DataListManager {
 
             if (currentlyExpanded) {
                 this.collapseSection(toggle, content);
-                localStorage.setItem('databaseSectionExpanded', 'false');
+                localStorage.setItem(storageKey, 'false');
             } else {
                 this.expandSection(toggle, content);
-                localStorage.setItem('databaseSectionExpanded', 'true');
+                localStorage.setItem(storageKey, 'true');
 
                 // Load database if not already loaded and section is expanded
-                if (!this.solventDatabaseTable || this.solventDatabaseTable.getData().length === 0) {
-                    this.loadSolventDatabase();
+                if (loadCallback) {
+                    loadCallback();
                 }
             }
         });
-
-        console.log('Collapsible sections setup complete');
     }
 
     expandSection(toggle, content) {

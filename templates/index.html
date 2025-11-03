@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ app_name }}</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <link rel="stylesheet" href="/static/css/styles.css?v=2025110211">
+    <link rel="stylesheet" href="/static/css/styles.css?v=2025110212">
     <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
 </head>
 <body>
@@ -316,6 +316,25 @@
                         <div class="empty-state">
                             <p>No solvent sets saved yet.</p>
                             <p>Create sets in the HSP (Experimental) tab to manage them here.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Polymer Database Section (Collapsible) -->
+                <div class="polymer-database-section collapsible-section">
+                    <div class="section-header collapsible-header">
+                        <h3>
+                            <button id="polymer-database-collapse-toggle" class="collapse-toggle" aria-expanded="false">
+                                <span class="collapse-icon">▶</span>
+                                <span class="collapse-text">Polymer Database</span>
+                            </button>
+                        </h3>
+                        <span id="polymer-database-count" class="count-badge">0 polymers</span>
+                    </div>
+
+                    <div id="polymer-database-collapsible-content" class="collapsible-content" style="display: none;">
+                        <div id="polymer-database-table-container" class="table-container">
+                            <div id="polymer-database-table"></div>
                         </div>
                     </div>
                 </div>
@@ -668,6 +687,6 @@
     <script src="/static/js/hsp_visualization.js?v=2025110205"></script>
     <script src="/static/js/hsp_experimental.js?v=2025110205"></script>
     <script src="/static/js/solvent_search.js?v=2025110211"></script>
-    <script src="/static/js/data_list.js?v=2025110211"></script>
+    <script src="/static/js/data_list.js?v=2025110212"></script>
 </body>
 </html>

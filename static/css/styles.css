@@ -3200,11 +3200,13 @@ body {
 }
 
 /* Reference Database Group */
+.polymer-database-section,
 .solvent-database-section {
     border-left: 4px solid #9ca3af;
     background: #fafafa;
 }
 
+.polymer-database-section .section-header,
 .solvent-database-section .section-header {
     background: transparent;
 }
