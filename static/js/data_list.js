@@ -18,42 +18,6 @@ class DataListManager {
     }
 
     setupEventListeners() {
-        // Solvent database search (global search across all columns)
-        const dbSearchInput = document.querySelector('#solvent-database-search');
-        if (dbSearchInput) {
-            let searchTimeout;
-            dbSearchInput.addEventListener('input', (e) => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    const searchTerm = e.target.value.trim();
-                    if (this.solventDatabaseTable) {
-                        if (searchTerm) {
-                            // Apply global filter across name, CAS fields
-                            this.solventDatabaseTable.setFilter([
-                                { field: "solvent", type: "like", value: searchTerm },
-                                { field: "cas", type: "like", value: searchTerm },
-                            ], "or");
-                        } else {
-                            this.solventDatabaseTable.clearFilter();
-                        }
-                    }
-                }, 300);
-            });
-        }
-
-        // Refresh database button
-        const refreshDbBtn = document.querySelector('#refresh-database-btn');
-        if (refreshDbBtn) {
-            refreshDbBtn.addEventListener('click', () => {
-                const searchInput = document.querySelector('#solvent-database-search');
-                if (searchInput) searchInput.value = '';
-                if (this.solventDatabaseTable) {
-                    this.solventDatabaseTable.clearFilter();
-                }
-                this.loadSolventDatabase();
-            });
-        }
-
         // Export sets button
         const exportBtn = document.querySelector('#export-sets-btn');
         if (exportBtn) {
@@ -483,7 +447,7 @@ class DataListManager {
 
     // === Solvent Database Management ===
 
-    async loadSolventDatabase(searchQuery = '') {
+    async loadSolventDatabase() {
         const container = document.querySelector('#solvent-database-table');
         const countBadge = document.querySelector('#database-count');
 
@@ -501,18 +465,8 @@ class DataListManager {
                 </div>
             `;
 
-            // Build query parameters
-            const params = {
-                limit: '2000',
-                offset: '0'
-            };
-
-            if (searchQuery && searchQuery.trim()) {
-                params.search = searchQuery.trim();
-            }
-
             // Fetch solvent data
-            const response = await fetch(`/api/data-list/solvents?${new URLSearchParams(params)}`);
+            const response = await fetch('/api/data-list/solvents?limit=2000&offset=0');
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
