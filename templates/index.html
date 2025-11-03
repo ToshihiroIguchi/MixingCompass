@@ -272,25 +272,13 @@
                         <span id="user-solvents-count" class="count-badge">0 solvents</span>
                     </div>
 
+                    <div id="user-solvents-empty" class="empty-state" style="display: none;">
+                        <p>No user-added solvents yet.</p>
+                        <p>Add solvents in the HSP Experimental page using Manual mode.</p>
+                    </div>
+
                     <div id="user-solvents-table-container" class="table-container">
-                        <table id="user-solvents-table" class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>Solvent</th>
-                                    <th>δD</th>
-                                    <th>δP</th>
-                                    <th>δH</th>
-                                    <th>CAS</th>
-                                    <th>BP (°C)</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="user-solvents-tbody">
-                                <tr>
-                                    <td colspan="7" class="empty-cell">No user-added solvents yet. Add solvents in the HSP Experimental page using Manual mode.</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <div id="user-solvents-table"></div>
                     </div>
                 </div>
 

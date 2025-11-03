@@ -681,15 +681,24 @@ class DataListManager {
     // === User Added Solvents Management ===
 
     async loadUserAddedSolvents() {
-        const tbody = document.querySelector('#user-solvents-tbody');
+        const tableContainer = document.querySelector('#user-solvents-table');
+        const emptyState = document.querySelector('#user-solvents-empty');
         const countBadge = document.querySelector('#user-solvents-count');
 
-        if (!tbody) {
-            console.error('User solvents table body not found');
+        if (!tableContainer) {
+            console.error('User solvents table container not found');
             return;
         }
 
         try {
+            // Show loading state with spinner
+            tableContainer.innerHTML = `
+                <div class="loading-container">
+                    <div class="loading-spinner"></div>
+                    <span class="loading-text">Loading user-added solvents...</span>
+                </div>
+            `;
+
             // Fetch user-added solvents
             const response = await fetch('/api/data-list/user-solvents');
 
@@ -701,66 +710,166 @@ class DataListManager {
 
             // Update count badge
             if (countBadge) {
-                countBadge.textContent = `${solvents.length} solvents`;
+                countBadge.textContent = `${solvents.length} solvent${solvents.length !== 1 ? 's' : ''}`;
             }
 
             // Display results
             if (solvents.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-cell">No user-added solvents yet. Add solvents in the HSP Experimental page using Manual mode.</td></tr>';
+                tableContainer.style.display = 'none';
+                if (emptyState) {
+                    emptyState.style.display = 'block';
+                }
                 return;
             }
 
-            // Create table rows with edit/delete buttons
-            const rows = solvents.map(solvent => {
-                const values = this.formatSolventValues(solvent);
+            // Show table and hide empty state
+            tableContainer.style.display = 'block';
+            if (emptyState) {
+                emptyState.style.display = 'none';
+            }
 
-                return `
-                    <tr>
-                        <td class="solvent-name-cell">${this.escapeHtml(solvent.solvent)}</td>
-                        <td>${values.deltaD}</td>
-                        <td>${values.deltaP}</td>
-                        <td>${values.deltaH}</td>
-                        <td class="cas-cell">${this.escapeHtml(values.cas)}</td>
-                        <td>${values.bp}</td>
-                        <td class="actions-cell">
-                            <button class="btn-icon edit-user-solvent-btn" title="Edit" data-solvent='${JSON.stringify(solvent).replace(/'/g, "&apos;")}'>✏️</button>
-                            <button class="btn-icon delete-user-solvent-btn" title="Delete" data-solvent-name="${this.escapeHtml(solvent.solvent)}">🗑️</button>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
+            // Initialize or update Tabulator
+            setTimeout(() => {
+                if (this.userSolventsTable) {
+                    this.userSolventsTable.setData(solvents);
+                } else {
+                    this.userSolventsTable = new Tabulator("#user-solvents-table", {
+                        data: solvents,
+                        layout: "fitDataFill",
+                        responsiveLayout: "collapse",
+                        pagination: true,
+                        paginationSize: 10,
+                        paginationSizeSelector: [5, 10, 20, 50],
+                        movableColumns: true,
+                        resizableColumns: true,
+                        initialSort: [
+                            { column: "solvent", dir: "asc" }
+                        ],
+                        columns: [
+                            {
+                                title: "Solvent",
+                                field: "solvent",
+                                minWidth: 200,
+                                headerFilter: "input",
+                                headerFilterPlaceholder: "Filter...",
+                                sorter: "string"
+                            },
+                            {
+                                title: "δD",
+                                field: "delta_d",
+                                minWidth: 80,
+                                hozAlign: "right",
+                                headerFilter: "number",
+                                headerFilterPlaceholder: "Min",
+                                headerFilterFunc: ">=",
+                                formatter: (cell) => {
+                                    const value = cell.getValue();
+                                    return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                                },
+                                sorter: "number"
+                            },
+                            {
+                                title: "δP",
+                                field: "delta_p",
+                                minWidth: 80,
+                                hozAlign: "right",
+                                headerFilter: "number",
+                                headerFilterPlaceholder: "Min",
+                                headerFilterFunc: ">=",
+                                formatter: (cell) => {
+                                    const value = cell.getValue();
+                                    return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                                },
+                                sorter: "number"
+                            },
+                            {
+                                title: "δH",
+                                field: "delta_h",
+                                minWidth: 80,
+                                hozAlign: "right",
+                                headerFilter: "number",
+                                headerFilterPlaceholder: "Min",
+                                headerFilterFunc: ">=",
+                                formatter: (cell) => {
+                                    const value = cell.getValue();
+                                    return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                                },
+                                sorter: "number"
+                            },
+                            {
+                                title: "CAS",
+                                field: "cas",
+                                minWidth: 120,
+                                headerFilter: "input",
+                                headerFilterPlaceholder: "Filter...",
+                                formatter: (cell) => {
+                                    const value = cell.getValue();
+                                    return value || '-';
+                                }
+                            },
+                            {
+                                title: "BP (°C)",
+                                field: "boiling_point",
+                                minWidth: 100,
+                                hozAlign: "right",
+                                headerFilter: "number",
+                                headerFilterPlaceholder: "Min",
+                                headerFilterFunc: ">=",
+                                formatter: (cell) => {
+                                    const value = cell.getValue();
+                                    return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                                },
+                                sorter: "number"
+                            },
+                            {
+                                title: "Actions",
+                                minWidth: 120,
+                                width: 120,
+                                hozAlign: "center",
+                                headerSort: false,
+                                formatter: (cell) => {
+                                    return `
+                                        <button class="btn-icon" title="Edit" data-action="edit">✏️</button>
+                                        <button class="btn-icon" title="Delete" data-action="delete">🗑️</button>
+                                    `;
+                                },
+                                cellClick: (e, cell) => {
+                                    const target = e.target;
+                                    if (!target.classList.contains('btn-icon')) return;
 
-            tbody.innerHTML = rows;
+                                    const action = target.dataset.action;
+                                    const row = cell.getRow().getData();
 
-            // Attach event listeners
-            this.setupUserSolventListeners();
+                                    switch(action) {
+                                        case 'edit':
+                                            this.showEditUserSolventModal(row);
+                                            break;
+                                        case 'delete':
+                                            this.deleteUserSolvent(row.solvent);
+                                            break;
+                                    }
+                                }
+                            }
+                        ]
+                    });
+
+                    // Setup modal event listeners once
+                    this.setupUserSolventModalListeners();
+                }
+            }, 50);
 
             console.log(`Loaded ${solvents.length} user-added solvents`);
 
         } catch (error) {
             console.error('Error loading user-added solvents:', error);
-            tbody.innerHTML = `<tr><td colspan="7" class="error-cell">Error loading user-added solvents: ${error.message}</td></tr>`;
+            if (tableContainer) {
+                tableContainer.innerHTML = `<div class="error-cell">Error loading user-added solvents: ${error.message}</div>`;
+            }
             Notification.error('Failed to load user-added solvents');
         }
     }
 
-    setupUserSolventListeners() {
-        // Edit buttons
-        document.querySelectorAll('.edit-user-solvent-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const solventData = JSON.parse(e.target.dataset.solvent);
-                this.showEditUserSolventModal(solventData);
-            });
-        });
-
-        // Delete buttons
-        document.querySelectorAll('.delete-user-solvent-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const solventName = e.target.dataset.solventName;
-                this.deleteUserSolvent(solventName);
-            });
-        });
-
+    setupUserSolventModalListeners() {
         // Edit modal controls
         const saveBtn = document.querySelector('#save-user-solvent-btn');
         const cancelBtn = document.querySelector('#cancel-edit-user-solvent-btn');
