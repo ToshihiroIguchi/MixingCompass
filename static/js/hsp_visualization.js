@@ -501,14 +501,15 @@ class HSPVisualization {
             return null;
         }
 
-        // Helper function to create circle points for target sphere projection
-        const createCirclePoints = (centerX, centerY, radius, numPoints = 100) => {
+        // Helper function to create ellipse points for target sphere projection
+        // radiusX and radiusY allow for elliptical projections
+        const createEllipsePoints = (centerX, centerY, radiusX, radiusY, numPoints = 100) => {
             const x = [];
             const y = [];
             for (let i = 0; i <= numPoints; i++) {
                 const angle = (i / numPoints) * 2 * Math.PI;
-                x.push(centerX + radius * Math.cos(angle));
-                y.push(centerY + radius * Math.sin(angle));
+                x.push(centerX + radiusX * Math.cos(angle));
+                y.push(centerY + radiusY * Math.sin(angle));
             }
             return { x, y };
         };
@@ -562,17 +563,18 @@ class HSPVisualization {
         // δD vs δP projection
         const ddDpData = [];
 
-        // Target 1 circle
-        const circle1_ddDp = createCirclePoints(
+        // Target 1 ellipse (δD has factor of 4 in Hansen distance, so radius is R0/2)
+        const ellipse1_ddDp = createEllipsePoints(
             target1Data.delta_d,
             target1Data.delta_p,
-            target1Data.radius / 2  // Adjusted radius for 2D projection
+            target1Data.radius / 2,  // δD direction: R0/2
+            target1Data.radius        // δP direction: R0
         );
         ddDpData.push({
             type: 'scatter',
             mode: 'lines',
-            x: circle1_ddDp.x,
-            y: circle1_ddDp.y,
+            x: ellipse1_ddDp.x,
+            y: ellipse1_ddDp.y,
             name: target1Data.name || 'Target 1',
             line: { color: '#2196F3', width: 2 },
             fill: 'toself',
@@ -592,18 +594,19 @@ class HSPVisualization {
             hovertemplate: `<b>${target1Data.name || 'Target 1'}</b><br>δD: ${target1Data.delta_d.toFixed(1)}<br>δP: ${target1Data.delta_p.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
         });
 
-        // Target 2 circle and center if provided
+        // Target 2 ellipse and center if provided
         if (target2Data) {
-            const circle2_ddDp = createCirclePoints(
+            const ellipse2_ddDp = createEllipsePoints(
                 target2Data.delta_d,
                 target2Data.delta_p,
-                target2Data.radius / 2
+                target2Data.radius / 2,  // δD direction: R0/2
+                target2Data.radius        // δP direction: R0
             );
             ddDpData.push({
                 type: 'scatter',
                 mode: 'lines',
-                x: circle2_ddDp.x,
-                y: circle2_ddDp.y,
+                x: ellipse2_ddDp.x,
+                y: ellipse2_ddDp.y,
                 name: target2Data.name || 'Target 2',
                 line: { color: '#FF9800', width: 2 },
                 fill: 'toself',
@@ -664,19 +667,21 @@ class HSPVisualization {
             });
         }
 
-        // δD vs δH projection (similar structure)
+        // δD vs δH projection
         const ddDhData = [];
 
-        const circle1_ddDh = createCirclePoints(
+        // Target 1 ellipse (δD has factor of 4 in Hansen distance, so radius is R0/2)
+        const ellipse1_ddDh = createEllipsePoints(
             target1Data.delta_d,
             target1Data.delta_h,
-            target1Data.radius / 2
+            target1Data.radius / 2,  // δD direction: R0/2
+            target1Data.radius        // δH direction: R0
         );
         ddDhData.push({
             type: 'scatter',
             mode: 'lines',
-            x: circle1_ddDh.x,
-            y: circle1_ddDh.y,
+            x: ellipse1_ddDh.x,
+            y: ellipse1_ddDh.y,
             name: target1Data.name || 'Target 1',
             line: { color: '#2196F3', width: 2 },
             fill: 'toself',
@@ -696,16 +701,17 @@ class HSPVisualization {
         });
 
         if (target2Data) {
-            const circle2_ddDh = createCirclePoints(
+            const ellipse2_ddDh = createEllipsePoints(
                 target2Data.delta_d,
                 target2Data.delta_h,
-                target2Data.radius / 2
+                target2Data.radius / 2,  // δD direction: R0/2
+                target2Data.radius        // δH direction: R0
             );
             ddDhData.push({
                 type: 'scatter',
                 mode: 'lines',
-                x: circle2_ddDh.x,
-                y: circle2_ddDh.y,
+                x: ellipse2_ddDh.x,
+                y: ellipse2_ddDh.y,
                 name: target2Data.name || 'Target 2',
                 line: { color: '#FF9800', width: 2 },
                 fill: 'toself',
@@ -768,10 +774,12 @@ class HSPVisualization {
         // δP vs δH projection
         const dpDhData = [];
 
-        const circle1_dpDh = createCirclePoints(
+        // Target 1 circle (no factor of 4 for δP and δH, so radius is R0)
+        const circle1_dpDh = createEllipsePoints(
             target1Data.delta_p,
             target1Data.delta_h,
-            target1Data.radius / 2
+            target1Data.radius,  // δP direction: R0
+            target1Data.radius   // δH direction: R0
         );
         dpDhData.push({
             type: 'scatter',
@@ -797,10 +805,11 @@ class HSPVisualization {
         });
 
         if (target2Data) {
-            const circle2_dpDh = createCirclePoints(
+            const circle2_dpDh = createEllipsePoints(
                 target2Data.delta_p,
                 target2Data.delta_h,
-                target2Data.radius / 2
+                target2Data.radius,  // δP direction: R0
+                target2Data.radius   // δH direction: R0
             );
             dpDhData.push({
                 type: 'scatter',
