@@ -12,12 +12,25 @@ class DataListManager {
     init() {
         this.setupEventListeners();
         this.loadUserAddedSolvents();
+        this.loadUserAddedPolymers();
         this.loadSolventDatabase();
         this.loadSolventSetsDisplay();
         this.loadExperimentalResultsDisplay();
     }
 
     setupEventListeners() {
+        // Add user solvent button
+        const addUserSolventBtn = document.querySelector('#add-user-solvent-btn');
+        if (addUserSolventBtn) {
+            addUserSolventBtn.addEventListener('click', () => this.showAddUserSolventModal());
+        }
+
+        // Add user polymer button
+        const addUserPolymerBtn = document.querySelector('#add-user-polymer-btn');
+        if (addUserPolymerBtn) {
+            addUserPolymerBtn.addEventListener('click', () => this.showAddUserPolymerModal());
+        }
+
         // Export sets button
         const exportBtn = document.querySelector('#export-sets-btn');
         if (exportBtn) {
@@ -870,6 +883,36 @@ class DataListManager {
     }
 
     setupUserSolventModalListeners() {
+        // Add modal controls
+        const addSaveBtn = document.querySelector('#save-add-user-solvent-btn');
+        const addCancelBtn = document.querySelector('#cancel-add-user-solvent-btn');
+        const addModal = document.querySelector('#add-user-solvent-modal');
+        const addCloseBtn = addModal?.querySelector('.modal-close');
+
+        if (addSaveBtn && !addSaveBtn.hasAttribute('data-listener-attached')) {
+            addSaveBtn.setAttribute('data-listener-attached', 'true');
+            addSaveBtn.addEventListener('click', () => this.addUserSolvent());
+        }
+
+        if (addCancelBtn && !addCancelBtn.hasAttribute('data-listener-attached')) {
+            addCancelBtn.setAttribute('data-listener-attached', 'true');
+            addCancelBtn.addEventListener('click', () => this.closeAddUserSolventModal());
+        }
+
+        if (addCloseBtn && !addCloseBtn.hasAttribute('data-listener-attached')) {
+            addCloseBtn.setAttribute('data-listener-attached', 'true');
+            addCloseBtn.addEventListener('click', () => this.closeAddUserSolventModal());
+        }
+
+        if (addModal && !addModal.hasAttribute('data-listener-attached')) {
+            addModal.setAttribute('data-listener-attached', 'true');
+            addModal.addEventListener('click', (e) => {
+                if (e.target === addModal) {
+                    this.closeAddUserSolventModal();
+                }
+            });
+        }
+
         // Edit modal controls
         const saveBtn = document.querySelector('#save-user-solvent-btn');
         const cancelBtn = document.querySelector('#cancel-edit-user-solvent-btn');
@@ -931,6 +974,101 @@ class DataListManager {
         if (modal) {
             modal.style.display = 'none';
             modal.removeAttribute('data-original-name');
+        }
+    }
+
+    showAddUserSolventModal() {
+        const modal = document.querySelector('#add-user-solvent-modal');
+        const nameInput = document.querySelector('#add-solvent-name');
+        const deltaDInput = document.querySelector('#add-delta-d');
+        const deltaPInput = document.querySelector('#add-delta-p');
+        const deltaHInput = document.querySelector('#add-delta-h');
+        const casInput = document.querySelector('#add-cas');
+        const bpInput = document.querySelector('#add-boiling-point');
+
+        if (!modal) return;
+
+        // Clear form
+        if (nameInput) nameInput.value = '';
+        if (deltaDInput) deltaDInput.value = '';
+        if (deltaPInput) deltaPInput.value = '';
+        if (deltaHInput) deltaHInput.value = '';
+        if (casInput) casInput.value = '';
+        if (bpInput) bpInput.value = '';
+
+        modal.style.display = 'block';
+    }
+
+    closeAddUserSolventModal() {
+        const modal = document.querySelector('#add-user-solvent-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
+    }
+
+    async addUserSolvent() {
+        const nameInput = document.querySelector('#add-solvent-name');
+        const deltaDInput = document.querySelector('#add-delta-d');
+        const deltaPInput = document.querySelector('#add-delta-p');
+        const deltaHInput = document.querySelector('#add-delta-h');
+        const casInput = document.querySelector('#add-cas');
+        const bpInput = document.querySelector('#add-boiling-point');
+
+        // Validate required fields
+        const name = nameInput.value.trim();
+        const deltaD = parseFloat(deltaDInput.value);
+        const deltaP = parseFloat(deltaPInput.value);
+        const deltaH = parseFloat(deltaHInput.value);
+
+        if (!name) {
+            Notification.error('Solvent name is required');
+            return;
+        }
+
+        if (isNaN(deltaD) || isNaN(deltaP) || isNaN(deltaH)) {
+            Notification.error('HSP values (δD, δP, δH) are required');
+            return;
+        }
+
+        // Prepare data
+        const solventData = {
+            solvent: name,
+            delta_d: deltaD,
+            delta_p: deltaP,
+            delta_h: deltaH,
+            cas: casInput.value.trim() || null,
+            boiling_point: bpInput.value ? parseFloat(bpInput.value) : null,
+            smiles: null,
+            source_file: 'user_added',
+            source_url: null
+        };
+
+        try {
+            // Send POST request
+            const response = await fetch('/api/data-list/user-solvents', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(solventData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+
+            Notification.success(`Solvent '${name}' added successfully`);
+            this.closeAddUserSolventModal();
+
+            // Reload all tables to reflect changes
+            await this.refreshAllTables();
+
+        } catch (error) {
+            console.error('Error adding user solvent:', error);
+            Notification.error(`Failed to add solvent: ${error.message}`);
         }
     }
 
@@ -1030,6 +1168,212 @@ class DataListManager {
             console.error('Error deleting user solvent:', error);
             Notification.error(`Failed to delete solvent: ${error.message}`);
         }
+    }
+
+    // === User Added Polymers Management ===
+
+    getUserPolymersFromStorage() {
+        try {
+            const polymers = localStorage.getItem('userAddedPolymers');
+            return polymers ? JSON.parse(polymers) : [];
+        } catch (error) {
+            console.error('Error reading user polymers from storage:', error);
+            return [];
+        }
+    }
+
+    saveUserPolymersToStorage(polymers) {
+        try {
+            localStorage.setItem('userAddedPolymers', JSON.stringify(polymers));
+        } catch (error) {
+            console.error('Error saving user polymers to storage:', error);
+            Notification.error('Failed to save polymer data');
+        }
+    }
+
+    loadUserAddedPolymers() {
+        const tableContainer = document.querySelector('#user-polymers-table');
+        const emptyState = document.querySelector('#user-polymers-empty');
+        const countBadge = document.querySelector('#user-polymers-count');
+
+        if (!tableContainer) return;
+
+        const polymers = this.getUserPolymersFromStorage();
+
+        if (countBadge) {
+            countBadge.textContent = `${polymers.length} polymer${polymers.length !== 1 ? 's' : ''}`;
+        }
+
+        if (polymers.length === 0) {
+            tableContainer.style.display = 'none';
+            if (emptyState) emptyState.style.display = 'block';
+            return;
+        }
+
+        tableContainer.style.display = 'block';
+        if (emptyState) emptyState.style.display = 'none';
+
+        if (this.userPolymersTable) {
+            this.userPolymersTable.setData(polymers);
+        } else {
+            this.userPolymersTable = new Tabulator("#user-polymers-table", {
+                data: polymers,
+                layout: "fitDataFill",
+                responsiveLayout: "collapse",
+                pagination: true,
+                paginationSize: 10,
+                paginationSizeSelector: [5, 10, 20, 50],
+                initialSort: [{ column: "name", dir: "asc" }],
+                columns: [
+                    { title: "Polymer", field: "name", minWidth: 200, headerFilter: "input", sorter: "string" },
+                    { title: "δD", field: "delta_d", minWidth: 80, hozAlign: "right", formatter: (cell) => cell.getValue()?.toFixed(1) || '-', sorter: "number" },
+                    { title: "δP", field: "delta_p", minWidth: 80, hozAlign: "right", formatter: (cell) => cell.getValue()?.toFixed(1) || '-', sorter: "number" },
+                    { title: "δH", field: "delta_h", minWidth: 80, hozAlign: "right", formatter: (cell) => cell.getValue()?.toFixed(1) || '-', sorter: "number" },
+                    { title: "R0", field: "r0", minWidth: 80, hozAlign: "right", formatter: (cell) => cell.getValue()?.toFixed(1) || '-', sorter: "number" },
+                    { title: "CAS", field: "cas", minWidth: 120, formatter: (cell) => cell.getValue() || '-' },
+                    {
+                        title: "Actions", minWidth: 120, width: 120, hozAlign: "center", headerSort: false,
+                        formatter: () => '<button class="btn-icon" title="Edit" data-action="edit">✏️</button><button class="btn-icon" title="Delete" data-action="delete">🗑️</button>',
+                        cellClick: (e, cell) => {
+                            const target = e.target;
+                            if (!target.classList.contains('btn-icon')) return;
+                            const row = cell.getRow().getData();
+                            if (target.dataset.action === 'edit') this.showEditUserPolymerModal(row);
+                            else if (target.dataset.action === 'delete') this.deleteUserPolymer(row.name);
+                        }
+                    }
+                ]
+            });
+            this.setupUserPolymerModalListeners();
+        }
+    }
+
+    setupUserPolymerModalListeners() {
+        const addModal = document.querySelector('#add-user-polymer-modal');
+        ['#save-add-user-polymer-btn', '#cancel-add-user-polymer-btn', addModal?.querySelector('.modal-close')].forEach((sel, idx) => {
+            const el = typeof sel === 'string' ? document.querySelector(sel) : sel;
+            if (el && !el.hasAttribute('data-listener-attached')) {
+                el.setAttribute('data-listener-attached', 'true');
+                el.addEventListener('click', () => [this.addUserPolymer, this.closeAddUserPolymerModal, this.closeAddUserPolymerModal][idx]?.call(this));
+            }
+        });
+        if (addModal && !addModal.hasAttribute('data-listener-attached')) {
+            addModal.setAttribute('data-listener-attached', 'true');
+            addModal.addEventListener('click', (e) => e.target === addModal && this.closeAddUserPolymerModal());
+        }
+
+        const editModal = document.querySelector('#edit-user-polymer-modal');
+        ['#save-user-polymer-btn', '#cancel-edit-user-polymer-btn', editModal?.querySelector('.modal-close')].forEach((sel, idx) => {
+            const el = typeof sel === 'string' ? document.querySelector(sel) : sel;
+            if (el && !el.hasAttribute('data-listener-attached')) {
+                el.setAttribute('data-listener-attached', 'true');
+                el.addEventListener('click', () => [this.saveUserPolymerChanges, this.closeEditUserPolymerModal, this.closeEditUserPolymerModal][idx]?.call(this));
+            }
+        });
+        if (editModal && !editModal.hasAttribute('data-listener-attached')) {
+            editModal.setAttribute('data-listener-attached', 'true');
+            editModal.addEventListener('click', (e) => e.target === editModal && this.closeEditUserPolymerModal());
+        }
+    }
+
+    showAddUserPolymerModal() {
+        const modal = document.querySelector('#add-user-polymer-modal');
+        if (!modal) return;
+        ['name', 'delta-d', 'delta-p', 'delta-h', 'r0', 'cas'].forEach(id => {
+            const el = document.querySelector(`#add-polymer-${id}`);
+            if (el) el.value = '';
+        });
+        modal.style.display = 'block';
+    }
+
+    closeAddUserPolymerModal() {
+        const modal = document.querySelector('#add-user-polymer-modal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    addUserPolymer() {
+        const name = document.querySelector('#add-polymer-name')?.value.trim();
+        const delta_d = parseFloat(document.querySelector('#add-polymer-delta-d')?.value);
+        const delta_p = parseFloat(document.querySelector('#add-polymer-delta-p')?.value);
+        const delta_h = parseFloat(document.querySelector('#add-polymer-delta-h')?.value);
+        const r0 = parseFloat(document.querySelector('#add-polymer-r0')?.value);
+        const cas = document.querySelector('#add-polymer-cas')?.value.trim();
+
+        if (!name || isNaN(delta_d) || isNaN(delta_p) || isNaN(delta_h) || isNaN(r0)) {
+            Notification.error('Polymer name and HSP values (δD, δP, δH, R0) are required');
+            return;
+        }
+
+        const polymers = this.getUserPolymersFromStorage();
+        if (polymers.find(p => p.name === name)) {
+            Notification.error(`Polymer '${name}' already exists`);
+            return;
+        }
+
+        polymers.push({ name, delta_d, delta_p, delta_h, r0, cas: cas || null });
+        this.saveUserPolymersToStorage(polymers);
+        Notification.success(`Polymer '${name}' added successfully`);
+        this.closeAddUserPolymerModal();
+        this.loadUserAddedPolymers();
+    }
+
+    showEditUserPolymerModal(polymerData) {
+        const modal = document.querySelector('#edit-user-polymer-modal');
+        if (!modal) return;
+        modal.setAttribute('data-original-name', polymerData.name);
+        document.querySelector('#edit-polymer-name').value = polymerData.name || '';
+        document.querySelector('#edit-polymer-delta-d').value = polymerData.delta_d ?? '';
+        document.querySelector('#edit-polymer-delta-p').value = polymerData.delta_p ?? '';
+        document.querySelector('#edit-polymer-delta-h').value = polymerData.delta_h ?? '';
+        document.querySelector('#edit-polymer-r0').value = polymerData.r0 ?? '';
+        document.querySelector('#edit-polymer-cas').value = polymerData.cas || '';
+        modal.style.display = 'block';
+    }
+
+    closeEditUserPolymerModal() {
+        const modal = document.querySelector('#edit-user-polymer-modal');
+        if (modal) {
+            modal.style.display = 'none';
+            modal.removeAttribute('data-original-name');
+        }
+    }
+
+    saveUserPolymerChanges() {
+        const modal = document.querySelector('#edit-user-polymer-modal');
+        const originalName = modal.getAttribute('data-original-name');
+        const name = document.querySelector('#edit-polymer-name')?.value.trim();
+        const delta_d = parseFloat(document.querySelector('#edit-polymer-delta-d')?.value);
+        const delta_p = parseFloat(document.querySelector('#edit-polymer-delta-p')?.value);
+        const delta_h = parseFloat(document.querySelector('#edit-polymer-delta-h')?.value);
+        const r0 = parseFloat(document.querySelector('#edit-polymer-r0')?.value);
+        const cas = document.querySelector('#edit-polymer-cas')?.value.trim();
+
+        if (!name || isNaN(delta_d) || isNaN(delta_p) || isNaN(delta_h) || isNaN(r0)) {
+            Notification.error('Polymer name and HSP values are required');
+            return;
+        }
+
+        const polymers = this.getUserPolymersFromStorage();
+        const index = polymers.findIndex(p => p.name === originalName);
+        if (index === -1) {
+            Notification.error('Polymer not found');
+            return;
+        }
+
+        polymers[index] = { name, delta_d, delta_p, delta_h, r0, cas: cas || null };
+        this.saveUserPolymersToStorage(polymers);
+        Notification.success(`Polymer '${name}' updated successfully`);
+        this.closeEditUserPolymerModal();
+        this.loadUserAddedPolymers();
+    }
+
+    deleteUserPolymer(polymerName) {
+        if (!confirm(`Are you sure you want to delete the polymer "${polymerName}"?`)) return;
+        const polymers = this.getUserPolymersFromStorage();
+        const filtered = polymers.filter(p => p.name !== polymerName);
+        this.saveUserPolymersToStorage(filtered);
+        Notification.success(`Polymer '${polymerName}' deleted successfully`);
+        this.loadUserAddedPolymers();
     }
 
     // === Experimental Results Management ===

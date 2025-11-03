@@ -269,12 +269,15 @@
                 <div class="user-solvents-section">
                     <div class="section-header">
                         <h3>User Added Solvents</h3>
-                        <span id="user-solvents-count" class="count-badge">0 solvents</span>
+                        <div>
+                            <button id="add-user-solvent-btn" class="btn btn-primary btn-small">+ Add Solvent</button>
+                            <span id="user-solvents-count" class="count-badge">0 solvents</span>
+                        </div>
                     </div>
 
                     <div id="user-solvents-empty" class="empty-state" style="display: none;">
                         <p>No user-added solvents yet.</p>
-                        <p>Add solvents in the HSP Experimental page using Manual mode.</p>
+                        <p>Click "+ Add Solvent" above to add your first solvent.</p>
                     </div>
 
                     <div id="user-solvents-table-container" class="table-container">
@@ -291,6 +294,26 @@
 
                     <div id="solvent-database-table-container" class="table-container">
                         <div id="solvent-database-table"></div>
+                    </div>
+                </div>
+
+                <!-- User Added Polymers Section -->
+                <div class="user-polymers-section">
+                    <div class="section-header">
+                        <h3>User Added Polymers</h3>
+                        <div>
+                            <button id="add-user-polymer-btn" class="btn btn-primary btn-small">+ Add Polymer</button>
+                            <span id="user-polymers-count" class="count-badge">0 polymers</span>
+                        </div>
+                    </div>
+
+                    <div id="user-polymers-empty" class="empty-state" style="display: none;">
+                        <p>No user-added polymers yet.</p>
+                        <p>Click "+ Add Polymer" above to add your first polymer.</p>
+                    </div>
+
+                    <div id="user-polymers-table-container" class="table-container">
+                        <div id="user-polymers-table"></div>
                     </div>
                 </div>
 
@@ -336,6 +359,46 @@
                     </div>
                 </div>
 
+                <!-- Add User Solvent Modal -->
+                <div id="add-user-solvent-modal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Add New Solvent</h3>
+                            <button class="modal-close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="add-solvent-name">Solvent Name: *</label>
+                                <input type="text" id="add-solvent-name" class="form-input" placeholder="Enter solvent name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="add-delta-d">δD (MPa<sup>0.5</sup>): *</label>
+                                <input type="number" id="add-delta-d" class="form-input" step="0.1" placeholder="15.5" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="add-delta-p">δP (MPa<sup>0.5</sup>): *</label>
+                                <input type="number" id="add-delta-p" class="form-input" step="0.1" placeholder="7.0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="add-delta-h">δH (MPa<sup>0.5</sup>): *</label>
+                                <input type="number" id="add-delta-h" class="form-input" step="0.1" placeholder="8.0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="add-cas">CAS Number:</label>
+                                <input type="text" id="add-cas" class="form-input" placeholder="67-56-1">
+                            </div>
+                            <div class="form-group">
+                                <label for="add-boiling-point">Boiling Point (°C):</label>
+                                <input type="number" id="add-boiling-point" class="form-input" step="0.1" placeholder="64.7">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="save-add-user-solvent-btn" class="btn btn-primary">Add Solvent</button>
+                            <button id="cancel-add-user-solvent-btn" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Edit User Solvent Modal -->
                 <div id="edit-user-solvent-modal" class="modal" style="display: none;">
                     <div class="modal-content">
@@ -372,6 +435,86 @@
                         <div class="modal-footer">
                             <button id="save-user-solvent-btn" class="btn btn-primary">Save Changes</button>
                             <button id="cancel-edit-user-solvent-btn" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add User Polymer Modal -->
+                <div id="add-user-polymer-modal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Add New Polymer</h3>
+                            <button class="modal-close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="add-polymer-name">Polymer Name: *</label>
+                                <input type="text" id="add-polymer-name" class="form-input" placeholder="Enter polymer name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="add-polymer-delta-d">δD (MPa<sup>0.5</sup>): *</label>
+                                <input type="number" id="add-polymer-delta-d" class="form-input" step="0.1" placeholder="18.0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="add-polymer-delta-p">δP (MPa<sup>0.5</sup>): *</label>
+                                <input type="number" id="add-polymer-delta-p" class="form-input" step="0.1" placeholder="6.0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="add-polymer-delta-h">δH (MPa<sup>0.5</sup>): *</label>
+                                <input type="number" id="add-polymer-delta-h" class="form-input" step="0.1" placeholder="4.0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="add-polymer-r0">R0 (MPa<sup>0.5</sup>): *</label>
+                                <input type="number" id="add-polymer-r0" class="form-input" step="0.1" placeholder="8.0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="add-polymer-cas">CAS Number:</label>
+                                <input type="text" id="add-polymer-cas" class="form-input" placeholder="9003-07-0">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="save-add-user-polymer-btn" class="btn btn-primary">Add Polymer</button>
+                            <button id="cancel-add-user-polymer-btn" class="btn btn-secondary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit User Polymer Modal -->
+                <div id="edit-user-polymer-modal" class="modal" style="display: none;">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Edit User Polymer</h3>
+                            <button class="modal-close">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="edit-polymer-name">Polymer Name: *</label>
+                                <input type="text" id="edit-polymer-name" class="form-input" placeholder="Enter polymer name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-polymer-delta-d">δD (MPa<sup>0.5</sup>): *</label>
+                                <input type="number" id="edit-polymer-delta-d" class="form-input" step="0.1" placeholder="18.0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-polymer-delta-p">δP (MPa<sup>0.5</sup>): *</label>
+                                <input type="number" id="edit-polymer-delta-p" class="form-input" step="0.1" placeholder="6.0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-polymer-delta-h">δH (MPa<sup>0.5</sup>): *</label>
+                                <input type="number" id="edit-polymer-delta-h" class="form-input" step="0.1" placeholder="4.0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-polymer-r0">R0 (MPa<sup>0.5</sup>): *</label>
+                                <input type="number" id="edit-polymer-r0" class="form-input" step="0.1" placeholder="8.0" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-polymer-cas">CAS Number:</label>
+                                <input type="text" id="edit-polymer-cas" class="form-input" placeholder="9003-07-0">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button id="save-user-polymer-btn" class="btn btn-primary">Save Changes</button>
+                            <button id="cancel-edit-user-polymer-btn" class="btn btn-secondary">Cancel</button>
                         </div>
                     </div>
                 </div>

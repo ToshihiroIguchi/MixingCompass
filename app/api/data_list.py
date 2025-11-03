@@ -119,6 +119,50 @@ async def get_user_added_solvents():
         raise HTTPException(status_code=500, detail=f"Error fetching user-added solvents: {str(e)}")
 
 
+@router.post("/user-solvents", response_model=dict)
+async def add_user_solvent(solvent_data: SolventData):
+    """
+    Add a new user-added solvent
+
+    Args:
+        solvent_data: New solvent data
+
+    Returns:
+        Success message
+    """
+    try:
+        logger.info(f"Adding new user solvent: {solvent_data.solvent}")
+
+        # Validate required fields
+        if not solvent_data.solvent or not solvent_data.solvent.strip():
+            raise HTTPException(status_code=400, detail="Solvent name is required")
+
+        if solvent_data.delta_d is None or solvent_data.delta_p is None or solvent_data.delta_h is None:
+            raise HTTPException(status_code=400, detail="HSP values (δD, δP, δH) are required")
+
+        # Check if solvent already exists
+        existing_solvent = solvent_service.get_solvent_by_name(solvent_data.solvent)
+        if existing_solvent:
+            raise HTTPException(status_code=409, detail=f"Solvent '{solvent_data.solvent}' already exists")
+
+        # Add solvent
+        success = solvent_service.add_solvent(solvent_data)
+        if not success:
+            raise HTTPException(status_code=500, detail=f"Failed to add solvent '{solvent_data.solvent}'")
+
+        return {
+            "success": True,
+            "message": f"Solvent '{solvent_data.solvent}' added successfully",
+            "solvent_name": solvent_data.solvent
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error adding user solvent: {e}")
+        raise HTTPException(status_code=500, detail=f"Error adding solvent: {str(e)}")
+
+
 @router.put("/user-solvents/{solvent_name}", response_model=dict)
 async def update_user_solvent(solvent_name: str, solvent_data: SolventData):
     """
