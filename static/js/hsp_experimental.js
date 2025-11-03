@@ -462,13 +462,17 @@ class HSPExperimental {
         const nameInput = row.querySelector('.solvent-name-input');
         const container = row.querySelector('.solvent-input-container');
 
-        // Remove existing link if any
+        // Remove existing links if any
         const existingLink = container.querySelector('.ref-link');
         if (existingLink) {
             existingLink.remove();
         }
+        const existingGoogleLink = container.querySelector('.google-search-link');
+        if (existingGoogleLink) {
+            existingGoogleLink.remove();
+        }
 
-        // Add new link if source_url exists
+        // Add source reference link if source_url exists
         if (solventData.source_url) {
             const link = document.createElement('a');
             link.href = solventData.source_url;
@@ -477,6 +481,18 @@ class HSPExperimental {
             link.title = 'View source reference';
             link.textContent = '🔗';
             container.appendChild(link);
+        }
+
+        // Add Google search link using the input field value
+        const solventName = nameInput.value.trim();
+        if (solventName) {
+            const googleLink = document.createElement('a');
+            googleLink.href = `https://www.google.com/search?q=${encodeURIComponent(solventName)}`;
+            googleLink.target = '_blank';
+            googleLink.className = 'google-search-link';
+            googleLink.title = 'Search on Google';
+            googleLink.textContent = '🔍';
+            container.appendChild(googleLink);
         }
 
         // Store solvent data in row for reference
