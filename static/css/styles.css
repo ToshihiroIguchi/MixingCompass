@@ -102,6 +102,15 @@ body {
     box-sizing: border-box;
 }
 
+/* Single panel layout for HSP Calculation */
+.single-panel-layout {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem;
+    min-height: calc(100vh - 160px);
+    box-sizing: border-box;
+}
+
 /* HSP (Experimental): 左右50%ずつ */
 #hsp-experimental .split-layout {
     grid-template-columns: 1fr 1fr;

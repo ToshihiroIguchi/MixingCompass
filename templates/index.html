@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ app_name }}</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <link rel="stylesheet" href="/static/css/styles.css?v=2025110304">
+    <link rel="stylesheet" href="/static/css/styles.css?v=2025110305">
     <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
 </head>
 <body>
@@ -141,61 +141,47 @@
 
         <!-- HSP Calculation Section -->
         <section id="hsp-calculation" class="content-section">
-            <div class="split-layout">
-                <!-- Left Panel: Create Solvent Mixture -->
-                <div class="left-panel">
-                    <div class="panel-header">
-                        <h2>Create Solvent Mixture</h2>
-                    </div>
-                    <div class="mixture-info">
-                        <label>Mixture Name:</label>
-                        <input type="text" id="mixture-name" placeholder="Enter mixture name" required>
-                    </div>
-                    <div class="mixture-table-section">
-                        <div class="mixture-table-header">
-                            <h3>Components</h3>
-                            <span id="total-volume" class="volume-total">Total Ratio: 0</span>
-                        </div>
-                        <div id="mixture-components-container" class="mixture-components-container">
-                            <!-- Component rows will be added here -->
-                        </div>
-                        <button id="add-component-btn" class="btn btn-secondary">+ Add Solvent</button>
-                    </div>
-                    <div class="mixture-actions">
-                        <button id="calculate-mixture-btn" class="btn btn-primary" disabled>Calculate HSP</button>
-                    </div>
-                    <div id="mixture-result-section" class="mixture-result-section" style="display: none;">
-                        <h3>Calculated HSP</h3>
-                        <div class="hsp-values-inline">
-                            <span class="hsp-value-inline">
-                                <label>&delta;D:</label>
-                                <span id="mixture-delta-d" class="value">-</span>
-                                <span class="unit">MPa<sup>0.5</sup></span>
-                            </span>
-                            <span class="hsp-value-inline">
-                                <label>&delta;P:</label>
-                                <span id="mixture-delta-p" class="value">-</span>
-                                <span class="unit">MPa<sup>0.5</sup></span>
-                            </span>
-                            <span class="hsp-value-inline">
-                                <label>&delta;H:</label>
-                                <span id="mixture-delta-h" class="value">-</span>
-                                <span class="unit">MPa<sup>0.5</sup></span>
-                            </span>
-                        </div>
-                        <button id="save-mixture-btn" class="btn btn-primary">Save Mixture</button>
-                    </div>
+            <div class="single-panel-layout">
+                <div class="panel-header">
+                    <h2>Create Solvent Mixture</h2>
                 </div>
-
-                <!-- Right Panel: Saved Mixtures -->
-                <div class="right-panel">
-                    <div class="panel-header">
-                        <h2>Saved Mixtures</h2>
-                        <span id="saved-mixtures-count" class="count-badge">0 mixtures</span>
+                <div class="mixture-info">
+                    <label>Mixture Name:</label>
+                    <input type="text" id="mixture-name" placeholder="Enter mixture name" required>
+                </div>
+                <div class="mixture-table-section">
+                    <div class="mixture-table-header">
+                        <h3>Components</h3>
+                        <span id="total-volume" class="volume-total">Total Ratio: 0</span>
                     </div>
-                    <div id="saved-mixtures-table-container" class="table-container">
-                        <div id="saved-mixtures-table"></div>
+                    <div id="mixture-components-container" class="mixture-components-container">
+                        <!-- Component rows will be added here -->
                     </div>
+                    <button id="add-component-btn" class="btn btn-secondary">+ Add Solvent</button>
+                </div>
+                <div class="mixture-actions">
+                    <button id="calculate-mixture-btn" class="btn btn-primary" disabled>Calculate HSP</button>
+                </div>
+                <div id="mixture-result-section" class="mixture-result-section" style="display: none;">
+                    <h3>Calculated HSP</h3>
+                    <div class="hsp-values-inline">
+                        <span class="hsp-value-inline">
+                            <label>&delta;D:</label>
+                            <span id="mixture-delta-d" class="value">-</span>
+                            <span class="unit">MPa<sup>0.5</sup></span>
+                        </span>
+                        <span class="hsp-value-inline">
+                            <label>&delta;P:</label>
+                            <span id="mixture-delta-p" class="value">-</span>
+                            <span class="unit">MPa<sup>0.5</sup></span>
+                        </span>
+                        <span class="hsp-value-inline">
+                            <label>&delta;H:</label>
+                            <span id="mixture-delta-h" class="value">-</span>
+                            <span class="unit">MPa<sup>0.5</sup></span>
+                        </span>
+                    </div>
+                    <button id="save-mixture-btn" class="btn btn-primary">Save Mixture</button>
                 </div>
             </div>
         </section>
@@ -357,6 +343,23 @@
 
                     <div id="user-polymers-table-container" class="table-container">
                         <div id="user-polymers-table"></div>
+                    </div>
+                </div>
+
+                <!-- Saved Mixtures Section -->
+                <div class="saved-mixtures-section">
+                    <div class="section-header">
+                        <h3>Saved Mixtures</h3>
+                        <span id="saved-mixtures-count" class="count-badge">0 mixtures</span>
+                    </div>
+
+                    <div id="saved-mixtures-empty" class="empty-state" style="display: none;">
+                        <p>No saved mixtures yet.</p>
+                        <p>Create mixtures in the HSP (Calculation) tab to manage them here.</p>
+                    </div>
+
+                    <div id="saved-mixtures-table-container" class="table-container">
+                        <div id="saved-mixtures-table"></div>
                     </div>
                 </div>
 
@@ -736,13 +739,13 @@
     <script src="/static/js/utils.js"></script>
     <script src="/static/js/notification.js"></script>
     <script src="/static/js/storage.js"></script>
-    <script src="/static/js/main.js"></script>
+    <script src="/static/js/main.js?v=2025110305"></script>
     <script src="/static/js/solvent_set_manager.js"></script>
     <script src="/static/js/experimental_results_manager.js"></script>
     <script src="/static/js/hsp_visualization.js?v=2025110205"></script>
     <script src="/static/js/hsp_experimental.js?v=2025110205"></script>
-    <script src="/static/js/hsp_calculation.js?v=2025110304"></script>
+    <script src="/static/js/hsp_calculation.js?v=2025110305"></script>
     <script src="/static/js/solvent_search.js?v=2025110211"></script>
-    <script src="/static/js/data_list.js?v=2025110212"></script>
+    <script src="/static/js/data_list.js?v=2025110306"></script>
 </body>
 </html>

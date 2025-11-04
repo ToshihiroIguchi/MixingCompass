@@ -8,7 +8,6 @@ class HSPCalculation {
         this.componentIdCounter = 0;
         this.solventNames = [];
         this.solventDataCache = new Map();
-        this.savedMixturesTable = null;
         this.currentCalculatedHSP = null;
 
         this.STORAGE_KEY = 'mixingcompass_saved_mixtures';
@@ -23,8 +22,8 @@ class HSPCalculation {
         // Setup event listeners
         this.setupEventListeners();
 
-        // Load saved mixtures table
-        this.loadSavedMixturesTable();
+        // Check if there's a mixture to load from session storage
+        this.checkAndLoadMixture();
 
         console.log('HSP Calculation initialized');
     }
@@ -387,13 +386,15 @@ class HSPCalculation {
         // Save to storage
         Storage.set(this.STORAGE_KEY, savedMixtures);
 
-        // Reload table
-        this.loadSavedMixturesTable();
+        // Notify Data List to reload
+        if (window.dataListManager) {
+            window.dataListManager.loadSavedMixtures();
+        }
 
         // Clear form
         this.clearForm();
 
-        Notification.success(`Mixture "${mixtureName}" saved successfully`);
+        Notification.success(`Mixture "${mixtureName}" saved successfully. View it in the Data List tab.`);
     }
 
     clearForm() {
@@ -406,115 +407,55 @@ class HSPCalculation {
         this.validateInputs();
     }
 
-    loadSavedMixturesTable() {
-        const savedMixtures = Storage.get(this.STORAGE_KEY, []);
-
-        // Update count badge
-        document.getElementById('saved-mixtures-count').textContent =
-            `${savedMixtures.length} mixture${savedMixtures.length !== 1 ? 's' : ''}`;
-
-        // Prepare data for Tabulator
-        const tableData = savedMixtures.map(mixture => ({
-            id: mixture.id,
-            name: mixture.name,
-            delta_d: mixture.hsp.delta_d,
-            delta_p: mixture.hsp.delta_p,
-            delta_h: mixture.hsp.delta_h,
-            composition: mixture.components.map(c =>
-                `${c.solvent} (${c.volume}%)`
-            ).join(', '),
-            components: mixture.components,
-            created_at: mixture.created_at
-        }));
-
-        // Create or update Tabulator
-        if (!this.savedMixturesTable) {
-            this.savedMixturesTable = new Tabulator('#saved-mixtures-table', {
-                data: tableData,
-                layout: 'fitColumns',
-                responsiveLayout: 'collapse',
-                pagination: true,
-                paginationSize: 10,
-                paginationSizeSelector: [10, 20, 50],
-                initialSort: [{column: 'name', dir: 'asc'}],
-                columns: [
-                    {
-                        title: 'Name',
-                        field: 'name',
-                        minWidth: 150,
-                        headerFilter: 'input',
-                        headerFilterPlaceholder: 'Filter...'
-                    },
-                    {
-                        title: 'δD',
-                        field: 'delta_d',
-                        width: 80,
-                        formatter: (cell) => cell.getValue().toFixed(1),
-                        sorter: 'number'
-                    },
-                    {
-                        title: 'δP',
-                        field: 'delta_p',
-                        width: 80,
-                        formatter: (cell) => cell.getValue().toFixed(1),
-                        sorter: 'number'
-                    },
-                    {
-                        title: 'δH',
-                        field: 'delta_h',
-                        width: 80,
-                        formatter: (cell) => cell.getValue().toFixed(1),
-                        sorter: 'number'
-                    },
-                    {
-                        title: 'Composition',
-                        field: 'composition',
-                        minWidth: 300,
-                        tooltip: true
-                    },
-                    {
-                        title: 'Actions',
-                        field: 'actions',
-                        width: 100,
-                        hozAlign: 'center',
-                        headerSort: false,
-                        formatter: () => {
-                            return '<button class="action-btn delete-btn" title="Delete">Delete</button>';
-                        },
-                        cellClick: (e, cell) => {
-                            if (e.target.classList.contains('delete-btn')) {
-                                this.deleteMixture(cell.getRow().getData().id);
-                            }
-                        }
-                    }
-                ]
-            });
-        } else {
-            this.savedMixturesTable.setData(tableData);
+    checkAndLoadMixture() {
+        const mixtureId = sessionStorage.getItem('loadMixtureId');
+        if (!mixtureId) {
+            return;
         }
-    }
 
-    deleteMixture(mixtureId) {
+        // Clear the session storage
+        sessionStorage.removeItem('loadMixtureId');
+
+        // Load the mixture
         const savedMixtures = Storage.get(this.STORAGE_KEY, []);
-        const mixture = savedMixtures.find(m => m.id === mixtureId);
+        const mixture = savedMixtures.find(m => m.id === parseInt(mixtureId));
 
         if (!mixture) {
             Notification.error('Mixture not found');
             return;
         }
 
-        if (!confirm(`Delete mixture "${mixture.name}"?`)) {
-            return;
-        }
+        // Load mixture name
+        document.getElementById('mixture-name').value = mixture.name;
 
-        // Remove from storage
-        const updatedMixtures = savedMixtures.filter(m => m.id !== mixtureId);
-        Storage.set(this.STORAGE_KEY, updatedMixtures);
+        // Load components
+        this.components = [];
+        this.componentIdCounter = 0;
 
-        // Reload table
-        this.loadSavedMixturesTable();
+        mixture.components.forEach((comp) => {
+            const component = {
+                id: this.componentIdCounter++,
+                solvent: comp.solvent,
+                volume: comp.volume,
+                delta_d: null,
+                delta_p: null,
+                delta_h: null
+            };
+            this.components.push(component);
+        });
 
-        Notification.success(`Mixture "${mixture.name}" deleted`);
+        // Render components (will fetch HSP values)
+        this.renderComponents();
+
+        // Update HSP values for all components
+        this.components.forEach(component => {
+            this.updateComponentHSP(component);
+        });
+
+        // Validate inputs
+        this.validateInputs();
+
+        Notification.success(`Loaded mixture: ${mixture.name}`);
     }
 }
 

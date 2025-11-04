@@ -16,6 +16,7 @@ class DataListManager {
         this.setupCollapsibleSections();
         this.loadUserAddedSolvents();
         this.loadUserAddedPolymers();
+        this.loadSavedMixtures();
         // Database loading is now called only when sections are expanded
         this.loadSolventSetsDisplay();
         this.loadExperimentalResultsDisplay();
@@ -1919,6 +1920,251 @@ class DataListManager {
     collapseSection(toggle, content) {
         toggle.setAttribute('aria-expanded', 'false');
         content.style.display = 'none';
+    }
+
+    // === Saved Mixtures Management ===
+
+    loadSavedMixtures() {
+        const tableContainer = document.querySelector('#saved-mixtures-table');
+        const emptyState = document.querySelector('#saved-mixtures-empty');
+        const countBadge = document.querySelector('#saved-mixtures-count');
+
+        if (!tableContainer) {
+            console.warn('Saved mixtures table container not found');
+            return;
+        }
+
+        // Get saved mixtures from storage
+        const STORAGE_KEY = 'mixingcompass_saved_mixtures';
+        const mixtures = Storage.get(STORAGE_KEY, []);
+
+        // Update count badge
+        if (countBadge) {
+            countBadge.textContent = `${mixtures.length} mixture${mixtures.length !== 1 ? 's' : ''}`;
+        }
+
+        if (mixtures.length === 0) {
+            tableContainer.style.display = 'none';
+            if (emptyState) {
+                emptyState.style.display = 'block';
+            }
+            return;
+        }
+
+        // Show table and hide empty state
+        tableContainer.style.display = 'block';
+        if (emptyState) {
+            emptyState.style.display = 'none';
+        }
+
+        // Prepare data for Tabulator
+        const tableData = mixtures.map(mixture => ({
+            id: mixture.id,
+            name: mixture.name,
+            delta_d: mixture.hsp.delta_d,
+            delta_p: mixture.hsp.delta_p,
+            delta_h: mixture.hsp.delta_h,
+            composition: mixture.components.map(c =>
+                `${c.solvent} (${c.volume})`
+            ).join(', '),
+            components: mixture.components,
+            created_at: mixture.created_at
+        }));
+
+        // Show loading state briefly with spinner
+        tableContainer.innerHTML = `
+            <div class="loading-container">
+                <div class="loading-spinner"></div>
+                <span class="loading-text">Loading saved mixtures...</span>
+            </div>
+        `;
+
+        // Initialize Tabulator (will replace loading state)
+        setTimeout(() => {
+            if (this.savedMixturesTable) {
+                this.savedMixturesTable.setData(tableData);
+            } else {
+                this.savedMixturesTable = new Tabulator("#saved-mixtures-table", {
+                    data: tableData,
+                    layout: "fitColumns",
+                    responsiveLayout: "collapse",
+                    pagination: true,
+                    paginationSize: 10,
+                    paginationSizeSelector: [5, 10, 20, 50],
+                    movableColumns: true,
+                    resizableColumns: true,
+                    initialSort: [{ column: "created_at", dir: "desc" }],
+                    columns: [
+                        {
+                            title: "Name",
+                            field: "name",
+                            minWidth: 150,
+                            headerFilter: "input",
+                            headerFilterPlaceholder: "Filter...",
+                            sorter: "string"
+                        },
+                        {
+                            title: "δD",
+                            field: "delta_d",
+                            minWidth: 80,
+                            hozAlign: "right",
+                            headerFilter: "number",
+                            headerFilterPlaceholder: "Min",
+                            headerFilterFunc: ">=",
+                            formatter: (cell) => cell.getValue().toFixed(1),
+                            sorter: "number"
+                        },
+                        {
+                            title: "δP",
+                            field: "delta_p",
+                            minWidth: 80,
+                            hozAlign: "right",
+                            headerFilter: "number",
+                            headerFilterPlaceholder: "Min",
+                            headerFilterFunc: ">=",
+                            formatter: (cell) => cell.getValue().toFixed(1),
+                            sorter: "number"
+                        },
+                        {
+                            title: "δH",
+                            field: "delta_h",
+                            minWidth: 80,
+                            hozAlign: "right",
+                            headerFilter: "number",
+                            headerFilterPlaceholder: "Min",
+                            headerFilterFunc: ">=",
+                            formatter: (cell) => cell.getValue().toFixed(1),
+                            sorter: "number"
+                        },
+                        {
+                            title: "Composition",
+                            field: "composition",
+                            minWidth: 300,
+                            headerFilter: "input",
+                            headerFilterPlaceholder: "Filter...",
+                            tooltip: true
+                        },
+                        {
+                            title: "Created",
+                            field: "created_at",
+                            minWidth: 150,
+                            formatter: (cell) => {
+                                const date = new Date(cell.getValue());
+                                return Utils.formatDate(date);
+                            },
+                            sorter: "string"
+                        },
+                        {
+                            title: "Actions",
+                            field: "actions",
+                            width: 180,
+                            hozAlign: "center",
+                            headerSort: false,
+                            formatter: () => {
+                                return `
+                                    <button class="action-btn load-btn" title="Load in HSP Calculation">Load</button>
+                                    <button class="action-btn export-btn" title="Export">Export</button>
+                                    <button class="action-btn delete-btn" title="Delete">Delete</button>
+                                `;
+                            },
+                            cellClick: (e, cell) => {
+                                const rowData = cell.getRow().getData();
+                                if (e.target.classList.contains('load-btn')) {
+                                    this.loadMixtureInCalculation(rowData.id);
+                                } else if (e.target.classList.contains('export-btn')) {
+                                    this.exportSingleMixture(rowData.id);
+                                } else if (e.target.classList.contains('delete-btn')) {
+                                    this.deleteSavedMixture(rowData.id);
+                                }
+                            }
+                        }
+                    ]
+                });
+            }
+
+            console.log(`Loaded ${mixtures.length} saved mixtures`);
+        }, 10);
+    }
+
+    loadMixtureInCalculation(mixtureId) {
+        const STORAGE_KEY = 'mixingcompass_saved_mixtures';
+        const mixtures = Storage.get(STORAGE_KEY, []);
+        const mixture = mixtures.find(m => m.id === mixtureId);
+
+        if (!mixture) {
+            Notification.error('Mixture not found');
+            return;
+        }
+
+        // Store the mixture ID to load
+        sessionStorage.setItem('loadMixtureId', mixtureId);
+
+        // Switch to HSP Calculation tab
+        if (window.mixingCompass) {
+            window.mixingCompass.switchSection('hsp-calculation');
+        }
+
+        Notification.success(`Loading mixture: ${mixture.name}`);
+    }
+
+    exportSingleMixture(mixtureId) {
+        try {
+            const STORAGE_KEY = 'mixingcompass_saved_mixtures';
+            const mixtures = Storage.get(STORAGE_KEY, []);
+            const mixture = mixtures.find(m => m.id === mixtureId);
+
+            if (!mixture) {
+                Notification.error('Mixture not found');
+                return;
+            }
+
+            // Create export data
+            const exportData = {
+                version: '1.0',
+                exported: Utils.formatISO(),
+                mixture: mixture
+            };
+
+            // Create and download file
+            const filename = `mixture-${mixture.name.replace(/[^a-zA-Z0-9]/g, '_')}-${Utils.formatISO().split('T')[0]}.json`;
+            Utils.downloadJSON(exportData, filename);
+
+            Notification.success(`Exported: ${mixture.name}`);
+
+        } catch (error) {
+            console.error('Error exporting mixture:', error);
+            Notification.error('Failed to export mixture');
+        }
+    }
+
+    deleteSavedMixture(mixtureId) {
+        try {
+            const STORAGE_KEY = 'mixingcompass_saved_mixtures';
+            const mixtures = Storage.get(STORAGE_KEY, []);
+            const mixture = mixtures.find(m => m.id === mixtureId);
+
+            if (!mixture) {
+                Notification.error('Mixture not found');
+                return;
+            }
+
+            if (!confirm(`Delete mixture "${mixture.name}"?`)) {
+                return;
+            }
+
+            // Remove from storage
+            const updatedMixtures = mixtures.filter(m => m.id !== mixtureId);
+            Storage.set(STORAGE_KEY, updatedMixtures);
+
+            // Reload table
+            this.loadSavedMixtures();
+
+            Notification.success(`Mixture "${mixture.name}" deleted`);
+
+        } catch (error) {
+            console.error('Error deleting mixture:', error);
+            Notification.error('Failed to delete mixture');
+        }
     }
 }
 

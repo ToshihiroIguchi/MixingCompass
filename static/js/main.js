@@ -53,6 +53,7 @@ class MixingCompass {
             // Refresh the displays
             window.dataListManager.loadSolventSetsDisplay();
             window.dataListManager.loadExperimentalResultsDisplay();
+            window.dataListManager.loadSavedMixtures();
         }
     }
 
