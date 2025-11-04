@@ -74,7 +74,10 @@ class HSPCalculation {
         const component = {
             id: componentId,
             solvent: '',
-            volume: 0
+            volume: 0,
+            delta_d: null,
+            delta_p: null,
+            delta_h: null
         };
 
         this.components.push(component);
@@ -96,34 +99,58 @@ class HSPCalculation {
             return;
         }
 
-        container.innerHTML = this.components.map(component => `
-            <div class="component-row" data-component-id="${component.id}">
-                <div class="component-solvent">
-                    <input
-                        type="text"
-                        class="solvent-input"
-                        placeholder="Enter solvent name"
-                        value="${component.solvent}"
-                        list="solvent-datalist"
-                        data-component-id="${component.id}"
-                    >
-                </div>
-                <div class="component-volume">
-                    <input
-                        type="number"
-                        class="volume-input"
-                        placeholder="0"
-                        min="0"
-                        max="100"
-                        step="0.1"
-                        value="${component.volume || ''}"
-                        data-component-id="${component.id}"
-                    >
-                    <span class="volume-unit">%</span>
-                </div>
-                <button class="remove-component-btn" data-component-id="${component.id}" title="Remove">×</button>
+        // Create table structure
+        const tableHTML = `
+            <div class="mixture-table-wrapper">
+                <table class="mixture-table">
+                    <thead>
+                        <tr>
+                            <th>Solvent</th>
+                            <th>δD</th>
+                            <th>δP</th>
+                            <th>δH</th>
+                            <th>Volume Ratio</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${this.components.map(component => `
+                            <tr data-component-id="${component.id}">
+                                <td class="solvent-cell">
+                                    <input
+                                        type="text"
+                                        class="solvent-input"
+                                        placeholder="Enter solvent name"
+                                        value="${component.solvent}"
+                                        list="solvent-datalist"
+                                        data-component-id="${component.id}"
+                                    >
+                                </td>
+                                <td class="hsp-value">${component.delta_d !== null ? component.delta_d.toFixed(1) : '-'}</td>
+                                <td class="hsp-value">${component.delta_p !== null ? component.delta_p.toFixed(1) : '-'}</td>
+                                <td class="hsp-value">${component.delta_h !== null ? component.delta_h.toFixed(1) : '-'}</td>
+                                <td class="ratio-cell">
+                                    <input
+                                        type="number"
+                                        class="volume-input"
+                                        placeholder="0"
+                                        min="0"
+                                        step="0.1"
+                                        value="${component.volume || ''}"
+                                        data-component-id="${component.id}"
+                                    >
+                                </td>
+                                <td class="action-cell">
+                                    <button class="remove-component-btn" data-component-id="${component.id}" title="Remove">×</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
             </div>
-        `).join('');
+        `;
+
+        container.innerHTML = tableHTML;
 
         // Add datalist for autocomplete
         if (!document.getElementById('solvent-datalist')) {
@@ -142,7 +169,16 @@ class HSPCalculation {
                 const component = this.components.find(c => c.id === componentId);
                 if (component) {
                     component.solvent = e.target.value;
+                    this.updateComponentHSP(component);
                     this.validateInputs();
+                }
+            });
+
+            input.addEventListener('blur', (e) => {
+                const componentId = parseInt(e.target.dataset.componentId);
+                const component = this.components.find(c => c.id === componentId);
+                if (component) {
+                    this.updateComponentHSP(component);
                 }
             });
         });
@@ -153,7 +189,7 @@ class HSPCalculation {
                 const component = this.components.find(c => c.id === componentId);
                 if (component) {
                     component.volume = parseFloat(e.target.value) || 0;
-                    this.updateTotalVolume();
+                    this.updateTotalRatio();
                     this.validateInputs();
                 }
             });
@@ -166,20 +202,58 @@ class HSPCalculation {
             });
         });
 
-        this.updateTotalVolume();
+        this.updateTotalRatio();
     }
 
-    updateTotalVolume() {
+    async updateComponentHSP(component) {
+        if (!component.solvent.trim()) {
+            component.delta_d = null;
+            component.delta_p = null;
+            component.delta_h = null;
+            this.renderComponents();
+            return;
+        }
+
+        // Fetch all solvents if not already cached
+        if (this.solventDataCache.size === 0) {
+            try {
+                const response = await fetch('/api/solvent-search/solvents');
+                if (response.ok) {
+                    const data = await response.json();
+                    data.solvents.forEach(solvent => {
+                        this.solventDataCache.set(solvent.name.toLowerCase(), {
+                            name: solvent.name,
+                            delta_d: parseFloat(solvent.delta_d),
+                            delta_p: parseFloat(solvent.delta_p),
+                            delta_h: parseFloat(solvent.delta_h)
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching solvent database:', error);
+            }
+        }
+
+        // Get HSP values for this solvent
+        const solventData = this.solventDataCache.get(component.solvent.toLowerCase());
+        if (solventData) {
+            component.delta_d = solventData.delta_d;
+            component.delta_p = solventData.delta_p;
+            component.delta_h = solventData.delta_h;
+            this.renderComponents();
+        } else {
+            component.delta_d = null;
+            component.delta_p = null;
+            component.delta_h = null;
+            this.renderComponents();
+        }
+    }
+
+    updateTotalRatio() {
         const total = this.components.reduce((sum, c) => sum + (c.volume || 0), 0);
         const totalElement = document.getElementById('total-volume');
-        totalElement.textContent = `Total: ${total.toFixed(1)}%`;
-
-        // Color code based on total
-        if (Math.abs(total - 100) < 0.01) {
-            totalElement.style.color = '#10b981'; // Green
-        } else {
-            totalElement.style.color = '#ef4444'; // Red
-        }
+        totalElement.textContent = `Total Ratio: ${total.toFixed(2)}`;
+        totalElement.style.color = '#333'; // Remove color coding
     }
 
     validateInputs() {
@@ -187,11 +261,12 @@ class HSPCalculation {
         const hasComponents = this.components.length > 0;
         const allSolventsValid = this.components.every(c => c.solvent.trim() !== '');
         const allVolumesValid = this.components.every(c => c.volume > 0);
-        const totalVolume = this.components.reduce((sum, c) => sum + (c.volume || 0), 0);
-        const totalIs100 = Math.abs(totalVolume - 100) < 0.01;
+        const allHSPValid = this.components.every(c =>
+            c.delta_d !== null && c.delta_p !== null && c.delta_h !== null
+        );
 
         const isValid = mixtureName && hasComponents && allSolventsValid &&
-                       allVolumesValid && totalIs100;
+                       allVolumesValid && allHSPValid;
 
         document.getElementById('calculate-mixture-btn').disabled = !isValid;
     }
@@ -217,29 +292,25 @@ class HSPCalculation {
                 });
             }
 
-            // Get HSP data for each component
-            const solventDataList = this.components.map((component) => {
-                const solventData = this.solventDataCache.get(component.solvent.toLowerCase());
+            // Calculate total ratio for normalization
+            const totalRatio = this.components.reduce((sum, c) => sum + c.volume, 0);
 
-                if (!solventData) {
-                    throw new Error(`Solvent "${component.solvent}" not found in database`);
-                }
-
-                return solventData;
-            });
+            if (totalRatio === 0) {
+                throw new Error('Total volume ratio cannot be zero');
+            }
 
             // Calculate volume-weighted average HSP
             let weightedDeltaD = 0;
             let weightedDeltaP = 0;
             let weightedDeltaH = 0;
 
-            this.components.forEach((component, index) => {
-                const fraction = component.volume / 100.0;
-                const solventData = solventDataList[index];
+            this.components.forEach((component) => {
+                // Normalize the fraction
+                const fraction = component.volume / totalRatio;
 
-                weightedDeltaD += solventData.delta_d * fraction;
-                weightedDeltaP += solventData.delta_p * fraction;
-                weightedDeltaH += solventData.delta_h * fraction;
+                weightedDeltaD += component.delta_d * fraction;
+                weightedDeltaP += component.delta_p * fraction;
+                weightedDeltaH += component.delta_h * fraction;
             });
 
             // Store calculated HSP
