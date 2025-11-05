@@ -345,6 +345,20 @@ body {
     opacity: 1;
 }
 
+.error-icon {
+    color: #f59e0b;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    margin-left: 4px;
+    cursor: help;
+}
+
+.solvent-not-found {
+    border: 1px solid #f59e0b;
+    border-radius: 4px;
+    background-color: #fffbeb;
+}
+
 /* Column widths for fixed table layout */
 .solvent-table th:nth-child(1), /* Solvent Name */
 .solvent-table td:nth-child(1) {
@@ -3344,12 +3358,23 @@ body {
     min-width: 150px;
 }
 
-.mixture-table .solvent-cell input {
+.mixture-table .solvent-cell .solvent-input-container {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
     width: 100%;
+}
+
+.mixture-table .solvent-cell input {
+    flex: 1;
     padding: 0.5rem;
     border: 1px solid #d1d5db;
     border-radius: 4px;
     font-size: 0.9rem;
+}
+
+.mixture-table .solvent-cell .solvent-not-found input {
+    border-color: #f59e0b;
 }
 
 .mixture-table .hsp-value {

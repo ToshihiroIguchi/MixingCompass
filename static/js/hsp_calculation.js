@@ -76,7 +76,8 @@ class HSPCalculation {
             volume: 0,
             delta_d: null,
             delta_p: null,
-            delta_h: null
+            delta_h: null,
+            source_url: null
         };
 
         this.components.push(component);
@@ -98,6 +99,11 @@ class HSPCalculation {
             return;
         }
 
+        // Create datalist options HTML (same for all rows)
+        const datalistOptionsHTML = this.solventNames.map(name =>
+            `<option value="${name}">`
+        ).join('');
+
         // Create table structure
         const tableHTML = `
             <div class="mixture-table-wrapper">
@@ -116,14 +122,23 @@ class HSPCalculation {
                         ${this.components.map(component => `
                             <tr data-component-id="${component.id}">
                                 <td class="solvent-cell">
-                                    <input
-                                        type="text"
-                                        class="solvent-input"
-                                        placeholder="Enter solvent name"
-                                        value="${component.solvent}"
-                                        list="solvent-datalist"
-                                        data-component-id="${component.id}"
-                                    >
+                                    <div class="solvent-input-container ${component.delta_d === null && component.solvent ? 'solvent-not-found' : ''}">
+                                        <input
+                                            type="text"
+                                            class="solvent-input"
+                                            placeholder="Enter solvent name"
+                                            value="${component.solvent}"
+                                            list="mixture-solvent-datalist"
+                                            data-component-id="${component.id}"
+                                        >
+                                        <datalist id="mixture-solvent-datalist">
+                                            ${datalistOptionsHTML}
+                                        </datalist>
+                                        ${component.delta_d === null && component.solvent ?
+                                            '<span class="error-icon" title="Solvent not found in database">⚠️</span>' : ''}
+                                        ${component.source_url ?
+                                            `<a href="${component.source_url}" class="ref-link" title="View source" target="_blank" rel="noopener noreferrer">🔗</a>` : ''}
+                                    </div>
                                 </td>
                                 <td class="hsp-value">${component.delta_d !== null ? component.delta_d.toFixed(1) : '-'}</td>
                                 <td class="hsp-value">${component.delta_p !== null ? component.delta_p.toFixed(1) : '-'}</td>
@@ -151,16 +166,6 @@ class HSPCalculation {
 
         container.innerHTML = tableHTML;
 
-        // Add datalist for autocomplete
-        if (!document.getElementById('solvent-datalist')) {
-            const datalist = document.createElement('datalist');
-            datalist.id = 'solvent-datalist';
-            datalist.innerHTML = this.solventNames.map(name =>
-                `<option value="${name}"></option>`
-            ).join('');
-            container.appendChild(datalist);
-        }
-
         // Attach event listeners to newly created elements
         container.querySelectorAll('.solvent-input').forEach(input => {
             input.addEventListener('input', (e) => {
@@ -168,7 +173,7 @@ class HSPCalculation {
                 const component = this.components.find(c => c.id === componentId);
                 if (component) {
                     component.solvent = e.target.value;
-                    this.updateComponentHSP(component);
+                    // Don't call updateComponentHSP here - it causes re-render and breaks datalist dropdown
                     this.validateInputs();
                 }
             });
@@ -178,6 +183,7 @@ class HSPCalculation {
                 const component = this.components.find(c => c.id === componentId);
                 if (component) {
                     this.updateComponentHSP(component);
+                    this.validateInputs();
                 }
             });
         });
@@ -224,7 +230,8 @@ class HSPCalculation {
                             name: solvent.name,
                             delta_d: parseFloat(solvent.delta_d),
                             delta_p: parseFloat(solvent.delta_p),
-                            delta_h: parseFloat(solvent.delta_h)
+                            delta_h: parseFloat(solvent.delta_h),
+                            source_url: solvent.source_url || null
                         });
                     });
                 }
@@ -239,11 +246,13 @@ class HSPCalculation {
             component.delta_d = solventData.delta_d;
             component.delta_p = solventData.delta_p;
             component.delta_h = solventData.delta_h;
+            component.source_url = solventData.source_url;
             this.renderComponents();
         } else {
             component.delta_d = null;
             component.delta_p = null;
             component.delta_h = null;
+            component.source_url = null;
             this.renderComponents();
         }
     }
@@ -439,7 +448,8 @@ class HSPCalculation {
                 volume: comp.volume,
                 delta_d: null,
                 delta_p: null,
-                delta_h: null
+                delta_h: null,
+                source_url: null
             };
             this.components.push(component);
         });

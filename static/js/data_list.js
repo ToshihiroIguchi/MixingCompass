@@ -2056,25 +2056,34 @@ class DataListManager {
                         },
                         {
                             title: "Actions",
-                            field: "actions",
-                            width: 180,
+                            minWidth: 150,
+                            width: 150,
                             hozAlign: "center",
                             headerSort: false,
                             formatter: () => {
                                 return `
-                                    <button class="action-btn load-btn" title="Load in HSP Calculation">Load</button>
-                                    <button class="action-btn export-btn" title="Export">Export</button>
-                                    <button class="action-btn delete-btn" title="Delete">Delete</button>
+                                    <button class="btn-icon" title="Load in HSP Calculation" data-action="load">📖</button>
+                                    <button class="btn-icon" title="Export" data-action="export">📤</button>
+                                    <button class="btn-icon" title="Delete" data-action="delete">🗑️</button>
                                 `;
                             },
                             cellClick: (e, cell) => {
+                                const target = e.target;
+                                if (!target.classList.contains('btn-icon')) return;
+
+                                const action = target.dataset.action;
                                 const rowData = cell.getRow().getData();
-                                if (e.target.classList.contains('load-btn')) {
-                                    this.loadMixtureInCalculation(rowData.id);
-                                } else if (e.target.classList.contains('export-btn')) {
-                                    this.exportSingleMixture(rowData.id);
-                                } else if (e.target.classList.contains('delete-btn')) {
-                                    this.deleteSavedMixture(rowData.id);
+
+                                switch(action) {
+                                    case 'load':
+                                        this.loadMixtureInCalculation(rowData.id);
+                                        break;
+                                    case 'export':
+                                        this.exportSingleMixture(rowData.id);
+                                        break;
+                                    case 'delete':
+                                        this.deleteSavedMixture(rowData.id);
+                                        break;
                                 }
                             }
                         }
