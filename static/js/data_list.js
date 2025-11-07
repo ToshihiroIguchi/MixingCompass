@@ -1682,44 +1682,21 @@ class DataListManager {
                     },
                     sorter: "date"
                 },
-                {
-                    title: "Actions",
-                    minWidth: 200,
-                    width: 200,
-                    hozAlign: "center",
-                    headerSort: false,
-                    responsive: 0, // Always show this column
-                    formatter: (cell) => {
-                        return `
-                            <button class="btn-icon" title="Load" data-action="load">📖</button>
-                            <button class="btn-icon" title="Edit" data-action="edit">✏️</button>
-                            <button class="btn-icon" title="Export" data-action="export">📤</button>
-                            <button class="btn-icon" title="Delete" data-action="delete">🗑️</button>
-                        `;
+                this.createActionsColumn({
+                    buttons: [
+                        { title: 'Load', action: 'load', icon: '📖' },
+                        { title: 'Edit', action: 'edit', icon: '✏️' },
+                        { title: 'Export', action: 'export', icon: '📤' },
+                        { title: 'Delete', action: 'delete', icon: '🗑️' }
+                    ],
+                    handlers: {
+                        load: this.loadExperimentalResult,
+                        edit: this.editExperimentalResult,
+                        export: this.exportSingleExperimentalResult,
+                        delete: this.deleteExperimentalResult
                     },
-                    cellClick: (e, cell) => {
-                        const target = e.target;
-                        if (!target.classList.contains('btn-icon')) return;
-
-                        const action = target.dataset.action;
-                        const row = cell.getRow().getData();
-
-                        switch(action) {
-                            case 'load':
-                                this.loadExperimentalResult(row.id);
-                                break;
-                            case 'edit':
-                                this.editExperimentalResult(row.id);
-                                break;
-                            case 'export':
-                                this.exportSingleExperimentalResult(row.id);
-                                break;
-                            case 'delete':
-                                this.deleteExperimentalResult(row.id);
-                                break;
-                        }
-                    }
-                }
+                    width: 200
+                })
             ]
             });
         }, 50); // Small delay to show loading state
