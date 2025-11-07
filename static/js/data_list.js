@@ -1688,6 +1688,7 @@ class DataListManager {
                     width: 200,
                     hozAlign: "center",
                     headerSort: false,
+                    responsive: 0, // Always show this column
                     formatter: (cell) => {
                         return `
                             <button class="btn-icon" title="Load" data-action="load">📖</button>
@@ -2039,7 +2040,7 @@ class DataListManager {
                         {
                             title: "Composition",
                             field: "composition",
-                            minWidth: 300,
+                            minWidth: 200,
                             headerFilter: "input",
                             headerFilterPlaceholder: "Filter...",
                             tooltip: true
@@ -2060,6 +2061,7 @@ class DataListManager {
                             width: 150,
                             hozAlign: "center",
                             headerSort: false,
+                            responsive: 0, // Always show this column
                             formatter: () => {
                                 return `
                                     <button class="btn-icon" title="Load in HSP Calculation" data-action="load">📖</button>
