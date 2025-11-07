@@ -1923,6 +1923,43 @@ class DataListManager {
         content.style.display = 'none';
     }
 
+    // === Helper Methods ===
+
+    /**
+     * Create a standardized Actions column for Tabulator tables
+     * @param {Object} config - Configuration object
+     * @param {Array} config.buttons - Array of button objects with {title, action, icon}
+     * @param {Object} config.handlers - Object mapping action names to handler functions
+     * @param {number} config.width - Optional fixed width for the column
+     * @returns {Object} Tabulator column definition
+     */
+    createActionsColumn(config) {
+        const { buttons, handlers, width = null } = config;
+        return {
+            title: "Actions",
+            minWidth: width || buttons.length * 50,
+            width: width || buttons.length * 50,
+            hozAlign: "center",
+            headerSort: false,
+            responsive: 0, // Always show this column
+            formatter: () => buttons.map(btn =>
+                `<button class="btn-icon" title="${btn.title}" data-action="${btn.action}">${btn.icon}</button>`
+            ).join(''),
+            cellClick: (e, cell) => {
+                const target = e.target;
+                if (!target.classList.contains('btn-icon')) return;
+
+                const action = target.dataset.action;
+                const rowData = cell.getRow().getData();
+                const handler = handlers[action];
+
+                if (handler) {
+                    handler.call(this, rowData.id);
+                }
+            }
+        };
+    }
+
     // === Saved Mixtures Management ===
 
     loadSavedMixtures() {
@@ -2055,40 +2092,19 @@ class DataListManager {
                             },
                             sorter: "string"
                         },
-                        {
-                            title: "Actions",
-                            minWidth: 150,
-                            width: 150,
-                            hozAlign: "center",
-                            headerSort: false,
-                            responsive: 0, // Always show this column
-                            formatter: () => {
-                                return `
-                                    <button class="btn-icon" title="Load in HSP Calculation" data-action="load">📖</button>
-                                    <button class="btn-icon" title="Export" data-action="export">📤</button>
-                                    <button class="btn-icon" title="Delete" data-action="delete">🗑️</button>
-                                `;
+                        this.createActionsColumn({
+                            buttons: [
+                                { title: 'Load in HSP Calculation', action: 'load', icon: '📖' },
+                                { title: 'Export', action: 'export', icon: '📤' },
+                                { title: 'Delete', action: 'delete', icon: '🗑️' }
+                            ],
+                            handlers: {
+                                load: this.loadMixtureInCalculation,
+                                export: this.exportSingleMixture,
+                                delete: this.deleteSavedMixture
                             },
-                            cellClick: (e, cell) => {
-                                const target = e.target;
-                                if (!target.classList.contains('btn-icon')) return;
-
-                                const action = target.dataset.action;
-                                const rowData = cell.getRow().getData();
-
-                                switch(action) {
-                                    case 'load':
-                                        this.loadMixtureInCalculation(rowData.id);
-                                        break;
-                                    case 'export':
-                                        this.exportSingleMixture(rowData.id);
-                                        break;
-                                    case 'delete':
-                                        this.deleteSavedMixture(rowData.id);
-                                        break;
-                                }
-                            }
-                        }
+                            width: 150
+                        })
                     ]
                 });
             }
