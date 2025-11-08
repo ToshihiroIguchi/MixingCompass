@@ -69,32 +69,44 @@ class HansenSphereVisualizationService:
     @staticmethod
     def get_solubility_color(solubility) -> str:
         """
-        Get color for solubility value based on scientific standards
+        Get color for solubility value using RdYlGn gradient (Red-Yellow-Green)
 
         Args:
             solubility: Solubility value (categorical string or numerical 0-1)
 
         Returns:
-            Color string for the solubility value
+            Color string for the solubility value (RGB hex format)
         """
+        # Convert categorical to numerical
         if isinstance(solubility, str):
-            color_map = {
-                'soluble': '#1976d2',     # Blue (Good solvents)
-                'partial': '#ff9800',     # Orange (Partial solvents)
-                'insoluble': '#d32f2f'    # Red (Poor solvents)
+            value_map = {
+                'insoluble': 0.0,
+                'partial': 0.5,
+                'soluble': 1.0
             }
-            return color_map.get(solubility, '#666666')
+            solubility = value_map.get(solubility, 0.5)
 
-        # Numerical solubility (0.0 - 1.0)
-        if isinstance(solubility, (int, float)):
-            if solubility >= 0.7:
-                return '#1976d2'    # Blue (Good: >= 0.7)
-            elif solubility >= 0.3:
-                return '#ff9800'    # Orange (Partial: 0.3-0.7)
-            else:
-                return '#d32f2f'    # Red (Poor: < 0.3)
+        # Ensure numerical value in range [0, 1]
+        if not isinstance(solubility, (int, float)):
+            return '#666666'  # Default gray
 
-        return '#666666'  # Default gray
+        solubility = max(0.0, min(1.0, float(solubility)))
+
+        # RdYlGn gradient: Red (0.0) -> Yellow (0.5) -> Green (1.0)
+        if solubility <= 0.5:
+            # Red to Yellow (0.0 to 0.5)
+            t = solubility * 2  # Map 0-0.5 to 0-1
+            r = 211  # Red component stays high
+            g = int(50 + (235 - 50) * t)  # Interpolate from #d32f2f red to #ffeb3b yellow
+            b = int(47 + (59 - 47) * t)
+        else:
+            # Yellow to Green (0.5 to 1.0)
+            t = (solubility - 0.5) * 2  # Map 0.5-1.0 to 0-1
+            r = int(255 - (255 - 76) * t)  # Interpolate from #ffeb3b yellow to #4caf50 green
+            g = int(235 - (235 - 175) * t)
+            b = int(59 + (80 - 59) * t)
+
+        return f'#{r:02x}{g:02x}{b:02x}'
 
     @staticmethod
     def create_solvent_points(solvent_data: List[Dict]) -> Dict[str, List]:
@@ -516,7 +528,7 @@ class HansenSphereVisualizationService:
                 'width': 2
             },
             'hoverinfo': 'skip',  # No hover on wireframe
-            'showlegend': True
+            'showlegend': False  # Hide from legend (visually self-evident)
         })
 
         # Solvent points with scientific color coding
@@ -606,12 +618,12 @@ class HansenSphereVisualizationService:
                 'itemwidth': 30
             },
             'annotations': [{
-                'text': '<b>Solubility Legend</b><br>' +
-                        '🔴 <span style="color:#d32f2f">Poor</span> (< 0.3)<br>' +
-                        '🟠 <span style="color:#ff9800">Partial</span> (0.3-0.7)<br>' +
-                        '🔵 <span style="color:#1976d2">Good</span> (≥ 0.7)<br>' +
-                        '🟢 <span style="color:#32CD32">Hansen Center</span><br>' +
-                        '<span style="color:#4caf50">⬛ Hansen Sphere</span>',
+                'text': '<b>Solubility</b><br>' +
+                        '<span style="color:#4caf50">■</span> 1.0 High<br>' +
+                        '<span style="color:#ffeb3b">■</span> 0.5 Medium<br>' +
+                        '<span style="color:#d32f2f">■</span> 0.0 Low<br>' +
+                        '<span style="font-size:9px">(Continuous gradient)</span><br>' +
+                        '🟢 <span style="color:#32CD32">Hansen Center</span>',
                 'showarrow': False,
                 'xref': 'paper',
                 'yref': 'paper',
