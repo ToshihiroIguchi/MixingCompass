@@ -1593,7 +1593,16 @@ class DataListManager {
             emptyState.style.display = 'none';
         }
 
-        // Show loading state briefly with spinner
+        // If table already exists, just update data without showing spinner
+        if (this.experimentalResultsTable) {
+            console.time('[Perf] Experimental Results - Tabulator Init');
+            this.experimentalResultsTable.setData(results);
+            console.timeEnd('[Perf] Experimental Results - Tabulator Init');
+            console.timeEnd('[Perf] Experimental Results - Total');
+            return;
+        }
+
+        // Show loading state briefly with spinner (first time only)
         tableContainer.innerHTML = `
             <div class="loading-container">
                 <div class="loading-spinner"></div>
@@ -1998,7 +2007,17 @@ class DataListManager {
         }));
         console.timeEnd('[Perf] Saved Mixtures - Data Transform');
 
-        // Show loading state briefly with spinner
+        // If table already exists, just update data without showing spinner
+        if (this.savedMixturesTable) {
+            console.time('[Perf] Saved Mixtures - Tabulator Init');
+            this.savedMixturesTable.setData(tableData);
+            console.timeEnd('[Perf] Saved Mixtures - Tabulator Init');
+            console.log(`Loaded ${mixtures.length} saved mixtures`);
+            console.timeEnd('[Perf] Saved Mixtures - Total');
+            return;
+        }
+
+        // Show loading state briefly with spinner (first time only)
         tableContainer.innerHTML = `
             <div class="loading-container">
                 <div class="loading-spinner"></div>
@@ -2009,10 +2028,7 @@ class DataListManager {
         // Initialize Tabulator (will replace loading state)
         setTimeout(() => {
             console.time('[Perf] Saved Mixtures - Tabulator Init');
-            if (this.savedMixturesTable) {
-                this.savedMixturesTable.setData(tableData);
-            } else {
-                this.savedMixturesTable = new Tabulator("#saved-mixtures-table", {
+            this.savedMixturesTable = new Tabulator("#saved-mixtures-table", {
                     data: tableData,
                     layout: "fitColumns",
                     responsiveLayout: "collapse",
@@ -2098,7 +2114,6 @@ class DataListManager {
                         })
                     ]
                 });
-            }
             console.timeEnd('[Perf] Saved Mixtures - Tabulator Init');
 
             console.log(`Loaded ${mixtures.length} saved mixtures`);
