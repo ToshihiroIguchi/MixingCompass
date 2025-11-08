@@ -1560,39 +1560,86 @@ class HSPExperimental {
         }
 
         // Prepare all traces with subplot assignments
+        // Draw lines (ellipses) first, then markers (points) so points appear on top
         const allTraces = [];
+        const lineTraces = [];
+        const markerTraces = [];
 
         // δD vs δP (subplot 1)
         if (projections.dd_dp) {
             projections.dd_dp.data.forEach(trace => {
-                allTraces.push({...trace, xaxis: 'x', yaxis: 'y'});
+                const newTrace = {...trace, xaxis: 'x', yaxis: 'y'};
+                if (trace.mode === 'lines' || trace.type === 'scatter' && !trace.mode?.includes('markers')) {
+                    lineTraces.push(newTrace);
+                } else {
+                    markerTraces.push(newTrace);
+                }
             });
         }
 
         // δD vs δH (subplot 2)
         if (projections.dd_dh) {
             projections.dd_dh.data.forEach(trace => {
-                allTraces.push({...trace, xaxis: 'x2', yaxis: 'y2'});
+                const newTrace = {...trace, xaxis: 'x2', yaxis: 'y2'};
+                if (trace.mode === 'lines' || trace.type === 'scatter' && !trace.mode?.includes('markers')) {
+                    lineTraces.push(newTrace);
+                } else {
+                    markerTraces.push(newTrace);
+                }
             });
         }
 
         // δP vs δH (subplot 3)
         if (projections.dp_dh) {
             projections.dp_dh.data.forEach(trace => {
-                allTraces.push({...trace, xaxis: 'x3', yaxis: 'y3'});
+                const newTrace = {...trace, xaxis: 'x3', yaxis: 'y3'};
+                if (trace.mode === 'lines' || trace.type === 'scatter' && !trace.mode?.includes('markers')) {
+                    lineTraces.push(newTrace);
+                } else {
+                    markerTraces.push(newTrace);
+                }
             });
         }
 
-        // Helper function to ensure axis range minimum is not below 0
-        const ensurePositiveRange = (axisConfig) => {
-            if (axisConfig.range && axisConfig.range.length === 2) {
-                return {
-                    ...axisConfig,
-                    range: [Math.max(0, axisConfig.range[0]), axisConfig.range[1]]
-                };
-            }
-            return axisConfig;
+        // Add line traces first, then marker traces
+        allTraces.push(...lineTraces, ...markerTraces);
+
+        // Calculate max values for each axis from data
+        const getMaxFromTraces = (traces, axis) => {
+            let max = 0;
+            traces.forEach(trace => {
+                if (trace[axis] && Array.isArray(trace[axis])) {
+                    const traceMax = Math.max(...trace[axis]);
+                    if (traceMax > max) max = traceMax;
+                }
+            });
+            return max;
         };
+
+        // Get max values for each parameter
+        const maxD = Math.max(
+            getMaxFromTraces(projections.dd_dp.data, 'x'),
+            getMaxFromTraces(projections.dd_dh.data, 'x')
+        );
+        const maxP = Math.max(
+            getMaxFromTraces(projections.dd_dp.data, 'y'),
+            getMaxFromTraces(projections.dp_dh.data, 'x')
+        );
+        const maxH = Math.max(
+            getMaxFromTraces(projections.dd_dh.data, 'y'),
+            getMaxFromTraces(projections.dp_dh.data, 'y')
+        );
+
+        // Apply 1.1x margin to max values
+        const rangeD = [0, maxD * 1.1];
+        const rangeP = [0, maxP * 1.1];
+        const rangeH = [0, maxH * 1.1];
+
+        console.log('Calculated axis ranges:', {
+            δD: rangeD,
+            δP: rangeP,
+            δH: rangeH
+        });
 
         // Create layout with 3 subplots in a row
         const layout = {
@@ -1602,27 +1649,30 @@ class HSPExperimental {
 
             // Subplot 1: δD vs δP
             xaxis: {
-                ...ensurePositiveRange(projections.dd_dp.layout.xaxis),
+                range: rangeD,
                 domain: [0, 0.28],
                 title: {text: 'δD (MPa<sup>0.5</sup>)', font: {size: 11}},
-                showticklabels: true
+                showticklabels: true,
+                anchor: 'y'
             },
             yaxis: {
-                ...ensurePositiveRange(projections.dd_dp.layout.yaxis),
+                range: rangeP,
                 domain: [0, 1],
                 title: {text: 'δP (MPa<sup>0.5</sup>)', font: {size: 11}},
-                showticklabels: true
+                showticklabels: true,
+                anchor: 'x'
             },
 
             // Subplot 2: δD vs δH
             xaxis2: {
-                ...ensurePositiveRange(projections.dd_dh.layout.xaxis),
+                range: rangeD,
                 domain: [0.37, 0.65],
                 title: {text: 'δD (MPa<sup>0.5</sup>)', font: {size: 11}},
-                showticklabels: true
+                showticklabels: true,
+                anchor: 'y2'
             },
             yaxis2: {
-                ...ensurePositiveRange(projections.dd_dh.layout.yaxis),
+                range: rangeH,
                 domain: [0, 1],
                 title: {text: 'δH (MPa<sup>0.5</sup>)', font: {size: 11}},
                 showticklabels: true,
@@ -1631,13 +1681,14 @@ class HSPExperimental {
 
             // Subplot 3: δP vs δH
             xaxis3: {
-                ...ensurePositiveRange(projections.dp_dh.layout.xaxis),
+                range: rangeP,
                 domain: [0.72, 1],
                 title: {text: 'δP (MPa<sup>0.5</sup>)', font: {size: 11}},
-                showticklabels: true
+                showticklabels: true,
+                anchor: 'y3'
             },
             yaxis3: {
-                ...ensurePositiveRange(projections.dp_dh.layout.yaxis),
+                range: rangeH,
                 domain: [0, 1],
                 title: {text: 'δH (MPa<sup>0.5</sup>)', font: {size: 11}},
                 showticklabels: true,

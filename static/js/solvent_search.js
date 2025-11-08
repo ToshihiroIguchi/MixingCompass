@@ -648,16 +648,16 @@ class SolventSearch {
                 let color = '';
                 if (red1 < 1.0 && red2 < 1.0) {
                     status = 'Both dissolve';
-                    color = '#10b981'; // Green
+                    color = '#4CAF50'; // Material Green (both targets)
                 } else if (red1 < 1.0) {
                     status = 'Target 1 only';
-                    color = '#3b82f6'; // Blue
+                    color = '#2196F3'; // Material Blue (matches Target 1 sphere)
                 } else if (red2 < 1.0) {
                     status = 'Target 2 only';
-                    color = '#f59e0b'; // Orange
+                    color = '#FF9800'; // Material Orange (matches Target 2 sphere)
                 } else {
                     status = 'Neither dissolve';
-                    color = '#9ca3af'; // Gray
+                    color = '#BDBDBD'; // Material Grey (neither target)
                 }
 
                 hoverTexts.push(
