@@ -1558,6 +1558,7 @@ class DataListManager {
     // === Experimental Results Management ===
 
     loadExperimentalResultsDisplay() {
+        console.time('[Perf] Experimental Results - Total');
         const tableContainer = document.querySelector('#experimental-results-table');
         const emptyState = document.querySelector('#experimental-results-empty');
         const countBadge = document.querySelector('#results-count');
@@ -1568,8 +1569,10 @@ class DataListManager {
         }
 
         // Get experimental results from storage
+        console.time('[Perf] Experimental Results - Data Read');
         const results = window.experimentalResultsManager ?
             window.experimentalResultsManager.getExperimentalResults() : [];
+        console.timeEnd('[Perf] Experimental Results - Data Read');
 
         // Update count badge
         if (countBadge) {
@@ -1600,6 +1603,7 @@ class DataListManager {
 
         // Initialize Tabulator (will replace loading state)
         setTimeout(() => {
+            console.time('[Perf] Experimental Results - Tabulator Init');
             this.experimentalResultsTable = new Tabulator("#experimental-results-table", {
                 data: results,
                 layout: "fitColumns",
@@ -1609,6 +1613,7 @@ class DataListManager {
             paginationSizeSelector: [5, 10, 20, 50],
             movableColumns: true,
             resizableColumns: true,
+            height: "500px", // Fix infinite resize loop by setting explicit height
             columns: [
                 {
                     title: "Name",
@@ -1699,6 +1704,8 @@ class DataListManager {
                 })
             ]
             });
+            console.timeEnd('[Perf] Experimental Results - Tabulator Init');
+            console.timeEnd('[Perf] Experimental Results - Total');
         }, 50); // Small delay to show loading state
     }
 
@@ -1940,6 +1947,7 @@ class DataListManager {
     // === Saved Mixtures Management ===
 
     loadSavedMixtures() {
+        console.time('[Perf] Saved Mixtures - Total');
         const tableContainer = document.querySelector('#saved-mixtures-table');
         const emptyState = document.querySelector('#saved-mixtures-empty');
         const countBadge = document.querySelector('#saved-mixtures-count');
@@ -1950,8 +1958,10 @@ class DataListManager {
         }
 
         // Get saved mixtures from storage
+        console.time('[Perf] Saved Mixtures - Storage Read');
         const STORAGE_KEY = 'mixingcompass_saved_mixtures';
         const mixtures = Storage.get(STORAGE_KEY, []);
+        console.timeEnd('[Perf] Saved Mixtures - Storage Read');
 
         // Update count badge
         if (countBadge) {
@@ -1973,6 +1983,7 @@ class DataListManager {
         }
 
         // Prepare data for Tabulator
+        console.time('[Perf] Saved Mixtures - Data Transform');
         const tableData = mixtures.map(mixture => ({
             id: mixture.id,
             name: mixture.name,
@@ -1985,6 +1996,7 @@ class DataListManager {
             components: mixture.components,
             created_at: mixture.created_at
         }));
+        console.timeEnd('[Perf] Saved Mixtures - Data Transform');
 
         // Show loading state briefly with spinner
         tableContainer.innerHTML = `
@@ -1996,6 +2008,7 @@ class DataListManager {
 
         // Initialize Tabulator (will replace loading state)
         setTimeout(() => {
+            console.time('[Perf] Saved Mixtures - Tabulator Init');
             if (this.savedMixturesTable) {
                 this.savedMixturesTable.setData(tableData);
             } else {
@@ -2008,6 +2021,7 @@ class DataListManager {
                     paginationSizeSelector: [5, 10, 20, 50],
                     movableColumns: true,
                     resizableColumns: true,
+                    height: "500px", // Fix infinite resize loop by setting explicit height
                     initialSort: [{ column: "created_at", dir: "desc" }],
                     columns: [
                         {
@@ -2085,8 +2099,10 @@ class DataListManager {
                     ]
                 });
             }
+            console.timeEnd('[Perf] Saved Mixtures - Tabulator Init');
 
             console.log(`Loaded ${mixtures.length} saved mixtures`);
+            console.timeEnd('[Perf] Saved Mixtures - Total');
         }, 10);
     }
 
