@@ -42,6 +42,23 @@ class MixingCompass {
         // Initialize section-specific functionality
         if (sectionId === 'data-list') {
             this.initializeDataList();
+        } else if (sectionId === 'hsp-experimental') {
+            this.initializeHSPExperimental();
+        }
+    }
+
+    initializeHSPExperimental() {
+        // Check if we need to load a specific experimental result from session storage
+        const loadResultId = sessionStorage.getItem('loadExperimentalResultId');
+        if (loadResultId) {
+            sessionStorage.removeItem('loadExperimentalResultId');
+            console.log('Loading experimental result from session storage:', loadResultId);
+
+            if (window.hspExperimental) {
+                setTimeout(() => {
+                    window.hspExperimental.loadExperimentalResultData(loadResultId);
+                }, 500);
+            }
         }
     }
 
