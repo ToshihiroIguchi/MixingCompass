@@ -524,7 +524,7 @@ class HSPExperimental {
             modeBtn.title = 'Currently in auto mode - click to switch to manual';
         } else if (mode === 'manual') {
             // Manual mode: database lookup disabled, HSP inputs editable
-            nameInput.disabled = true;
+            nameInput.disabled = false;  // Keep name input enabled
             nameInput.classList.add('manual-mode');
             hspInputs.forEach(input => {
                 input.readOnly = false;
