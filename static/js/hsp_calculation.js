@@ -314,7 +314,7 @@ class HSPCalculation {
         this.validateInputs();
     }
 
-    checkAndLoadMixture() {
+    async checkAndLoadMixture() {
         const mixtureId = sessionStorage.getItem('loadMixtureId');
         if (!mixtureId) {
             return;
@@ -335,31 +335,22 @@ class HSPCalculation {
         // Load mixture name
         document.getElementById('mixture-name').value = mixture.name;
 
-        // Load components using table manager
-        const componentsData = mixture.components.map(comp => ({
-            solvent: comp.solvent,
-            volume: comp.volume,
-            delta_d: null,
-            delta_p: null,
-            delta_h: null,
-            source_url: null
-        }));
-
-        this.table.setData(componentsData);
-
-        // Update HSP values for all components
-        const tableData = this.table.getData();
-        tableData.forEach(async (row) => {
-            if (row.solvent) {
-                await this.lookupSolvent(row, row.solvent);
-            }
+        // Load components with HSP values pre-fetched
+        const componentsData = mixture.components.map(comp => {
+            const solventData = this.solventDataCache.get(comp.solvent.toLowerCase());
+            return {
+                solvent: comp.solvent,
+                volume: comp.volume,
+                delta_d: solventData?.delta_d || null,
+                delta_p: solventData?.delta_p || null,
+                delta_h: solventData?.delta_h || null,
+                source_url: solventData?.source_url || null
+            };
         });
 
-        // Trigger re-render after async lookups
-        setTimeout(() => {
-            this.table.render();
-            this.validateInputs();
-        }, 500);
+        // Set data and render
+        this.table.setData(componentsData);
+        this.validateInputs();
 
         Notification.success(`Loaded mixture: ${mixture.name}`);
     }
