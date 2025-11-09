@@ -187,7 +187,23 @@ class SolventTableManager {
                 return this.generateTextAutocompleteCell(row, col, value);
 
             case 'readonly-hsp':
-                return `<td class="hsp-value">${Utils.formatHSPValue(value)}</td>`;
+                // Check if row has mode property (Experimental section)
+                const isManualMode = row.mode === 'manual';
+                const readonlyAttr = isManualMode ? '' : 'readonly';
+                const manualClass = isManualMode ? 'manual-entry' : '';
+                const displayValue = value !== null && value !== undefined ? value : '';
+                return `
+                    <td>
+                        <input type="number"
+                               class="hsp-input ${col.key} ${manualClass}"
+                               value="${displayValue}"
+                               step="0.1"
+                               min="0"
+                               ${readonlyAttr}
+                               data-row-id="${row.id}"
+                               data-col-key="${col.key}">
+                    </td>
+                `;
 
             case 'number':
                 return this.generateNumberCell(row, col, value);
@@ -365,6 +381,11 @@ class SolventTableManager {
             input.addEventListener('input', (e) => this.handleInputChange(e));
         });
 
+        // HSP inputs (for Experimental section)
+        container.querySelectorAll('.hsp-input').forEach(input => {
+            input.addEventListener('change', (e) => this.handleHSPInputChange(e));
+        });
+
         // Solubility selects
         container.querySelectorAll('.solubility-select').forEach(select => {
             select.addEventListener('change', (e) => this.handleSolubilityChange(e));
@@ -407,6 +428,21 @@ class SolventTableManager {
         const row = this.rows.find(r => r.id === rowId);
         if (row) {
             row[key] = value;
+            this.onDataChange(this.rows);
+        }
+    }
+
+    /**
+     * Handle HSP input change (for Experimental section manual mode)
+     */
+    handleHSPInputChange(event) {
+        const rowId = parseInt(event.target.dataset.rowId);
+        const colKey = event.target.dataset.colKey;
+        const value = event.target.value ? parseFloat(event.target.value) : null;
+
+        const row = this.rows.find(r => r.id === rowId);
+        if (row) {
+            row[colKey] = value;
             this.onDataChange(this.rows);
         }
     }
