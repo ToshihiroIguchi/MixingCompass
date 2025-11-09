@@ -75,13 +75,13 @@ def convert_row_to_dict(row, include_distance=False):
         'cas': row['CAS'] if pd.notna(row['CAS']) else None,
         'wgk': safe_float_convert(row['WGK']),
         'ghs': row['GHS'] if pd.notna(row['GHS']) else None,
+        'source_url': row['source_url'] if pd.notna(row['source_url']) else None,
     }
 
     if include_distance:
         result['distance'] = float(row['distance'])
         result['red'] = float(row['distance'])
         result['source_file'] = row['source_file'] if pd.notna(row['source_file']) else None
-        result['source_url'] = row['source_url'] if pd.notna(row['source_url']) else None
 
     return result
 

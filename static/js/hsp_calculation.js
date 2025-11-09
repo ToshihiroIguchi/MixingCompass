@@ -118,30 +118,39 @@ class HSPCalculation {
         });
 
         this.table.render();
+
+        // Add initial row for better UX
+        this.table.addRow();
     }
 
     async lookupSolvent(row, solventName) {
         if (!solventName.trim()) {
-            row.delta_d = null;
-            row.delta_p = null;
-            row.delta_h = null;
-            row.source_url = null;
+            this.table.updateRow(row.id, {
+                delta_d: null,
+                delta_p: null,
+                delta_h: null,
+                source_url: null
+            });
             return;
         }
 
         // Validate: only lookup if solvent name exists in solvent list (exact match, case-insensitive)
         const solventData = this.solventDataCache.get(solventName.toLowerCase());
         if (solventData) {
-            row.delta_d = solventData.delta_d;
-            row.delta_p = solventData.delta_p;
-            row.delta_h = solventData.delta_h;
-            row.source_url = solventData.source_url;
+            this.table.updateRow(row.id, {
+                delta_d: solventData.delta_d,
+                delta_p: solventData.delta_p,
+                delta_h: solventData.delta_h,
+                source_url: solventData.source_url
+            });
         } else {
             // Clear HSP values if solvent doesn't exist in cache
-            row.delta_d = null;
-            row.delta_p = null;
-            row.delta_h = null;
-            row.source_url = null;
+            this.table.updateRow(row.id, {
+                delta_d: null,
+                delta_p: null,
+                delta_h: null,
+                source_url: null
+            });
         }
     }
 

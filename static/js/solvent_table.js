@@ -239,6 +239,10 @@ class SolventTableManager {
     generateTextAutocompleteCell(row, col, value) {
         const hasHSP = row.delta_d !== null && row.delta_p !== null && row.delta_h !== null;
         const notFoundClass = !hasHSP && value ? 'solvent-not-found' : '';
+        const isManualMode = row.mode === 'manual';
+
+        // Disable autocomplete in manual mode to allow arbitrary solvent names
+        const listAttr = isManualMode ? '' : `list="${this.datalistId}"`;
 
         return `
             <td class="solvent-cell">
@@ -248,7 +252,7 @@ class SolventTableManager {
                         class="solvent-input"
                         placeholder="${col.placeholder || 'Enter solvent name'}"
                         value="${value || ''}"
-                        list="${this.datalistId}"
+                        ${listAttr}
                         data-row-id="${row.id}"
                         data-key="${col.key}"
                     >

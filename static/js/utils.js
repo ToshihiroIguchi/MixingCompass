@@ -141,7 +141,7 @@ const Utils = {
     },
 
     /**
-     * Create HTML for solvent status icons (warning and reference link)
+     * Create HTML for solvent status icons (warning, reference link, and Google search)
      * @param {boolean} hasHSP - Whether HSP values are available
      * @param {string} solventName - Name of the solvent
      * @param {string|null} sourceUrl - URL to the reference source
@@ -154,6 +154,9 @@ const Utils = {
         }
         if (sourceUrl) {
             html += `<a href="${sourceUrl}" class="ref-link" title="View source" target="_blank" rel="noopener noreferrer">🔗</a>`;
+        }
+        if (solventName) {
+            html += `<a href="https://www.google.com/search?q=${encodeURIComponent(solventName)}" class="google-search-link" title="Search on Google" target="_blank" rel="noopener noreferrer">🔍</a>`;
         }
         return html;
     },
