@@ -6,6 +6,7 @@
 class SolventSetManager {
     constructor() {
         this.storageKey = 'mixingCompass_solventSets';
+        this.listenersAttached = false;
         this.init();
     }
 
@@ -16,13 +17,16 @@ class SolventSetManager {
     }
 
     setupEventListeners() {
-        // Wait for HSP experimental to initialize the table
-        setTimeout(() => {
-            this.attachDynamicEventListeners();
-        }, 100);
+        // Event listeners will be attached when selector is found
+        // See initializeSelectorWithRetry() method
     }
 
     attachDynamicEventListeners() {
+        // Prevent duplicate event listener registration
+        if (this.listenersAttached) {
+            console.log('Event listeners already attached, skipping...');
+            return;
+        }
         // Save solvent set button
         const saveBtn = document.querySelector('#save-solvent-set-btn');
         if (saveBtn) {
@@ -53,6 +57,10 @@ class SolventSetManager {
                 }
             });
         }
+
+        // Mark as attached to prevent duplicate registration
+        this.listenersAttached = true;
+        console.log('Event listeners attached successfully');
     }
 
     initializeSelectorWithRetry() {
@@ -65,6 +73,8 @@ class SolventSetManager {
             if (selector) {
                 console.log('Solvent set selector found, initializing...');
                 this.updateSolventSetSelector();
+                // Attach event listeners NOW that selector exists
+                this.attachDynamicEventListeners();
                 return true;
             }
 
@@ -85,6 +95,8 @@ class SolventSetManager {
         document.addEventListener('hspExperimentalReady', () => {
             console.log('HSP Experimental ready event received');
             this.updateSolventSetSelector();
+            // Attach event listeners again in case they weren't set before
+            this.attachDynamicEventListeners();
         });
     }
 
