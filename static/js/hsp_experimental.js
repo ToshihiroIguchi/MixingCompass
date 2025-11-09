@@ -2,6 +2,7 @@
 
 class HSPExperimental {
     constructor() {
+        console.log('[HSP Experimental] Constructor called');
         this.currentExperiment = null;
         this.solventTests = [];
         this.availableSolvents = [];
@@ -15,24 +16,41 @@ class HSPExperimental {
     }
 
     async init() {
-        // Load saved calculation settings
-        this.loadCalculationSettings();
+        const initStart = performance.now();
+        console.log('[HSP Experimental] Init started');
 
+        // Load saved calculation settings
+        const settingsStart = performance.now();
+        this.loadCalculationSettings();
+        console.log(`[HSP Experimental] Settings loaded: ${(performance.now() - settingsStart).toFixed(2)}ms`);
+
+        const listenersStart = performance.now();
         this.setupEventListeners();
+        console.log(`[HSP Experimental] Event listeners setup: ${(performance.now() - listenersStart).toFixed(2)}ms`);
 
         // Load available solvents first (must complete before table initialization)
+        const solventsStart = performance.now();
         await this.loadAvailableSolvents();
+        console.log(`[HSP Experimental] Solvents loaded: ${(performance.now() - solventsStart).toFixed(2)}ms`);
 
+        const tableStart = performance.now();
         this.initializeSolventTable();
+        console.log(`[HSP Experimental] Table initialized: ${(performance.now() - tableStart).toFixed(2)}ms`);
 
         // Make globally available AFTER initialization is complete
         window.hspExperimental = this;
 
         // Check for solvent set to load from session storage
+        const sessionStart = performance.now();
         this.checkForSolventSetToLoad();
+        console.log(`[HSP Experimental] Session check: ${(performance.now() - sessionStart).toFixed(2)}ms`);
 
         // Initialize button states
+        const buttonStart = performance.now();
         this.updateAnalyzeButtonState();
+        console.log(`[HSP Experimental] Button states: ${(performance.now() - buttonStart).toFixed(2)}ms`);
+
+        console.log(`[HSP Experimental] Total init time: ${(performance.now() - initStart).toFixed(2)}ms`);
     }
 
     checkForSolventSetToLoad() {
@@ -215,24 +233,46 @@ class HSPExperimental {
     }
 
     async loadAvailableSolvents() {
+        const start = performance.now();
+        console.log('[HSP Experimental] Loading available solvents...');
+
         try {
+            const fetchStart = performance.now();
             const response = await fetch('/api/hsp-experimental/solvents');
+            console.log(`[HSP Experimental] Fetch completed: ${(performance.now() - fetchStart).toFixed(2)}ms`);
+
             if (response.ok) {
+                const parseStart = performance.now();
                 this.availableSolvents = await response.json();
+                console.log(`[HSP Experimental] JSON parsed: ${(performance.now() - parseStart).toFixed(2)}ms, count: ${this.availableSolvents.length}`);
+
+                const updateStart = performance.now();
                 this.updateSolventDropdowns();
+                console.log(`[HSP Experimental] Dropdowns updated: ${(performance.now() - updateStart).toFixed(2)}ms`);
             } else {
                 console.error('Failed to load available solvents');
             }
         } catch (error) {
             console.error('Error loading solvents:', error);
         }
+
+        console.log(`[HSP Experimental] loadAvailableSolvents total: ${(performance.now() - start).toFixed(2)}ms`);
     }
 
     initializeSolventTable() {
+        const start = performance.now();
+        console.log('[HSP Experimental] Initializing solvent table...');
+
+        const containerStart = performance.now();
         const tableContainer = document.querySelector('#solvent-table-container');
-        if (!tableContainer) return;
+        if (!tableContainer) {
+            console.warn('[HSP Experimental] Table container not found!');
+            return;
+        }
+        console.log(`[HSP Experimental] Container found: ${(performance.now() - containerStart).toFixed(2)}ms`);
 
         // Create header, table wrapper, and footer structure
+        const htmlStart = performance.now();
         tableContainer.innerHTML = `
             <div class="solvent-table-header">
                 <h3>Solvent Tests</h3>
@@ -255,8 +295,10 @@ class HSPExperimental {
                 <button id="add-solvent-btn" class="btn btn-secondary">Add Solvent</button>
             </div>
         `;
+        console.log(`[HSP Experimental] HTML set: ${(performance.now() - htmlStart).toFixed(2)}ms`);
 
         // Initialize SolventTableManager
+        const tableManagerStart = performance.now();
         this.table = new SolventTableManager({
             containerId: 'solvent-table-body',
             datalistOptions: this.availableSolvents,
@@ -318,11 +360,15 @@ class HSPExperimental {
                 this.handleModeToggle(row, newMode);
             }
         });
+        console.log(`[HSP Experimental] TableManager created: ${(performance.now() - tableManagerStart).toFixed(2)}ms`);
 
         // Add initial row
+        const addRowStart = performance.now();
         this.table.addRow();
+        console.log(`[HSP Experimental] Initial row added: ${(performance.now() - addRowStart).toFixed(2)}ms`);
 
         // Re-attach event listener for add button
+        const attachStart = performance.now();
         const addBtn = document.querySelector('#add-solvent-btn');
         if (addBtn) {
             addBtn.addEventListener('click', () => this.addSolventRow());
@@ -333,9 +379,14 @@ class HSPExperimental {
         if (newExpBtn) {
             newExpBtn.addEventListener('click', () => this.startNewExperiment());
         }
+        console.log(`[HSP Experimental] Event listeners attached: ${(performance.now() - attachStart).toFixed(2)}ms`);
 
         // Dispatch event to notify other components that the table is ready
+        const eventStart = performance.now();
         document.dispatchEvent(new CustomEvent('hspExperimentalReady'));
+        console.log(`[HSP Experimental] Ready event dispatched: ${(performance.now() - eventStart).toFixed(2)}ms`);
+
+        console.log(`[HSP Experimental] initializeSolventTable total: ${(performance.now() - start).toFixed(2)}ms`);
         console.log('HSP Experimental table initialized and ready');
     }
 
@@ -1758,8 +1809,12 @@ class HSPExperimental {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('[HSP Experimental] DOMContentLoaded event fired');
     if (document.getElementById('hsp-experimental')) {
+        console.log('[HSP Experimental] #hsp-experimental element found, creating instance');
         // Note: window.hspExperimental will be set by init() after async initialization completes
         new HSPExperimental();
+    } else {
+        console.log('[HSP Experimental] #hsp-experimental element not found');
     }
 });
