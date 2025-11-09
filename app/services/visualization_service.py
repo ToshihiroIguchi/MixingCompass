@@ -55,11 +55,6 @@ class HansenSphereVisualizationService:
         y = np.maximum(y, 0)
         z = np.maximum(z, 0)
 
-        print(f"DEBUG generate_sphere_coordinates CALLED: center={center}, radius={radius}")
-        print(f"DEBUG deltaD range: [{x.min():.2f}, {x.max():.2f}]")
-        print(f"DEBUG deltaP range: [{y.min():.2f}, {y.max():.2f}]")
-        print(f"DEBUG deltaH range: [{z.min():.2f}, {z.max():.2f}]")
-
         return {
             'x': x.tolist(),
             'y': y.tolist(),
@@ -69,7 +64,7 @@ class HansenSphereVisualizationService:
     @staticmethod
     def get_solubility_color(solubility) -> str:
         """
-        Get color for solubility value using RdYlGn gradient (Red-Yellow-Green)
+        Get color for solubility value using RdYlBu gradient (Red-Yellow-Blue)
 
         Args:
             solubility: Solubility value (categorical string or numerical 0-1)
@@ -92,7 +87,7 @@ class HansenSphereVisualizationService:
 
         solubility = max(0.0, min(1.0, float(solubility)))
 
-        # RdYlGn gradient: Red (0.0) -> Yellow (0.5) -> Green (1.0)
+        # RdYlBu gradient: Red (0.0) -> Yellow (0.5) -> Blue (1.0)
         if solubility <= 0.5:
             # Red to Yellow (0.0 to 0.5)
             t = solubility * 2  # Map 0-0.5 to 0-1
@@ -100,13 +95,14 @@ class HansenSphereVisualizationService:
             g = int(50 + (235 - 50) * t)  # Interpolate from #d32f2f red to #ffeb3b yellow
             b = int(47 + (59 - 47) * t)
         else:
-            # Yellow to Green (0.5 to 1.0)
+            # Yellow to Blue (0.5 to 1.0)
             t = (solubility - 0.5) * 2  # Map 0.5-1.0 to 0-1
-            r = int(255 - (255 - 76) * t)  # Interpolate from #ffeb3b yellow to #4caf50 green
-            g = int(235 - (235 - 175) * t)
-            b = int(59 + (80 - 59) * t)
+            r = int(255 - (255 - 33) * t)  # Interpolate from #ffeb3b yellow to #2196f3 blue
+            g = int(235 - (235 - 150) * t)
+            b = int(59 + (243 - 59) * t)
 
-        return f'#{r:02x}{g:02x}{b:02x}'
+        color = f'#{r:02x}{g:02x}{b:02x}'
+        return color
 
     @staticmethod
     def create_solvent_points(solvent_data: List[Dict]) -> Dict[str, List]:
@@ -122,27 +118,29 @@ class HansenSphereVisualizationService:
         import logging
         logger = logging.getLogger(__name__)
 
-        logger.info(f"🔍 create_solvent_points called with {len(solvent_data)} solvents")
+        logger.info(f"create_solvent_points called with {len(solvent_data)} solvents")
 
         points = {'x': [], 'y': [], 'z': [], 'names': [], 'colors': [], 'solubility': []}
 
         for i, solvent in enumerate(solvent_data):
-            logger.info(f"🔍 Processing solvent {i}: {solvent}")
+            logger.debug(f"Processing solvent {i}: {solvent}")
 
             if not all(key in solvent for key in ['delta_d', 'delta_p', 'delta_h', 'solubility']):
-                logger.warning(f"⚠️ Skipping solvent {i} - missing required keys")
+                logger.warning(f"Skipping solvent {i} - missing required keys")
                 continue
 
-            logger.info(f"✅ Adding solvent: {solvent.get('solvent_name', 'Unknown')} at ({solvent['delta_d']}, {solvent['delta_p']}, {solvent['delta_h']}) - {solvent['solubility']}")
+            logger.debug(f"Adding solvent: {solvent.get('solvent_name', 'Unknown')} at ({solvent['delta_d']}, {solvent['delta_p']}, {solvent['delta_h']}) - {solvent['solubility']}")
 
             points['x'].append(solvent['delta_d'])
             points['y'].append(solvent['delta_p'])
             points['z'].append(solvent['delta_h'])
             points['names'].append(solvent.get('solvent_name', 'Unknown'))
-            points['colors'].append(HansenSphereVisualizationService.get_solubility_color(solvent['solubility']))
+
+            color = HansenSphereVisualizationService.get_solubility_color(solvent['solubility'])
+            points['colors'].append(color)
             points['solubility'].append(solvent['solubility'])
 
-        logger.info(f"🔍 Final points: {len(points['x'])} total, colors: {points['colors']}, solubilities: {points['solubility']}")
+        logger.info(f"Final points: {len(points['x'])} total, colors: {points['colors']}, solubilities: {points['solubility']}")
 
         return points
 
@@ -404,8 +402,9 @@ class HansenSphereVisualizationService:
         """
         import logging
         logger = logging.getLogger(__name__)
-        logger.info(f"🚀 generate_plotly_visualization called with {len(solvent_data)} solvents")
-        logger.info(f"🚀 Input solvent_data: {solvent_data}")
+
+        logger.info(f"generate_plotly_visualization called with {len(solvent_data)} solvents")
+        logger.debug(f"Input solvent_data: {solvent_data}")
 
         # Generate sphere data - cube mode will handle equal ranges automatically
         sphere_center = (hsp_result.delta_d, hsp_result.delta_p, hsp_result.delta_h)
@@ -619,11 +618,11 @@ class HansenSphereVisualizationService:
             },
             'annotations': [{
                 'text': '<b>Solubility</b><br>' +
-                        '<span style="color:#4caf50">■</span> 1.0 High<br>' +
+                        '<span style="color:#2196f3">■</span> 1.0 High<br>' +
                         '<span style="color:#ffeb3b">■</span> 0.5 Medium<br>' +
                         '<span style="color:#d32f2f">■</span> 0.0 Low<br>' +
                         '<span style="font-size:9px">(Continuous gradient)</span><br>' +
-                        '🟢 <span style="color:#32CD32">Hansen Center</span>',
+                        '● <span style="color:#32CD32">Hansen Center</span>',
                 'showarrow': False,
                 'xref': 'paper',
                 'yref': 'paper',

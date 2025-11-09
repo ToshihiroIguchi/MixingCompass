@@ -240,6 +240,7 @@ class HSPExperimental {
                         <input type="text" id="new-set-name" class="set-name-input" placeholder="Set name">
                         <button id="save-solvent-set-btn" class="btn btn-primary btn-small">Save</button>
                     </div>
+                    <button id="new-experiment-btn" class="btn btn-secondary btn-small" title="Start a new experiment">New Experiment</button>
                 </div>
             </div>
             <div class="table-wrapper" id="table-wrapper">
@@ -269,6 +270,12 @@ class HSPExperimental {
         const addBtn = document.querySelector('#add-solvent-btn');
         if (addBtn) {
             addBtn.addEventListener('click', () => this.addSolventRow());
+        }
+
+        // Re-attach event listener for new experiment button
+        const newExpBtn = document.querySelector('#new-experiment-btn');
+        if (newExpBtn) {
+            newExpBtn.addEventListener('click', () => this.startNewExperiment());
         }
 
         // Add initial row
@@ -1813,6 +1820,95 @@ class HSPExperimental {
                 console.error('Failed to load calculation settings:', error);
             }
         }
+    }
+
+    hasUnsavedChanges() {
+        // Check if there's any data that might not be saved
+        const sampleName = document.querySelector('#sample-name');
+        const hasSampleName = sampleName && sampleName.value.trim() !== '';
+        const hasSolventData = this.solventTests && this.solventTests.length > 0;
+
+        return hasSampleName || hasSolventData;
+    }
+
+    startNewExperiment() {
+        // Check if there are unsaved changes
+        if (this.hasUnsavedChanges()) {
+            const confirmMessage = 'You have unsaved data. Starting a new experiment will clear all current data.\n\nDo you want to continue?';
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+        }
+
+        // Clear all experiment data
+        this.clearExperimentData();
+
+        this.showNotification('New experiment started', 'success');
+    }
+
+    clearExperimentData() {
+        // Clear sample name
+        const sampleNameInput = document.querySelector('#sample-name');
+        if (sampleNameInput) {
+            sampleNameInput.value = '';
+        }
+
+        // Clear solvent tests array
+        this.solventTests = [];
+
+        // Clear current experiment reference
+        this.currentExperiment = null;
+
+        // Clear current calculation result
+        this.currentCalculationResult = null;
+
+        // Clear the table body
+        const tableBody = document.querySelector('#solvent-table-body');
+        if (tableBody) {
+            tableBody.innerHTML = '';
+        }
+
+        // Clear visualization
+        const vizContainer = document.querySelector('#hsp-visualization');
+        if (vizContainer) {
+            vizContainer.innerHTML = '<div class="empty-state"><p>No visualization data available. Run calculation to generate visualization.</p></div>';
+        }
+
+        // Clear results panel
+        const resultsPanel = document.querySelector('#results-panel');
+        if (resultsPanel) {
+            resultsPanel.style.display = 'none';
+        }
+
+        // Disable buttons that require data
+        const saveResultBtn = document.querySelector('#save-result-btn');
+        if (saveResultBtn) {
+            saveResultBtn.disabled = true;
+        }
+
+        const exportPackageBtn = document.querySelector('#export-package-btn');
+        if (exportPackageBtn) {
+            exportPackageBtn.disabled = true;
+        }
+
+        // Clear solvent set selector
+        const setSelector = document.querySelector('#solvent-set-selector');
+        if (setSelector) {
+            setSelector.value = '';
+        }
+
+        const setNameInput = document.querySelector('#new-set-name');
+        if (setNameInput) {
+            setNameInput.value = '';
+        }
+
+        // Add one empty row to start fresh
+        this.addSolventRow(false);
+
+        // Update button states
+        this.updateAnalyzeButtonState();
+
+        console.log('Experiment data cleared - ready for new experiment');
     }
 }
 

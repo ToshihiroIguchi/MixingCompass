@@ -576,6 +576,13 @@ body {
     box-shadow: 0 0 0 1px #3b82f6;
 }
 
+#new-experiment-btn {
+    margin-left: 0.5rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    border-left: 2px solid #e5e7eb;
+}
+
 .set-name-input {
     border: none;
     outline: none;
