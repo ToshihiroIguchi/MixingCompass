@@ -155,8 +155,16 @@ class SolventTableManager {
             </tbody>
         `;
 
+        // Generate datalist once for all rows
+        const datalistHTML = this.datalistOptions.length > 0 ? `
+            <datalist id="${this.datalistId}">
+                ${Utils.createDatalistOptions(this.datalistOptions)}
+            </datalist>
+        ` : '';
+
         return `
             <div class="mixture-table-wrapper">
+                ${datalistHTML}
                 <table class="mixture-table">
                     ${headerHTML}
                     ${bodyHTML}
@@ -231,7 +239,6 @@ class SolventTableManager {
     generateTextAutocompleteCell(row, col, value) {
         const hasHSP = row.delta_d !== null && row.delta_p !== null && row.delta_h !== null;
         const notFoundClass = !hasHSP && value ? 'solvent-not-found' : '';
-        const datalistOptionsHTML = Utils.createDatalistOptions(this.datalistOptions);
 
         return `
             <td class="solvent-cell">
@@ -245,9 +252,6 @@ class SolventTableManager {
                         data-row-id="${row.id}"
                         data-key="${col.key}"
                     >
-                    <datalist id="${this.datalistId}">
-                        ${datalistOptionsHTML}
-                    </datalist>
                     ${Utils.createSolventStatusIcons(hasHSP, value, row.source_url)}
                 </div>
             </td>
@@ -348,11 +352,12 @@ class SolventTableManager {
     generateActionsWithModeCell(row, col) {
         const mode = row.mode || 'auto';
         const modeLabel = mode === 'auto' ? 'Auto' : 'Manual';
+        const activeClass = mode === 'manual' ? 'active' : '';
 
         return `
             <td>
                 <div class="action-buttons">
-                    <button class="btn-small btn-secondary mode-btn"
+                    <button class="btn-small btn-secondary mode-btn ${activeClass}"
                             data-row-id="${row.id}"
                             data-mode="${mode}"
                             title="Toggle input mode">${modeLabel}</button>
@@ -516,7 +521,13 @@ class SolventTableManager {
         const row = this.rows.find(r => r.id === rowId);
 
         if (row && this.onModeToggle) {
-            this.onModeToggle(row);
+            // Toggle mode
+            const currentMode = row.mode || 'auto';
+            const newMode = currentMode === 'auto' ? 'manual' : 'auto';
+            row.mode = newMode;
+
+            // Call callback with row and new mode
+            this.onModeToggle(row, newMode);
             this.render();
         }
     }
