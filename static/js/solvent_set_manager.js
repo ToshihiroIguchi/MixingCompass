@@ -6,6 +6,7 @@
 class SolventSetManager {
     constructor() {
         this.storageKey = 'mixingCompass_solventSets';
+        this.listenersAttached = false;
         this.init();
     }
 
@@ -16,13 +17,16 @@ class SolventSetManager {
     }
 
     setupEventListeners() {
-        // Wait for HSP experimental to initialize the table
-        setTimeout(() => {
-            this.attachDynamicEventListeners();
-        }, 100);
+        // Event listeners will be attached when selector is found
+        // See initializeSelectorWithRetry() method
     }
 
     attachDynamicEventListeners() {
+        // Prevent duplicate event listener registration
+        if (this.listenersAttached) {
+            console.log('Event listeners already attached, skipping...');
+            return;
+        }
         // Save solvent set button
         const saveBtn = document.querySelector('#save-solvent-set-btn');
         if (saveBtn) {
@@ -53,6 +57,10 @@ class SolventSetManager {
                 }
             });
         }
+
+        // Mark as attached to prevent duplicate registration
+        this.listenersAttached = true;
+        console.log('Event listeners attached successfully');
     }
 
     initializeSelectorWithRetry() {
@@ -65,6 +73,8 @@ class SolventSetManager {
             if (selector) {
                 console.log('Solvent set selector found, initializing...');
                 this.updateSolventSetSelector();
+                // Attach event listeners NOW that selector exists
+                this.attachDynamicEventListeners();
                 return true;
             }
 
@@ -85,6 +95,8 @@ class SolventSetManager {
         document.addEventListener('hspExperimentalReady', () => {
             console.log('HSP Experimental ready event received');
             this.updateSolventSetSelector();
+            // Attach event listeners again in case they weren't set before
+            this.attachDynamicEventListeners();
         });
     }
 
@@ -340,24 +352,51 @@ class SolventSetManager {
     }
 
 
-    loadSolventSet(solventSet) {
+    async loadSolventSet(solventSet) {
         try {
             const hspExperimental = window.hspExperimental;
-            if (!hspExperimental) {
+            if (!hspExperimental || !hspExperimental.table) {
                 alert('HSP Experimental interface not found');
                 return;
             }
 
-            // Clear existing solvent table
-            this.clearSolventTable();
+            // Convert solvent set data to table format
+            const tableData = solventSet.solvents.map(solventData => {
+                const rowData = {
+                    solvent: solventData.solvent_name,
+                    delta_d: null,
+                    delta_p: null,
+                    delta_h: null,
+                    solubility: '', // Reset solubility (experiment-specific)
+                    notes: solventData.notes || '',
+                    mode: 'auto',
+                    source_url: null
+                };
 
-            // Load each solvent from the set
-            solventSet.solvents.forEach(solventData => {
-                hspExperimental.addSolventRow();
-                const rows = document.querySelectorAll('#solvent-table-body tr');
-                const newRow = rows[rows.length - 1];
-                this.populateRowWithSolventSetData(newRow, solventData);
+                // Check if manual mode data exists
+                if (solventData.manual_delta_d !== undefined) {
+                    rowData.mode = 'manual';
+                    rowData.delta_d = solventData.manual_delta_d;
+                    rowData.delta_p = solventData.manual_delta_p;
+                    rowData.delta_h = solventData.manual_delta_h;
+                }
+
+                return rowData;
             });
+
+            // Set all data at once
+            hspExperimental.table.setData(tableData);
+
+            // For auto mode rows, trigger lookup
+            const rows = hspExperimental.table.getData();
+            for (const row of rows) {
+                if (row.mode === 'auto' && row.solvent) {
+                    await hspExperimental.lookupSolvent(row, row.solvent);
+                }
+            }
+
+            // Ensure table is rendered with all data
+            hspExperimental.table.render();
 
             // Update the last used timestamp
             solventSet.lastUsed = Utils.formatISO();
@@ -369,68 +408,6 @@ class SolventSetManager {
         } catch (error) {
             console.error('Error loading solvent set:', error);
             Notification.error('Failed to load solvent set');
-        }
-    }
-
-    clearSolventTable() {
-        const tbody = document.querySelector('#solvent-table-body');
-        if (tbody) {
-            tbody.innerHTML = '';
-        }
-    }
-
-    populateRowWithSolventSetData(row, solventData) {
-        try {
-            // Set solvent name
-            const nameInput = row.querySelector('.solvent-name-input');
-            if (nameInput) {
-                nameInput.value = solventData.solvent_name;
-            }
-
-            // Set HSP values if manual mode data exists
-            if (solventData.manual_delta_d !== undefined) {
-                const deltaD = row.querySelector('.delta-d');
-                const deltaP = row.querySelector('.delta-p');
-                const deltaH = row.querySelector('.delta-h');
-
-                if (deltaD) deltaD.value = solventData.manual_delta_d;
-                if (deltaP) deltaP.value = solventData.manual_delta_p;
-                if (deltaH) deltaH.value = solventData.manual_delta_h;
-
-                // Set to manual mode
-                const hspExperimental = window.hspExperimental;
-                if (hspExperimental) {
-                    hspExperimental.setRowMode(row, 'manual');
-                }
-            } else {
-                // Set to auto mode and trigger lookup
-                const hspExperimental = window.hspExperimental;
-                if (hspExperimental) {
-                    hspExperimental.setRowMode(row, 'auto');
-                    // Trigger solvent name lookup
-                    hspExperimental.onSolventNameChange({ target: nameInput }, row);
-                }
-            }
-
-            // Reset solubility to default (experiment-specific data should not be restored)
-            const solubilitySelect = row.querySelector('.solubility-select');
-            if (solubilitySelect) {
-                solubilitySelect.value = ''; // Reset to default empty state
-                const customInput = row.querySelector('.custom-solubility-input');
-                if (customInput) {
-                    customInput.style.display = 'none';
-                    customInput.value = '';
-                }
-            }
-
-            // Set notes
-            const notesInput = row.querySelector('.notes-input');
-            if (notesInput && solventData.notes) {
-                notesInput.value = solventData.notes;
-            }
-
-        } catch (error) {
-            console.error('Error populating row with solvent data:', error);
         }
     }
 

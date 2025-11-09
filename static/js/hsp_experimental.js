@@ -2,9 +2,11 @@
 
 class HSPExperimental {
     constructor() {
+        console.log('[HSP Experimental] Constructor called');
         this.currentExperiment = null;
         this.solventTests = [];
         this.availableSolvents = [];
+        this.table = null;  // SolventTableManager instance
         // Calculation settings
         this.calculationSettings = {
             loss_function: 'optimize_radius_only',
@@ -13,19 +15,42 @@ class HSPExperimental {
         this.init();
     }
 
-    init() {
-        // Load saved calculation settings
-        this.loadCalculationSettings();
+    async init() {
+        const initStart = performance.now();
+        console.log('[HSP Experimental] Init started');
 
+        // Load saved calculation settings
+        const settingsStart = performance.now();
+        this.loadCalculationSettings();
+        console.log(`[HSP Experimental] Settings loaded: ${(performance.now() - settingsStart).toFixed(2)}ms`);
+
+        const listenersStart = performance.now();
         this.setupEventListeners();
-        this.loadAvailableSolvents();
+        console.log(`[HSP Experimental] Event listeners setup: ${(performance.now() - listenersStart).toFixed(2)}ms`);
+
+        // Load available solvents first (must complete before table initialization)
+        const solventsStart = performance.now();
+        await this.loadAvailableSolvents();
+        console.log(`[HSP Experimental] Solvents loaded: ${(performance.now() - solventsStart).toFixed(2)}ms`);
+
+        const tableStart = performance.now();
         this.initializeSolventTable();
+        console.log(`[HSP Experimental] Table initialized: ${(performance.now() - tableStart).toFixed(2)}ms`);
+
+        // Make globally available AFTER initialization is complete
+        window.hspExperimental = this;
 
         // Check for solvent set to load from session storage
+        const sessionStart = performance.now();
         this.checkForSolventSetToLoad();
+        console.log(`[HSP Experimental] Session check: ${(performance.now() - sessionStart).toFixed(2)}ms`);
 
         // Initialize button states
+        const buttonStart = performance.now();
         this.updateAnalyzeButtonState();
+        console.log(`[HSP Experimental] Button states: ${(performance.now() - buttonStart).toFixed(2)}ms`);
+
+        console.log(`[HSP Experimental] Total init time: ${(performance.now() - initStart).toFixed(2)}ms`);
     }
 
     checkForSolventSetToLoad() {
@@ -111,9 +136,6 @@ class HSPExperimental {
 
         // Set up data change listeners
         this.setupDataChangeListeners();
-
-        // Make this instance globally available for solvent set manager
-        window.hspExperimental = this;
     }
 
     setupDataChangeListeners() {
@@ -211,23 +233,46 @@ class HSPExperimental {
     }
 
     async loadAvailableSolvents() {
+        const start = performance.now();
+        console.log('[HSP Experimental] Loading available solvents...');
+
         try {
+            const fetchStart = performance.now();
             const response = await fetch('/api/hsp-experimental/solvents');
+            console.log(`[HSP Experimental] Fetch completed: ${(performance.now() - fetchStart).toFixed(2)}ms`);
+
             if (response.ok) {
+                const parseStart = performance.now();
                 this.availableSolvents = await response.json();
+                console.log(`[HSP Experimental] JSON parsed: ${(performance.now() - parseStart).toFixed(2)}ms, count: ${this.availableSolvents.length}`);
+
+                const updateStart = performance.now();
                 this.updateSolventDropdowns();
+                console.log(`[HSP Experimental] Dropdowns updated: ${(performance.now() - updateStart).toFixed(2)}ms`);
             } else {
                 console.error('Failed to load available solvents');
             }
         } catch (error) {
             console.error('Error loading solvents:', error);
         }
+
+        console.log(`[HSP Experimental] loadAvailableSolvents total: ${(performance.now() - start).toFixed(2)}ms`);
     }
 
     initializeSolventTable() {
-        const tableContainer = document.querySelector('#solvent-table-container');
-        if (!tableContainer) return;
+        const start = performance.now();
+        console.log('[HSP Experimental] Initializing solvent table...');
 
+        const containerStart = performance.now();
+        const tableContainer = document.querySelector('#solvent-table-container');
+        if (!tableContainer) {
+            console.warn('[HSP Experimental] Table container not found!');
+            return;
+        }
+        console.log(`[HSP Experimental] Container found: ${(performance.now() - containerStart).toFixed(2)}ms`);
+
+        // Create header, table wrapper, and footer structure
+        const htmlStart = performance.now();
         tableContainer.innerHTML = `
             <div class="solvent-table-header">
                 <h3>Solvent Tests</h3>
@@ -244,29 +289,86 @@ class HSPExperimental {
                 </div>
             </div>
             <div class="table-wrapper" id="table-wrapper">
-                <table class="solvent-table" id="solvent-table">
-                    <thead>
-                        <tr>
-                            <th>Solvent Name</th>
-                            <th>&delta;D<br>(MPa<sup>0.5</sup>)</th>
-                            <th>&delta;P<br>(MPa<sup>0.5</sup>)</th>
-                            <th>&delta;H<br>(MPa<sup>0.5</sup>)</th>
-                            <th>Solubility</th>
-                            <th>Notes</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="solvent-table-body">
-                        <!-- Rows will be added dynamically -->
-                    </tbody>
-                </table>
+                <div id="solvent-table-body"></div>
             </div>
             <div class="table-footer">
                 <button id="add-solvent-btn" class="btn btn-secondary">Add Solvent</button>
             </div>
         `;
+        console.log(`[HSP Experimental] HTML set: ${(performance.now() - htmlStart).toFixed(2)}ms`);
+
+        // Initialize SolventTableManager
+        const tableManagerStart = performance.now();
+        this.table = new SolventTableManager({
+            containerId: 'solvent-table-body',
+            datalistOptions: this.availableSolvents,
+            datalistId: 'experimental-solvent-datalist',
+            columns: [
+                {
+                    key: 'solvent',
+                    label: 'Solvent Name',
+                    type: 'text-autocomplete',
+                    placeholder: 'Enter solvent name',
+                    defaultValue: ''
+                },
+                {
+                    key: 'delta_d',
+                    label: '&delta;D<br>(MPa<sup>0.5</sup>)',
+                    type: 'readonly-hsp'
+                },
+                {
+                    key: 'delta_p',
+                    label: '&delta;P<br>(MPa<sup>0.5</sup>)',
+                    type: 'readonly-hsp'
+                },
+                {
+                    key: 'delta_h',
+                    label: '&delta;H<br>(MPa<sup>0.5</sup>)',
+                    type: 'readonly-hsp'
+                },
+                {
+                    key: 'solubility',
+                    label: 'Solubility',
+                    type: 'solubility-select',
+                    defaultValue: ''
+                },
+                {
+                    key: 'notes',
+                    label: 'Notes',
+                    type: 'text',
+                    placeholder: 'Notes',
+                    defaultValue: ''
+                },
+                {
+                    key: 'actions',
+                    label: 'Actions',
+                    type: 'actions-with-mode'
+                }
+            ],
+            onDataChange: () => {
+                this.updateSolventTestData();
+                this.updateAnalyzeButtonState();
+            },
+            onSolventLookup: async (row, solventName) => {
+                await this.lookupSolvent(row, solventName);
+            },
+            onRowRemove: () => {
+                this.updateSolventTestData();
+                this.updateAnalyzeButtonState();
+            },
+            onModeToggle: (row, newMode) => {
+                this.handleModeToggle(row, newMode);
+            }
+        });
+        console.log(`[HSP Experimental] TableManager created: ${(performance.now() - tableManagerStart).toFixed(2)}ms`);
+
+        // Add initial row
+        const addRowStart = performance.now();
+        this.table.addRow();
+        console.log(`[HSP Experimental] Initial row added: ${(performance.now() - addRowStart).toFixed(2)}ms`);
 
         // Re-attach event listener for add button
+        const attachStart = performance.now();
         const addBtn = document.querySelector('#add-solvent-btn');
         if (addBtn) {
             addBtn.addEventListener('click', () => this.addSolventRow());
@@ -277,334 +379,144 @@ class HSPExperimental {
         if (newExpBtn) {
             newExpBtn.addEventListener('click', () => this.startNewExperiment());
         }
-
-        // Add initial row
-        this.addSolventRow();
+        console.log(`[HSP Experimental] Event listeners attached: ${(performance.now() - attachStart).toFixed(2)}ms`);
 
         // Dispatch event to notify other components that the table is ready
+        const eventStart = performance.now();
         document.dispatchEvent(new CustomEvent('hspExperimentalReady'));
+        console.log(`[HSP Experimental] Ready event dispatched: ${(performance.now() - eventStart).toFixed(2)}ms`);
+
+        console.log(`[HSP Experimental] initializeSolventTable total: ${(performance.now() - start).toFixed(2)}ms`);
         console.log('HSP Experimental table initialized and ready');
     }
 
     addSolventRow(autoScroll = true) {
-        const tableBody = document.querySelector('#solvent-table-body');
-        if (!tableBody) return;
+        if (!this.table) return;
 
-        const rowId = `solvent-row-${Date.now()}`;
-        const row = document.createElement('tr');
-        row.id = rowId;
-
-        row.innerHTML = `
-            <td>
-                <div class="solvent-input-container">
-                    <input type="text"
-                           class="solvent-name-input"
-                           placeholder="Enter solvent name"
-                           list="solvent-datalist">
-                    ${Utils.createDatalistHTML(this.availableSolvents, 'solvent-datalist')}
-                </div>
-            </td>
-            <td>
-                <input type="number"
-                       class="hsp-input delta-d"
-                       placeholder="δD"
-                       step="0.1"
-                       min="0"
-                       readonly>
-            </td>
-            <td>
-                <input type="number"
-                       class="hsp-input delta-p"
-                       placeholder="δP"
-                       step="0.1"
-                       min="0"
-                       readonly>
-            </td>
-            <td>
-                <input type="number"
-                       class="hsp-input delta-h"
-                       placeholder="δH"
-                       step="0.1"
-                       min="0"
-                       readonly>
-            </td>
-            <td>
-                <div class="solubility-input-group">
-                    <select class="solubility-select" required>
-                        <option value="">Choose solubility level</option>
-                        <option value="soluble">Soluble (1.0)</option>
-                        <option value="partial">Partial (0.5)</option>
-                        <option value="insoluble">Insoluble (0.0)</option>
-                        <option value="custom">Custom...</option>
-                    </select>
-                    <input type="number"
-                           class="custom-solubility-input"
-                           min="0"
-                           max="1"
-                           step="0.1"
-                           placeholder="0.0-1.0"
-                           style="display: none;">
-                </div>
-            </td>
-            <td>
-                <input type="text"
-                       class="notes-input"
-                       placeholder="Notes">
-            </td>
-            <td>
-                <div class="action-buttons">
-                    <button class="btn-small btn-secondary mode-btn"
-                            title="Toggle input mode">Auto</button>
-                    <button class="btn-small btn-danger remove-btn"
-                            title="Remove row">×</button>
-                </div>
-            </td>
-        `;
-
-        tableBody.appendChild(row);
+        this.table.addRow();
 
         // Auto-scroll to the new row only if requested (e.g., manual addition)
         if (autoScroll) {
             setTimeout(() => {
                 const tableWrapper = document.querySelector('#table-wrapper');
                 if (tableWrapper) {
-                    row.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'nearest'
-                    });
+                    const rows = tableWrapper.querySelectorAll('tr');
+                    const newRow = rows[rows.length - 1];
+                    if (newRow) {
+                        newRow.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'nearest'
+                        });
+                    }
                 }
             }, 100);
         }
-
-        // Set initial mode to auto
-        this.setRowMode(row, 'auto');
-
-        // Add event listeners for this row
-        this.setupRowEventListeners(row);
-
-        // Update Analyze button state
-        this.updateAnalyzeButtonState();
     }
 
-    setupRowEventListeners(row) {
-        // Solvent name input
-        const nameInput = row.querySelector('.solvent-name-input');
-        // Lookup HSP only on blur (when user finishes typing) to reduce API calls
-        nameInput.addEventListener('blur', (e) => this.onSolventNameBlur(e, row));
-
-        // Solubility select dropdown
-        const solubilitySelect = row.querySelector('.solubility-select');
-        solubilitySelect.addEventListener('change', (e) => this.onSolubilitySelectChange(e, row));
-
-        // Mode toggle button
-        const modeBtn = row.querySelector('.mode-btn');
-        modeBtn.addEventListener('click', () => this.toggleInputMode(row));
-
-        // Remove button
-        const removeBtn = row.querySelector('.remove-btn');
-        removeBtn.addEventListener('click', () => this.removeSolventRow(row));
-
-        // HSP inputs change listener
-        const hspInputs = row.querySelectorAll('.hsp-input');
-        hspInputs.forEach(input => {
-            input.addEventListener('change', () => this.updateSolventTestData());
-        });
-    }
-
-    onSolubilitySelectChange(event, row) {
-        const selectValue = event.target.value;
-        const customInput = row.querySelector('.custom-solubility-input');
-
-        if (selectValue === 'custom') {
-            // Show custom input field
-            customInput.style.display = 'block';
-            customInput.focus();
-        } else {
-            // Hide custom input field
-            customInput.style.display = 'none';
-            customInput.value = '';
-        }
-
-        this.updateSolventTestData();
-    }
-
-    async onSolventNameChange(event, row) {
-        const solventName = event.target.value.trim();
-        const currentMode = row.dataset.mode || 'auto';
-
-        if (!solventName || currentMode === 'manual') return;
+    /**
+     * Lookup solvent HSP from database (callback for SolventTableManager)
+     */
+    async lookupSolvent(row, solventName) {
+        if (!solventName) return;
 
         // Only auto-lookup in auto mode
+        const currentMode = row.mode || 'auto';
+        if (currentMode === 'manual') return;
+
+        // Validate: only lookup if solvent name exists in available solvents list (exact match)
+        const solventExists = this.availableSolvents.some(
+            s => s.toLowerCase() === solventName.toLowerCase()
+        );
+
+        if (!solventExists) {
+            // Clear HSP values if solvent doesn't exist in list
+            this.table.updateRow(row.id, {
+                delta_d: null,
+                delta_p: null,
+                delta_h: null,
+                source_url: null
+            });
+            return;
+        }
+
         try {
             const response = await fetch(`/api/hsp-experimental/solvents/${encodeURIComponent(solventName)}`);
             if (response.ok) {
                 const solventData = await response.json();
-                this.populateRowWithSolventData(row, solventData);
-                // Stay in auto mode
+                // Update row data with HSP values
+                this.table.updateRow(row.id, {
+                    delta_d: solventData.delta_d,
+                    delta_p: solventData.delta_p,
+                    delta_h: solventData.delta_h,
+                    source_url: solventData.source_url
+                });
             } else {
-                // Solvent not found, clear values but stay in auto mode
-                this.clearRowHSPValues(row);
+                // Solvent not found, clear HSP values
+                this.table.updateRow(row.id, {
+                    delta_d: null,
+                    delta_p: null,
+                    delta_h: null,
+                    source_url: null
+                });
             }
         } catch (error) {
             console.error('Error fetching solvent data:', error);
-            this.clearRowHSPValues(row);
-        }
-    }
-
-    async onSolventNameBlur(event, row) {
-        // Lookup solvent HSP when user finishes typing
-        await this.onSolventNameChange(event, row);
-        this.updateSolventTestData();
-    }
-
-    populateRowWithSolventData(row, solventData) {
-        // Use !== undefined to handle zero values correctly
-        row.querySelector('.delta-d').value = solventData.delta_d !== undefined ? solventData.delta_d : '';
-        row.querySelector('.delta-p').value = solventData.delta_p !== undefined ? solventData.delta_p : '';
-        row.querySelector('.delta-h').value = solventData.delta_h !== undefined ? solventData.delta_h : '';
-
-        // Add reference URL link if available
-        const nameInput = row.querySelector('.solvent-name-input');
-        const container = row.querySelector('.solvent-input-container');
-
-        // Remove existing links if any
-        const existingLink = container.querySelector('.ref-link');
-        if (existingLink) {
-            existingLink.remove();
-        }
-        const existingGoogleLink = container.querySelector('.google-search-link');
-        if (existingGoogleLink) {
-            existingGoogleLink.remove();
-        }
-
-        // Add source reference link if source_url exists
-        if (solventData.source_url) {
-            const link = document.createElement('a');
-            link.href = solventData.source_url;
-            link.target = '_blank';
-            link.className = 'ref-link';
-            link.title = 'View source reference';
-            link.textContent = '🔗';
-            container.appendChild(link);
-        }
-
-        // Add Google search link using the input field value
-        const solventName = nameInput.value.trim();
-        if (solventName) {
-            const googleLink = document.createElement('a');
-            googleLink.href = `https://www.google.com/search?q=${encodeURIComponent(solventName)}`;
-            googleLink.target = '_blank';
-            googleLink.className = 'google-search-link';
-            googleLink.title = 'Search on Google';
-            googleLink.textContent = '🔍';
-            container.appendChild(googleLink);
-        }
-
-        // Store solvent data in row for reference
-        row.dataset.solventData = JSON.stringify(solventData);
-    }
-
-    clearRowHSPValues(row) {
-        row.querySelector('.delta-d').value = '';
-        row.querySelector('.delta-p').value = '';
-        row.querySelector('.delta-h').value = '';
-        delete row.dataset.solventData;
-    }
-
-    setRowMode(row, mode) {
-        const hspInputs = row.querySelectorAll('.hsp-input');
-        const nameInput = row.querySelector('.solvent-name-input');
-        const modeBtn = row.querySelector('.mode-btn');
-
-        if (mode === 'auto') {
-            // Auto mode: database lookup enabled, HSP inputs readonly
-            nameInput.disabled = false;
-            nameInput.classList.remove('manual-mode');
-            hspInputs.forEach(input => {
-                input.readOnly = true;
-                input.classList.remove('manual-entry');
+            this.table.updateRow(row.id, {
+                delta_d: null,
+                delta_p: null,
+                delta_h: null,
+                source_url: null
             });
-            modeBtn.textContent = 'Auto';
-            modeBtn.classList.remove('active');
-            modeBtn.title = 'Currently in auto mode - click to switch to manual';
-        } else if (mode === 'manual') {
-            // Manual mode: database lookup disabled, HSP inputs editable
-            nameInput.disabled = false;  // Keep name input enabled
-            nameInput.classList.add('manual-mode');
-            hspInputs.forEach(input => {
-                input.readOnly = false;
-                input.classList.add('manual-entry');
-            });
-            modeBtn.textContent = 'Manual';
-            modeBtn.classList.add('active');
-            modeBtn.title = 'Currently in manual mode - click to switch to auto';
         }
-
-        row.dataset.mode = mode;
     }
 
-    toggleInputMode(row) {
-        const currentMode = row.dataset.mode || 'auto';
-
-        if (currentMode === 'auto') {
-            // Switch to manual mode
-            this.setRowMode(row, 'manual');
-            this.clearRowHSPValues(row);
+    /**
+     * Handle mode toggle (callback for SolventTableManager)
+     */
+    handleModeToggle(row, newMode) {
+        if (newMode === 'manual') {
+            // Switch to manual mode: clear HSP values
+            this.table.updateRow(row.id, {
+                delta_d: null,
+                delta_p: null,
+                delta_h: null
+            });
         } else {
-            // Switch to auto mode
-            this.setRowMode(row, 'auto');
-            this.clearRowHSPValues(row);
+            // Switch to auto mode: clear and try to reload from database
+            this.table.updateRow(row.id, {
+                delta_d: null,
+                delta_p: null,
+                delta_h: null
+            });
 
-            // Try to reload from database if solvent name exists
-            const nameInput = row.querySelector('.solvent-name-input');
-            if (nameInput.value.trim()) {
-                this.onSolventNameChange({ target: nameInput }, row);
+            if (row.solvent) {
+                this.lookupSolvent(row, row.solvent);
             }
         }
-    }
-
-    removeSolventRow(row) {
-        row.remove();
-        this.updateSolventTestData();
-        this.updateAnalyzeButtonState();
     }
 
     updateSolventTestData() {
-        const rows = document.querySelectorAll('#solvent-table-body tr');
+        if (!this.table) return;
+
+        const rows = this.table.getData();
         this.solventTests = [];
 
         rows.forEach(row => {
-            const nameInput = row.querySelector('.solvent-name-input');
-            const deltaD = row.querySelector('.delta-d');
-            const deltaP = row.querySelector('.delta-p');
-            const deltaH = row.querySelector('.delta-h');
-            const solubility = row.querySelector('.solubility-select');
-            const notes = row.querySelector('.notes-input');
-
-            const solventName = nameInput.value.trim();
+            const solventName = row.solvent ? row.solvent.trim() : '';
             if (!solventName) return;
-
-            // Get solubility value (either from dropdown or custom input)
-            let solubilityValue;
-            if (solubility.value === 'custom') {
-                const customInput = row.querySelector('.custom-solubility-input');
-                solubilityValue = parseFloat(customInput.value) || 0.5;
-            } else {
-                solubilityValue = solubility.value || 'insoluble';
-            }
 
             const testData = {
                 solvent_name: solventName,
-                solubility: solubilityValue,
-                notes: notes.value || null
+                solubility: row.solubility || 'insoluble',
+                notes: row.notes || null
             };
 
             // Add HSP values if available
-            if (deltaD.value && deltaP.value && deltaH.value) {
-                if (row.dataset.mode === 'manual') {
-                    testData.manual_delta_d = parseFloat(deltaD.value);
-                    testData.manual_delta_p = parseFloat(deltaP.value);
-                    testData.manual_delta_h = parseFloat(deltaH.value);
+            if (row.delta_d !== null && row.delta_p !== null && row.delta_h !== null) {
+                if (row.mode === 'manual') {
+                    testData.manual_delta_d = row.delta_d;
+                    testData.manual_delta_p = row.delta_p;
+                    testData.manual_delta_h = row.delta_h;
                 }
                 // Don't send solvent_data in experiment creation
                 // Let the server handle database lookup
@@ -983,6 +895,7 @@ class HSPExperimental {
             }
 
             console.log('Loading experimental result:', result.sample_name);
+            console.log('Result data structure:', result);
 
             // Clear existing data
             this.clearSolventTable();
@@ -993,18 +906,61 @@ class HSPExperimental {
                 sampleNameInput.value = result.sample_name;
             }
 
-            // Load solvent data (without auto-scrolling)
-            result.solvents.forEach(solventData => {
-                this.addSolventRow(false);  // Disable auto-scroll during batch loading
-                const rows = document.querySelectorAll('#solvent-table-body tr');
-                const newRow = rows[rows.length - 1];
-                this.populateRowWithExperimentalResultData(newRow, solventData);
+            // Convert saved data to table format
+            const tableData = result.solvents.map((solventData, index) => {
+                console.log(`Processing solvent ${index}:`, solventData);
+
+                const rowData = {
+                    solvent: solventData.solvent_name,
+                    delta_d: null,
+                    delta_p: null,
+                    delta_h: null,
+                    solubility: solventData.solubility || '',
+                    notes: solventData.notes || '',
+                    mode: solventData.mode || 'auto',
+                    source_url: null
+                };
+
+                // Set HSP values based on mode
+                if (solventData.mode === 'manual' && solventData.manual_values) {
+                    rowData.delta_d = solventData.manual_values.delta_d;
+                    rowData.delta_p = solventData.manual_values.delta_p;
+                    rowData.delta_h = solventData.manual_values.delta_h;
+                    console.log(`  Manual mode HSP values loaded for ${solventData.solvent_name}`);
+                } else if (solventData.auto_values) {
+                    console.log(`  auto_values object for ${solventData.solvent_name}:`, solventData.auto_values);
+
+                    // Try different property names (backward compatibility)
+                    rowData.delta_d = solventData.auto_values.delta_d || solventData.auto_values.δD || null;
+                    rowData.delta_p = solventData.auto_values.delta_p || solventData.auto_values.δP || null;
+                    rowData.delta_h = solventData.auto_values.delta_h || solventData.auto_values.δH || null;
+                    rowData.source_url = solventData.auto_values.source_url || null;
+
+                    console.log(`  Extracted HSP values: δD=${rowData.delta_d}, δP=${rowData.delta_p}, δH=${rowData.delta_h}`);
+                } else {
+                    console.log(`  No HSP values found for ${solventData.solvent_name}`);
+                }
+
+                return rowData;
             });
 
-            // Wait for async solvent data loading to complete
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Set all data at once
+            this.table.setData(tableData);
 
-            // Update solvent test data from the loaded rows
+            // For auto mode rows without HSP values, trigger lookup
+            // This handles both new data and legacy data (Phase 2実装前)
+            const rows = this.table.getData();
+            for (const row of rows) {
+                if (row.mode === 'auto' && row.delta_d === null && row.solvent) {
+                    console.log(`  Re-fetching HSP for ${row.solvent} (legacy data or missing values)`);
+                    await this.lookupSolvent(row, row.solvent);
+                }
+            }
+
+            // Render table with updated data
+            this.table.render();
+
+            // Update solvent test data
             this.updateSolventTestData();
 
             // Create experiment
@@ -1055,67 +1011,9 @@ class HSPExperimental {
         }
     }
 
-    populateRowWithExperimentalResultData(row, solventData) {
-        try {
-            // Set solvent name
-            const nameInput = row.querySelector('.solvent-name-input');
-            if (nameInput) {
-                nameInput.value = solventData.solvent_name;
-            }
-
-            // Set mode and HSP values
-            if (solventData.mode === 'manual' && solventData.manual_values) {
-                // Manual mode
-                const deltaD = row.querySelector('.delta-d');
-                const deltaP = row.querySelector('.delta-p');
-                const deltaH = row.querySelector('.delta-h');
-
-                if (deltaD) deltaD.value = solventData.manual_values.delta_d;
-                if (deltaP) deltaP.value = solventData.manual_values.delta_p;
-                if (deltaH) deltaH.value = solventData.manual_values.delta_h;
-
-                this.setRowMode(row, 'manual');
-            } else {
-                // Auto mode
-                this.setRowMode(row, 'auto');
-                // Trigger solvent name lookup for auto mode
-                if (nameInput) {
-                    this.onSolventNameChange({ target: nameInput }, row);
-                }
-            }
-
-            // Set solubility
-            const solubilitySelect = row.querySelector('.solubility-select');
-            if (solubilitySelect && solventData.solubility) {
-                if (typeof solventData.solubility === 'number') {
-                    // Custom numerical value
-                    solubilitySelect.value = 'custom';
-                    const customInput = row.querySelector('.custom-solubility-input');
-                    if (customInput) {
-                        customInput.style.display = 'inline-block';
-                        customInput.value = solventData.solubility;
-                    }
-                } else {
-                    // Standard categorical value
-                    solubilitySelect.value = solventData.solubility;
-                }
-            }
-
-            // Set notes
-            const notesInput = row.querySelector('.notes-input');
-            if (notesInput && solventData.notes) {
-                notesInput.value = solventData.notes;
-            }
-
-        } catch (error) {
-            console.error('Error populating row with experimental result data:', error);
-        }
-    }
-
     clearSolventTable() {
-        const tbody = document.querySelector('#solvent-table-body');
-        if (tbody) {
-            tbody.innerHTML = '';
+        if (this.table) {
+            this.table.setData([]);
         }
     }
 
@@ -1911,7 +1809,12 @@ class HSPExperimental {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('[HSP Experimental] DOMContentLoaded event fired');
     if (document.getElementById('hsp-experimental')) {
-        window.hspExperimental = new HSPExperimental();
+        console.log('[HSP Experimental] #hsp-experimental element found, creating instance');
+        // Note: window.hspExperimental will be set by init() after async initialization completes
+        new HSPExperimental();
+    } else {
+        console.log('[HSP Experimental] #hsp-experimental element not found');
     }
 });

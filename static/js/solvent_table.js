@@ -155,8 +155,16 @@ class SolventTableManager {
             </tbody>
         `;
 
+        // Generate datalist once for all rows
+        const datalistHTML = this.datalistOptions.length > 0 ? `
+            <datalist id="${this.datalistId}">
+                ${Utils.createDatalistOptions(this.datalistOptions)}
+            </datalist>
+        ` : '';
+
         return `
             <div class="mixture-table-wrapper">
+                ${datalistHTML}
                 <table class="mixture-table">
                     ${headerHTML}
                     ${bodyHTML}
@@ -187,7 +195,23 @@ class SolventTableManager {
                 return this.generateTextAutocompleteCell(row, col, value);
 
             case 'readonly-hsp':
-                return `<td class="hsp-value">${Utils.formatHSPValue(value)}</td>`;
+                // Check if row has mode property (Experimental section)
+                const isManualMode = row.mode === 'manual';
+                const readonlyAttr = isManualMode ? '' : 'readonly';
+                const manualClass = isManualMode ? 'manual-entry' : '';
+                const displayValue = value !== null && value !== undefined ? value : '';
+                return `
+                    <td>
+                        <input type="number"
+                               class="hsp-input ${col.key} ${manualClass}"
+                               value="${displayValue}"
+                               step="0.1"
+                               min="0"
+                               ${readonlyAttr}
+                               data-row-id="${row.id}"
+                               data-col-key="${col.key}">
+                    </td>
+                `;
 
             case 'number':
                 return this.generateNumberCell(row, col, value);
@@ -215,7 +239,6 @@ class SolventTableManager {
     generateTextAutocompleteCell(row, col, value) {
         const hasHSP = row.delta_d !== null && row.delta_p !== null && row.delta_h !== null;
         const notFoundClass = !hasHSP && value ? 'solvent-not-found' : '';
-        const datalistOptionsHTML = Utils.createDatalistOptions(this.datalistOptions);
 
         return `
             <td class="solvent-cell">
@@ -229,9 +252,6 @@ class SolventTableManager {
                         data-row-id="${row.id}"
                         data-key="${col.key}"
                     >
-                    <datalist id="${this.datalistId}">
-                        ${datalistOptionsHTML}
-                    </datalist>
                     ${Utils.createSolventStatusIcons(hasHSP, value, row.source_url)}
                 </div>
             </td>
@@ -332,11 +352,12 @@ class SolventTableManager {
     generateActionsWithModeCell(row, col) {
         const mode = row.mode || 'auto';
         const modeLabel = mode === 'auto' ? 'Auto' : 'Manual';
+        const activeClass = mode === 'manual' ? 'active' : '';
 
         return `
             <td>
                 <div class="action-buttons">
-                    <button class="btn-small btn-secondary mode-btn"
+                    <button class="btn-small btn-secondary mode-btn ${activeClass}"
                             data-row-id="${row.id}"
                             data-mode="${mode}"
                             title="Toggle input mode">${modeLabel}</button>
@@ -363,6 +384,11 @@ class SolventTableManager {
         // Number inputs
         container.querySelectorAll('.volume-input').forEach(input => {
             input.addEventListener('input', (e) => this.handleInputChange(e));
+        });
+
+        // HSP inputs (for Experimental section)
+        container.querySelectorAll('.hsp-input').forEach(input => {
+            input.addEventListener('change', (e) => this.handleHSPInputChange(e));
         });
 
         // Solubility selects
@@ -412,6 +438,21 @@ class SolventTableManager {
     }
 
     /**
+     * Handle HSP input change (for Experimental section manual mode)
+     */
+    handleHSPInputChange(event) {
+        const rowId = parseInt(event.target.dataset.rowId);
+        const colKey = event.target.dataset.colKey;
+        const value = event.target.value ? parseFloat(event.target.value) : null;
+
+        const row = this.rows.find(r => r.id === rowId);
+        if (row) {
+            row[colKey] = value;
+            this.onDataChange(this.rows);
+        }
+    }
+
+    /**
      * Handle solvent input blur (trigger lookup)
      */
     async handleSolventBlur(event) {
@@ -422,7 +463,7 @@ class SolventTableManager {
             const row = this.rows.find(r => r.id === rowId);
             if (row) {
                 await this.onSolventLookup(row, solventName);
-                this.render();
+                // Note: render() is called by updateRow() inside onSolventLookup callback
             }
         }
     }
@@ -480,7 +521,13 @@ class SolventTableManager {
         const row = this.rows.find(r => r.id === rowId);
 
         if (row && this.onModeToggle) {
-            this.onModeToggle(row);
+            // Toggle mode
+            const currentMode = row.mode || 'auto';
+            const newMode = currentMode === 'auto' ? 'manual' : 'auto';
+            row.mode = newMode;
+
+            // Call callback with row and new mode
+            this.onModeToggle(row, newMode);
             this.render();
         }
     }
