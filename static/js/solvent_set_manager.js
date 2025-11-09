@@ -383,6 +383,9 @@ class SolventSetManager {
                 }
             }
 
+            // Ensure table is rendered with all data
+            hspExperimental.table.render();
+
             // Update the last used timestamp
             solventSet.lastUsed = Utils.formatISO();
             this.saveSolventSetsToStorage();

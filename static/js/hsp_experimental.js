@@ -25,6 +25,9 @@ class HSPExperimental {
 
         this.initializeSolventTable();
 
+        // Make globally available AFTER initialization is complete
+        window.hspExperimental = this;
+
         // Check for solvent set to load from session storage
         this.checkForSolventSetToLoad();
 
@@ -115,9 +118,6 @@ class HSPExperimental {
 
         // Set up data change listeners
         this.setupDataChangeListeners();
-
-        // Make this instance globally available for solvent set manager
-        window.hspExperimental = this;
     }
 
     setupDataChangeListeners() {
@@ -1759,6 +1759,7 @@ class HSPExperimental {
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     if (document.getElementById('hsp-experimental')) {
-        window.hspExperimental = new HSPExperimental();
+        // Note: window.hspExperimental will be set by init() after async initialization completes
+        new HSPExperimental();
     }
 });
