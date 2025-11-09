@@ -463,7 +463,7 @@ class SolventTableManager {
             const row = this.rows.find(r => r.id === rowId);
             if (row) {
                 await this.onSolventLookup(row, solventName);
-                this.render();
+                // Note: render() is called by updateRow() inside onSolventLookup callback
             }
         }
     }

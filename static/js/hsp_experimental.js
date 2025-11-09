@@ -257,6 +257,7 @@ class HSPExperimental {
         this.table = new SolventTableManager({
             containerId: 'solvent-table-body',
             datalistOptions: this.availableSolvents,
+            datalistId: 'experimental-solvent-datalist',
             columns: [
                 {
                     key: 'solvent',
@@ -367,6 +368,22 @@ class HSPExperimental {
         // Only auto-lookup in auto mode
         const currentMode = row.mode || 'auto';
         if (currentMode === 'manual') return;
+
+        // Validate: only lookup if solvent name exists in available solvents list (exact match)
+        const solventExists = this.availableSolvents.some(
+            s => s.toLowerCase() === solventName.toLowerCase()
+        );
+
+        if (!solventExists) {
+            // Clear HSP values if solvent doesn't exist in list
+            this.table.updateRow(row.id, {
+                delta_d: null,
+                delta_p: null,
+                delta_h: null,
+                source_url: null
+            });
+            return;
+        }
 
         try {
             const response = await fetch(`/api/hsp-experimental/solvents/${encodeURIComponent(solventName)}`);
