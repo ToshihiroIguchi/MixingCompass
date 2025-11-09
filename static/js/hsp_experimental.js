@@ -393,7 +393,7 @@ class HSPExperimental {
     setupRowEventListeners(row) {
         // Solvent name input
         const nameInput = row.querySelector('.solvent-name-input');
-        nameInput.addEventListener('input', (e) => this.onSolventNameChange(e, row));
+        // Lookup HSP only on blur (when user finishes typing) to reduce API calls
         nameInput.addEventListener('blur', (e) => this.onSolventNameBlur(e, row));
 
         // Solubility select dropdown
@@ -455,7 +455,9 @@ class HSPExperimental {
         }
     }
 
-    onSolventNameBlur(event, row) {
+    async onSolventNameBlur(event, row) {
+        // Lookup solvent HSP when user finishes typing
+        await this.onSolventNameChange(event, row);
         this.updateSolventTestData();
     }
 

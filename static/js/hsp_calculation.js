@@ -110,7 +110,7 @@ class HSPCalculation {
                 <table class="mixture-table">
                     <thead>
                         <tr>
-                            <th>Solvent</th>
+                            <th>Solvent Name</th>
                             <th>δD</th>
                             <th>δP</th>
                             <th>δH</th>
