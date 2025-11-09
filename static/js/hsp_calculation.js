@@ -100,9 +100,7 @@ class HSPCalculation {
         }
 
         // Create datalist options HTML (same for all rows)
-        const datalistOptionsHTML = this.solventNames.map(name =>
-            `<option value="${name}">`
-        ).join('');
+        const datalistOptionsHTML = Utils.createDatalistOptions(this.solventNames);
 
         // Create table structure
         const tableHTML = `
@@ -134,15 +132,12 @@ class HSPCalculation {
                                         <datalist id="mixture-solvent-datalist">
                                             ${datalistOptionsHTML}
                                         </datalist>
-                                        ${component.delta_d === null && component.solvent ?
-                                            '<span class="error-icon" title="Solvent not found in database">⚠️</span>' : ''}
-                                        ${component.source_url ?
-                                            `<a href="${component.source_url}" class="ref-link" title="View source" target="_blank" rel="noopener noreferrer">🔗</a>` : ''}
+                                        ${Utils.createSolventStatusIcons(component.delta_d !== null, component.solvent, component.source_url)}
                                     </div>
                                 </td>
-                                <td class="hsp-value">${component.delta_d !== null ? component.delta_d.toFixed(1) : '-'}</td>
-                                <td class="hsp-value">${component.delta_p !== null ? component.delta_p.toFixed(1) : '-'}</td>
-                                <td class="hsp-value">${component.delta_h !== null ? component.delta_h.toFixed(1) : '-'}</td>
+                                <td class="hsp-value">${Utils.formatHSPValue(component.delta_d)}</td>
+                                <td class="hsp-value">${Utils.formatHSPValue(component.delta_p)}</td>
+                                <td class="hsp-value">${Utils.formatHSPValue(component.delta_h)}</td>
                                 <td class="ratio-cell">
                                     <input
                                         type="number"
@@ -155,7 +150,7 @@ class HSPCalculation {
                                     >
                                 </td>
                                 <td class="action-cell">
-                                    <button class="remove-component-btn" data-component-id="${component.id}" title="Remove">×</button>
+                                    <button class="btn-small btn-danger remove-btn" data-component-id="${component.id}" title="Remove">×</button>
                                 </td>
                             </tr>
                         `).join('')}
@@ -200,7 +195,7 @@ class HSPCalculation {
             });
         });
 
-        container.querySelectorAll('.remove-component-btn').forEach(btn => {
+        container.querySelectorAll('.remove-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const componentId = parseInt(e.target.dataset.componentId);
                 this.removeComponent(componentId);
@@ -340,9 +335,9 @@ class HSPCalculation {
     }
 
     displayResults(hsp) {
-        document.getElementById('mixture-delta-d').textContent = hsp.delta_d.toFixed(1);
-        document.getElementById('mixture-delta-p').textContent = hsp.delta_p.toFixed(1);
-        document.getElementById('mixture-delta-h').textContent = hsp.delta_h.toFixed(1);
+        document.getElementById('mixture-delta-d').textContent = Utils.formatHSPValue(hsp.delta_d);
+        document.getElementById('mixture-delta-p').textContent = Utils.formatHSPValue(hsp.delta_p);
+        document.getElementById('mixture-delta-h').textContent = Utils.formatHSPValue(hsp.delta_h);
 
         // Show result section and save button
         document.getElementById('mixture-result-section').style.display = 'block';

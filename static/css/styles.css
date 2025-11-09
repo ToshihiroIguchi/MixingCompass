@@ -3414,22 +3414,7 @@ body {
     text-align: center;
 }
 
-.mixture-table .remove-component-btn {
-    width: 28px;
-    height: 28px;
-    border: none;
-    background: #fee2e2;
-    color: #dc2626;
-    border-radius: 4px;
-    font-size: 1.2rem;
-    line-height: 1;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.mixture-table .remove-component-btn:hover {
-    background: #fecaca;
-}
+/* Remove button styles now use shared .remove-btn class */
 
 /* Mixture Actions */
 .mixture-actions {

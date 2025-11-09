@@ -301,11 +301,7 @@ class HSPExperimental {
                            class="solvent-name-input"
                            placeholder="Enter solvent name"
                            list="solvent-datalist">
-                    <datalist id="solvent-datalist">
-                        ${this.availableSolvents.map(name =>
-                            `<option value="${name}">`
-                        ).join('')}
-                    </datalist>
+                    ${Utils.createDatalistHTML(this.availableSolvents, 'solvent-datalist')}
                 </div>
             </td>
             <td>
@@ -691,7 +687,7 @@ class HSPExperimental {
                 ]);
 
                 this.showNotification(
-                    `✓ HSP calculation completed: δD=${result.delta_d.toFixed(1)}, δP=${result.delta_p.toFixed(1)}, δH=${result.delta_h.toFixed(1)}`,
+                    `✓ HSP calculation completed: δD=${Utils.formatHSPValue(result.delta_d)}, δP=${Utils.formatHSPValue(result.delta_p)}, δH=${Utils.formatHSPValue(result.delta_h)}`,
                     'success'
                 );
 
@@ -723,10 +719,10 @@ class HSPExperimental {
 
     showCalculationResults(result) {
         // Update HSP values in header
-        document.getElementById('delta-d').textContent = result.delta_d.toFixed(1);
-        document.getElementById('delta-p').textContent = result.delta_p.toFixed(1);
-        document.getElementById('delta-h').textContent = result.delta_h.toFixed(1);
-        document.getElementById('ra').textContent = result.radius.toFixed(1);
+        document.getElementById('delta-d').textContent = Utils.formatHSPValue(result.delta_d);
+        document.getElementById('delta-p').textContent = Utils.formatHSPValue(result.delta_p);
+        document.getElementById('delta-h').textContent = Utils.formatHSPValue(result.delta_h);
+        document.getElementById('ra').textContent = Utils.formatHSPValue(result.radius);
     }
 
     showCalculationDetails(result) {
@@ -1352,10 +1348,10 @@ class HSPExperimental {
                     <span class="result-date">${Utils.formatDate(result.created)}</span>
                 </div>
                 <div class="result-hsp">
-                    <span class="hsp-item"><strong>δD:</strong> ${result.hsp_result.delta_d.toFixed(1)}</span>
-                    <span class="hsp-item"><strong>δP:</strong> ${result.hsp_result.delta_p.toFixed(1)}</span>
-                    <span class="hsp-item"><strong>δH:</strong> ${result.hsp_result.delta_h.toFixed(1)}</span>
-                    <span class="hsp-item"><strong>R0:</strong> ${result.hsp_result.radius.toFixed(1)}</span>
+                    <span class="hsp-item"><strong>δD:</strong> ${Utils.formatHSPValue(result.hsp_result.delta_d)}</span>
+                    <span class="hsp-item"><strong>δP:</strong> ${Utils.formatHSPValue(result.hsp_result.delta_p)}</span>
+                    <span class="hsp-item"><strong>δH:</strong> ${Utils.formatHSPValue(result.hsp_result.delta_h)}</span>
+                    <span class="hsp-item"><strong>R0:</strong> ${Utils.formatHSPValue(result.hsp_result.radius)}</span>
                 </div>
                 <div class="result-meta">
                     <span>${result.metadata.solvent_count} solvents</span>
@@ -1508,10 +1504,9 @@ class HSPExperimental {
 
     updateSolventDropdowns() {
         const datalists = document.querySelectorAll('#solvent-datalist');
+        const optionsHTML = Utils.createDatalistOptions(this.availableSolvents);
         datalists.forEach(datalist => {
-            datalist.innerHTML = this.availableSolvents.map(name =>
-                `<option value="${name}">`
-            ).join('');
+            datalist.innerHTML = optionsHTML;
         });
     }
 

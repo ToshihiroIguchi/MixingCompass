@@ -128,6 +128,54 @@ const Utils = {
                value === undefined ||
                (typeof value === 'string' && value.trim() === '') ||
                (Array.isArray(value) && value.length === 0);
+    },
+
+    /**
+     * Format HSP value with specified decimal places
+     * @param {number|null} value - HSP value to format
+     * @param {number} decimals - Number of decimal places (default: 1)
+     * @returns {string} Formatted value or '-' if null
+     */
+    formatHSPValue(value, decimals = 1) {
+        return value !== null ? value.toFixed(decimals) : '-';
+    },
+
+    /**
+     * Create HTML for solvent status icons (warning and reference link)
+     * @param {boolean} hasHSP - Whether HSP values are available
+     * @param {string} solventName - Name of the solvent
+     * @param {string|null} sourceUrl - URL to the reference source
+     * @returns {string} HTML string for status icons
+     */
+    createSolventStatusIcons(hasHSP, solventName, sourceUrl) {
+        let html = '';
+        if (!hasHSP && solventName) {
+            html += '<span class="error-icon" title="Solvent not found in database">⚠️</span>';
+        }
+        if (sourceUrl) {
+            html += `<a href="${sourceUrl}" class="ref-link" title="View source" target="_blank" rel="noopener noreferrer">🔗</a>`;
+        }
+        return html;
+    },
+
+    /**
+     * Create HTML for datalist element
+     * @param {Array<string>} options - Array of option values
+     * @param {string} id - ID for the datalist element (default: 'solvent-datalist')
+     * @returns {string} HTML string for datalist
+     */
+    createDatalistHTML(options, id = 'solvent-datalist') {
+        const optionsHTML = options.map(opt => `<option value="${opt}">`).join('');
+        return `<datalist id="${id}">${optionsHTML}</datalist>`;
+    },
+
+    /**
+     * Create options HTML for datalist (without datalist wrapper)
+     * @param {Array<string>} options - Array of option values
+     * @returns {string} HTML string for options
+     */
+    createDatalistOptions(options) {
+        return options.map(opt => `<option value="${opt}">`).join('');
     }
 };
 
