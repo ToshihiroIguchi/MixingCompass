@@ -824,6 +824,7 @@ class HSPExperimental {
             }
 
             console.log('Loading experimental result:', result.sample_name);
+            console.log('Result data structure:', result);
 
             // Clear existing data
             this.clearSolventTable();
@@ -835,7 +836,9 @@ class HSPExperimental {
             }
 
             // Convert saved data to table format
-            const tableData = result.solvents.map(solventData => {
+            const tableData = result.solvents.map((solventData, index) => {
+                console.log(`Processing solvent ${index}:`, solventData);
+
                 const rowData = {
                     solvent: solventData.solvent_name,
                     delta_d: null,
@@ -852,11 +855,19 @@ class HSPExperimental {
                     rowData.delta_d = solventData.manual_values.delta_d;
                     rowData.delta_p = solventData.manual_values.delta_p;
                     rowData.delta_h = solventData.manual_values.delta_h;
+                    console.log(`  Manual mode HSP values loaded for ${solventData.solvent_name}`);
                 } else if (solventData.auto_values) {
-                    rowData.delta_d = solventData.auto_values.delta_d;
-                    rowData.delta_p = solventData.auto_values.delta_p;
-                    rowData.delta_h = solventData.auto_values.delta_h;
-                    rowData.source_url = solventData.auto_values.source_url;
+                    console.log(`  auto_values object for ${solventData.solvent_name}:`, solventData.auto_values);
+
+                    // Try different property names (backward compatibility)
+                    rowData.delta_d = solventData.auto_values.delta_d || solventData.auto_values.δD || null;
+                    rowData.delta_p = solventData.auto_values.delta_p || solventData.auto_values.δP || null;
+                    rowData.delta_h = solventData.auto_values.delta_h || solventData.auto_values.δH || null;
+                    rowData.source_url = solventData.auto_values.source_url || null;
+
+                    console.log(`  Extracted HSP values: δD=${rowData.delta_d}, δP=${rowData.delta_p}, δH=${rowData.delta_h}`);
+                } else {
+                    console.log(`  No HSP values found for ${solventData.solvent_name}`);
                 }
 
                 return rowData;
@@ -866,12 +877,17 @@ class HSPExperimental {
             this.table.setData(tableData);
 
             // For auto mode rows without HSP values, trigger lookup
+            // This handles both new data and legacy data (Phase 2実装前)
             const rows = this.table.getData();
             for (const row of rows) {
                 if (row.mode === 'auto' && row.delta_d === null && row.solvent) {
+                    console.log(`  Re-fetching HSP for ${row.solvent} (legacy data or missing values)`);
                     await this.lookupSolvent(row, row.solvent);
                 }
             }
+
+            // Render table with updated data
+            this.table.render();
 
             // Update solvent test data
             this.updateSolventTestData();
