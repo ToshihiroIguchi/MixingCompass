@@ -76,17 +76,17 @@ class HSPCalculation {
                 },
                 {
                     key: 'delta_d',
-                    label: 'δD',
+                    label: '&delta;D<br>(MPa<sup>0.5</sup>)',
                     type: 'readonly-hsp'
                 },
                 {
                     key: 'delta_p',
-                    label: 'δP',
+                    label: '&delta;P<br>(MPa<sup>0.5</sup>)',
                     type: 'readonly-hsp'
                 },
                 {
                     key: 'delta_h',
-                    label: 'δH',
+                    label: '&delta;H<br>(MPa<sup>0.5</sup>)',
                     type: 'readonly-hsp'
                 },
                 {
