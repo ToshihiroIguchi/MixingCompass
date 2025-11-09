@@ -1,14 +1,14 @@
 /**
  * HSP Calculation - Solvent Mixture Calculator
+ * Refactored to use shared SolventTableManager
  */
 
 class HSPCalculation {
     constructor() {
-        this.components = [];
-        this.componentIdCounter = 0;
         this.solventNames = [];
         this.solventDataCache = new Map();
         this.currentCalculatedHSP = null;
+        this.table = null;
 
         this.STORAGE_KEY = 'mixingcompass_saved_mixtures';
     }
@@ -18,6 +18,9 @@ class HSPCalculation {
 
         // Load solvent names for autocomplete
         await this.loadSolventNames();
+
+        // Initialize table manager
+        this.initializeTable();
 
         // Setup event listeners
         this.setupEventListeners();
@@ -39,10 +42,105 @@ class HSPCalculation {
             const data = await response.json();
             this.solventNames = data.solvents.map(s => s.name).sort();
 
+            // Cache solvent data for lookup
+            data.solvents.forEach(solvent => {
+                this.solventDataCache.set(solvent.name.toLowerCase(), {
+                    name: solvent.name,
+                    delta_d: parseFloat(solvent.delta_d),
+                    delta_p: parseFloat(solvent.delta_p),
+                    delta_h: parseFloat(solvent.delta_h),
+                    source_url: solvent.source_url || null
+                });
+            });
+
             console.log(`Loaded ${this.solventNames.length} solvent names`);
         } catch (error) {
             console.error('Error loading solvent names:', error);
             Notification.error('Failed to load solvent database');
+        }
+    }
+
+    initializeTable() {
+        this.table = new SolventTableManager({
+            containerId: 'mixture-components-container',
+            datalistOptions: this.solventNames,
+            datalistId: 'mixture-solvent-datalist',
+            emptyMessage: 'Click "+ Add Solvent" to start creating a mixture',
+            columns: [
+                {
+                    key: 'solvent',
+                    label: 'Solvent Name',
+                    type: 'text-autocomplete',
+                    placeholder: 'Enter solvent name',
+                    defaultValue: ''
+                },
+                {
+                    key: 'delta_d',
+                    label: 'δD',
+                    type: 'readonly-hsp'
+                },
+                {
+                    key: 'delta_p',
+                    label: 'δP',
+                    type: 'readonly-hsp'
+                },
+                {
+                    key: 'delta_h',
+                    label: 'δH',
+                    type: 'readonly-hsp'
+                },
+                {
+                    key: 'volume',
+                    label: 'Volume Ratio',
+                    type: 'number',
+                    placeholder: '0',
+                    min: 0,
+                    step: 0.1,
+                    defaultValue: 0
+                },
+                {
+                    key: 'actions',
+                    label: 'Actions',
+                    type: 'actions'
+                }
+            ],
+            onDataChange: () => {
+                this.updateTotalRatio();
+                this.validateInputs();
+            },
+            onSolventLookup: async (row, solventName) => {
+                await this.lookupSolvent(row, solventName);
+            },
+            onRowRemove: () => {
+                this.updateTotalRatio();
+                this.validateInputs();
+            }
+        });
+
+        this.table.render();
+    }
+
+    async lookupSolvent(row, solventName) {
+        if (!solventName.trim()) {
+            row.delta_d = null;
+            row.delta_p = null;
+            row.delta_h = null;
+            row.source_url = null;
+            return;
+        }
+
+        // Get HSP values for this solvent from cache
+        const solventData = this.solventDataCache.get(solventName.toLowerCase());
+        if (solventData) {
+            row.delta_d = solventData.delta_d;
+            row.delta_p = solventData.delta_p;
+            row.delta_h = solventData.delta_h;
+            row.source_url = solventData.source_url;
+        } else {
+            row.delta_d = null;
+            row.delta_p = null;
+            row.delta_h = null;
+            row.source_url = null;
         }
     }
 
@@ -69,191 +167,12 @@ class HSPCalculation {
     }
 
     addComponent() {
-        const componentId = this.componentIdCounter++;
-        const component = {
-            id: componentId,
-            solvent: '',
-            volume: 0,
-            delta_d: null,
-            delta_p: null,
-            delta_h: null,
-            source_url: null
-        };
-
-        this.components.push(component);
-        this.renderComponents();
-        this.validateInputs();
-    }
-
-    removeComponent(componentId) {
-        this.components = this.components.filter(c => c.id !== componentId);
-        this.renderComponents();
-        this.validateInputs();
-    }
-
-    renderComponents() {
-        const container = document.getElementById('mixture-components-container');
-
-        if (this.components.length === 0) {
-            container.innerHTML = '<div class="empty-state">Click "+ Add Solvent" to start creating a mixture</div>';
-            return;
-        }
-
-        // Create datalist options HTML (same for all rows)
-        const datalistOptionsHTML = Utils.createDatalistOptions(this.solventNames);
-
-        // Create table structure
-        const tableHTML = `
-            <div class="mixture-table-wrapper">
-                <table class="mixture-table">
-                    <thead>
-                        <tr>
-                            <th>Solvent Name</th>
-                            <th>δD</th>
-                            <th>δP</th>
-                            <th>δH</th>
-                            <th>Volume Ratio</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${this.components.map(component => `
-                            <tr data-component-id="${component.id}">
-                                <td class="solvent-cell">
-                                    <div class="solvent-input-container ${component.delta_d === null && component.solvent ? 'solvent-not-found' : ''}">
-                                        <input
-                                            type="text"
-                                            class="solvent-input"
-                                            placeholder="Enter solvent name"
-                                            value="${component.solvent}"
-                                            list="mixture-solvent-datalist"
-                                            data-component-id="${component.id}"
-                                        >
-                                        <datalist id="mixture-solvent-datalist">
-                                            ${datalistOptionsHTML}
-                                        </datalist>
-                                        ${Utils.createSolventStatusIcons(component.delta_d !== null, component.solvent, component.source_url)}
-                                    </div>
-                                </td>
-                                <td class="hsp-value">${Utils.formatHSPValue(component.delta_d)}</td>
-                                <td class="hsp-value">${Utils.formatHSPValue(component.delta_p)}</td>
-                                <td class="hsp-value">${Utils.formatHSPValue(component.delta_h)}</td>
-                                <td class="ratio-cell">
-                                    <input
-                                        type="number"
-                                        class="volume-input"
-                                        placeholder="0"
-                                        min="0"
-                                        step="0.1"
-                                        value="${component.volume || ''}"
-                                        data-component-id="${component.id}"
-                                    >
-                                </td>
-                                <td class="action-cell">
-                                    <button class="btn-small btn-danger remove-btn" data-component-id="${component.id}" title="Remove">×</button>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        `;
-
-        container.innerHTML = tableHTML;
-
-        // Attach event listeners to newly created elements
-        container.querySelectorAll('.solvent-input').forEach(input => {
-            input.addEventListener('input', (e) => {
-                const componentId = parseInt(e.target.dataset.componentId);
-                const component = this.components.find(c => c.id === componentId);
-                if (component) {
-                    component.solvent = e.target.value;
-                    // Don't call updateComponentHSP here - it causes re-render and breaks datalist dropdown
-                    this.validateInputs();
-                }
-            });
-
-            input.addEventListener('blur', (e) => {
-                const componentId = parseInt(e.target.dataset.componentId);
-                const component = this.components.find(c => c.id === componentId);
-                if (component) {
-                    this.updateComponentHSP(component);
-                    this.validateInputs();
-                }
-            });
-        });
-
-        container.querySelectorAll('.volume-input').forEach(input => {
-            input.addEventListener('input', (e) => {
-                const componentId = parseInt(e.target.dataset.componentId);
-                const component = this.components.find(c => c.id === componentId);
-                if (component) {
-                    component.volume = parseFloat(e.target.value) || 0;
-                    this.updateTotalRatio();
-                    this.validateInputs();
-                }
-            });
-        });
-
-        container.querySelectorAll('.remove-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const componentId = parseInt(e.target.dataset.componentId);
-                this.removeComponent(componentId);
-            });
-        });
-
-        this.updateTotalRatio();
-    }
-
-    async updateComponentHSP(component) {
-        if (!component.solvent.trim()) {
-            component.delta_d = null;
-            component.delta_p = null;
-            component.delta_h = null;
-            this.renderComponents();
-            return;
-        }
-
-        // Fetch all solvents if not already cached
-        if (this.solventDataCache.size === 0) {
-            try {
-                const response = await fetch('/api/solvent-search/solvents');
-                if (response.ok) {
-                    const data = await response.json();
-                    data.solvents.forEach(solvent => {
-                        this.solventDataCache.set(solvent.name.toLowerCase(), {
-                            name: solvent.name,
-                            delta_d: parseFloat(solvent.delta_d),
-                            delta_p: parseFloat(solvent.delta_p),
-                            delta_h: parseFloat(solvent.delta_h),
-                            source_url: solvent.source_url || null
-                        });
-                    });
-                }
-            } catch (error) {
-                console.error('Error fetching solvent database:', error);
-            }
-        }
-
-        // Get HSP values for this solvent
-        const solventData = this.solventDataCache.get(component.solvent.toLowerCase());
-        if (solventData) {
-            component.delta_d = solventData.delta_d;
-            component.delta_p = solventData.delta_p;
-            component.delta_h = solventData.delta_h;
-            component.source_url = solventData.source_url;
-            this.renderComponents();
-        } else {
-            component.delta_d = null;
-            component.delta_p = null;
-            component.delta_h = null;
-            component.source_url = null;
-            this.renderComponents();
-        }
+        this.table.addRow();
     }
 
     updateTotalRatio() {
-        const total = this.components.reduce((sum, c) => sum + (c.volume || 0), 0);
+        const components = this.table.getData();
+        const total = components.reduce((sum, c) => sum + (c.volume || 0), 0);
         const totalElement = document.getElementById('total-volume');
         totalElement.textContent = `Total Ratio: ${total.toFixed(2)}`;
         totalElement.style.color = '#333'; // Remove color coding
@@ -261,10 +180,11 @@ class HSPCalculation {
 
     validateInputs() {
         const mixtureName = document.getElementById('mixture-name').value.trim();
-        const hasComponents = this.components.length > 0;
-        const allSolventsValid = this.components.every(c => c.solvent.trim() !== '');
-        const allVolumesValid = this.components.every(c => c.volume > 0);
-        const allHSPValid = this.components.every(c =>
+        const components = this.table.getData();
+        const hasComponents = components.length > 0;
+        const allSolventsValid = components.every(c => c.solvent.trim() !== '');
+        const allVolumesValid = components.every(c => c.volume > 0);
+        const allHSPValid = components.every(c =>
             c.delta_d !== null && c.delta_p !== null && c.delta_h !== null
         );
 
@@ -276,27 +196,10 @@ class HSPCalculation {
 
     async calculateMixture() {
         try {
-            // Fetch all solvents if not already cached
-            if (this.solventDataCache.size === 0) {
-                const response = await fetch('/api/solvent-search/solvents');
-                if (!response.ok) {
-                    throw new Error(`Failed to fetch solvent database`);
-                }
-
-                const data = await response.json();
-                // Cache all solvents
-                data.solvents.forEach(solvent => {
-                    this.solventDataCache.set(solvent.name.toLowerCase(), {
-                        name: solvent.name,
-                        delta_d: parseFloat(solvent.delta_d),
-                        delta_p: parseFloat(solvent.delta_p),
-                        delta_h: parseFloat(solvent.delta_h)
-                    });
-                });
-            }
+            const components = this.table.getData();
 
             // Calculate total ratio for normalization
-            const totalRatio = this.components.reduce((sum, c) => sum + c.volume, 0);
+            const totalRatio = components.reduce((sum, c) => sum + c.volume, 0);
 
             if (totalRatio === 0) {
                 throw new Error('Total volume ratio cannot be zero');
@@ -307,7 +210,7 @@ class HSPCalculation {
             let weightedDeltaP = 0;
             let weightedDeltaH = 0;
 
-            this.components.forEach((component) => {
+            components.forEach((component) => {
                 // Normalize the fraction
                 const fraction = component.volume / totalRatio;
 
@@ -355,11 +258,13 @@ class HSPCalculation {
             return;
         }
 
+        const components = this.table.getData();
+
         // Create mixture object
         const mixture = {
             id: Date.now(),
             name: mixtureName,
-            components: this.components.map(c => ({
+            components: components.map(c => ({
                 solvent: c.solvent,
                 volume: c.volume
             })),
@@ -403,10 +308,8 @@ class HSPCalculation {
 
     clearForm() {
         document.getElementById('mixture-name').value = '';
-        this.components = [];
-        this.componentIdCounter = 0;
+        this.table.clear();
         this.currentCalculatedHSP = null;
-        this.renderComponents();
         document.getElementById('mixture-result-section').style.display = 'none';
         this.validateInputs();
     }
@@ -432,33 +335,31 @@ class HSPCalculation {
         // Load mixture name
         document.getElementById('mixture-name').value = mixture.name;
 
-        // Load components
-        this.components = [];
-        this.componentIdCounter = 0;
+        // Load components using table manager
+        const componentsData = mixture.components.map(comp => ({
+            solvent: comp.solvent,
+            volume: comp.volume,
+            delta_d: null,
+            delta_p: null,
+            delta_h: null,
+            source_url: null
+        }));
 
-        mixture.components.forEach((comp) => {
-            const component = {
-                id: this.componentIdCounter++,
-                solvent: comp.solvent,
-                volume: comp.volume,
-                delta_d: null,
-                delta_p: null,
-                delta_h: null,
-                source_url: null
-            };
-            this.components.push(component);
-        });
-
-        // Render components (will fetch HSP values)
-        this.renderComponents();
+        this.table.setData(componentsData);
 
         // Update HSP values for all components
-        this.components.forEach(component => {
-            this.updateComponentHSP(component);
+        const tableData = this.table.getData();
+        tableData.forEach(async (row) => {
+            if (row.solvent) {
+                await this.lookupSolvent(row, row.solvent);
+            }
         });
 
-        // Validate inputs
-        this.validateInputs();
+        // Trigger re-render after async lookups
+        setTimeout(() => {
+            this.table.render();
+            this.validateInputs();
+        }, 500);
 
         Notification.success(`Loaded mixture: ${mixture.name}`);
     }
