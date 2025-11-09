@@ -14,12 +14,15 @@ class HSPExperimental {
         this.init();
     }
 
-    init() {
+    async init() {
         // Load saved calculation settings
         this.loadCalculationSettings();
 
         this.setupEventListeners();
-        this.loadAvailableSolvents();
+
+        // Load available solvents first (must complete before table initialization)
+        await this.loadAvailableSolvents();
+
         this.initializeSolventTable();
 
         // Check for solvent set to load from session storage
