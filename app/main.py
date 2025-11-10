@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
 from app.config import settings
-from app.api import hsp_experimental, hsp_calculation, solvent_search, data_list, polymer_data
+from app.api import hsp_experimental, hsp_calculation, solvent_search, data_list, polymer_data, solvent_api
 
 # Create FastAPI application
 app = FastAPI(
@@ -43,6 +43,7 @@ app.mount("/static", StaticFiles(directory=settings.static_dir), name="static")
 templates = Jinja2Templates(directory=settings.templates_dir)
 
 # Include API routers
+app.include_router(solvent_api.router, prefix="/api", tags=["Solvents"])
 app.include_router(hsp_experimental.router, prefix="/api/hsp-experimental", tags=["HSP Experimental"])
 app.include_router(hsp_calculation.router, prefix="/api/hsp-calculation", tags=["HSP Calculation"])
 app.include_router(solvent_search.router, prefix="/api/solvent-search", tags=["Solvent Search"])

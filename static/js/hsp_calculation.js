@@ -6,7 +6,6 @@
 class HSPCalculation {
     constructor() {
         this.solventNames = [];
-        this.solventDataCache = new Map();
         this.currentCalculatedHSP = null;
         this.table = null;
 
@@ -33,29 +32,13 @@ class HSPCalculation {
 
     async loadSolventNames() {
         try {
-            // Use solvent search API to get solvent names
-            const response = await fetch('/api/solvent-search/solvents');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            // Use shared solvent cache
+            await window.sharedSolventCache.ensureLoaded();
+            this.solventNames = window.sharedSolventCache.getNames();
 
-            const data = await response.json();
-            this.solventNames = data.solvents.map(s => s.name).sort();
-
-            // Cache solvent data for lookup
-            data.solvents.forEach(solvent => {
-                this.solventDataCache.set(solvent.name.toLowerCase(), {
-                    name: solvent.name,
-                    delta_d: parseFloat(solvent.delta_d),
-                    delta_p: parseFloat(solvent.delta_p),
-                    delta_h: parseFloat(solvent.delta_h),
-                    source_url: solvent.source_url || null
-                });
-            });
-
-            console.log(`Loaded ${this.solventNames.length} solvent names`);
+            console.log(`[HSP Calculation] Using shared cache with ${this.solventNames.length} solvents`);
         } catch (error) {
-            console.error('Error loading solvent names:', error);
+            console.error('[HSP Calculation] Error loading solvent names:', error);
             Notification.error('Failed to load solvent database');
         }
     }
@@ -134,8 +117,9 @@ class HSPCalculation {
             return;
         }
 
-        // Validate: only lookup if solvent name exists in solvent list (exact match, case-insensitive)
-        const solventData = this.solventDataCache.get(solventName.toLowerCase());
+        // Get solvent data from shared cache
+        const solventData = window.sharedSolventCache.get(solventName);
+
         if (solventData) {
             this.table.updateRow(row.id, {
                 delta_d: solventData.delta_d,
@@ -347,7 +331,7 @@ class HSPCalculation {
 
         // Load components with HSP values pre-fetched
         const componentsData = mixture.components.map(comp => {
-            const solventData = this.solventDataCache.get(comp.solvent.toLowerCase());
+            const solventData = window.sharedSolventCache.get(comp.solvent);
             return {
                 solvent: comp.solvent,
                 volume: comp.volume,

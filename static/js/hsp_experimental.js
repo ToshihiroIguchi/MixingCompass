@@ -237,23 +237,15 @@ class HSPExperimental {
         console.log('[HSP Experimental] Loading available solvents...');
 
         try {
-            const fetchStart = performance.now();
-            const response = await fetch('/api/hsp-experimental/solvents');
-            console.log(`[HSP Experimental] Fetch completed: ${(performance.now() - fetchStart).toFixed(2)}ms`);
+            // Use shared solvent cache
+            await window.sharedSolventCache.ensureLoaded();
+            this.availableSolvents = window.sharedSolventCache.getNames();
 
-            if (response.ok) {
-                const parseStart = performance.now();
-                this.availableSolvents = await response.json();
-                console.log(`[HSP Experimental] JSON parsed: ${(performance.now() - parseStart).toFixed(2)}ms, count: ${this.availableSolvents.length}`);
+            this.updateSolventDropdowns();
 
-                const updateStart = performance.now();
-                this.updateSolventDropdowns();
-                console.log(`[HSP Experimental] Dropdowns updated: ${(performance.now() - updateStart).toFixed(2)}ms`);
-            } else {
-                console.error('Failed to load available solvents');
-            }
+            console.log(`[HSP Experimental] Using shared cache with ${this.availableSolvents.length} solvents`);
         } catch (error) {
-            console.error('Error loading solvents:', error);
+            console.error('[HSP Experimental] Error loading solvents:', error);
         }
 
         console.log(`[HSP Experimental] loadAvailableSolvents total: ${(performance.now() - start).toFixed(2)}ms`);
@@ -423,44 +415,19 @@ class HSPExperimental {
         const currentMode = row.mode || 'auto';
         if (currentMode === 'manual') return;
 
-        // Validate: only lookup if solvent name exists in available solvents list (exact match)
-        const solventExists = this.availableSolvents.some(
-            s => s.toLowerCase() === solventName.toLowerCase()
-        );
+        // Get solvent data from shared cache
+        const solventData = window.sharedSolventCache.get(solventName);
 
-        if (!solventExists) {
-            // Clear HSP values if solvent doesn't exist in list
+        if (solventData) {
+            // Update row data with HSP values
             this.table.updateRow(row.id, {
-                delta_d: null,
-                delta_p: null,
-                delta_h: null,
-                source_url: null
+                delta_d: solventData.delta_d,
+                delta_p: solventData.delta_p,
+                delta_h: solventData.delta_h,
+                source_url: solventData.source_url
             });
-            return;
-        }
-
-        try {
-            const response = await fetch(`/api/hsp-experimental/solvents/${encodeURIComponent(solventName)}`);
-            if (response.ok) {
-                const solventData = await response.json();
-                // Update row data with HSP values
-                this.table.updateRow(row.id, {
-                    delta_d: solventData.delta_d,
-                    delta_p: solventData.delta_p,
-                    delta_h: solventData.delta_h,
-                    source_url: solventData.source_url
-                });
-            } else {
-                // Solvent not found, clear HSP values
-                this.table.updateRow(row.id, {
-                    delta_d: null,
-                    delta_p: null,
-                    delta_h: null,
-                    source_url: null
-                });
-            }
-        } catch (error) {
-            console.error('Error fetching solvent data:', error);
+        } else {
+            // Solvent not found, clear HSP values
             this.table.updateRow(row.id, {
                 delta_d: null,
                 delta_p: null,
