@@ -84,7 +84,7 @@ class HSPCalculation {
                 {
                     key: 'actions',
                     label: 'Actions',
-                    type: 'actions'
+                    type: 'actions-with-mode'
                 }
             ],
             onDataChange: () => {
@@ -114,6 +114,13 @@ class HSPCalculation {
                 delta_h: null,
                 source_url: null
             });
+            return;
+        }
+
+        // Only auto-lookup in auto mode
+        const currentMode = row.mode || 'auto';
+        if (currentMode === 'manual') {
+            // In manual mode, don't lookup - allow arbitrary solvent names
             return;
         }
 

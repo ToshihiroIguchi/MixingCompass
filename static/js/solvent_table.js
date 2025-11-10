@@ -18,7 +18,7 @@ class SolventTableManager {
         this.onSolventLookup = config.onSolventLookup || null;
         this.onRowAdd = config.onRowAdd || (() => {});
         this.onRowRemove = config.onRowRemove || (() => {});
-        this.onModeToggle = config.onModeToggle || null;
+        this.onModeToggle = config.onModeToggle || this.defaultModeToggle.bind(this);
 
         // Configuration
         this.emptyMessage = config.emptyMessage || 'Click "+ Add" to start';
@@ -533,6 +533,33 @@ class SolventTableManager {
             // Call callback with row and new mode
             this.onModeToggle(row, newMode);
             this.render();
+        }
+    }
+
+    /**
+     * Default mode toggle implementation
+     * Handles Auto/Manual mode switching with shared cache
+     */
+    defaultModeToggle(row, newMode) {
+        if (newMode === 'manual') {
+            // Switch to manual mode: clear HSP values to allow manual input
+            this.updateRow(row.id, {
+                delta_d: null,
+                delta_p: null,
+                delta_h: null
+            });
+        } else {
+            // Switch to auto mode: clear and try to reload from database
+            this.updateRow(row.id, {
+                delta_d: null,
+                delta_p: null,
+                delta_h: null
+            });
+
+            // If solvent name exists, trigger lookup
+            if (row.solvent && this.onSolventLookup) {
+                this.onSolventLookup(row, row.solvent);
+            }
         }
     }
 

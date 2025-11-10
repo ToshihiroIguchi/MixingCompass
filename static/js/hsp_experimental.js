@@ -347,10 +347,8 @@ class HSPExperimental {
             onRowRemove: () => {
                 this.updateSolventTestData();
                 this.updateAnalyzeButtonState();
-            },
-            onModeToggle: (row, newMode) => {
-                this.handleModeToggle(row, newMode);
             }
+            // onModeToggle: using default implementation from SolventTableManager
         });
         console.log(`[HSP Experimental] TableManager created: ${(performance.now() - tableManagerStart).toFixed(2)}ms`);
 
@@ -434,31 +432,6 @@ class HSPExperimental {
                 delta_h: null,
                 source_url: null
             });
-        }
-    }
-
-    /**
-     * Handle mode toggle (callback for SolventTableManager)
-     */
-    handleModeToggle(row, newMode) {
-        if (newMode === 'manual') {
-            // Switch to manual mode: clear HSP values
-            this.table.updateRow(row.id, {
-                delta_d: null,
-                delta_p: null,
-                delta_h: null
-            });
-        } else {
-            // Switch to auto mode: clear and try to reload from database
-            this.table.updateRow(row.id, {
-                delta_d: null,
-                delta_p: null,
-                delta_h: null
-            });
-
-            if (row.solvent) {
-                this.lookupSolvent(row, row.solvent);
-            }
         }
     }
 

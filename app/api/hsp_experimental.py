@@ -68,24 +68,6 @@ async def search_solvents(
     return solvent_service.search_solvents(search_query)
 
 
-@router.get("/solvents/{solvent_name}", response_model=SolventData)
-async def get_solvent_by_name(solvent_name: str):
-    """Get solvent data by name"""
-
-    solvent = solvent_service.get_solvent_by_name(solvent_name)
-    if not solvent:
-        raise HTTPException(status_code=404, detail=f"Solvent '{solvent_name}' not found")
-
-    return solvent
-
-
-@router.get("/solvents", response_model=List[str])
-async def get_all_solvent_names():
-    """Get list of all available solvent names"""
-
-    return solvent_service.get_all_solvent_names()
-
-
 @router.get("/solvents-info/stats")
 async def get_solvent_stats():
     """Get statistical information about solvent database"""
