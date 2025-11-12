@@ -538,10 +538,20 @@ class SolventSearch {
                 primaryTarget.delta_d, primaryTarget.delta_p, primaryTarget.delta_h, primaryTarget.r0
             );
 
-            this.searchResults = results.results;
+            // Add saved mixtures to results
+            const savedMixtures = this.getSavedMixturesAsResults(
+                primaryTarget.delta_d, primaryTarget.delta_p, primaryTarget.delta_h, primaryTarget.r0
+            );
+
+            this.searchResults = [...results.results, ...savedMixtures];
             this.filteredResults = [...this.searchResults]; // Initialize filtered results
+
+            // Sort by distance
+            this.searchResults.sort((a, b) => a.distance - b.distance);
+            this.filteredResults.sort((a, b) => a.distance - b.distance);
+
             this.displayResults('single');
-            this.updateResultsCount(results.count);
+            this.updateResultsCount(this.searchResults.length);
 
             // Generate visualization with both targets
             this.generateVisualization(target1Data, target2Data, this.searchResults);
@@ -934,6 +944,48 @@ class SolventSearch {
 
     escapeHtml(text) {
         return Utils.escapeHtml(text);
+    }
+
+    /**
+     * Get saved mixtures from localStorage and convert to search results format
+     */
+    getSavedMixturesAsResults(targetD, targetP, targetH, targetRadius) {
+        try {
+            const STORAGE_KEY = 'mixingcompass_saved_mixtures';
+            const mixtures = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+
+            return mixtures.map(mixture => {
+                const distance = Math.sqrt(
+                    4 * Math.pow(mixture.hsp.delta_d - targetD, 2) +
+                    Math.pow(mixture.hsp.delta_p - targetP, 2) +
+                    Math.pow(mixture.hsp.delta_h - targetH, 2)
+                );
+
+                const red = targetRadius ? distance / targetRadius : distance;
+
+                return {
+                    name: `[Mixture] ${mixture.name}`,
+                    delta_d: mixture.hsp.delta_d,
+                    delta_p: mixture.hsp.delta_p,
+                    delta_h: mixture.hsp.delta_h,
+                    distance: red,
+                    red: red,
+                    source_file: 'saved_mixture',
+                    cho: null,
+                    boiling_point: null,
+                    density: null,
+                    molecular_weight: null,
+                    cost: null,
+                    cas: null,
+                    wgk: null,
+                    ghs: null,
+                    source_url: null
+                };
+            });
+        } catch (error) {
+            console.warn('Could not load saved mixtures:', error);
+            return [];
+        }
     }
 
     /**

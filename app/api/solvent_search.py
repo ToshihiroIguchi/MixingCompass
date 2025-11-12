@@ -2,11 +2,12 @@
 Solvent Search API endpoints
 """
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Request
 from typing import List, Optional
 import pandas as pd
 import numpy as np
 from pathlib import Path
+import json
 
 router = APIRouter()
 
@@ -16,12 +17,66 @@ SOLVENT_DB_PATH = DATA_DIR / "solvents.csv"
 
 # Cache the solvent database
 _solvent_db = None
+_cache_timestamp = None
 
-def get_solvent_database():
-    """Load and cache the solvent database"""
-    global _solvent_db
-    if _solvent_db is None:
+def get_solvent_database(request: Request = None):
+    """
+    Load and cache the solvent database including user-added solvents and saved mixtures
+    Cache is reset when request includes ?reload=true
+    """
+    global _solvent_db, _cache_timestamp
+    import time
+
+    # Check if cache should be reset
+    should_reload = False
+    if request and request.query_params.get('reload') == 'true':
+        should_reload = True
+
+    current_time = time.time()
+    # Also auto-reload if cache is older than 60 seconds
+    if _cache_timestamp and (current_time - _cache_timestamp) > 60:
+        should_reload = True
+
+    if _solvent_db is None or should_reload:
+        # Load main database
         _solvent_db = pd.read_csv(SOLVENT_DB_PATH, encoding='utf-8-sig')
+
+        # Add user-added solvents
+        try:
+            from ..services.solvent_service import SolventDataService
+            solvent_service = SolventDataService()
+            user_solvents = solvent_service.get_user_added_solvents()
+
+            if user_solvents:
+                user_df_data = []
+                for solvent in user_solvents:
+                    user_df_data.append({
+                        'Solvent': solvent['solvent'],
+                        'delta_D': solvent['delta_d'],
+                        'delta_P': solvent['delta_p'],
+                        'delta_H': solvent['delta_h'],
+                        'CAS': solvent.get('cas'),
+                        'Tb': solvent.get('boiling_point'),
+                        'CHO': None,
+                        'Density': None,
+                        'MWt': None,
+                        'Cost': None,
+                        'WGK': None,
+                        'GHS': None,
+                        'source_url': None,
+                        'source_file': 'user_added'
+                    })
+
+                user_df = pd.DataFrame(user_df_data)
+                _solvent_db = pd.concat([_solvent_db, user_df], ignore_index=True)
+        except Exception as e:
+            print(f"Warning: Could not load user-added solvents: {e}")
+
+        # Add saved mixtures from localStorage (need to get from client, skip for now)
+        # Mixtures will be added by client-side filtering
+
+        _cache_timestamp = current_time
+
     return _solvent_db
 
 
@@ -99,6 +154,7 @@ async def get_all_solvents():
 
 @router.post("/search")
 async def search_solvents(
+    request: Request,
     target_delta_d: float = Query(...),
     target_delta_p: float = Query(...),
     target_delta_h: float = Query(...),
@@ -125,7 +181,7 @@ async def search_solvents(
         wgk_filter: WGK (water hazard class) filter
         max_results: Maximum number of results to return
     """
-    df = get_solvent_database()
+    df = get_solvent_database(request)
 
     # Filter out rows with missing HSP values
     df = df.dropna(subset=['delta_D', 'delta_P', 'delta_H'])

@@ -864,6 +864,11 @@ class DataListManager {
     async refreshAllTables() {
         await this.loadUserAddedSolvents();
         await this.loadSolventDatabase();
+
+        // Reload shared solvent cache to make user-added solvents available in dropdowns
+        if (window.sharedSolventCache) {
+            await window.sharedSolventCache.reload();
+        }
     }
 
     escapeHtml(text) {
@@ -2193,6 +2198,11 @@ class DataListManager {
 
             // Reload table
             this.loadSavedMixtures();
+
+            // Reload shared solvent cache to remove deleted mixture from dropdowns
+            if (window.sharedSolventCache) {
+                window.sharedSolventCache.reload();
+            }
 
             Notification.success(`Mixture "${mixture.name}" deleted`);
 

@@ -40,6 +40,7 @@ class SharedSolventCache {
         console.log('[SharedSolventCache] Loading solvent data...');
 
         try {
+            // 1. Load main solvent database
             const response = await fetch('/api/solvents?full_data=true');
 
             if (!response.ok) {
@@ -60,16 +61,66 @@ class SharedSolventCache {
                     cas: solvent.cas,
                     boiling_point: solvent.boiling_point,
                     density: solvent.density,
-                    molecular_weight: solvent.molecular_weight
+                    molecular_weight: solvent.molecular_weight,
+                    source: 'database'
                 });
             });
 
+            const allNames = data.solvents.map(s => s.name);
+
+            // 2. Load User Added Solvents
+            try {
+                const userSolventsResponse = await fetch('/api/data-list/user-solvents');
+                if (userSolventsResponse.ok) {
+                    const userSolvents = await userSolventsResponse.json();
+                    userSolvents.forEach(solvent => {
+                        const key = solvent.solvent.toLowerCase();
+                        // Only add if not already in database
+                        if (!this.cache.has(key)) {
+                            this.cache.set(key, {
+                                name: solvent.solvent,
+                                delta_d: solvent.delta_d,
+                                delta_p: solvent.delta_p,
+                                delta_h: solvent.delta_h,
+                                source: 'user_added'
+                            });
+                            allNames.push(solvent.solvent);
+                        }
+                    });
+                    console.log(`[SharedSolventCache] Loaded ${userSolvents.length} user-added solvents`);
+                }
+            } catch (error) {
+                console.warn('[SharedSolventCache] Could not load user-added solvents:', error);
+            }
+
+            // 3. Load Saved Mixtures
+            try {
+                const STORAGE_KEY = 'mixingcompass_saved_mixtures';
+                const mixtures = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                mixtures.forEach(mixture => {
+                    const mixtureName = `[Mixture] ${mixture.name}`;
+                    const key = mixtureName.toLowerCase();
+                    this.cache.set(key, {
+                        name: mixtureName,
+                        delta_d: mixture.hsp.delta_d,
+                        delta_p: mixture.hsp.delta_p,
+                        delta_h: mixture.hsp.delta_h,
+                        source: 'saved_mixture',
+                        components: mixture.components
+                    });
+                    allNames.push(mixtureName);
+                });
+                console.log(`[SharedSolventCache] Loaded ${mixtures.length} saved mixtures`);
+            } catch (error) {
+                console.warn('[SharedSolventCache] Could not load saved mixtures:', error);
+            }
+
             // Store sorted names for autocomplete
-            this.names = data.solvents.map(s => s.name).sort();
+            this.names = allNames.sort();
             this.loaded = true;
 
             const loadTime = (performance.now() - startTime).toFixed(2);
-            console.log(`[SharedSolventCache] Loaded ${this.names.length} solvents in ${loadTime}ms`);
+            console.log(`[SharedSolventCache] Loaded ${this.names.length} total entries (solvents + mixtures) in ${loadTime}ms`);
 
             return true;
 

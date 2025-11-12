@@ -301,6 +301,11 @@ class HSPCalculation {
             window.dataListManager.loadSavedMixtures();
         }
 
+        // Reload shared solvent cache to make saved mixture available in dropdowns
+        if (window.sharedSolventCache) {
+            window.sharedSolventCache.reload();
+        }
+
         // Clear form
         this.clearForm();
 
