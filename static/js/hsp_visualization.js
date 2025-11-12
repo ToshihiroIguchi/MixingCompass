@@ -498,6 +498,54 @@ class HSPVisualization {
     }
 
     /**
+     * Get color for solubility value using RdYlBu gradient (Red-Yellow-Blue)
+     * Matches backend color scheme
+     */
+    getSolubilityColor(solubility) {
+        // Convert categorical to numerical
+        if (typeof solubility === 'string') {
+            const valueMap = {
+                'insoluble': 0.0,
+                'partial': 0.5,
+                'soluble': 1.0
+            };
+            // Use 'in' operator to avoid falsy 0.0 being replaced with default 0.5
+            solubility = solubility in valueMap ? valueMap[solubility] : 0.5;
+        }
+
+        // Ensure numerical value in range [0, 1]
+        if (typeof solubility !== 'number') {
+            return '#666666';  // Default gray
+        }
+
+        solubility = Math.max(0.0, Math.min(1.0, solubility));
+
+        // RdYlBu gradient: Red (0.0) -> Yellow (0.5) -> Blue (1.0)
+        let r, g, b;
+        if (solubility <= 0.5) {
+            // Red to Yellow (0.0 to 0.5)
+            const t = solubility * 2;  // Map 0-0.5 to 0-1
+            r = 211;  // Red component stays high
+            g = Math.floor(50 + (235 - 50) * t);  // Interpolate from #d32f2f red to #ffeb3b yellow
+            b = Math.floor(47 + (59 - 47) * t);
+        } else {
+            // Yellow to Blue (0.5 to 1.0)
+            const t = (solubility - 0.5) * 2;  // Map 0.5-1.0 to 0-1
+            r = Math.floor(255 - (255 - 33) * t);  // Interpolate from #ffeb3b yellow to #2196f3 blue
+            g = Math.floor(235 - (235 - 150) * t);
+            b = Math.floor(59 + (243 - 59) * t);
+        }
+
+        // Convert to hex
+        const toHex = (n) => {
+            const hex = n.toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+        };
+
+        return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+    }
+
+    /**
      * Generate wireframe lines for Hansen sphere
      */
     generateSphereWireframe(center, radius, color, name) {
@@ -653,19 +701,7 @@ class HSPVisualization {
             hoverinfo: 'skip'
         });
 
-        // Target 1 center
-        ddDpData.push({
-            type: 'scatter',
-            mode: 'markers',
-            x: [target1Data.delta_d],
-            y: [target1Data.delta_p],
-            name: `${target1Data.name || 'Target 1'} Center`,
-            marker: { size: 8, color: '#2196F3', symbol: 'circle' },
-            showlegend: false,
-            hovertemplate: `<b>${target1Data.name || 'Target 1'}</b><br>δD: ${target1Data.delta_d.toFixed(1)}<br>δP: ${target1Data.delta_p.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
-        });
-
-        // Target 2 ellipse and center if provided
+        // Target 2 ellipse if provided
         if (target2Data) {
             const ellipse2_ddDp = createEllipsePoints(
                 target2Data.delta_d,
@@ -684,17 +720,6 @@ class HSPVisualization {
                 fillcolor: 'rgba(255, 152, 0, 0.1)',
                 hoverinfo: 'skip'
             });
-
-            ddDpData.push({
-                type: 'scatter',
-                mode: 'markers',
-                x: [target2Data.delta_d],
-                y: [target2Data.delta_p],
-                name: `${target2Data.name || 'Target 2'} Center`,
-                marker: { size: 8, color: '#FF9800', symbol: 'circle' },
-                showlegend: false,
-                hovertemplate: `<b>${target2Data.name || 'Target 2'}</b><br>δD: ${target2Data.delta_d.toFixed(1)}<br>δP: ${target2Data.delta_p.toFixed(1)}<br>R0: ${target2Data.radius.toFixed(1)}<extra></extra>`
-            });
         }
 
         // Solvent points
@@ -708,41 +733,56 @@ class HSPVisualization {
                 solventX.push(s.delta_d);
                 solventY.push(s.delta_p);
 
+                // Calculate RED values (needed for both coloring and hover text)
                 const red1 = this.calculateDistance(
                     s.delta_d, s.delta_p, s.delta_h,
                     target1Data.delta_d, target1Data.delta_p, target1Data.delta_h
                 ) / target1Data.radius;
 
                 let red2 = null;
-                let color = '';
-
                 if (target2Data) {
                     red2 = this.calculateDistance(
                         s.delta_d, s.delta_p, s.delta_h,
                         target2Data.delta_d, target2Data.delta_p, target2Data.delta_h
                     ) / target2Data.radius;
+                }
 
-                    // Dual target color scheme
-                    if (red1 < 1.0 && red2 < 1.0) {
-                        color = '#4CAF50'; // Green - both targets
-                    } else if (red1 < 1.0) {
-                        color = '#2196F3'; // Blue - Target 1 only
-                    } else if (red2 < 1.0) {
-                        color = '#FF9800'; // Orange - Target 2 only
-                    } else {
-                        color = '#BDBDBD'; // Grey - neither target
-                    }
+                let color = '';
+
+                // If solubility data is available, use it for coloring (matches 3D visualization)
+                if (s.hasOwnProperty('solubility') && s.solubility !== undefined && s.solubility !== null) {
+                    color = this.getSolubilityColor(s.solubility);
                 } else {
-                    // Single target color scheme
-                    color = red1 < 1.0 ? '#4CAF50' : '#BDBDBD';
+                    // Otherwise, use RED-based coloring
+                    if (target2Data) {
+                        // Dual target color scheme
+                        if (red1 < 1.0 && red2 < 1.0) {
+                            color = '#4CAF50'; // Green - both targets
+                        } else if (red1 < 1.0) {
+                            color = '#2196F3'; // Blue - Target 1 only
+                        } else if (red2 < 1.0) {
+                            color = '#FF9800'; // Orange - Target 2 only
+                        } else {
+                            color = '#BDBDBD'; // Grey - neither target
+                        }
+                    } else {
+                        // Single target color scheme
+                        color = red1 < 1.0 ? '#4CAF50' : '#BDBDBD';
+                    }
                 }
 
                 solventColors.push(color);
 
-                let hoverText = `<b>${s.name}</b><br>δD: ${s.delta_d.toFixed(1)}<br>δP: ${s.delta_p.toFixed(1)}<br>RED (${target1Data.name || 'Target 1'}): ${red1.toFixed(2)}`;
+                // Build hover text
+                let hoverText = `<b>${s.name}</b><br>δD: ${s.delta_d.toFixed(1)}<br>δP: ${s.delta_p.toFixed(1)}`;
 
-                if (target2Data) {
-                    hoverText += `<br>RED (${target2Data.name || 'Target 2'}): ${red2.toFixed(2)}`;
+                if (s.hasOwnProperty('solubility') && s.solubility !== undefined && s.solubility !== null) {
+                    hoverText += `<br>Solubility: ${typeof s.solubility === 'number' ? s.solubility.toFixed(2) : s.solubility}`;
+                } else {
+                    hoverText += `<br>RED (${target1Data.name || 'Target 1'}): ${red1.toFixed(2)}`;
+                    if (target2Data) {
+                        hoverText += `<br>RED (${target2Data.name || 'Target 2'}): ${red2.toFixed(2)}`;
+                    }
                 }
 
                 solventHoverTexts.push(hoverText);
@@ -754,10 +794,35 @@ class HSPVisualization {
                 x: solventX,
                 y: solventY,
                 name: 'Solvents',
-                marker: { size: 2, color: solventColors, opacity: 0.7 },
+                marker: { size: 6, color: solventColors, opacity: 0.7 },
                 showlegend: false,
                 hovertext: solventHoverTexts,
                 hovertemplate: '%{hovertext}<extra></extra>'
+            });
+        }
+
+        // Target centers (add last so they appear on top)
+        ddDpData.push({
+            type: 'scatter',
+            mode: 'markers',
+            x: [target1Data.delta_d],
+            y: [target1Data.delta_p],
+            name: `${target1Data.name || 'Target 1'} Center`,
+            marker: { size: 10, color: '#2196F3', symbol: 'cross', line: { width: 3, color: 'white' } },
+            showlegend: false,
+            hovertemplate: `<b>${target1Data.name || 'Target 1'}</b><br>δD: ${target1Data.delta_d.toFixed(1)}<br>δP: ${target1Data.delta_p.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
+        });
+
+        if (target2Data) {
+            ddDpData.push({
+                type: 'scatter',
+                mode: 'markers',
+                x: [target2Data.delta_d],
+                y: [target2Data.delta_p],
+                name: `${target2Data.name || 'Target 2'} Center`,
+                marker: { size: 10, color: '#FF9800', symbol: 'cross', line: { width: 3, color: 'white' } },
+                showlegend: false,
+                hovertemplate: `<b>${target2Data.name || 'Target 2'}</b><br>δD: ${target2Data.delta_d.toFixed(1)}<br>δP: ${target2Data.delta_p.toFixed(1)}<br>R0: ${target2Data.radius.toFixed(1)}<extra></extra>`
             });
         }
 
@@ -783,17 +848,6 @@ class HSPVisualization {
             hoverinfo: 'skip'
         });
 
-        ddDhData.push({
-            type: 'scatter',
-            mode: 'markers',
-            x: [target1Data.delta_d],
-            y: [target1Data.delta_h],
-            name: `${target1Data.name || 'Target 1'} Center`,
-            marker: { size: 8, color: '#2196F3', symbol: 'circle' },
-            showlegend: false,
-            hovertemplate: `<b>${target1Data.name || 'Target 1'}</b><br>δD: ${target1Data.delta_d.toFixed(1)}<br>δH: ${target1Data.delta_h.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
-        });
-
         if (target2Data) {
             const ellipse2_ddDh = createEllipsePoints(
                 target2Data.delta_d,
@@ -812,17 +866,6 @@ class HSPVisualization {
                 fillcolor: 'rgba(255, 152, 0, 0.1)',
                 hoverinfo: 'skip'
             });
-
-            ddDhData.push({
-                type: 'scatter',
-                mode: 'markers',
-                x: [target2Data.delta_d],
-                y: [target2Data.delta_h],
-                name: `${target2Data.name || 'Target 2'} Center`,
-                marker: { size: 8, color: '#FF9800', symbol: 'circle' },
-                showlegend: false,
-                hovertemplate: `<b>${target2Data.name || 'Target 2'}</b><br>δD: ${target2Data.delta_d.toFixed(1)}<br>δH: ${target2Data.delta_h.toFixed(1)}<br>R0: ${target2Data.radius.toFixed(1)}<extra></extra>`
-            });
         }
 
         if (solventData && solventData.length > 0) {
@@ -835,41 +878,56 @@ class HSPVisualization {
                 solventX.push(s.delta_d);
                 solventY.push(s.delta_h);
 
+                // Calculate RED values (needed for both coloring and hover text)
                 const red1 = this.calculateDistance(
                     s.delta_d, s.delta_p, s.delta_h,
                     target1Data.delta_d, target1Data.delta_p, target1Data.delta_h
                 ) / target1Data.radius;
 
                 let red2 = null;
-                let color = '';
-
                 if (target2Data) {
                     red2 = this.calculateDistance(
                         s.delta_d, s.delta_p, s.delta_h,
                         target2Data.delta_d, target2Data.delta_p, target2Data.delta_h
                     ) / target2Data.radius;
+                }
 
-                    // Dual target color scheme
-                    if (red1 < 1.0 && red2 < 1.0) {
-                        color = '#4CAF50'; // Green - both targets
-                    } else if (red1 < 1.0) {
-                        color = '#2196F3'; // Blue - Target 1 only
-                    } else if (red2 < 1.0) {
-                        color = '#FF9800'; // Orange - Target 2 only
-                    } else {
-                        color = '#BDBDBD'; // Grey - neither target
-                    }
+                let color = '';
+
+                // If solubility data is available, use it for coloring (matches 3D visualization)
+                if (s.hasOwnProperty('solubility') && s.solubility !== undefined && s.solubility !== null) {
+                    color = this.getSolubilityColor(s.solubility);
                 } else {
-                    // Single target color scheme
-                    color = red1 < 1.0 ? '#4CAF50' : '#BDBDBD';
+                    // Otherwise, use RED-based coloring
+                    if (target2Data) {
+                        // Dual target color scheme
+                        if (red1 < 1.0 && red2 < 1.0) {
+                            color = '#4CAF50'; // Green - both targets
+                        } else if (red1 < 1.0) {
+                            color = '#2196F3'; // Blue - Target 1 only
+                        } else if (red2 < 1.0) {
+                            color = '#FF9800'; // Orange - Target 2 only
+                        } else {
+                            color = '#BDBDBD'; // Grey - neither target
+                        }
+                    } else {
+                        // Single target color scheme
+                        color = red1 < 1.0 ? '#4CAF50' : '#BDBDBD';
+                    }
                 }
 
                 solventColors.push(color);
 
-                let hoverText = `<b>${s.name}</b><br>δD: ${s.delta_d.toFixed(1)}<br>δH: ${s.delta_h.toFixed(1)}<br>RED (${target1Data.name || 'Target 1'}): ${red1.toFixed(2)}`;
+                // Build hover text
+                let hoverText = `<b>${s.name}</b><br>δD: ${s.delta_d.toFixed(1)}<br>δH: ${s.delta_h.toFixed(1)}`;
 
-                if (target2Data) {
-                    hoverText += `<br>RED (${target2Data.name || 'Target 2'}): ${red2.toFixed(2)}`;
+                if (s.hasOwnProperty('solubility') && s.solubility !== undefined && s.solubility !== null) {
+                    hoverText += `<br>Solubility: ${typeof s.solubility === 'number' ? s.solubility.toFixed(2) : s.solubility}`;
+                } else {
+                    hoverText += `<br>RED (${target1Data.name || 'Target 1'}): ${red1.toFixed(2)}`;
+                    if (target2Data) {
+                        hoverText += `<br>RED (${target2Data.name || 'Target 2'}): ${red2.toFixed(2)}`;
+                    }
                 }
 
                 solventHoverTexts.push(hoverText);
@@ -881,10 +939,35 @@ class HSPVisualization {
                 x: solventX,
                 y: solventY,
                 name: 'Solvents',
-                marker: { size: 2, color: solventColors, opacity: 0.7 },
+                marker: { size: 6, color: solventColors, opacity: 0.7 },
                 showlegend: false,
                 hovertext: solventHoverTexts,
                 hovertemplate: '%{hovertext}<extra></extra>'
+            });
+        }
+
+        // Target centers (add last so they appear on top)
+        ddDhData.push({
+            type: 'scatter',
+            mode: 'markers',
+            x: [target1Data.delta_d],
+            y: [target1Data.delta_h],
+            name: `${target1Data.name || 'Target 1'} Center`,
+            marker: { size: 10, color: '#2196F3', symbol: 'cross', line: { width: 3, color: 'white' } },
+            showlegend: false,
+            hovertemplate: `<b>${target1Data.name || 'Target 1'}</b><br>δD: ${target1Data.delta_d.toFixed(1)}<br>δH: ${target1Data.delta_h.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
+        });
+
+        if (target2Data) {
+            ddDhData.push({
+                type: 'scatter',
+                mode: 'markers',
+                x: [target2Data.delta_d],
+                y: [target2Data.delta_h],
+                name: `${target2Data.name || 'Target 2'} Center`,
+                marker: { size: 10, color: '#FF9800', symbol: 'cross', line: { width: 3, color: 'white' } },
+                showlegend: false,
+                hovertemplate: `<b>${target2Data.name || 'Target 2'}</b><br>δD: ${target2Data.delta_d.toFixed(1)}<br>δH: ${target2Data.delta_h.toFixed(1)}<br>R0: ${target2Data.radius.toFixed(1)}<extra></extra>`
             });
         }
 
@@ -910,17 +993,6 @@ class HSPVisualization {
             hoverinfo: 'skip'
         });
 
-        dpDhData.push({
-            type: 'scatter',
-            mode: 'markers',
-            x: [target1Data.delta_p],
-            y: [target1Data.delta_h],
-            name: `${target1Data.name || 'Target 1'} Center`,
-            marker: { size: 8, color: '#2196F3', symbol: 'circle' },
-            showlegend: false,
-            hovertemplate: `<b>${target1Data.name || 'Target 1'}</b><br>δP: ${target1Data.delta_p.toFixed(1)}<br>δH: ${target1Data.delta_h.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
-        });
-
         if (target2Data) {
             const circle2_dpDh = createEllipsePoints(
                 target2Data.delta_p,
@@ -939,17 +1011,6 @@ class HSPVisualization {
                 fillcolor: 'rgba(255, 152, 0, 0.1)',
                 hoverinfo: 'skip'
             });
-
-            dpDhData.push({
-                type: 'scatter',
-                mode: 'markers',
-                x: [target2Data.delta_p],
-                y: [target2Data.delta_h],
-                name: `${target2Data.name || 'Target 2'} Center`,
-                marker: { size: 8, color: '#FF9800', symbol: 'circle' },
-                showlegend: false,
-                hovertemplate: `<b>${target2Data.name || 'Target 2'}</b><br>δP: ${target2Data.delta_p.toFixed(1)}<br>δH: ${target2Data.delta_h.toFixed(1)}<br>R0: ${target2Data.radius.toFixed(1)}<extra></extra>`
-            });
         }
 
         if (solventData && solventData.length > 0) {
@@ -962,41 +1023,56 @@ class HSPVisualization {
                 solventX.push(s.delta_p);
                 solventY.push(s.delta_h);
 
+                // Calculate RED values (needed for both coloring and hover text)
                 const red1 = this.calculateDistance(
                     s.delta_d, s.delta_p, s.delta_h,
                     target1Data.delta_d, target1Data.delta_p, target1Data.delta_h
                 ) / target1Data.radius;
 
                 let red2 = null;
-                let color = '';
-
                 if (target2Data) {
                     red2 = this.calculateDistance(
                         s.delta_d, s.delta_p, s.delta_h,
                         target2Data.delta_d, target2Data.delta_p, target2Data.delta_h
                     ) / target2Data.radius;
+                }
 
-                    // Dual target color scheme
-                    if (red1 < 1.0 && red2 < 1.0) {
-                        color = '#4CAF50'; // Green - both targets
-                    } else if (red1 < 1.0) {
-                        color = '#2196F3'; // Blue - Target 1 only
-                    } else if (red2 < 1.0) {
-                        color = '#FF9800'; // Orange - Target 2 only
-                    } else {
-                        color = '#BDBDBD'; // Grey - neither target
-                    }
+                let color = '';
+
+                // If solubility data is available, use it for coloring (matches 3D visualization)
+                if (s.hasOwnProperty('solubility') && s.solubility !== undefined && s.solubility !== null) {
+                    color = this.getSolubilityColor(s.solubility);
                 } else {
-                    // Single target color scheme
-                    color = red1 < 1.0 ? '#4CAF50' : '#BDBDBD';
+                    // Otherwise, use RED-based coloring
+                    if (target2Data) {
+                        // Dual target color scheme
+                        if (red1 < 1.0 && red2 < 1.0) {
+                            color = '#4CAF50'; // Green - both targets
+                        } else if (red1 < 1.0) {
+                            color = '#2196F3'; // Blue - Target 1 only
+                        } else if (red2 < 1.0) {
+                            color = '#FF9800'; // Orange - Target 2 only
+                        } else {
+                            color = '#BDBDBD'; // Grey - neither target
+                        }
+                    } else {
+                        // Single target color scheme
+                        color = red1 < 1.0 ? '#4CAF50' : '#BDBDBD';
+                    }
                 }
 
                 solventColors.push(color);
 
-                let hoverText = `<b>${s.name}</b><br>δP: ${s.delta_p.toFixed(1)}<br>δH: ${s.delta_h.toFixed(1)}<br>RED (${target1Data.name || 'Target 1'}): ${red1.toFixed(2)}`;
+                // Build hover text
+                let hoverText = `<b>${s.name}</b><br>δP: ${s.delta_p.toFixed(1)}<br>δH: ${s.delta_h.toFixed(1)}`;
 
-                if (target2Data) {
-                    hoverText += `<br>RED (${target2Data.name || 'Target 2'}): ${red2.toFixed(2)}`;
+                if (s.hasOwnProperty('solubility') && s.solubility !== undefined && s.solubility !== null) {
+                    hoverText += `<br>Solubility: ${typeof s.solubility === 'number' ? s.solubility.toFixed(2) : s.solubility}`;
+                } else {
+                    hoverText += `<br>RED (${target1Data.name || 'Target 1'}): ${red1.toFixed(2)}`;
+                    if (target2Data) {
+                        hoverText += `<br>RED (${target2Data.name || 'Target 2'}): ${red2.toFixed(2)}`;
+                    }
                 }
 
                 solventHoverTexts.push(hoverText);
@@ -1008,10 +1084,35 @@ class HSPVisualization {
                 x: solventX,
                 y: solventY,
                 name: 'Solvents',
-                marker: { size: 2, color: solventColors, opacity: 0.7 },
+                marker: { size: 6, color: solventColors, opacity: 0.7 },
                 showlegend: false,
                 hovertext: solventHoverTexts,
                 hovertemplate: '%{hovertext}<extra></extra>'
+            });
+        }
+
+        // Target centers (add last so they appear on top)
+        dpDhData.push({
+            type: 'scatter',
+            mode: 'markers',
+            x: [target1Data.delta_p],
+            y: [target1Data.delta_h],
+            name: `${target1Data.name || 'Target 1'} Center`,
+            marker: { size: 10, color: '#2196F3', symbol: 'cross', line: { width: 3, color: 'white' } },
+            showlegend: false,
+            hovertemplate: `<b>${target1Data.name || 'Target 1'}</b><br>δP: ${target1Data.delta_p.toFixed(1)}<br>δH: ${target1Data.delta_h.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
+        });
+
+        if (target2Data) {
+            dpDhData.push({
+                type: 'scatter',
+                mode: 'markers',
+                x: [target2Data.delta_p],
+                y: [target2Data.delta_h],
+                name: `${target2Data.name || 'Target 2'} Center`,
+                marker: { size: 10, color: '#FF9800', symbol: 'cross', line: { width: 3, color: 'white' } },
+                showlegend: false,
+                hovertemplate: `<b>${target2Data.name || 'Target 2'}</b><br>δP: ${target2Data.delta_p.toFixed(1)}<br>δH: ${target2Data.delta_h.toFixed(1)}<br>R0: ${target2Data.radius.toFixed(1)}<extra></extra>`
             });
         }
 

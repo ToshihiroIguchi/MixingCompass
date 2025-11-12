@@ -1,5 +1,5 @@
 """
-HSP Experimental API endpoints
+HSP Experimental API endpoints - DRY principle applied for 2D projections
 """
 
 from fastapi import APIRouter, HTTPException, Query, Body
@@ -384,7 +384,7 @@ async def get_hansen_sphere_visualization(
 
             if test.solvent_name and delta_d is not None and delta_p is not None and delta_h is not None:
                 solvent_entry = {
-                    'solvent_name': test.solvent_name,
+                    'name': test.solvent_name,  # Changed from 'solvent_name' to 'name' for frontend compatibility
                     'delta_d': delta_d,
                     'delta_p': delta_p,
                     'delta_h': delta_h,
@@ -443,15 +443,7 @@ async def get_hansen_sphere_visualization(
                 logger.info(f"     - Names: {names}")
                 logger.info(f"     - Solubility: {solubility}")
 
-        # Generate 2D projections
-        logger.debug(f"🎨 Generating 2D projections")
-        projections_2d = HansenSphereVisualizationService.generate_2d_projections(
-            hsp_result=experiment.calculated_hsp,
-            solvent_data=solvent_data,
-            width=240,
-            height=240
-        )
-
+        # Prepare response data (2D projections will be generated on frontend using shared visualization module)
         response_data = {
             "experiment_id": experiment_id,
             "sample_name": experiment.sample_name,
@@ -462,11 +454,11 @@ async def get_hansen_sphere_visualization(
                 "ra": experiment.calculated_hsp.radius
             },
             "plotly_config": plotly_data,
-            "projections_2d": projections_2d,
+            "solvent_data": solvent_data,  # Send solvent data for frontend 2D projection generation
             "solvent_count": len(solvent_data)
         }
 
-        logger.debug(f"📤 Sending response with {len(plotly_data['data'])} plot traces and 3 2D projections")
+        logger.debug(f"📤 Sending response with {len(plotly_data['data'])} plot traces")
         return response_data
 
     except HTTPException:
@@ -798,58 +790,6 @@ async def export_graphs_as_zip(experiment_id: str):
                 zip_file.writestr('graphs/hansen_sphere_3d.png', png_3d_bytes)
             except Exception as e:
                 logger.warning(f"Failed to generate 3D PNG: {e}")
-
-            # 1c. Generate 2D projections PNG
-            try:
-                projections_2d = HansenSphereVisualizationService.generate_2d_projections(
-                    hsp_result=experiment.calculated_hsp,
-                    solvent_data=solvent_data,
-                    width=600,
-                    height=600
-                )
-
-                # Create combined 2D projection image using plotly
-                from plotly.subplots import make_subplots
-
-                fig_2d = make_subplots(
-                    rows=1, cols=3,
-                    subplot_titles=('δD vs δP', 'δD vs δH', 'δP vs δH'),
-                    horizontal_spacing=0.12
-                )
-
-                # Add δD vs δP
-                for trace in projections_2d['dd_dp']['data']:
-                    fig_2d.add_trace(trace, row=1, col=1)
-
-                # Add δD vs δH
-                for trace in projections_2d['dd_dh']['data']:
-                    fig_2d.add_trace(trace, row=1, col=2)
-
-                # Add δP vs δH
-                for trace in projections_2d['dp_dh']['data']:
-                    fig_2d.add_trace(trace, row=1, col=3)
-
-                # Update layout
-                fig_2d.update_xaxes(title_text="δD [MPa<sup>0.5</sup>]", row=1, col=1)
-                fig_2d.update_yaxes(title_text="δP [MPa<sup>0.5</sup>]", row=1, col=1, scaleanchor="x", scaleratio=1)
-
-                fig_2d.update_xaxes(title_text="δD [MPa<sup>0.5</sup>]", row=1, col=2)
-                fig_2d.update_yaxes(title_text="δH [MPa<sup>0.5</sup>]", row=1, col=2, scaleanchor="x2", scaleratio=1)
-
-                fig_2d.update_xaxes(title_text="δP [MPa<sup>0.5</sup>]", row=1, col=3)
-                fig_2d.update_yaxes(title_text="δH [MPa<sup>0.5</sup>]", row=1, col=3, scaleanchor="x3", scaleratio=1)
-
-                fig_2d.update_layout(
-                    height=600,
-                    width=1800,
-                    showlegend=False,
-                    title_text=f"Hansen Solubility Parameters 2D Projections - {experiment.sample_name}"
-                )
-
-                png_2d_bytes = fig_2d.to_image(format='png', width=1800, height=600, scale=2)
-                zip_file.writestr('graphs/hansen_projections_2d.png', png_2d_bytes)
-            except Exception as e:
-                logger.warning(f"Failed to generate 2D PNG: {e}")
 
             # 2. Generate CSV
             csv_buffer = io.StringIO()

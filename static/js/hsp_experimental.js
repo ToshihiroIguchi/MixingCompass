@@ -1262,16 +1262,43 @@ class HSPExperimental {
             if (response.ok) {
                 const data = await response.json();
                 console.log('Visualization API response:', data);
-                console.log('projections_2d available:', !!data.projections_2d);
+                console.log('solvent_data available:', !!data.solvent_data);
 
                 this.displayPlotlyVisualization(data.plotly_config);
 
-                // Render 2D projections if available
-                if (data.projections_2d) {
-                    console.log('Calling render2DProjections with:', data.projections_2d);
-                    this.render2DProjections(data.projections_2d);
+                // Generate and render 2D projections on frontend using shared visualization module
+                if (data.solvent_data && data.hsp_parameters) {
+                    console.log('Generating 2D projections on frontend');
+
+                    // Create temporary HSPVisualization instance for projection generation
+                    const tempViz = new HSPVisualization('dummy');
+
+                    // Prepare target data
+                    const targetData = {
+                        name: data.sample_name,
+                        delta_d: data.hsp_parameters.delta_d,
+                        delta_p: data.hsp_parameters.delta_p,
+                        delta_h: data.hsp_parameters.delta_h,
+                        radius: data.hsp_parameters.ra
+                    };
+
+                    // Convert solvent data to expected format (include solubility for color matching with 3D)
+                    const solvents = data.solvent_data.map(s => ({
+                        name: s.name,
+                        delta_d: s.delta_d,
+                        delta_p: s.delta_p,
+                        delta_h: s.delta_h,
+                        solubility: s.solubility
+                    }));
+
+                    // Generate 2D projections
+                    const projections_2d = tempViz.generate2DProjections(targetData, null, solvents);
+
+                    if (projections_2d) {
+                        this.render2DProjections(projections_2d);
+                    }
                 } else {
-                    console.warn('No projections_2d in API response');
+                    console.warn('No solvent data in API response for 2D projections');
                 }
 
                 // Show refresh button
