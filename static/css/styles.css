@@ -751,13 +751,13 @@ body {
 
 /* Hansen Sphere */
 .hansen-sphere {
-    flex: 1;
     border: 1px solid #e5e7eb;
     border-radius: 4px;
     background-color: #f9fafb;
-    min-height: 400px;
+    height: 600px;
     display: flex;
     flex-direction: column;
+    flex-shrink: 0;
 }
 
 .sphere-header {
@@ -2497,19 +2497,7 @@ body {
     display: flex;
 }
 
-/* Solvent Search: Remove top spacing in plotly container */
-#solvent-search .view-panel .plotly-container {
-    margin-top: -51px;
-}
-
-/* Force Plotly content to top */
-#solvent-search .plotly-container .js-plotly-plot {
-    margin-top: -125px;
-}
-
-#solvent-search .plotly-container .js-plotly-plot .svg-container {
-    margin-top: 125px;
-}
+/* Removed negative margin hacks for better maintainability and consistent heights */
 
 /* 2D Grid Layout */
 .grid-2d {
@@ -2525,7 +2513,8 @@ body {
     border-radius: 4px;
     padding: 0.5rem;
     background-color: white;
-    min-height: 600px;
+    min-height: 450px;
+    height: 100%;
     display: flex;
     flex-direction: column;
 }
@@ -2648,7 +2637,7 @@ body {
     border-radius: 4px;
     background-color: white;
     overflow-y: auto;
-    max-height: calc(100vh - 400px);
+    max-height: calc(100vh - 250px);
 }
 
 .results-table {

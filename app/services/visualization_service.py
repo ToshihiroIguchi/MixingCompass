@@ -129,12 +129,14 @@ class HansenSphereVisualizationService:
                 logger.warning(f"Skipping solvent {i} - missing required keys")
                 continue
 
-            logger.debug(f"Adding solvent: {solvent.get('solvent_name', 'Unknown')} at ({solvent['delta_d']}, {solvent['delta_p']}, {solvent['delta_h']}) - {solvent['solubility']}")
+            # Support both 'name' (new) and 'solvent_name' (legacy) field names
+            solvent_name = solvent.get('name') or solvent.get('solvent_name', 'Unknown')
+            logger.debug(f"Adding solvent: {solvent_name} at ({solvent['delta_d']}, {solvent['delta_p']}, {solvent['delta_h']}) - {solvent['solubility']}")
 
             points['x'].append(solvent['delta_d'])
             points['y'].append(solvent['delta_p'])
             points['z'].append(solvent['delta_h'])
-            points['names'].append(solvent.get('solvent_name', 'Unknown'))
+            points['names'].append(solvent_name)
 
             color = HansenSphereVisualizationService.get_solubility_color(solvent['solubility'])
             points['colors'].append(color)
