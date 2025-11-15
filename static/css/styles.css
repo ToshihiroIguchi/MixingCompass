@@ -230,21 +230,38 @@ body {
     box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.1);
 }
 
-#sample-name:placeholder-shown {
+/* Shared validation styling for required text inputs */
+#sample-name:placeholder-shown,
+#mixture-name:placeholder-shown {
     border-color: #ef4444;
-    background-color: #fef2f2;
+    background-color: white;
     box-shadow: 0 0 0 1px #ef4444;
 }
 
-#sample-name:focus:placeholder-shown {
+#sample-name:focus:placeholder-shown,
+#mixture-name:focus:placeholder-shown {
     border-color: #ef4444;
-    background-color: #fef2f2;
+    background-color: white;
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
 }
 
-#sample-name:not(:placeholder-shown) {
+#sample-name:not(:placeholder-shown),
+#mixture-name:not(:placeholder-shown) {
     border-color: #d1d5db;
     background-color: white;
+}
+
+/* Shared validation styling for number inputs (Volume Ratio) */
+.volume-input:invalid {
+    border-color: #ef4444;
+    background-color: white;
+    box-shadow: 0 0 0 1px #ef4444;
+}
+
+.volume-input:focus:invalid {
+    border-color: #ef4444;
+    background-color: white;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
 }
 
 /* Panel Header */
@@ -328,6 +345,23 @@ body {
     display: flex;
     align-items: center;
     gap: 0.25rem;
+}
+
+.solvent-input:placeholder-shown {
+    border-color: #ef4444;
+    background-color: white;
+    box-shadow: 0 0 0 1px #ef4444;
+}
+
+.solvent-input:focus:placeholder-shown {
+    border-color: #ef4444;
+    background-color: white;
+    box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
+}
+
+.solvent-input:not(:placeholder-shown) {
+    border-color: #d1d5db;
+    background-color: white;
 }
 
 .ref-link,
@@ -430,8 +464,13 @@ body {
 }
 
 .hsp-input.manual-entry {
-    background-color: #fef3c7;
-    border-color: #f59e0b;
+    background-color: white;
+}
+
+.hsp-input.manual-entry:placeholder-shown,
+.hsp-input.manual-entry:invalid {
+    border-color: #ef4444;
+    background-color: white;
 }
 
 .delta-d, .delta-p, .delta-h {
@@ -471,7 +510,24 @@ body {
 
 .solubility-select:invalid {
     border-color: #ef4444;
-    background-color: #fef2f2;
+    background-color: white;
+}
+
+.solubility-select.soluble {
+    background-color: #bfdbfe;
+}
+
+.solubility-select.insoluble {
+    background-color: #fecaca;
+}
+
+.solubility-select.partial,
+.solubility-select.custom {
+    background-color: #fef08a;
+}
+
+.solubility-select option {
+    background-color: white;
 }
 
 .solubility-select option[value=""] {

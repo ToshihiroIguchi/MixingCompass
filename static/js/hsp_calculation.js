@@ -77,7 +77,7 @@ class HSPCalculation {
                     label: 'Volume Ratio',
                     type: 'number',
                     placeholder: '0',
-                    min: 0,
+                    min: 0.01,
                     step: 0.1,
                     defaultValue: 0
                 },

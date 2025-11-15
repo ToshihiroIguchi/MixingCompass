@@ -200,14 +200,18 @@ class SolventTableManager {
                 const readonlyAttr = isManualMode ? '' : 'readonly';
                 const manualClass = isManualMode ? 'manual-entry' : '';
                 const displayValue = value !== null && value !== undefined ? value : '';
+                const requiredAttr = isManualMode ? 'required' : '';
+                const placeholderAttr = isManualMode ? 'placeholder="0.0"' : '';
                 return `
                     <td>
                         <input type="number"
                                class="hsp-input ${col.key} ${manualClass}"
-                               value="${displayValue}"
+                               ${displayValue !== '' ? `value="${displayValue}"` : ''}
                                step="0.1"
                                min="0"
                                ${readonlyAttr}
+                               ${requiredAttr}
+                               ${placeholderAttr}
                                data-row-id="${row.id}"
                                data-col-key="${col.key}">
                     </td>
@@ -251,10 +255,11 @@ class SolventTableManager {
                         type="text"
                         class="solvent-input"
                         placeholder="${col.placeholder || 'Enter solvent name'}"
-                        value="${value || ''}"
+                        ${value ? `value="${value}"` : ''}
                         ${listAttr}
                         data-row-id="${row.id}"
                         data-key="${col.key}"
+                        required
                     >
                     ${Utils.createSolventStatusIcons(hasHSP, value, row.source_url)}
                 </div>
@@ -275,7 +280,7 @@ class SolventTableManager {
                     min="${col.min || 0}"
                     max="${col.max || ''}"
                     step="${col.step || '0.1'}"
-                    value="${value || ''}"
+                    ${value != null ? `value="${value}"` : ''}
                     data-row-id="${row.id}"
                     data-key="${col.key}"
                 >
@@ -291,11 +296,12 @@ class SolventTableManager {
         const selectValue = isCustom ? 'custom' : value;
         const customDisplay = isCustom ? 'block' : 'none';
         const customValue = isCustom ? value : '';
+        const colorClass = selectValue ? selectValue : '';
 
         return `
             <td>
                 <div class="solubility-input-group">
-                    <select class="solubility-select" data-row-id="${row.id}" data-key="${col.key}">
+                    <select class="solubility-select ${colorClass}" data-row-id="${row.id}" data-key="${col.key}" required>
                         <option value="">Choose solubility level</option>
                         <option value="soluble" ${selectValue === 'soluble' ? 'selected' : ''}>Soluble (1.0)</option>
                         <option value="partial" ${selectValue === 'partial' ? 'selected' : ''}>Partial (0.5)</option>
