@@ -97,6 +97,7 @@ class SolventSearch {
         this.visualization = null;
         this.currentTarget1 = null;
         this.currentTarget2 = null;
+        this.currentTarget3 = null;
         this.filteredResults = [];
         this.resultsTable = null; // Tabulator instance
         this.init();
@@ -115,6 +116,7 @@ class SolventSearch {
         this.setupPanelToggle(); // Setup panel collapse/expand
         this.updateTargetContent('target1', 'polymer'); // Initialize with polymer mode
         this.updateTargetContent('target2', 'polymer'); // Initialize with polymer mode
+        this.updateTargetContent('target3', 'polymer'); // Initialize with polymer mode
         console.log('Solvent Search initialized');
 
         // Initialize Tabulator
@@ -367,9 +369,10 @@ class SolventSearch {
         const searchBtn = document.querySelector('#search-solvents-btn');
         const target1Valid = this.isTargetValid('target1');
         const target2Valid = this.isTargetValid('target2');
+        const target3Valid = this.isTargetValid('target3');
 
         // At least one target must be valid
-        if (target1Valid || target2Valid) {
+        if (target1Valid || target2Valid || target3Valid) {
             searchBtn.disabled = false;
             searchBtn.title = 'Search for suitable solvents';
         } else {
@@ -513,13 +516,15 @@ class SolventSearch {
         // Get target data (now async)
         const target1Data = await this.getTargetData('target1');
         const target2Data = await this.getTargetData('target2');
+        const target3Data = await this.getTargetData('target3');
 
         // Store targets for RED calculations in results table
         this.currentTarget1 = target1Data;
         this.currentTarget2 = target2Data;
+        this.currentTarget3 = target3Data;
 
         // Check if at least one target is configured
-        if (!target1Data && !target2Data) {
+        if (!target1Data && !target2Data && !target3Data) {
             this.showError('Please configure at least one target.');
             return;
         }
@@ -532,7 +537,7 @@ class SolventSearch {
 
         try {
             // Use Target1 as primary target for search
-            const primaryTarget = target1Data || target2Data;
+            const primaryTarget = target1Data || target2Data || target3Data;
 
             const results = await this.searchSingleSolvents(
                 primaryTarget.delta_d, primaryTarget.delta_p, primaryTarget.delta_h, primaryTarget.r0
@@ -553,8 +558,8 @@ class SolventSearch {
             this.displayResults('single');
             this.updateResultsCount(this.searchResults.length);
 
-            // Generate visualization with both targets
-            this.generateVisualization(target1Data, target2Data, this.searchResults);
+            // Generate visualization with all targets
+            this.generateVisualization(target1Data, target2Data, this.searchResults, target3Data);
 
             // Generate RED Plot if both targets are set
             const tabRED = document.querySelector('#search-tab-red');
@@ -577,9 +582,9 @@ class SolventSearch {
         }
     }
 
-    generateVisualization(target1Data, target2Data, solventResults) {
+    generateVisualization(target1Data, target2Data, solventResults, target3Data = null) {
         // Convert target data to format expected by visualization module
-        if (!target1Data && !target2Data) {
+        if (!target1Data && !target2Data && !target3Data) {
             this.visualization.showPlaceholder('Configure targets and search solvents to display visualization');
             return;
         }
@@ -601,6 +606,14 @@ class SolventSearch {
             radius: target2Data.r0
         } : null;
 
+        const target3 = target3Data ? {
+            name: target3Data.name,
+            delta_d: target3Data.delta_d,
+            delta_p: target3Data.delta_p,
+            delta_h: target3Data.delta_h,
+            radius: target3Data.r0
+        } : null;
+
         // Prepare solvent data (all results for visualization, up to API limit)
         const solventsToVisualize = solventResults.map(s => ({
             name: s.name,
@@ -609,16 +622,28 @@ class SolventSearch {
             delta_h: s.delta_h
         }));
 
-        // Generate visualization
-        if (target1 && !target2) {
+        // Generate visualization - pass all targets
+        if (target1 && !target2 && !target3) {
             // Single target visualization
-            this.visualization.generateDualTargetVisualization(target1, null, solventsToVisualize);
-        } else if (target1 && target2) {
+            this.visualization.generateDualTargetVisualization(target1, null, solventsToVisualize, null);
+        } else if (target1 && target2 && !target3) {
             // Dual target visualization
-            this.visualization.generateDualTargetVisualization(target1, target2, solventsToVisualize);
-        } else if (target2) {
+            this.visualization.generateDualTargetVisualization(target1, target2, solventsToVisualize, null);
+        } else if (target1 && !target2 && target3) {
+            // Target 1 and 3
+            this.visualization.generateDualTargetVisualization(target1, target3, solventsToVisualize, null);
+        } else if (!target1 && target2 && target3) {
+            // Target 2 and 3
+            this.visualization.generateDualTargetVisualization(target2, target3, solventsToVisualize, null);
+        } else if (target1 && target2 && target3) {
+            // All three targets
+            this.visualization.generateDualTargetVisualization(target1, target2, solventsToVisualize, target3);
+        } else if (target2 && !target3) {
             // Only target2 is set
-            this.visualization.generateDualTargetVisualization(target2, null, solventsToVisualize);
+            this.visualization.generateDualTargetVisualization(target2, null, solventsToVisualize, null);
+        } else if (target3) {
+            // Only target3 is set
+            this.visualization.generateDualTargetVisualization(target3, null, solventsToVisualize, null);
         }
     }
 
@@ -1121,6 +1146,24 @@ class SolventSearch {
                     headerHozAlign: "center"
                 },
                 {
+                    title: "Target 3<br>RED",
+                    field: "red3_value",
+                    sorter: "number",
+                    headerFilter: minMaxFilterEditor,
+                    headerFilterFunc: minMaxFilterFunction,
+                    headerFilterLiveFilter: false,
+                    formatter: (cell) => {
+                        const value = cell.getValue();
+                        if (value === null || value === 999) return '—';
+                        const redClass = this.getREDClass(value);
+                        return `<span class="${redClass}">${value.toFixed(2)}</span>`;
+                    },
+                    headerTooltip: "Target 3: Relative Energy Difference",
+                    width: 80,
+                    hozAlign: "center",
+                    headerHozAlign: "center"
+                },
+                {
                     title: "δD<br>(MPa<sup>0.5</sup>)",
                     field: "delta_d",
                     sorter: "number",
@@ -1256,7 +1299,7 @@ class SolventSearch {
                 });
 
                 // Update visualization with filtered data
-                this.generateVisualization(this.currentTarget1, this.currentTarget2, filteredData);
+                this.generateVisualization(this.currentTarget1, this.currentTarget2, filteredData, this.currentTarget3);
 
                 // Update RED Plot with filtered data if both targets are set
                 if (this.currentTarget1 && this.currentTarget2) {
@@ -1265,10 +1308,11 @@ class SolventSearch {
             }, 300);
         });
 
-        // Wait for table to be built before hiding column
+        // Wait for table to be built before hiding columns
         this.resultsTable.on("tableBuilt", () => {
-            // Initially hide Target 2 RED column (will be shown when Target 2 is set)
+            // Initially hide Target 2 and Target 3 RED columns (will be shown when targets are set)
             this.resultsTable.hideColumn("red2_value");
+            this.resultsTable.hideColumn("red3_value");
         });
     }
 
@@ -1296,6 +1340,8 @@ class SolventSearch {
             const red1 = this.calculateRED(solvent, this.currentTarget1);
             const ra2 = this.calculateDistance(solvent, this.currentTarget2);
             const red2 = this.calculateRED(solvent, this.currentTarget2);
+            const ra3 = this.calculateDistance(solvent, this.currentTarget3);
+            const red3 = this.calculateRED(solvent, this.currentTarget3);
 
             return {
                 name: solvent.name,
@@ -1304,6 +1350,8 @@ class SolventSearch {
                 red1_value: red1 !== null ? red1 : 999,
                 ra2_value: ra2 !== null ? ra2 : 999,
                 red2_value: red2 !== null ? red2 : 999,
+                ra3_value: ra3 !== null ? ra3 : 999,
+                red3_value: red3 !== null ? red3 : 999,
                 delta_d: solvent.delta_d,
                 delta_p: solvent.delta_p,
                 delta_h: solvent.delta_h,
@@ -1318,11 +1366,17 @@ class SolventSearch {
         this.resultsTable.setData(tableData);
         this.updateResultsCountBadge(this.searchResults.length);
 
-        // Show/hide Target 2 RED column based on whether Target 2 is set
+        // Show/hide Target 2 and Target 3 RED columns based on whether they are set
         if (this.currentTarget2) {
             this.resultsTable.showColumn("red2_value");
         } else {
             this.resultsTable.hideColumn("red2_value");
+        }
+
+        if (this.currentTarget3) {
+            this.resultsTable.showColumn("red3_value");
+        } else {
+            this.resultsTable.hideColumn("red3_value");
         }
 
         // Show CSV button

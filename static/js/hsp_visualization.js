@@ -260,7 +260,7 @@ class HSPVisualization {
      * Generate client-side Hansen sphere visualization for two targets
      * This creates a simplified visualization without backend API calls
      */
-    generateDualTargetVisualization(target1Data, target2Data, solventData = []) {
+    generateDualTargetVisualization(target1Data, target2Data, solventData = [], target3Data = null) {
         // Fixed axis ranges (same as HSP Experimental)
         // δD: 5-30 (covers wide range of solvents)
         // δP: 0-50 (covers highly polar solvents)
@@ -329,6 +329,36 @@ class HSPVisualization {
             });
         }
 
+        // Target 3 sphere and center (green) if provided
+        if (target3Data) {
+            // Target 3 sphere as wireframe (green)
+            traces.push(this.generateSphereWireframe(
+                [target3Data.delta_d, target3Data.delta_p, target3Data.delta_h],
+                target3Data.radius,
+                'rgba(76, 175, 80, 0.8)',
+                target3Data.name || 'Target 3'
+            ));
+
+            // Target 3 center
+            traces.push({
+                type: 'scatter3d',
+                mode: 'markers',
+                x: [target3Data.delta_d],
+                y: [target3Data.delta_p],
+                z: [target3Data.delta_h],
+                name: `${target3Data.name || 'Target 3'} Center`,
+                showlegend: false,
+                marker: {
+                    size: 3,
+                    color: '#4CAF50',
+                    symbol: 'circle',
+                    opacity: 1.0,
+                    line: { width: 0.5, color: 'rgba(76, 175, 80, 0.8)' }
+                },
+                hovertemplate: `<b>${target3Data.name || 'Target 3'} Center</b><br>δD: ${target3Data.delta_d.toFixed(1)}<br>δP: ${target3Data.delta_p.toFixed(1)}<br>δH: ${target3Data.delta_h.toFixed(1)}<br>R0: ${target3Data.radius.toFixed(1)}<extra></extra>`
+            });
+        }
+
         // Add solvent points if provided
         if (solventData && solventData.length > 0) {
             const solventX = [];
@@ -342,7 +372,7 @@ class HSPVisualization {
                 solventY.push(s.delta_p);
                 solventZ.push(s.delta_h);
 
-                // Calculate RED for both targets
+                // Calculate RED for all targets
                 const red1 = this.calculateDistance(
                     s.delta_d, s.delta_p, s.delta_h,
                     target1Data.delta_d, target1Data.delta_p, target1Data.delta_h
@@ -353,9 +383,26 @@ class HSPVisualization {
                     target2Data.delta_d, target2Data.delta_p, target2Data.delta_h
                 ) / target2Data.radius : null;
 
+                const red3 = target3Data ? this.calculateDistance(
+                    s.delta_d, s.delta_p, s.delta_h,
+                    target3Data.delta_d, target3Data.delta_p, target3Data.delta_h
+                ) / target3Data.radius : null;
+
                 // Determine color based on RED values
                 let color = '';
-                if (target2Data) {
+                if (target3Data) {
+                    // Triple target mode - color by number of targets satisfied
+                    const satisfied = [red1 < 1.0, red2 < 1.0, red3 < 1.0].filter(Boolean).length;
+                    if (satisfied === 3) {
+                        color = '#1B5E20'; // Dark Green - all 3 targets
+                    } else if (satisfied === 2) {
+                        color = '#66BB6A'; // Light Green - 2 targets
+                    } else if (satisfied === 1) {
+                        color = '#FDD835'; // Yellow - 1 target
+                    } else {
+                        color = '#BDBDBD'; // Grey - no targets
+                    }
+                } else if (target2Data) {
                     // Dual target mode
                     if (red1 < 1.0 && red2 < 1.0) {
                         color = '#4CAF50'; // Green - both targets
@@ -381,6 +428,10 @@ class HSPVisualization {
 
                 if (red2 !== null) {
                     hoverText += `<br>RED (${target2Data.name || 'Target 2'}): ${red2.toFixed(2)}`;
+                }
+
+                if (red3 !== null) {
+                    hoverText += `<br>RED (${target3Data.name || 'Target 3'}): ${red3.toFixed(2)}`;
                 }
 
                 solventHoverTexts.push(hoverText);
@@ -443,7 +494,7 @@ class HSPVisualization {
         this.displayPlotly3D({ data: traces, layout: layout });
 
         // Generate and render 2D projections
-        const projections2D = this.generate2DProjections(target1Data, target2Data, solventData);
+        const projections2D = this.generate2DProjections(target1Data, target2Data, solventData, target3Data);
         if (projections2D) {
             // Use 'search' prefix for Solvent Search container IDs
             const containerPrefix = this.containerId.includes('search') ? 'search' : '';
@@ -614,7 +665,7 @@ class HSPVisualization {
     /**
      * Generate 2D projections for dual target visualization
      */
-    generate2DProjections(target1Data, target2Data, solventData = []) {
+    generate2DProjections(target1Data, target2Data, solventData = [], target3Data = null) {
         if (!target1Data) {
             console.warn('No target data provided for 2D projections');
             return null;
@@ -669,6 +720,11 @@ class HSPVisualization {
             allY.push(target2Data.delta_p, target2Data.delta_h);
         }
 
+        if (target3Data) {
+            allX.push(target3Data.delta_d);
+            allY.push(target3Data.delta_p, target3Data.delta_h);
+        }
+
         solventData.forEach(s => {
             allX.push(s.delta_d);
             allY.push(s.delta_p, s.delta_h);
@@ -718,6 +774,27 @@ class HSPVisualization {
                 line: { color: '#FF9800', width: 2 },
                 fill: 'toself',
                 fillcolor: 'rgba(255, 152, 0, 0.1)',
+                hoverinfo: 'skip'
+            });
+        }
+
+        // Target 3 ellipse if provided
+        if (target3Data) {
+            const ellipse3_ddDp = createEllipsePoints(
+                target3Data.delta_d,
+                target3Data.delta_p,
+                target3Data.radius / 2,  // δD direction: R0/2
+                target3Data.radius        // δP direction: R0
+            );
+            ddDpData.push({
+                type: 'scatter',
+                mode: 'lines',
+                x: ellipse3_ddDp.x,
+                y: ellipse3_ddDp.y,
+                name: target3Data.name || 'Target 3',
+                line: { color: '#4CAF50', width: 2 },
+                fill: 'toself',
+                fillcolor: 'rgba(76, 175, 80, 0.1)',
                 hoverinfo: 'skip'
             });
         }
@@ -868,6 +945,26 @@ class HSPVisualization {
             });
         }
 
+        if (target3Data) {
+            const ellipse3_ddDh = createEllipsePoints(
+                target3Data.delta_d,
+                target3Data.delta_h,
+                target3Data.radius / 2,  // δD direction: R0/2
+                target3Data.radius        // δH direction: R0
+            );
+            ddDhData.push({
+                type: 'scatter',
+                mode: 'lines',
+                x: ellipse3_ddDh.x,
+                y: ellipse3_ddDh.y,
+                name: target3Data.name || 'Target 3',
+                line: { color: '#4CAF50', width: 2 },
+                fill: 'toself',
+                fillcolor: 'rgba(76, 175, 80, 0.1)',
+                hoverinfo: 'skip'
+            });
+        }
+
         if (solventData && solventData.length > 0) {
             const solventX = [];
             const solventY = [];
@@ -1009,6 +1106,26 @@ class HSPVisualization {
                 line: { color: '#FF9800', width: 2 },
                 fill: 'toself',
                 fillcolor: 'rgba(255, 152, 0, 0.1)',
+                hoverinfo: 'skip'
+            });
+        }
+
+        if (target3Data) {
+            const circle3_dpDh = createEllipsePoints(
+                target3Data.delta_p,
+                target3Data.delta_h,
+                target3Data.radius,  // δP direction: R0
+                target3Data.radius   // δH direction: R0
+            );
+            dpDhData.push({
+                type: 'scatter',
+                mode: 'lines',
+                x: circle3_dpDh.x,
+                y: circle3_dpDh.y,
+                name: target3Data.name || 'Target 3',
+                line: { color: '#4CAF50', width: 2 },
+                fill: 'toself',
+                fillcolor: 'rgba(76, 175, 80, 0.1)',
                 hoverinfo: 'skip'
             });
         }
