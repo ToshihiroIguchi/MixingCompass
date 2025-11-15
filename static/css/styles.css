@@ -3198,7 +3198,7 @@ body {
 }
 
 /* Section Grouping */
-.data-list-container > div {
+.data-list-container > div:not(.modal) {
     background: white;
     border-radius: 8px;
     padding: 1.5rem;

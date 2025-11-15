@@ -182,5 +182,83 @@ const Utils = {
     }
 };
 
+/**
+ * Modal Management Utilities
+ * Provides consistent modal behavior across the application (Esc key, autofocus, background click)
+ */
+const ModalManager = {
+    /**
+     * Open modal with common features (Esc key, autofocus, background click)
+     * @param {string} modalId - ID of the modal element
+     * @param {Object} options - Options
+     * @param {string} options.focusSelector - Selector for element to focus (optional)
+     * @param {boolean} options.selectText - Whether to select text in focused element (default: false)
+     * @param {Function} options.onClose - Callback when modal closes (optional)
+     */
+    open(modalId, options = {}) {
+        const modal = document.getElementById(modalId);
+        if (!modal) {
+            console.warn(`Modal with id "${modalId}" not found`);
+            return;
+        }
+
+        modal.style.display = 'flex';
+
+        // Autofocus on specified element
+        if (options.focusSelector) {
+            const focusElement = modal.querySelector(options.focusSelector);
+            if (focusElement) {
+                setTimeout(() => {
+                    focusElement.focus();
+                    if (options.selectText && typeof focusElement.select === 'function') {
+                        focusElement.select();
+                    }
+                }, 100);
+            }
+        }
+
+        // Escape key handler
+        const escHandler = (e) => {
+            if (e.key === 'Escape' && modal.style.display === 'flex') {
+                this.close(modalId, options.onClose);
+            }
+        };
+
+        // Store handler reference on modal element for cleanup
+        modal._escHandler = escHandler;
+        document.addEventListener('keydown', escHandler);
+
+        // Background click handler (already handled by existing modal code in most cases)
+        // This is optional and can be skipped if modal already has background click handling
+    },
+
+    /**
+     * Close modal and cleanup listeners
+     * @param {string} modalId - ID of the modal element
+     * @param {Function} onClose - Callback when modal closes (optional)
+     */
+    close(modalId, onClose) {
+        const modal = document.getElementById(modalId);
+        if (!modal) {
+            console.warn(`Modal with id "${modalId}" not found`);
+            return;
+        }
+
+        modal.style.display = 'none';
+
+        // Remove Escape key listener
+        if (modal._escHandler) {
+            document.removeEventListener('keydown', modal._escHandler);
+            delete modal._escHandler;
+        }
+
+        // Execute callback if provided
+        if (typeof onClose === 'function') {
+            onClose();
+        }
+    }
+};
+
 // Make available globally
 window.Utils = Utils;
+window.ModalManager = ModalManager;

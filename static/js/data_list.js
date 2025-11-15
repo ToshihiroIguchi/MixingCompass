@@ -1151,27 +1151,28 @@ class DataListManager {
         if (casInput) casInput.value = solventData.cas || '';
         if (bpInput) bpInput.value = solventData.boiling_point !== null ? solventData.boiling_point : '';
 
-        modal.style.display = 'block';
+        // Open modal with autofocus, text selection, and Esc key support
+        ModalManager.open('edit-user-solvent-modal', {
+            focusSelector: '#edit-solvent-name',
+            selectText: true
+        });
     }
 
     closeEditUserSolventModal() {
         const modal = document.querySelector('#edit-user-solvent-modal');
         if (modal) {
-            modal.style.display = 'none';
             modal.removeAttribute('data-original-name');
         }
+        ModalManager.close('edit-user-solvent-modal');
     }
 
     showAddUserSolventModal() {
-        const modal = document.querySelector('#add-user-solvent-modal');
         const nameInput = document.querySelector('#add-solvent-name');
         const deltaDInput = document.querySelector('#add-delta-d');
         const deltaPInput = document.querySelector('#add-delta-p');
         const deltaHInput = document.querySelector('#add-delta-h');
         const casInput = document.querySelector('#add-cas');
         const bpInput = document.querySelector('#add-boiling-point');
-
-        if (!modal) return;
 
         // Clear form
         if (nameInput) nameInput.value = '';
@@ -1181,14 +1182,14 @@ class DataListManager {
         if (casInput) casInput.value = '';
         if (bpInput) bpInput.value = '';
 
-        modal.style.display = 'block';
+        // Open modal with autofocus and Esc key support
+        ModalManager.open('add-user-solvent-modal', {
+            focusSelector: '#add-solvent-name'
+        });
     }
 
     closeAddUserSolventModal() {
-        const modal = document.querySelector('#add-user-solvent-modal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
+        ModalManager.close('add-user-solvent-modal');
     }
 
     async addUserSolvent() {
@@ -1461,18 +1462,20 @@ class DataListManager {
     }
 
     showAddUserPolymerModal() {
-        const modal = document.querySelector('#add-user-polymer-modal');
-        if (!modal) return;
+        // Clear form
         ['name', 'delta-d', 'delta-p', 'delta-h', 'r0', 'cas'].forEach(id => {
             const el = document.querySelector(`#add-polymer-${id}`);
             if (el) el.value = '';
         });
-        modal.style.display = 'block';
+
+        // Open modal with autofocus and Esc key support
+        ModalManager.open('add-user-polymer-modal', {
+            focusSelector: '#add-polymer-name'
+        });
     }
 
     closeAddUserPolymerModal() {
-        const modal = document.querySelector('#add-user-polymer-modal');
-        if (modal) modal.style.display = 'none';
+        ModalManager.close('add-user-polymer-modal');
     }
 
     addUserPolymer() {
@@ -1504,22 +1507,31 @@ class DataListManager {
     showEditUserPolymerModal(polymerData) {
         const modal = document.querySelector('#edit-user-polymer-modal');
         if (!modal) return;
+
+        // Store original polymer name for update
         modal.setAttribute('data-original-name', polymerData.name);
+
+        // Populate form
         document.querySelector('#edit-polymer-name').value = polymerData.name || '';
         document.querySelector('#edit-polymer-delta-d').value = polymerData.delta_d ?? '';
         document.querySelector('#edit-polymer-delta-p').value = polymerData.delta_p ?? '';
         document.querySelector('#edit-polymer-delta-h').value = polymerData.delta_h ?? '';
         document.querySelector('#edit-polymer-r0').value = polymerData.r0 ?? '';
         document.querySelector('#edit-polymer-cas').value = polymerData.cas || '';
-        modal.style.display = 'block';
+
+        // Open modal with autofocus, text selection, and Esc key support
+        ModalManager.open('edit-user-polymer-modal', {
+            focusSelector: '#edit-polymer-name',
+            selectText: true
+        });
     }
 
     closeEditUserPolymerModal() {
         const modal = document.querySelector('#edit-user-polymer-modal');
         if (modal) {
-            modal.style.display = 'none';
             modal.removeAttribute('data-original-name');
         }
+        ModalManager.close('edit-user-polymer-modal');
     }
 
     saveUserPolymerChanges() {
