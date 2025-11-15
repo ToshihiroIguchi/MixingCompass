@@ -757,6 +757,18 @@ class HSPVisualization {
             hoverinfo: 'skip'
         });
 
+        // Target 1 center point
+        ddDpData.push({
+            type: 'scatter',
+            mode: 'markers',
+            x: [target1Data.delta_d],
+            y: [target1Data.delta_p],
+            name: `${target1Data.name || 'Target 1'} Center`,
+            marker: { size: 8, color: '#2196F3', symbol: 'circle' },
+            showlegend: false,
+            hoverinfo: 'skip'
+        });
+
         // Target 2 ellipse if provided
         if (target2Data) {
             const ellipse2_ddDp = createEllipsePoints(
@@ -774,6 +786,18 @@ class HSPVisualization {
                 line: { color: '#FF9800', width: 2 },
                 fill: 'toself',
                 fillcolor: 'rgba(255, 152, 0, 0.1)',
+                hoverinfo: 'skip'
+            });
+
+            // Target 2 center point
+            ddDpData.push({
+                type: 'scatter',
+                mode: 'markers',
+                x: [target2Data.delta_d],
+                y: [target2Data.delta_p],
+                name: `${target2Data.name || 'Target 2'} Center`,
+                marker: { size: 8, color: '#FF9800', symbol: 'circle' },
+                showlegend: false,
                 hoverinfo: 'skip'
             });
         }
@@ -795,6 +819,18 @@ class HSPVisualization {
                 line: { color: '#4CAF50', width: 2 },
                 fill: 'toself',
                 fillcolor: 'rgba(76, 175, 80, 0.1)',
+                hoverinfo: 'skip'
+            });
+
+            // Target 3 center point
+            ddDpData.push({
+                type: 'scatter',
+                mode: 'markers',
+                x: [target3Data.delta_d],
+                y: [target3Data.delta_p],
+                name: `${target3Data.name || 'Target 3'} Center`,
+                marker: { size: 8, color: '#4CAF50', symbol: 'circle' },
+                showlegend: false,
                 hoverinfo: 'skip'
             });
         }
@@ -925,6 +961,18 @@ class HSPVisualization {
             hoverinfo: 'skip'
         });
 
+        // Target 1 center point
+        ddDhData.push({
+            type: 'scatter',
+            mode: 'markers',
+            x: [target1Data.delta_d],
+            y: [target1Data.delta_h],
+            name: `${target1Data.name || 'Target 1'} Center`,
+            marker: { size: 8, color: '#2196F3', symbol: 'circle' },
+            showlegend: false,
+            hoverinfo: 'skip'
+        });
+
         if (target2Data) {
             const ellipse2_ddDh = createEllipsePoints(
                 target2Data.delta_d,
@@ -941,6 +989,18 @@ class HSPVisualization {
                 line: { color: '#FF9800', width: 2 },
                 fill: 'toself',
                 fillcolor: 'rgba(255, 152, 0, 0.1)',
+                hoverinfo: 'skip'
+            });
+
+            // Target 2 center point
+            ddDhData.push({
+                type: 'scatter',
+                mode: 'markers',
+                x: [target2Data.delta_d],
+                y: [target2Data.delta_h],
+                name: `${target2Data.name || 'Target 2'} Center`,
+                marker: { size: 8, color: '#FF9800', symbol: 'circle' },
+                showlegend: false,
                 hoverinfo: 'skip'
             });
         }
@@ -961,6 +1021,18 @@ class HSPVisualization {
                 line: { color: '#4CAF50', width: 2 },
                 fill: 'toself',
                 fillcolor: 'rgba(76, 175, 80, 0.1)',
+                hoverinfo: 'skip'
+            });
+
+            // Target 3 center point
+            ddDhData.push({
+                type: 'scatter',
+                mode: 'markers',
+                x: [target3Data.delta_d],
+                y: [target3Data.delta_h],
+                name: `${target3Data.name || 'Target 3'} Center`,
+                marker: { size: 8, color: '#4CAF50', symbol: 'circle' },
+                showlegend: false,
                 hoverinfo: 'skip'
             });
         }
@@ -1090,6 +1162,18 @@ class HSPVisualization {
             hoverinfo: 'skip'
         });
 
+        // Target 1 center point
+        dpDhData.push({
+            type: 'scatter',
+            mode: 'markers',
+            x: [target1Data.delta_p],
+            y: [target1Data.delta_h],
+            name: `${target1Data.name || 'Target 1'} Center`,
+            marker: { size: 8, color: '#2196F3', symbol: 'circle' },
+            showlegend: false,
+            hoverinfo: 'skip'
+        });
+
         if (target2Data) {
             const circle2_dpDh = createEllipsePoints(
                 target2Data.delta_p,
@@ -1106,6 +1190,18 @@ class HSPVisualization {
                 line: { color: '#FF9800', width: 2 },
                 fill: 'toself',
                 fillcolor: 'rgba(255, 152, 0, 0.1)',
+                hoverinfo: 'skip'
+            });
+
+            // Target 2 center point
+            dpDhData.push({
+                type: 'scatter',
+                mode: 'markers',
+                x: [target2Data.delta_p],
+                y: [target2Data.delta_h],
+                name: `${target2Data.name || 'Target 2'} Center`,
+                marker: { size: 8, color: '#FF9800', symbol: 'circle' },
+                showlegend: false,
                 hoverinfo: 'skip'
             });
         }
@@ -1126,6 +1222,18 @@ class HSPVisualization {
                 line: { color: '#4CAF50', width: 2 },
                 fill: 'toself',
                 fillcolor: 'rgba(76, 175, 80, 0.1)',
+                hoverinfo: 'skip'
+            });
+
+            // Target 3 center point
+            dpDhData.push({
+                type: 'scatter',
+                mode: 'markers',
+                x: [target3Data.delta_p],
+                y: [target3Data.delta_h],
+                name: `${target3Data.name || 'Target 3'} Center`,
+                marker: { size: 8, color: '#4CAF50', symbol: 'circle' },
+                showlegend: false,
                 hoverinfo: 'skip'
             });
         }
