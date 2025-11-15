@@ -1265,8 +1265,11 @@ class SolventSearch {
             }, 300);
         });
 
-        // Initially hide Target 2 RED column (will be shown when Target 2 is set)
-        this.resultsTable.hideColumn("red2_value");
+        // Wait for table to be built before hiding column
+        this.resultsTable.on("tableBuilt", () => {
+            // Initially hide Target 2 RED column (will be shown when Target 2 is set)
+            this.resultsTable.hideColumn("red2_value");
+        });
     }
 
     /**
