@@ -152,6 +152,17 @@
                 <div class="mixture-table-section">
                     <div class="mixture-table-header">
                         <h3>Components</h3>
+                        <div class="solvent-set-controls">
+                            <select id="calc-solvent-set-selector" class="solvent-set-select">
+                                <option value="">Select saved solvent set...</option>
+                            </select>
+                            <button id="calc-load-solvent-set-btn" class="btn btn-secondary btn-small" disabled>Load</button>
+                            <div class="save-set-group">
+                                <input type="text" id="calc-new-set-name" class="set-name-input" placeholder="Set name">
+                                <button id="calc-save-solvent-set-btn" class="btn btn-primary btn-small">Save</button>
+                            </div>
+                            <button id="calc-new-experiment-btn" class="btn btn-secondary btn-small" title="Clear all components">New</button>
+                        </div>
                         <span id="total-volume" class="volume-total">Total Ratio: 0</span>
                     </div>
                     <div id="mixture-components-container" class="mixture-components-container">
@@ -756,7 +767,7 @@
     <script src="/static/js/shared_solvent_cache.js"></script>
     <script src="/static/js/solvent_table.js?v=20251115VALIDATION"></script>
     <script src="/static/js/main.js?v=2025110801"></script>
-    <script src="/static/js/solvent_set_manager.js"></script>
+    <script src="/static/js/solvent_set_manager.js?v=20251116CALC"></script>
     <script src="/static/js/experimental_results_manager.js"></script>
     <script src="/static/js/hsp_visualization.js?v=20251115TARGET3H"></script>
     <script src="/static/js/hsp_experimental.js?v=20251108MANUAL"></script>

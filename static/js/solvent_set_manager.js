@@ -27,6 +27,8 @@ class SolventSetManager {
             console.log('Event listeners already attached, skipping...');
             return;
         }
+
+        // ===== HSP (Experimental) Section =====
         // Save solvent set button
         const saveBtn = document.querySelector('#save-solvent-set-btn');
         if (saveBtn) {
@@ -58,6 +60,44 @@ class SolventSetManager {
             });
         }
 
+        // ===== HSP (Calculation) Section =====
+        // Save solvent set button (Calculation)
+        const calcSaveBtn = document.querySelector('#calc-save-solvent-set-btn');
+        if (calcSaveBtn) {
+            calcSaveBtn.addEventListener('click', () => this.showSaveSolventSetDialogForCalculation());
+        }
+
+        // Load solvent set button (Calculation)
+        const calcLoadBtn = document.querySelector('#calc-load-solvent-set-btn');
+        if (calcLoadBtn) {
+            calcLoadBtn.addEventListener('click', () => this.loadSelectedSolventSetForCalculation());
+        }
+
+        // Solvent set selector change (Calculation)
+        const calcSelector = document.querySelector('#calc-solvent-set-selector');
+        if (calcSelector) {
+            calcSelector.addEventListener('change', (e) => {
+                const calcLoadBtn = document.querySelector('#calc-load-solvent-set-btn');
+                if (calcLoadBtn) calcLoadBtn.disabled = !e.target.value;
+            });
+        }
+
+        // Set name input Enter key support (Calculation)
+        const calcSetNameInput = document.querySelector('#calc-new-set-name');
+        if (calcSetNameInput) {
+            calcSetNameInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    this.showSaveSolventSetDialogForCalculation();
+                }
+            });
+        }
+
+        // New experiment button (Calculation)
+        const calcNewBtn = document.querySelector('#calc-new-experiment-btn');
+        if (calcNewBtn) {
+            calcNewBtn.addEventListener('click', () => this.clearCalculationComponents());
+        }
+
         // Mark as attached to prevent duplicate registration
         this.listenersAttached = true;
         console.log('Event listeners attached successfully');
@@ -69,9 +109,10 @@ class SolventSetManager {
 
         const tryInitialize = () => {
             const selector = document.querySelector('#solvent-set-selector');
+            const calcSelector = document.querySelector('#calc-solvent-set-selector');
 
-            if (selector) {
-                console.log('Solvent set selector found, initializing...');
+            if (selector || calcSelector) {
+                console.log('Solvent set selector(s) found, initializing...');
                 this.updateSolventSetSelector();
                 // Attach event listeners NOW that selector exists
                 this.attachDynamicEventListeners();
@@ -83,7 +124,7 @@ class SolventSetManager {
                 console.log(`Waiting for solvent set selector... (${retryCount}/${maxRetries})`);
                 setTimeout(tryInitialize, 100);
             } else {
-                console.warn('Solvent set selector not found after maximum retries');
+                console.warn('Solvent set selectors not found after maximum retries');
             }
             return false;
         };
@@ -95,7 +136,9 @@ class SolventSetManager {
         document.addEventListener('hspExperimentalReady', () => {
             console.log('HSP Experimental ready event received');
             this.updateSolventSetSelector();
-            // Attach event listeners again in case they weren't set before
+            // Reset the flag to allow re-attaching listeners after HTML regeneration
+            this.listenersAttached = false;
+            // Attach event listeners again after HTML has been regenerated
             this.attachDynamicEventListeners();
         });
     }
@@ -111,36 +154,49 @@ class SolventSetManager {
     }
 
     updateSolventSetSelector() {
-        const selector = document.querySelector('#solvent-set-selector');
-        if (!selector) {
-            console.warn('Solvent set selector not found, skipping update');
-            return false;
-        }
-
-        // Clear existing options except the first placeholder
-        selector.innerHTML = '<option value="">Select saved solvent set...</option>';
-
         // Sort by last used date (most recent first)
         const sortedSets = [...this.solventSets].sort((a, b) =>
             new Date(b.lastUsed || b.created) - new Date(a.lastUsed || a.created)
         );
 
-        // Add options for each saved set
-        sortedSets.forEach(set => {
-            const option = document.createElement('option');
-            option.value = set.id;
-            option.textContent = `${set.name} (${set.solvents.length} solvents)`;
-            selector.appendChild(option);
+        // Update both selectors (Experimental and Calculation)
+        const selectors = [
+            { id: '#solvent-set-selector', loadBtnId: '#load-solvent-set-btn' },
+            { id: '#calc-solvent-set-selector', loadBtnId: '#calc-load-solvent-set-btn' }
+        ];
+
+        let updated = false;
+        selectors.forEach(({ id, loadBtnId }) => {
+            const selector = document.querySelector(id);
+            if (selector) {
+                // Clear existing options except the first placeholder
+                selector.innerHTML = '<option value="">Select saved solvent set...</option>';
+
+                // Add options for each saved set
+                sortedSets.forEach(set => {
+                    const option = document.createElement('option');
+                    option.value = set.id;
+                    option.textContent = `${set.name} (${set.solvents.length} solvents)`;
+                    selector.appendChild(option);
+                });
+
+                // Disable load button initially
+                const loadBtn = document.querySelector(loadBtnId);
+                if (loadBtn) {
+                    loadBtn.disabled = true;
+                }
+
+                updated = true;
+            }
         });
 
-        // Disable load button initially
-        const loadBtn = document.querySelector('#load-solvent-set-btn');
-        if (loadBtn) {
-            loadBtn.disabled = true;
+        if (updated) {
+            console.log(`Updated solvent set selector(s) with ${this.solventSets.length} sets`);
+        } else {
+            console.warn('No solvent set selectors found, skipping update');
         }
 
-        console.log(`Updated solvent set selector with ${this.solventSets.length} sets`);
-        return true;
+        return updated;
     }
 
     showSaveSolventSetDialog() {
@@ -333,7 +389,7 @@ class SolventSetManager {
         }
     }
 
-    loadSelectedSolventSet() {
+    async loadSelectedSolventSet() {
         const selector = document.querySelector('#solvent-set-selector');
         const selectedId = selector.value;
 
@@ -348,15 +404,14 @@ class SolventSetManager {
             return;
         }
 
-        this.loadSolventSet(solventSet);
+        await this.loadSolventSet(solventSet, window.hspExperimental);
     }
 
 
-    async loadSolventSet(solventSet) {
+    async loadSolventSet(solventSet, hspInterface) {
         try {
-            const hspExperimental = window.hspExperimental;
-            if (!hspExperimental || !hspExperimental.table) {
-                alert('HSP Experimental interface not found');
+            if (!hspInterface || !hspInterface.table) {
+                Notification.error('HSP interface not found');
                 return;
             }
 
@@ -367,11 +422,20 @@ class SolventSetManager {
                     delta_d: null,
                     delta_p: null,
                     delta_h: null,
-                    solubility: '', // Reset solubility (experiment-specific)
                     notes: solventData.notes || '',
                     mode: 'auto',
                     source_url: null
                 };
+
+                // For Experimental section, include solubility field
+                if (hspInterface === window.hspExperimental) {
+                    rowData.solubility = ''; // Reset solubility (experiment-specific)
+                }
+
+                // For Calculation section, include volume field
+                if (hspInterface === window.hspCalculation) {
+                    rowData.volume = 1; // Default volume
+                }
 
                 // Check if manual mode data exists
                 if (solventData.manual_delta_d !== undefined) {
@@ -385,18 +449,18 @@ class SolventSetManager {
             });
 
             // Set all data at once
-            hspExperimental.table.setData(tableData);
+            hspInterface.table.setData(tableData);
 
-            // For auto mode rows, trigger lookup
-            const rows = hspExperimental.table.getData();
+            // For auto mode rows, trigger lookup (DRY - same logic for both sections!)
+            const rows = hspInterface.table.getData();
             for (const row of rows) {
                 if (row.mode === 'auto' && row.solvent) {
-                    await hspExperimental.lookupSolvent(row, row.solvent);
+                    await hspInterface.lookupSolvent(row, row.solvent);
                 }
             }
 
             // Ensure table is rendered with all data
-            hspExperimental.table.render();
+            hspInterface.table.render();
 
             // Update the last used timestamp
             solventSet.lastUsed = Utils.formatISO();
@@ -549,6 +613,92 @@ class SolventSetManager {
                 console.error('Error clearing stored data:', error);
                 alert('Failed to clear data');
             }
+        }
+    }
+
+    // ===== HSP (Calculation) Section Methods =====
+
+    /**
+     * Show save dialog for Calculation section
+     */
+    showSaveSolventSetDialogForCalculation() {
+        const hspCalculation = window.hspCalculation;
+        if (!hspCalculation || !hspCalculation.table) {
+            Notification.error('HSP Calculation interface not found');
+            return;
+        }
+
+        const currentSolvents = hspCalculation.table.getData();
+
+        if (currentSolvents.length === 0) {
+            Notification.error('No solvents to save. Add at least one solvent first.');
+            return;
+        }
+
+        // Get set name from input field
+        const setNameInput = document.querySelector('#calc-new-set-name');
+        const setName = setNameInput ? setNameInput.value.trim() : '';
+
+        if (!setName) {
+            Notification.error('Please enter a name for the solvent set');
+            return;
+        }
+
+        // Save the solvent set (reuses existing saveSolventSet method - DRY!)
+        this.saveSolventSet(setName, currentSolvents);
+
+        // Clear the input field after successful save
+        if (setNameInput) {
+            setNameInput.value = '';
+        }
+    }
+
+    /**
+     * Load selected solvent set into Calculation section
+     */
+    async loadSelectedSolventSetForCalculation() {
+        const selector = document.querySelector('#calc-solvent-set-selector');
+        const selectedId = selector ? selector.value : '';
+
+        if (!selectedId) {
+            Notification.error('Please select a solvent set first');
+            return;
+        }
+
+        const solventSet = this.solventSets.find(set => set.id === selectedId);
+        if (!solventSet) {
+            Notification.error(`Solvent set not found: ${selectedId}`);
+            return;
+        }
+
+        await this.loadSolventSet(solventSet, window.hspCalculation);
+    }
+
+    /**
+     * Clear all components in Calculation section
+     */
+    clearCalculationComponents() {
+        const hspCalculation = window.hspCalculation;
+        if (!hspCalculation || !hspCalculation.table) {
+            Notification.error('HSP Calculation interface not found');
+            return;
+        }
+
+        if (confirm('Clear all components and start fresh?')) {
+            hspCalculation.table.setData([]);
+
+            // Clear selectors
+            const selector = document.querySelector('#calc-solvent-set-selector');
+            if (selector) {
+                selector.value = '';
+            }
+
+            const setNameInput = document.querySelector('#calc-new-set-name');
+            if (setNameInput) {
+                setNameInput.value = '';
+            }
+
+            Notification.success('Components cleared');
         }
     }
 }
