@@ -882,14 +882,16 @@ class DataListManager {
     // === User Added Solvents Management ===
 
     async loadUserAddedSolvents() {
-        const tableContainer = document.querySelector('#user-solvents-table');
+        const tableContainer = document.querySelector('#user-solvents-table-container');
         const emptyState = document.querySelector('#user-solvents-empty');
         const countBadge = document.querySelector('#user-solvents-count');
 
         if (!tableContainer) {
-            console.error('User solvents table container not found');
+            console.error('[User Solvents] Table container not found');
             return;
         }
+
+        console.log('[User Solvents] Starting load...');
 
         try {
             // Show loading state with spinner
@@ -929,13 +931,25 @@ class DataListManager {
                 emptyState.style.display = 'none';
             }
 
+            console.log('[User Solvents] Data fetched, initializing table...', {
+                solventCount: solvents.length,
+                tableExists: !!this.userSolventsTable
+            });
+
             // Initialize or update Tabulator
             setTimeout(() => {
                 if (this.userSolventsTable) {
+                    // Table already exists, just update data
+                    console.log('[User Solvents] Updating existing table with new data');
                     this.userSolventsTable.setData(solvents);
                 } else {
+                    // First time initialization: clear loading state and recreate table element
+                    console.log('[User Solvents] Creating new Tabulator instance');
+                    tableContainer.innerHTML = '<div id="user-solvents-table"></div>';
+
                     this.userSolventsTable = new Tabulator("#user-solvents-table", {
                         data: solvents,
+                        height: "400px",  // Set explicit height to prevent infinite resize loop
                         layout: "fitColumns",
                         responsiveLayout: "collapse",
                         pagination: true,
@@ -1053,10 +1067,11 @@ class DataListManager {
                             }
                         ]
                     });
+                    console.log('[User Solvents] Tabulator instance created successfully');
                 }
             }, 50);
 
-            console.log(`Loaded ${solvents.length} user-added solvents`);
+            console.log(`[User Solvents] Loaded ${solvents.length} user-added solvents successfully`);
 
         } catch (error) {
             console.error('Error loading user-added solvents:', error);

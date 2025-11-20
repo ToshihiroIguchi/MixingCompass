@@ -43,34 +43,39 @@ def get_solvent_database(request: Request = None):
 
         # Add user-added solvents
         try:
-            from ..services.solvent_service import SolventDataService
-            solvent_service = SolventDataService()
+            from ..services.solvent_service import SolventService
+            solvent_service = SolventService()
             user_solvents = solvent_service.get_user_added_solvents()
 
             if user_solvents:
+                print(f"[Solvent Search] Loading {len(user_solvents)} user-added solvents...")
                 user_df_data = []
                 for solvent in user_solvents:
+                    # SolventData is a Pydantic model, access attributes directly
                     user_df_data.append({
-                        'Solvent': solvent['solvent'],
-                        'delta_D': solvent['delta_d'],
-                        'delta_P': solvent['delta_p'],
-                        'delta_H': solvent['delta_h'],
-                        'CAS': solvent.get('cas'),
-                        'Tb': solvent.get('boiling_point'),
+                        'Solvent': solvent.solvent,
+                        'delta_D': solvent.delta_d,
+                        'delta_P': solvent.delta_p,
+                        'delta_H': solvent.delta_h,
+                        'CAS': solvent.cas,
+                        'Tb': solvent.boiling_point,
                         'CHO': None,
-                        'Density': None,
-                        'MWt': None,
-                        'Cost': None,
-                        'WGK': None,
-                        'GHS': None,
+                        'Density': solvent.density,
+                        'MWt': solvent.molecular_weight,
+                        'Cost': solvent.cost_per_ml,
+                        'WGK': solvent.wgk_class,
+                        'GHS': solvent.ghs_classification,
                         'source_url': None,
                         'source_file': 'user_added'
                     })
 
                 user_df = pd.DataFrame(user_df_data)
                 _solvent_db = pd.concat([_solvent_db, user_df], ignore_index=True)
+                print(f"[Solvent Search] Successfully added {len(user_df)} user-added solvents to database")
         except Exception as e:
             print(f"Warning: Could not load user-added solvents: {e}")
+            import traceback
+            traceback.print_exc()
 
         # Add saved mixtures from localStorage (need to get from client, skip for now)
         # Mixtures will be added by client-side filtering
@@ -164,7 +169,7 @@ async def search_solvents(
     cost_min: Optional[float] = Query(None),
     cost_max: Optional[float] = Query(None),
     wgk_filter: Optional[List[int]] = Query(None),
-    max_results: int = Query(default=2000, le=5000)
+    max_results: int = Query(default=10000, le=10000)
 ):
     """
     Search for solvents matching target HSP values

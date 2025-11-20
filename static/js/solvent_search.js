@@ -806,7 +806,7 @@ class SolventSearch {
             target_delta_d: deltaD,
             target_delta_p: deltaP,
             target_delta_h: deltaH,
-            max_results: 2000  // Request up to 2000 results for visualization
+            max_results: 10000  // Request up to 10000 results for visualization
         });
 
         if (radius) params.append('target_radius', radius);
