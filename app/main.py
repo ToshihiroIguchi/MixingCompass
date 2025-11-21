@@ -22,9 +22,14 @@ app = FastAPI(
 
 @app.middleware("http")
 async def log_requests(request, call_next):
-    print(f"REQUEST: {request.method} {request.url}")
+    import time
+    start_time = time.time()
+    print(f"REQUEST: {request.method} {request.url}", flush=True)
     response = await call_next(request)
-    print(f"RESPONSE: {response.status_code}")
+    process_time = (time.time() - start_time) * 1000
+    print(f"RESPONSE: {response.status_code} (took {process_time:.2f}ms)", flush=True)
+    if "/api/solvents" in str(request.url):
+        print(f"[MIDDLEWARE] /api/solvents TOTAL response time: {process_time:.2f}ms", flush=True)
     return response
 
 # Add CORS middleware

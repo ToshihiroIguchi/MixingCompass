@@ -41,15 +41,22 @@ class SharedSolventCache {
 
         try {
             // 1. Load main solvent database
+            const fetchStart = performance.now();
             const response = await fetch('/api/solvents?full_data=true');
+            const fetchTime = (performance.now() - fetchStart).toFixed(2);
+            console.log(`[SharedSolventCache] API fetch completed in ${fetchTime}ms`);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
+            const parseStart = performance.now();
             const data = await response.json();
+            const parseTime = (performance.now() - parseStart).toFixed(2);
+            console.log(`[SharedSolventCache] JSON parse completed in ${parseTime}ms (${data.solvents.length} solvents)`);
 
             // Store in cache (Map for O(1) lookup)
+            const cacheStart = performance.now();
             data.solvents.forEach(solvent => {
                 const key = solvent.name.toLowerCase();
                 this.cache.set(key, {
@@ -67,6 +74,8 @@ class SharedSolventCache {
             });
 
             const allNames = data.solvents.map(s => s.name);
+            const cacheTime = (performance.now() - cacheStart).toFixed(2);
+            console.log(`[SharedSolventCache] Cache population completed in ${cacheTime}ms`);
 
             // 2. Load User Added Solvents
             try {
@@ -116,7 +125,11 @@ class SharedSolventCache {
             }
 
             // Store sorted names for autocomplete
+            const sortStart = performance.now();
             this.names = allNames.sort();
+            const sortTime = (performance.now() - sortStart).toFixed(2);
+            console.log(`[SharedSolventCache] Name sorting completed in ${sortTime}ms`);
+
             this.loaded = true;
 
             const loadTime = (performance.now() - startTime).toFixed(2);

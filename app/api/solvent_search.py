@@ -9,6 +9,8 @@ import numpy as np
 from pathlib import Path
 import json
 
+from app.services.solvent_service import solvent_service
+
 router = APIRouter()
 
 # Load solvent database
@@ -43,8 +45,6 @@ def get_solvent_database(request: Request = None):
 
         # Add user-added solvents
         try:
-            from ..services.solvent_service import SolventService
-            solvent_service = SolventService()
             user_solvents = solvent_service.get_user_added_solvents()
 
             if user_solvents:
@@ -69,9 +69,12 @@ def get_solvent_database(request: Request = None):
                         'source_file': 'user_added'
                     })
 
-                user_df = pd.DataFrame(user_df_data)
-                _solvent_db = pd.concat([_solvent_db, user_df], ignore_index=True)
-                print(f"[Solvent Search] Successfully added {len(user_df)} user-added solvents to database")
+                if user_df_data:  # Only concat if there's data
+                    user_df = pd.DataFrame(user_df_data)
+                    # Remove columns that are all None to avoid FutureWarning
+                    user_df = user_df.dropna(axis=1, how='all')
+                    _solvent_db = pd.concat([_solvent_db, user_df], ignore_index=True)
+                    print(f"[Solvent Search] Successfully added {len(user_df)} user-added solvents to database")
         except Exception as e:
             print(f"Warning: Could not load user-added solvents: {e}")
             import traceback

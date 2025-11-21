@@ -31,17 +31,28 @@ async def get_solvents(
     try:
         if full_data:
             # Return full solvent data
+            t1 = time.time()
             if not solvent_service._ensure_data_loaded():
                 raise HTTPException(status_code=500, detail="Failed to load solvent database")
+            load_time = (time.time() - t1) * 1000
+            logger.info(f"[Solvent API] Data load check: {load_time:.2f}ms")
+            print(f"[Solvent API] Data load check: {load_time:.2f}ms", flush=True)
 
-            # Get all solvents from indexed data
+            # Get all solvents from indexed data (deduplicated)
+            t2 = time.time()
+            seen_names = set()
             solvents = []
             for solvent_data in solvent_service._indexed_data.values():
                 # Avoid duplicates (some solvents may be indexed by both name and CAS)
-                if not any(s.solvent == solvent_data.solvent for s in solvents):
+                if solvent_data.solvent not in seen_names:
+                    seen_names.add(solvent_data.solvent)
                     solvents.append(solvent_data)
+            dedup_time = (time.time() - t2) * 1000
+            logger.info(f"[Solvent API] Deduplication: {dedup_time:.2f}ms ({len(solvents)} solvents)")
+            print(f"[Solvent API] Deduplication: {dedup_time:.2f}ms ({len(solvents)} solvents)", flush=True)
 
             # Convert to dict
+            t3 = time.time()
             solvents_dict = [
                 {
                     'name': s.solvent,
@@ -60,8 +71,13 @@ async def get_solvents(
                 }
                 for s in solvents
             ]
+            dict_convert_time = (time.time() - t3) * 1000
+            logger.info(f"[Solvent API] Dict conversion: {dict_convert_time:.2f}ms")
+            print(f"[Solvent API] Dict conversion: {dict_convert_time:.2f}ms", flush=True)
 
             execution_time = (time.time() - start_time) * 1000
+            logger.info(f"[Solvent API] TOTAL: {execution_time:.2f}ms ({len(solvents_dict)} solvents)")
+            print(f"[Solvent API] TOTAL: {execution_time:.2f}ms ({len(solvents_dict)} solvents)", flush=True)
 
             return {
                 'solvents': solvents_dict,

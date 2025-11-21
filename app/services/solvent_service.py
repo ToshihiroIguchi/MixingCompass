@@ -26,12 +26,19 @@ class SolventService:
         self._data: Optional[pd.DataFrame] = None
         self._indexed_data: Dict[str, SolventData] = {}
         self._last_loaded: Optional[float] = None
+        print(f"[SolventService] NEW INSTANCE CREATED (id={id(self)})", flush=True)
+        logger.info(f"[SolventService] NEW INSTANCE CREATED (id={id(self)})")
 
     def load_data(self, force_reload: bool = False) -> bool:
         """Load solvent data from CSV file"""
 
         if not force_reload and self._data is not None:
+            print(f"[SolventService] load_data - using CACHED data (id={id(self)})", flush=True)
+            logger.info(f"[SolventService] load_data - using CACHED data (id={id(self)})")
             return True
+
+        print(f"[SolventService] load_data - LOADING FROM CSV (force={force_reload}, id={id(self)})", flush=True)
+        logger.info(f"[SolventService] load_data - LOADING FROM CSV (force={force_reload}, id={id(self)})")
 
         try:
             file_path = Path(settings.solvent_data_file)
@@ -60,9 +67,12 @@ class SolventService:
             self._last_loaded = time.time()
 
             # Create indexed lookup for faster access
+            t_index = time.time()
             self._create_index()
+            index_time = (time.time() - t_index) * 1000
 
-            logger.info(f"Successfully loaded {len(self._data)} valid solvents")
+            print(f"[SolventService] Successfully loaded {len(self._data)} solvents (indexing={index_time:.2f}ms)", flush=True)
+            logger.info(f"Successfully loaded {len(self._data)} valid solvents (indexing took {index_time:.2f}ms)")
             return True
 
         except Exception as e:
