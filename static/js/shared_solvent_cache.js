@@ -77,27 +77,31 @@ class SharedSolventCache {
             const cacheTime = (performance.now() - cacheStart).toFixed(2);
             console.log(`[SharedSolventCache] Cache population completed in ${cacheTime}ms`);
 
-            // 2. Load User Added Solvents
+            // 2. Load User Added Solvents from localStorage
             try {
-                const userSolventsResponse = await fetch('/api/data-list/user-solvents');
-                if (userSolventsResponse.ok) {
-                    const userSolvents = await userSolventsResponse.json();
-                    userSolvents.forEach(solvent => {
-                        const key = solvent.solvent.toLowerCase();
-                        // Only add if not already in database
-                        if (!this.cache.has(key)) {
-                            this.cache.set(key, {
-                                name: solvent.solvent,
-                                delta_d: solvent.delta_d,
-                                delta_p: solvent.delta_p,
-                                delta_h: solvent.delta_h,
-                                source: 'user_added'
-                            });
-                            allNames.push(solvent.solvent);
-                        }
-                    });
-                    console.log(`[SharedSolventCache] Loaded ${userSolvents.length} user-added solvents`);
-                }
+                const userSolvents = window.userSolventsManager.getUserSolvents();
+                userSolvents.forEach(solvent => {
+                    const key = solvent.name.toLowerCase();
+                    // Only add if not already in database
+                    if (!this.cache.has(key)) {
+                        this.cache.set(key, {
+                            name: solvent.name,
+                            delta_d: solvent.delta_d,
+                            delta_p: solvent.delta_p,
+                            delta_h: solvent.delta_h,
+                            cas: solvent.cas,
+                            boiling_point: solvent.boiling_point,
+                            density: solvent.density,
+                            molecular_weight: solvent.molecular_weight,
+                            cost: solvent.cost,
+                            wgk: solvent.wgk,
+                            ghs: solvent.ghs,
+                            source: 'user_added'
+                        });
+                        allNames.push(solvent.name);
+                    }
+                });
+                console.log(`[SharedSolventCache] Loaded ${userSolvents.length} user-added solvents from localStorage`);
             } catch (error) {
                 console.warn('[SharedSolventCache] Could not load user-added solvents:', error);
             }

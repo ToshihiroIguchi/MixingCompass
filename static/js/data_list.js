@@ -894,22 +894,33 @@ class DataListManager {
         console.log('[User Solvents] Starting load...');
 
         try {
-            // Show loading state with spinner
-            tableContainer.innerHTML = `
-                <div class="loading-container">
-                    <div class="loading-spinner"></div>
-                    <span class="loading-text">Loading user-added solvents...</span>
-                </div>
-            `;
-
-            // Fetch user-added solvents
-            const response = await fetch('/api/data-list/user-solvents');
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            // Show loading state with spinner (only if table doesn't exist yet)
+            if (!this.userSolventsTable) {
+                tableContainer.innerHTML = `
+                    <div class="loading-container">
+                        <div class="loading-spinner"></div>
+                        <span class="loading-text">Loading user-added solvents...</span>
+                    </div>
+                `;
             }
 
-            const solvents = await response.json();
+            // Load user-added solvents from localStorage
+            const userSolvents = window.userSolventsManager.getUserSolvents();
+
+            // Transform to match expected format (name -> solvent)
+            const solvents = userSolvents.map(s => ({
+                solvent: s.name,
+                delta_d: s.delta_d,
+                delta_p: s.delta_p,
+                delta_h: s.delta_h,
+                cas: s.cas,
+                boiling_point: s.boiling_point,
+                density: s.density,
+                molecular_weight: s.molecular_weight,
+                cost_per_ml: s.cost,
+                wgk_class: s.wgk,
+                ghs_classification: s.ghs
+            }));
 
             // Update count badge
             if (countBadge) {
@@ -1231,40 +1242,31 @@ class DataListManager {
             return;
         }
 
-        // Prepare data
+        // Prepare data for localStorage
         const solventData = {
-            solvent: name,
+            name: name,
             delta_d: deltaD,
             delta_p: deltaP,
             delta_h: deltaH,
             cas: casInput.value.trim() || null,
-            boiling_point: bpInput.value ? parseFloat(bpInput.value) : null,
-            smiles: null,
-            source_file: 'user_added',
-            source_url: null
+            boiling_point: bpInput.value ? parseFloat(bpInput.value) : null
         };
 
         try {
-            // Send POST request
-            const response = await fetch('/api/data-list/user-solvents', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(solventData)
-            });
+            // Add to localStorage using userSolventsManager
+            const success = window.userSolventsManager.addSolvent(solventData);
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+            if (!success) {
+                throw new Error('Solvent already exists or failed to save');
             }
-
-            const result = await response.json();
 
             Notification.success(`Solvent '${name}' added successfully`);
             this.closeAddUserSolventModal();
 
-            // Reload all tables to reflect changes
+            // Reload solvent cache and tables
+            if (window.sharedSolventCache) {
+                await window.sharedSolventCache.reload();
+            }
             await this.refreshAllTables();
 
         } catch (error) {
@@ -1300,40 +1302,31 @@ class DataListManager {
             return;
         }
 
-        // Prepare update data
+        // Prepare update data for localStorage
         const updateData = {
-            solvent: newName,
+            name: newName,
             delta_d: deltaD,
             delta_p: deltaP,
             delta_h: deltaH,
             cas: casInput.value.trim() || null,
-            boiling_point: bpInput.value ? parseFloat(bpInput.value) : null,
-            smiles: null,
-            source_file: 'user_added',
-            source_url: null
+            boiling_point: bpInput.value ? parseFloat(bpInput.value) : null
         };
 
         try {
-            // Send PUT request
-            const response = await fetch(`/api/data-list/user-solvents/${encodeURIComponent(originalName)}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updateData)
-            });
+            // Update in localStorage using userSolventsManager
+            const success = window.userSolventsManager.updateSolvent(originalName, updateData);
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+            if (!success) {
+                throw new Error('Solvent not found or failed to update');
             }
-
-            const result = await response.json();
 
             Notification.success(`Solvent '${newName}' updated successfully`);
             this.closeEditUserSolventModal();
 
-            // Reload all tables to reflect changes
+            // Reload solvent cache and tables
+            if (window.sharedSolventCache) {
+                await window.sharedSolventCache.reload();
+            }
             await this.refreshAllTables();
 
         } catch (error) {
@@ -1348,21 +1341,19 @@ class DataListManager {
         }
 
         try {
-            // Send DELETE request
-            const response = await fetch(`/api/data-list/user-solvents/${encodeURIComponent(solventName)}`, {
-                method: 'DELETE'
-            });
+            // Delete from localStorage using userSolventsManager
+            const success = window.userSolventsManager.removeSolvent(solventName);
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+            if (!success) {
+                throw new Error('Solvent not found or failed to delete');
             }
-
-            const result = await response.json();
 
             Notification.success(`Solvent '${solventName}' deleted successfully`);
 
-            // Reload all tables to reflect changes
+            // Reload solvent cache and tables
+            if (window.sharedSolventCache) {
+                await window.sharedSolventCache.reload();
+            }
             await this.refreshAllTables();
 
         } catch (error) {

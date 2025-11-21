@@ -43,42 +43,8 @@ def get_solvent_database(request: Request = None):
         # Load main database
         _solvent_db = pd.read_csv(SOLVENT_DB_PATH, encoding='utf-8-sig')
 
-        # Add user-added solvents
-        try:
-            user_solvents = solvent_service.get_user_added_solvents()
-
-            if user_solvents:
-                print(f"[Solvent Search] Loading {len(user_solvents)} user-added solvents...")
-                user_df_data = []
-                for solvent in user_solvents:
-                    # SolventData is a Pydantic model, access attributes directly
-                    user_df_data.append({
-                        'Solvent': solvent.solvent,
-                        'delta_D': solvent.delta_d,
-                        'delta_P': solvent.delta_p,
-                        'delta_H': solvent.delta_h,
-                        'CAS': solvent.cas,
-                        'Tb': solvent.boiling_point,
-                        'CHO': None,
-                        'Density': solvent.density,
-                        'MWt': solvent.molecular_weight,
-                        'Cost': solvent.cost_per_ml,
-                        'WGK': solvent.wgk_class,
-                        'GHS': solvent.ghs_classification,
-                        'source_url': None,
-                        'source_file': 'user_added'
-                    })
-
-                if user_df_data:  # Only concat if there's data
-                    user_df = pd.DataFrame(user_df_data)
-                    # Remove columns that are all None to avoid FutureWarning
-                    user_df = user_df.dropna(axis=1, how='all')
-                    _solvent_db = pd.concat([_solvent_db, user_df], ignore_index=True)
-                    print(f"[Solvent Search] Successfully added {len(user_df)} user-added solvents to database")
-        except Exception as e:
-            print(f"Warning: Could not load user-added solvents: {e}")
-            import traceback
-            traceback.print_exc()
+        # Note: User-added solvents are now managed in frontend localStorage
+        # and are no longer loaded from backend CSV
 
         # Add saved mixtures from localStorage (need to get from client, skip for now)
         # Mixtures will be added by client-side filtering
