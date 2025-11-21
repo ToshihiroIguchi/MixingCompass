@@ -548,7 +548,12 @@ class SolventSearch {
                 primaryTarget.delta_d, primaryTarget.delta_p, primaryTarget.delta_h, primaryTarget.r0
             );
 
-            this.searchResults = [...results.results, ...savedMixtures];
+            // Add user-added solvents to results
+            const userSolvents = this.getUserSolventsAsResults(
+                primaryTarget.delta_d, primaryTarget.delta_p, primaryTarget.delta_h, primaryTarget.r0
+            );
+
+            this.searchResults = [...results.results, ...savedMixtures, ...userSolvents];
             this.filteredResults = [...this.searchResults]; // Initialize filtered results
 
             // Sort by distance
@@ -1009,6 +1014,48 @@ class SolventSearch {
             });
         } catch (error) {
             console.warn('Could not load saved mixtures:', error);
+            return [];
+        }
+    }
+
+    getUserSolventsAsResults(targetD, targetP, targetH, targetRadius) {
+        try {
+            if (!window.userSolventsManager) {
+                return [];
+            }
+
+            const userSolvents = window.userSolventsManager.getUserSolvents();
+
+            return userSolvents.map(solvent => {
+                const distance = Math.sqrt(
+                    4 * Math.pow(solvent.delta_d - targetD, 2) +
+                    Math.pow(solvent.delta_p - targetP, 2) +
+                    Math.pow(solvent.delta_h - targetH, 2)
+                );
+
+                const red = targetRadius ? distance / targetRadius : distance;
+
+                return {
+                    name: solvent.name,
+                    delta_d: solvent.delta_d,
+                    delta_p: solvent.delta_p,
+                    delta_h: solvent.delta_h,
+                    distance: red,
+                    red: red,
+                    source_file: 'user_added',
+                    cho: solvent.cho || null,
+                    boiling_point: solvent.boiling_point || null,
+                    density: solvent.density || null,
+                    molecular_weight: solvent.molecular_weight || null,
+                    cost: solvent.cost || null,
+                    cas: solvent.cas || null,
+                    wgk: solvent.wgk || null,
+                    ghs: solvent.ghs || null,
+                    source_url: solvent.source_url || null
+                };
+            });
+        } catch (error) {
+            console.warn('Could not load user-added solvents:', error);
             return [];
         }
     }
