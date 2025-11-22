@@ -115,6 +115,7 @@ class SolventSearch {
         this.setupEventListeners();
         this.setupPanelToggle(); // Setup panel collapse/expand
         this.setupVisualizationToggle(); // Setup visualization panel collapse
+        this.setupResultsToggle(); // Setup results panel collapse
         this.updateTargetContent('target1', 'polymer'); // Initialize with polymer mode
         this.updateTargetContent('target2', 'polymer'); // Initialize with polymer mode
         this.updateTargetContent('target3', 'polymer'); // Initialize with polymer mode
@@ -125,6 +126,19 @@ class SolventSearch {
 
         // Log computed CSS styles for debugging
         this.logLayoutStyles();
+
+        // Auto-perform initial search if Target 1 has a value
+        setTimeout(() => {
+            this.performInitialSearch();
+        }, 500);
+    }
+
+    async performInitialSearch() {
+        // Check if Target 1 has HSP values set
+        if (this.currentTarget1 && this.currentTarget1.delta_d) {
+            console.log('Performing initial search with Target 1:', this.currentTarget1);
+            await this.performSearch();
+        }
     }
 
     logLayoutStyles() {
@@ -1543,47 +1557,106 @@ class SolventSearch {
     setupVisualizationToggle() {
         const vizPanel = document.getElementById('visualization-panel');
         const vizCollapseBtn = document.getElementById('viz-collapse-btn');
+        const vizExpandBtn = document.getElementById('viz-expand-btn');
         const searchResultsSplit = document.querySelector('#solvent-search .search-results-split');
 
-        if (!vizPanel || !vizCollapseBtn) {
+        if (!vizPanel || !vizCollapseBtn || !vizExpandBtn) {
             console.warn('Visualization toggle elements not found');
             return;
         }
 
+        // Toggle function
+        const toggleVisualization = (forceState = null) => {
+            const shouldCollapse = forceState !== null ? forceState : !vizPanel.classList.contains('collapsed');
+
+            if (shouldCollapse) {
+                vizPanel.classList.add('collapsed');
+                if (searchResultsSplit) searchResultsSplit.classList.add('viz-collapsed');
+                vizExpandBtn.style.display = 'flex';
+            } else {
+                vizPanel.classList.remove('collapsed');
+                if (searchResultsSplit) searchResultsSplit.classList.remove('viz-collapsed');
+                vizExpandBtn.style.display = 'none';
+
+                // Resize Plotly chart if expanding
+                if (this.visualization) {
+                    setTimeout(() => {
+                        const plotlyContainer = document.getElementById('search-plotly-visualization');
+                        if (plotlyContainer && window.Plotly) {
+                            window.Plotly.Plots.resize(plotlyContainer);
+                        }
+                    }, 350);
+                }
+            }
+
+            localStorage.setItem('vizPanelCollapsed', shouldCollapse);
+        };
+
         // Restore state from localStorage
         const savedState = localStorage.getItem('vizPanelCollapsed');
         if (savedState === 'true') {
-            vizPanel.classList.add('collapsed');
-            if (searchResultsSplit) searchResultsSplit.classList.add('viz-collapsed');
+            toggleVisualization(true);
+        }
+
+        vizCollapseBtn.addEventListener('click', () => toggleVisualization(true));
+        vizExpandBtn.addEventListener('click', () => toggleVisualization(false));
+        console.log('Visualization toggle setup complete');
+    }
+
+    setupResultsToggle() {
+        const resultsPanel = document.getElementById('results-panel');
+        const resultsCollapseBtn = document.getElementById('results-collapse-btn');
+        const resultsExpandBtn = document.getElementById('results-expand-btn');
+        const searchResultsSplit = document.querySelector('#solvent-search .search-results-split');
+
+        if (!resultsPanel || !resultsCollapseBtn || !resultsExpandBtn) {
+            console.warn('Results toggle elements not found');
+            return;
         }
 
         // Toggle function
-        const toggleVisualization = () => {
-            const isCollapsed = vizPanel.classList.toggle('collapsed');
+        const toggleResults = (forceState = null) => {
+            const shouldCollapse = forceState !== null ? forceState : !resultsPanel.classList.contains('collapsed');
 
-            if (searchResultsSplit) {
-                searchResultsSplit.classList.toggle('viz-collapsed', isCollapsed);
+            if (shouldCollapse) {
+                resultsPanel.classList.add('collapsed');
+                if (searchResultsSplit) searchResultsSplit.classList.add('results-collapsed');
+                resultsExpandBtn.style.display = 'flex';
+
+                // Resize Plotly chart (more space for viz)
+                if (this.visualization) {
+                    setTimeout(() => {
+                        const plotlyContainer = document.getElementById('search-plotly-visualization');
+                        if (plotlyContainer && window.Plotly) {
+                            window.Plotly.Plots.resize(plotlyContainer);
+                        }
+                    }, 350);
+                }
+            } else {
+                resultsPanel.classList.remove('collapsed');
+                if (searchResultsSplit) searchResultsSplit.classList.remove('results-collapsed');
+                resultsExpandBtn.style.display = 'none';
             }
 
-            // Save state to localStorage
-            localStorage.setItem('vizPanelCollapsed', isCollapsed);
-
-            // Update button title
-            vizCollapseBtn.title = isCollapsed ? 'Expand visualization panel' : 'Collapse visualization panel';
-
-            // Resize Plotly chart if expanding
-            if (!isCollapsed && this.visualization) {
-                setTimeout(() => {
-                    const plotlyContainer = document.getElementById('search-plotly-visualization');
-                    if (plotlyContainer && window.Plotly) {
-                        window.Plotly.Plots.resize(plotlyContainer);
-                    }
-                }, 350); // After CSS transition completes
-            }
+            localStorage.setItem('resultsPanelCollapsed', shouldCollapse);
         };
 
-        vizCollapseBtn.addEventListener('click', toggleVisualization);
-        console.log('Visualization toggle setup complete');
+        // Restore state from localStorage
+        const savedState = localStorage.getItem('resultsPanelCollapsed');
+        if (savedState === 'true') {
+            toggleResults(true);
+        }
+
+        resultsCollapseBtn.addEventListener('click', () => toggleResults(true));
+        resultsExpandBtn.addEventListener('click', () => toggleResults(false));
+        console.log('Results toggle setup complete');
+    }
+
+    showDefaultVisualization() {
+        // Show a default Hansen sphere with common solvents
+        if (this.visualization) {
+            this.visualization.showPlaceholder('Search solvents to display Hansen sphere visualization');
+        }
     }
 }
 

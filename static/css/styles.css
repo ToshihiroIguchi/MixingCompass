@@ -3068,24 +3068,25 @@ body {
 
 /* Panel collapse button in header (right corner) */
 .panel-header-collapse-btn {
-    background: rgba(99, 102, 241, 0.1);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    border-radius: 6px;
-    font-size: 18px;
-    font-weight: 600;
+    background: rgba(30, 58, 138, 0.9);
+    border: none;
+    border-radius: 4px;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
     cursor: pointer;
-    padding: 8px 12px;
     margin-left: auto;
-    color: var(--primary-color);
+    color: white;
     transition: all 0.2s ease;
-    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .panel-header-collapse-btn:hover {
-    background: rgba(99, 102, 241, 0.2);
-    border-color: var(--primary-color);
-    transform: scale(1.1);
-    color: var(--primary-dark);
+    background: rgba(30, 58, 138, 1);
+    transform: scale(1.05);
 }
 
 /* Solvent search specific positioning */
@@ -3099,23 +3100,25 @@ body {
     right: -18px;
     top: 50%;
     transform: translateY(-50%);
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    background: rgba(30, 58, 138, 0.9);
     border: none;
     border-radius: 4px;
-    padding: 24px 8px;
-    font-size: 16px;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
     color: white;
     cursor: pointer;
     z-index: 100;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
-    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .panel-boundary-btn:hover {
-    background: linear-gradient(135deg, #4f46e5, #4338ca);
-    transform: translateY(-50%) scale(1.1);
-    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.5);
+    background: rgba(30, 58, 138, 1);
+    transform: translateY(-50%) scale(1.05);
 }
 
 /* Expand button (visible when collapsed) */
@@ -3124,23 +3127,25 @@ body {
     left: 0;
     top: 50%;
     transform: translateY(-50%);
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    background: rgba(30, 58, 138, 0.9);
     border: none;
-    border-radius: 0 8px 8px 0;
-    padding: 24px 12px;
-    font-size: 20px;
-    font-weight: bold;
+    border-radius: 0 4px 4px 0;
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
     color: white;
     cursor: pointer;
     z-index: 1000;
-    transition: all 0.3s ease;
-    box-shadow: 2px 0 16px rgba(99, 102, 241, 0.5);
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .panel-expand-btn:hover {
-    padding-right: 16px;
-    background: linear-gradient(135deg, #4f46e5, #4338ca);
-    box-shadow: 4px 0 20px rgba(99, 102, 241, 0.6);
+    background: rgba(30, 58, 138, 1);
+    transform: translateY(-50%) scale(1.05);
 }
 
 /* Collapsed state for Solvent Search */
@@ -3579,11 +3584,33 @@ body {
     transition: all 0.3s ease;
 }
 
-.visualization-collapse-toggle {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 100;
+/* Visualization collapsed state */
+.visualization-area.collapsed {
+    width: 50px !important;
+    min-width: 50px !important;
+    flex: 0 0 50px !important;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10px;
+}
+
+.visualization-area.collapsed .hansen-sphere {
+    display: none;
+}
+
+.visualization-area.collapsed #viz-collapse-btn {
+    margin: 0;
+    display: flex;
+}
+
+/* Grid adjustment for collapsed state */
+#solvent-search .search-results-split.viz-collapsed {
+    grid-template-columns: 1fr 50px;
+}
+
+/* Unified Panel Collapse Button */
+.panel-collapse-btn {
     width: 32px;
     height: 32px;
     border: none;
@@ -3596,38 +3623,48 @@ body {
     justify-content: center;
     transition: all 0.2s ease;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-left: auto;
 }
 
-.visualization-collapse-toggle:hover {
+.panel-collapse-btn:hover {
     background: rgba(30, 58, 138, 1);
     transform: scale(1.05);
 }
 
-.visualization-collapse-toggle .collapse-icon {
-    font-size: 14px;
-    transition: transform 0.3s ease;
+/* Collapsed state expand button */
+.panel-collapse-btn.collapsed-btn {
+    margin: 10px auto 0;
 }
 
-/* Collapsed state */
-.visualization-area.collapsed {
+/* Results collapsed state */
+.results-area.collapsed {
     width: 50px !important;
     min-width: 50px !important;
     flex: 0 0 50px !important;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10px;
 }
 
-.visualization-area.collapsed .hansen-sphere {
+.results-area.collapsed .results-panel-header,
+.results-area.collapsed .results-table-container {
     display: none;
 }
 
-.visualization-area.collapsed .visualization-collapse-toggle {
-    right: 9px;
+.results-area.collapsed #results-collapse-btn {
+    margin: 0;
+    display: flex;
 }
 
-.visualization-area.collapsed .collapse-icon {
-    transform: rotate(180deg);
-}
-
-/* Grid adjustment for collapsed state */
-#solvent-search .search-results-split.viz-collapsed {
+/* Grid adjustment for results collapsed state */
+#solvent-search .search-results-split.results-collapsed {
     grid-template-columns: 50px 1fr;
+}
+
+/* Both collapsed */
+#solvent-search .search-results-split.viz-collapsed.results-collapsed {
+    grid-template-columns: 50px 50px;
 }
