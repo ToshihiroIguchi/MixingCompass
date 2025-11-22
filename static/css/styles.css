@@ -135,6 +135,7 @@ body {
 
 .right-panel {
     min-width: 0;
+    height: 100%;
 }
 
 /* Right panel split: Visualization (left) and Results Table (right) - Equal split */
@@ -150,6 +151,7 @@ body {
     flex-direction: column;
     min-height: 0;
     overflow: hidden;
+    height: 100%;
 }
 
 .results-area {
@@ -810,10 +812,10 @@ body {
     border: 1px solid #e5e7eb;
     border-radius: 4px;
     background-color: #f9fafb;
-    height: 600px;
+    flex: 1;
+    min-height: 500px;
     display: flex;
     flex-direction: column;
-    flex-shrink: 0;
 }
 
 .sphere-header {
