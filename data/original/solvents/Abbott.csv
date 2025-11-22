@@ -1170,7 +1170,7 @@ No,old_name,Solvent,CAS,dD,dP,dH,Tb,CHO
 1169,Trinitrotoluene (TNT) (DM),Trinitrotoluene (TNT),118-96-7,19.5,3.5,4.4,,False
 1170,Trinitrotoluene (TNT) (G.C.),Trinitrotoluene (TNT) (G.C.),118-96-7,19.5,10,4.5,,False
 1171,Trioctyl Phosphate,Trioctyl phosphate,1806-54-8,16.2,5.9,4.2,,True
-1172,Triphenyl Phosphate,Triphenyl phosphate,115-86-6,20.1,6.4,6.8,,True
+1172,Triphenyl Phosphate,Triphenyl phosphate,115-86-6,20.1,6.4,6.8,,False
 1173,Tripropylene Glycol Monomethyl Ether,Tripropylene glycol monomethyl ether,30373-82-1,15.3,5.5,10.4,,True
 1174,Undecane,Undecane,1120-21-4,16,0,0,,False
 1175,Urea For Ro Equal 19.4,Urea (for Ro=19.4),57-13-6,20.9,18.7,26.4,,False

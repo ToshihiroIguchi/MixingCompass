@@ -2,25 +2,65 @@
 
 class MixingCompass {
     constructor() {
-        this.currentSection = 'hsp-experimental';
+        this.currentSection = 'home';
         this.init();
     }
 
     init() {
         this.setupNavigation();
+        this.setupHomePageNavigation();
         this.setupEventListeners();
+        this.updateHomeSolventCount();
         console.log('MixingCompass initialized');
     }
 
     setupNavigation() {
+        // Navigation buttons
         const navButtons = document.querySelectorAll('.nav-btn');
-
         navButtons.forEach(button => {
             button.addEventListener('click', (e) => {
                 const targetSection = e.target.getAttribute('data-section');
                 this.switchSection(targetSection);
             });
         });
+
+        // Clickable logo (home)
+        const logoSection = document.querySelector('.logo-section.clickable');
+        if (logoSection) {
+            logoSection.addEventListener('click', () => {
+                this.switchSection('home');
+            });
+        }
+    }
+
+    setupHomePageNavigation() {
+        // Feature cards on home page
+        const featureCards = document.querySelectorAll('.feature-card');
+        featureCards.forEach(card => {
+            card.addEventListener('click', (e) => {
+                const targetSection = card.getAttribute('data-section');
+                if (targetSection) {
+                    this.switchSection(targetSection);
+                }
+            });
+        });
+    }
+
+    async updateHomeSolventCount() {
+        try {
+            const countSpan = document.getElementById('home-solvent-count');
+            if (countSpan && window.sharedSolventCache) {
+                // Wait for cache to load
+                setTimeout(() => {
+                    const count = window.sharedSolventCache.getSolventCount();
+                    if (count > 0) {
+                        countSpan.textContent = count.toLocaleString();
+                    }
+                }, 1000);
+            }
+        } catch (error) {
+            console.warn('Could not update solvent count:', error);
+        }
     }
 
     switchSection(sectionId) {
@@ -28,7 +68,12 @@ class MixingCompass {
         document.querySelectorAll('.nav-btn').forEach(btn => {
             btn.classList.remove('active');
         });
-        document.querySelector(`[data-section="${sectionId}"]`).classList.add('active');
+
+        // Find and activate the nav button (if not home)
+        const navBtn = document.querySelector(`.nav-btn[data-section="${sectionId}"]`);
+        if (navBtn) {
+            navBtn.classList.add('active');
+        }
 
         // Update active content section
         document.querySelectorAll('.content-section').forEach(section => {

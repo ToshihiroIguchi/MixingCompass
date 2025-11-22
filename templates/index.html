@@ -5,28 +5,72 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ app_name }}</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <link rel="stylesheet" href="/static/css/styles.css?v=20251122UI2">
+    <link rel="stylesheet" href="/static/css/styles.css?v=20251122HOME">
     <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
 </head>
 <body>
     <header class="header">
         <div class="header-content">
-            <div class="logo-section">
+            <div class="logo-section clickable" data-section="home" title="Go to Home">
                 <img src="/static/images/mc_logo.png" alt="MixingCompass Logo" class="logo">
                 <h1>{{ app_name }}</h1>
             </div>
             <nav class="navigation">
-                <button class="nav-btn active" data-section="hsp-experimental">HSP (Experimental)</button>
-                <button class="nav-btn" data-section="hsp-calculation">HSP (Calculation)</button>
-                <button class="nav-btn" data-section="solvent-search">Solvent Search</button>
-                <button class="nav-btn" data-section="data-list">Data List</button>
+                <button class="nav-btn" data-section="hsp-experimental">Determine HSP</button>
+                <button class="nav-btn" data-section="hsp-calculation">Calculate HSP</button>
+                <button class="nav-btn" data-section="solvent-search">Search Solvents</button>
+                <button class="nav-btn" data-section="data-list">Database</button>
             </nav>
         </div>
     </header>
 
     <main class="main-content">
+        <!-- Home Section -->
+        <section id="home" class="content-section active">
+            <div class="home-container">
+                <div class="home-header">
+                    <h1>Welcome to MixingCompass</h1>
+                    <p class="home-subtitle">Hansen Solubility Parameter Analysis Tool</p>
+                </div>
+
+                <div class="feature-cards">
+                    <div class="feature-card" data-section="hsp-experimental">
+                        <div class="feature-icon">🧪</div>
+                        <h3>Determine HSP</h3>
+                        <p>Determine Hansen Solubility Parameters from experimental solubility data using dissolution tests.</p>
+                        <button class="feature-btn">Get Started</button>
+                    </div>
+
+                    <div class="feature-card" data-section="hsp-calculation">
+                        <div class="feature-icon">⚗️</div>
+                        <h3>Calculate HSP</h3>
+                        <p>Calculate HSP values for solvent mixtures using volume fraction weighted averaging.</p>
+                        <button class="feature-btn">Get Started</button>
+                    </div>
+
+                    <div class="feature-card" data-section="solvent-search">
+                        <div class="feature-icon">🔍</div>
+                        <h3>Search Solvents</h3>
+                        <p>Find compatible solvents by searching the database using target HSP values and RED criteria.</p>
+                        <button class="feature-btn">Get Started</button>
+                    </div>
+
+                    <div class="feature-card" data-section="data-list">
+                        <div class="feature-icon">🗃️</div>
+                        <h3>Database</h3>
+                        <p>Browse and manage the solvent database, including user-added solvents and saved mixtures.</p>
+                        <button class="feature-btn">Get Started</button>
+                    </div>
+                </div>
+
+                <div class="home-footer">
+                    <p>Database contains <span id="home-solvent-count">2400+</span> solvents with HSP data</p>
+                </div>
+            </div>
+        </section>
+
         <!-- HSP Experimental Section -->
-        <section id="hsp-experimental" class="content-section active">
+        <section id="hsp-experimental" class="content-section">
             <div class="split-layout">
                 <div class="left-panel">
                     <div class="panel-header">
@@ -384,7 +428,7 @@
 
                     <div id="saved-mixtures-empty" class="empty-state" style="display: none;">
                         <p>No saved mixtures yet.</p>
-                        <p>Create mixtures in the HSP (Calculation) tab to manage them here.</p>
+                        <p>Create mixtures in the Calculate HSP tab to manage them here.</p>
                     </div>
 
                     <div id="saved-mixtures-table-container" class="table-container">
@@ -402,7 +446,7 @@
                     <div id="solvent-sets-list" class="solvent-sets-list">
                         <div class="empty-state">
                             <p>No solvent sets saved yet.</p>
-                            <p>Create sets in the HSP (Experimental) tab to manage them here.</p>
+                            <p>Create sets in the Determine HSP tab to manage them here.</p>
                         </div>
                     </div>
                 </div>
@@ -771,7 +815,7 @@
     <script src="/static/js/user_solvents.js"></script>
     <script src="/static/js/shared_solvent_cache.js"></script>
     <script src="/static/js/solvent_table.js?v=20251115VALIDATION"></script>
-    <script src="/static/js/main.js?v=2025110801"></script>
+    <script src="/static/js/main.js?v=20251122HOME"></script>
     <script src="/static/js/solvent_set_manager.js?v=20251116CALC"></script>
     <script src="/static/js/experimental_results_manager.js"></script>
     <script src="/static/js/hsp_visualization.js?v=20251115TARGET3H"></script>
