@@ -9,8 +9,10 @@ MixingCompass is a comprehensive web application designed for Hansen Solubility 
 ### Key Features
 
 - **Interactive HSP Calculation**: Calculate Hansen Solubility Parameters using experimental solubility data
+- **SMILES Prediction**: Predict HSP and boiling point from molecular SMILES using machine learning
 - **3D Visualization**: Interactive 3D Hansen sphere visualization using Plotly
 - **Comprehensive Databases**: 1,663 solvents and 306 polymers with HSP values
+- **Solvent Mixing**: Calculate HSP for solvent mixtures with volume fraction weighting
 - **Experimental Management**: Create, manage, and track multiple experiments
 - **Real-time Analysis**: Live calculation and visualization updates
 - **Export Capabilities**: Export results and visualizations
@@ -87,6 +89,10 @@ pip install "HSPiPy>=1.1.0,<2.0.0"
 
 # Machine Learning
 pip install "scikit-learn>=1.3.0,<2.0.0"
+pip install "joblib>=1.3.0,<2.0.0"
+
+# Cheminformatics (for SMILES prediction)
+pip install "rdkit>=2023.3.0"
 
 # Data Validation
 pip install "pydantic>=2.5.0,<3.0.0"
@@ -108,8 +114,11 @@ conda activate mixingcompass
 # Install scientific packages via conda
 conda install numpy pandas scipy scikit-learn matplotlib
 
+# Install RDKit via conda-forge (recommended for RDKit)
+conda install -c conda-forge rdkit
+
 # Install remaining packages via pip
-pip install fastapi uvicorn[standard] jinja2 plotly HSPiPy pydantic pydantic-settings python-dotenv psutil requests
+pip install fastapi uvicorn[standard] jinja2 plotly HSPiPy pydantic pydantic-settings python-dotenv psutil requests joblib
 ```
 
 ## Quick Start
@@ -221,6 +230,7 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8201
 MixingCompass/
 ├── app/                    # Main application code
 │   ├── api/               # API endpoints
+│   ├── ml/                # Machine learning models for SMILES prediction
 │   ├── models/            # Data models
 │   ├── services/          # Business logic
 │   └── main.py           # FastAPI application
@@ -317,7 +327,8 @@ This script:
 - **HSPiPy**: Hansen Solubility Parameters calculations
 - **Plotly**: Interactive 3D visualizations
 - **Pandas/NumPy**: Data processing and analysis
-- **Scikit-learn**: Machine learning algorithms
+- **Scikit-learn**: Machine learning algorithms for HSP prediction
+- **RDKit**: Cheminformatics library for SMILES processing and molecular descriptors
 - **Pydantic**: Data validation and settings management
 
 ### Performance Notes
