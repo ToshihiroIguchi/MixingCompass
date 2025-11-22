@@ -29,6 +29,8 @@ class PredictionOutput(BaseModel):
     dP: Optional[float] = Field(None, description="Polar parameter (MPa^0.5)")
     dH: Optional[float] = Field(None, description="H-bonding parameter (MPa^0.5)")
     Tv: Optional[float] = Field(None, description="Boiling point (C)")
+    CHO: Optional[bool] = Field(None, description="True if molecule contains only C, H, O")
+    molecular_formula: Optional[str] = Field(None, description="Molecular formula")
     error_message: Optional[str] = None
 
 

@@ -387,6 +387,19 @@
 
                 <div class="prediction-results-section" id="prediction-results" style="display: none;">
                     <h3>Prediction Results</h3>
+
+                    <!-- Molecular Information -->
+                    <div class="molecular-info-row">
+                        <div class="molecular-info-item">
+                            <label>Formula:</label>
+                            <span id="pred-formula" class="formula-value">-</span>
+                        </div>
+                        <div class="molecular-info-item">
+                            <label>Type:</label>
+                            <span id="pred-cho" class="cho-badge">-</span>
+                        </div>
+                    </div>
+
                     <div class="results-grid">
                         <div class="result-card">
                             <h4>Hansen Solubility Parameters</h4>
@@ -417,8 +430,18 @@
                         </div>
                     </div>
 
+                    <!-- Save to Database Section -->
+                    <div class="save-prediction-section">
+                        <h4>Save to User Solvents</h4>
+                        <div class="save-input-row">
+                            <input type="text" id="solvent-name-input" class="form-input"
+                                   placeholder="Enter solvent name (required)" maxlength="100">
+                            <button id="save-prediction-btn" class="btn btn-primary" disabled>Save</button>
+                        </div>
+                        <small class="input-hint">Name is required to save. The solvent will be available in HSP calculations and searches.</small>
+                    </div>
+
                     <div class="action-buttons">
-                        <button id="add-to-database-btn" class="btn btn-primary" disabled>Add to User Solvents</button>
                         <button id="copy-prediction-btn" class="btn btn-secondary">Copy Results</button>
                     </div>
                 </div>

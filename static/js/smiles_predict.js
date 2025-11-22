@@ -21,7 +21,10 @@
         predDp: null,
         predDh: null,
         predTv: null,
-        addToDbBtn: null,
+        predFormula: null,
+        predCho: null,
+        solventNameInput: null,
+        saveBtn: null,
         copyBtn: null
     };
 
@@ -40,7 +43,10 @@
         elements.predDp = document.getElementById('pred-dP');
         elements.predDh = document.getElementById('pred-dH');
         elements.predTv = document.getElementById('pred-Tv');
-        elements.addToDbBtn = document.getElementById('add-to-database-btn');
+        elements.predFormula = document.getElementById('pred-formula');
+        elements.predCho = document.getElementById('pred-cho');
+        elements.solventNameInput = document.getElementById('solvent-name-input');
+        elements.saveBtn = document.getElementById('save-prediction-btn');
         elements.copyBtn = document.getElementById('copy-prediction-btn');
 
         // Bind event listeners
@@ -57,14 +63,32 @@
                 }
             });
         }
-        if (elements.addToDbBtn) {
-            elements.addToDbBtn.addEventListener('click', handleAddToDatabase);
+        if (elements.solventNameInput) {
+            elements.solventNameInput.addEventListener('input', updateSaveButtonState);
+            elements.solventNameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !elements.saveBtn.disabled) {
+                    handleSave();
+                }
+            });
+        }
+        if (elements.saveBtn) {
+            elements.saveBtn.addEventListener('click', handleSave);
         }
         if (elements.copyBtn) {
             elements.copyBtn.addEventListener('click', handleCopyResults);
         }
 
         console.log('SMILES Prediction module initialized');
+    }
+
+    /**
+     * Update save button state based on name input
+     */
+    function updateSaveButtonState() {
+        if (elements.saveBtn && elements.solventNameInput) {
+            const name = elements.solventNameInput.value.trim();
+            elements.saveBtn.disabled = !name || !lastPrediction;
+        }
     }
 
     /**
@@ -121,13 +145,41 @@
      * Display prediction results
      */
     function displayResults(data) {
+        // HSP values
         elements.predDd.textContent = data.dD !== null ? data.dD.toFixed(2) : '-';
         elements.predDp.textContent = data.dP !== null ? data.dP.toFixed(2) : '-';
         elements.predDh.textContent = data.dH !== null ? data.dH.toFixed(2) : '-';
         elements.predTv.textContent = data.Tv !== null ? data.Tv.toFixed(1) : '-';
 
+        // Molecular info
+        if (elements.predFormula) {
+            elements.predFormula.textContent = data.molecular_formula || '-';
+        }
+
+        // CHO badge
+        if (elements.predCho) {
+            if (data.CHO === true) {
+                elements.predCho.textContent = 'CHO';
+                elements.predCho.className = 'cho-badge cho-true';
+                elements.predCho.title = 'Contains only Carbon, Hydrogen, and Oxygen';
+            } else if (data.CHO === false) {
+                elements.predCho.textContent = 'Non-CHO';
+                elements.predCho.className = 'cho-badge cho-false';
+                elements.predCho.title = 'Contains elements other than C, H, O';
+            } else {
+                elements.predCho.textContent = '-';
+                elements.predCho.className = 'cho-badge';
+                elements.predCho.title = '';
+            }
+        }
+
+        // Reset and enable save section
+        if (elements.solventNameInput) {
+            elements.solventNameInput.value = '';
+        }
+        updateSaveButtonState();
+
         elements.resultsSection.style.display = 'block';
-        elements.addToDbBtn.disabled = false;
 
         // Animate the results
         elements.resultsSection.classList.add('fade-in');
@@ -141,10 +193,13 @@
      */
     function handleClear() {
         elements.smilesInput.value = '';
+        if (elements.solventNameInput) {
+            elements.solventNameInput.value = '';
+        }
         hideResults();
         hideError();
         lastPrediction = null;
-        elements.addToDbBtn.disabled = true;
+        updateSaveButtonState();
     }
 
     /**
@@ -171,47 +226,89 @@
     }
 
     /**
-     * Add prediction to user solvents database
+     * Save prediction to user solvents database
      */
-    function handleAddToDatabase() {
+    function handleSave() {
         if (!lastPrediction) return;
 
-        // Prompt for solvent name
-        const solventName = prompt('Enter a name for this solvent:', 'Custom Solvent');
-        if (!solventName) return;
-
-        // Use the user_solvents module if available
-        if (window.userSolvents && typeof window.userSolvents.addSolvent === 'function') {
-            window.userSolvents.addSolvent({
-                Solvent: solventName,
-                dD: lastPrediction.dD,
-                dP: lastPrediction.dP,
-                dH: lastPrediction.dH,
-                'Tv': lastPrediction.Tv,
-                Smiles: lastPrediction.smiles,
-                Source: 'ML Prediction'
-            });
-
+        const solventName = elements.solventNameInput.value.trim();
+        if (!solventName) {
             if (window.showNotification) {
-                window.showNotification('Solvent added to user database', 'success');
+                window.showNotification('Please enter a solvent name', 'error');
+            }
+            return;
+        }
+
+        // Calculate delta_total
+        const deltaTotal = Math.sqrt(
+            (lastPrediction.dD || 0) ** 2 +
+            (lastPrediction.dP || 0) ** 2 +
+            (lastPrediction.dH || 0) ** 2
+        );
+
+        // Prepare solvent data for userSolventsManager
+        const solventData = {
+            name: solventName,
+            delta_d: lastPrediction.dD,
+            delta_p: lastPrediction.dP,
+            delta_h: lastPrediction.dH,
+            delta_total: deltaTotal,
+            boiling_point: lastPrediction.Tv,
+            smiles: lastPrediction.smiles,
+            molecular_formula: lastPrediction.molecular_formula,
+            cho: lastPrediction.CHO,
+            source: 'ML Prediction'
+        };
+
+        // Use userSolventsManager
+        if (window.userSolventsManager) {
+            const success = window.userSolventsManager.addSolvent(solventData);
+
+            if (success) {
+                if (window.showNotification) {
+                    window.showNotification(`"${solventName}" saved to User Solvents`, 'success');
+                }
+                elements.solventNameInput.value = '';
+                updateSaveButtonState();
+
+                // Dispatch event for other modules to refresh
+                window.dispatchEvent(new CustomEvent('userSolventsUpdated'));
             } else {
-                alert('Solvent added to user database');
+                if (window.showNotification) {
+                    window.showNotification(`A solvent named "${solventName}" already exists`, 'error');
+                }
             }
         } else {
             // Fallback: Store in localStorage directly
-            const userSolvents = JSON.parse(localStorage.getItem('userSolvents') || '[]');
+            const storageKey = 'user_added_solvents';
+            const userSolvents = JSON.parse(localStorage.getItem(storageKey) || '[]');
+
+            // Check for duplicate
+            const exists = userSolvents.some(s =>
+                s.name.toLowerCase() === solventName.toLowerCase()
+            );
+
+            if (exists) {
+                if (window.showNotification) {
+                    window.showNotification(`A solvent named "${solventName}" already exists`, 'error');
+                }
+                return;
+            }
+
             userSolvents.push({
-                id: Date.now(),
-                Solvent: solventName,
-                dD: lastPrediction.dD,
-                dP: lastPrediction.dP,
-                dH: lastPrediction.dH,
-                'Tv': lastPrediction.Tv,
-                Smiles: lastPrediction.smiles,
-                Source: 'ML Prediction'
+                ...solventData,
+                added_at: new Date().toISOString()
             });
-            localStorage.setItem('userSolvents', JSON.stringify(userSolvents));
-            alert('Solvent added to user database');
+            localStorage.setItem(storageKey, JSON.stringify(userSolvents));
+
+            if (window.showNotification) {
+                window.showNotification(`"${solventName}" saved to User Solvents`, 'success');
+            }
+            elements.solventNameInput.value = '';
+            updateSaveButtonState();
+
+            // Dispatch event for other modules to refresh
+            window.dispatchEvent(new CustomEvent('userSolventsUpdated'));
         }
     }
 
@@ -221,19 +318,21 @@
     function handleCopyResults() {
         if (!lastPrediction) return;
 
-        const text = [
+        const lines = [
             `SMILES: ${lastPrediction.smiles}`,
+            `Formula: ${lastPrediction.molecular_formula || '-'}`,
+            `CHO: ${lastPrediction.CHO === true ? 'Yes' : lastPrediction.CHO === false ? 'No' : '-'}`,
             `dD: ${lastPrediction.dD} MPa^0.5`,
             `dP: ${lastPrediction.dP} MPa^0.5`,
             `dH: ${lastPrediction.dH} MPa^0.5`,
             `Tv: ${lastPrediction.Tv} C`
-        ].join('\n');
+        ];
+
+        const text = lines.join('\n');
 
         navigator.clipboard.writeText(text).then(() => {
             if (window.showNotification) {
                 window.showNotification('Results copied to clipboard', 'success');
-            } else {
-                alert('Results copied to clipboard');
             }
         }).catch(err => {
             console.error('Failed to copy:', err);
@@ -244,7 +343,9 @@
             textarea.select();
             document.execCommand('copy');
             document.body.removeChild(textarea);
-            alert('Results copied to clipboard');
+            if (window.showNotification) {
+                window.showNotification('Results copied to clipboard', 'success');
+            }
         });
     }
 

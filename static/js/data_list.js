@@ -919,7 +919,11 @@ class DataListManager {
                 molecular_weight: s.molecular_weight,
                 cost_per_ml: s.cost,
                 wgk_class: s.wgk,
-                ghs_classification: s.ghs
+                ghs_classification: s.ghs,
+                smiles: s.smiles,
+                molecular_formula: s.molecular_formula,
+                cho: s.cho,
+                source: s.source || 'user_added'
             }));
 
             // Update count badge
@@ -1046,6 +1050,43 @@ class DataListManager {
                                     return value !== null && value !== undefined ? value.toFixed(1) : '-';
                                 },
                                 sorter: "number"
+                            },
+                            {
+                                title: "CHO",
+                                field: "cho",
+                                minWidth: 70,
+                                hozAlign: "center",
+                                headerFilter: "select",
+                                headerFilterParams: {
+                                    values: { "": "All", "true": "CHO", "false": "Non-CHO" }
+                                },
+                                formatter: (cell) => {
+                                    const value = cell.getValue();
+                                    if (value === true) {
+                                        return '<span class="cho-badge cho-true" style="font-size:0.75rem;padding:0.15rem 0.5rem;">CHO</span>';
+                                    } else if (value === false) {
+                                        return '<span class="cho-badge cho-false" style="font-size:0.75rem;padding:0.15rem 0.5rem;">Non-CHO</span>';
+                                    }
+                                    return '-';
+                                }
+                            },
+                            {
+                                title: "Source",
+                                field: "source",
+                                minWidth: 100,
+                                headerFilter: "select",
+                                headerFilterParams: {
+                                    values: { "": "All", "user_added": "Manual", "ML Prediction": "ML Prediction" }
+                                },
+                                formatter: (cell) => {
+                                    const value = cell.getValue();
+                                    if (value === 'ML Prediction') {
+                                        return '<span style="color:#0369a1;font-weight:500;">ML</span>';
+                                    } else if (value === 'user_added') {
+                                        return 'Manual';
+                                    }
+                                    return value || '-';
+                                }
                             },
                             {
                                 title: "Actions",

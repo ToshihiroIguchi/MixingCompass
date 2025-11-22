@@ -19,7 +19,7 @@ from typing import Dict, Optional, List, Union
 from dataclasses import dataclass
 
 from rdkit import Chem
-from rdkit.Chem import Descriptors
+from rdkit.Chem import Descriptors, rdMolDescriptors
 from rdkit.ML.Descriptors import MoleculeDescriptors
 
 
@@ -36,6 +36,8 @@ class PredictionResult:
     dP: Optional[float] = None
     dH: Optional[float] = None
     Tv: Optional[float] = None
+    CHO: Optional[bool] = None  # True if molecule contains only C, H, O
+    molecular_formula: Optional[str] = None
     error_message: Optional[str] = None
 
     def to_dict(self) -> Dict:
@@ -46,6 +48,8 @@ class PredictionResult:
             'dP': self.dP,
             'dH': self.dH,
             'Tv': self.Tv,
+            'CHO': self.CHO,
+            'molecular_formula': self.molecular_formula,
             'error_message': self.error_message
         }
 
@@ -96,6 +100,37 @@ class SMILESPredictor:
         )
         self._all_descriptor_names = descriptor_names
 
+    def _get_molecular_info(self, mol) -> tuple:
+        """
+        Get molecular formula and CHO status from mol object
+
+        Args:
+            mol: RDKit mol object
+
+        Returns:
+            Tuple of (molecular_formula, is_cho)
+        """
+        if mol is None:
+            return None, None
+
+        try:
+            # Get molecular formula
+            formula = rdMolDescriptors.CalcMolFormula(mol)
+
+            # Get all atoms in the molecule
+            atoms = set()
+            for atom in mol.GetAtoms():
+                atoms.add(atom.GetSymbol())
+
+            # Check if only C, H, O (CHO compounds)
+            cho_elements = {'C', 'H', 'O'}
+            is_cho = atoms.issubset(cho_elements)
+
+            return formula, is_cho
+
+        except Exception:
+            return None, None
+
     def _calculate_descriptors(self, smiles: str) -> Optional[np.ndarray]:
         """
         Calculate RDKit descriptors for a SMILES string
@@ -137,6 +172,18 @@ class SMILESPredictor:
         Returns:
             PredictionResult with predicted values
         """
+        # Parse SMILES first
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return PredictionResult(
+                smiles=smiles,
+                is_valid=False,
+                error_message="Invalid SMILES string"
+            )
+
+        # Get molecular info (formula and CHO status)
+        molecular_formula, is_cho = self._get_molecular_info(mol)
+
         # Calculate descriptors
         descriptors = self._calculate_descriptors(smiles)
 
@@ -144,7 +191,9 @@ class SMILESPredictor:
             return PredictionResult(
                 smiles=smiles,
                 is_valid=False,
-                error_message="Invalid SMILES or failed to calculate descriptors"
+                CHO=is_cho,
+                molecular_formula=molecular_formula,
+                error_message="Failed to calculate descriptors"
             )
 
         try:
@@ -163,13 +212,17 @@ class SMILESPredictor:
                 dD=predictions.get('dD'),
                 dP=predictions.get('dP'),
                 dH=predictions.get('dH'),
-                Tv=predictions.get('Tv')
+                Tv=predictions.get('Tv'),
+                CHO=is_cho,
+                molecular_formula=molecular_formula
             )
 
         except Exception as e:
             return PredictionResult(
                 smiles=smiles,
                 is_valid=False,
+                CHO=is_cho,
+                molecular_formula=molecular_formula,
                 error_message=str(e)
             )
 

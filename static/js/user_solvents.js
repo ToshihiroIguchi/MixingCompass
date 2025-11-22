@@ -54,11 +54,11 @@ class UserSolventsManager {
                 solventData.delta_h ** 2
             );
 
-            // Add source marker
+            // Add source marker (preserve original source if provided, e.g., 'ML Prediction')
             const newSolvent = {
                 ...solventData,
                 delta_total: deltaTotal,
-                source: 'user_added',
+                source: solventData.source || 'user_added',
                 added_at: new Date().toISOString()
             };
 
