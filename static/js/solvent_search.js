@@ -114,6 +114,7 @@ class SolventSearch {
 
         this.setupEventListeners();
         this.setupPanelToggle(); // Setup panel collapse/expand
+        this.setupVisualizationToggle(); // Setup visualization panel collapse
         this.updateTargetContent('target1', 'polymer'); // Initialize with polymer mode
         this.updateTargetContent('target2', 'polymer'); // Initialize with polymer mode
         this.updateTargetContent('target3', 'polymer'); // Initialize with polymer mode
@@ -954,9 +955,58 @@ class SolventSearch {
 
     updateResultsCount(count) {
         const countDisplay = document.querySelector('#results-count-display');
-        if (countDisplay) {
-            countDisplay.textContent = `${count} result${count !== 1 ? 's' : ''}`;
+        if (!countDisplay) return;
+
+        // Count by type
+        const counts = {
+            database: 0,
+            user: 0,
+            mixture: 0
+        };
+
+        if (this.searchResults) {
+            this.searchResults.forEach(r => {
+                if (r.source_file === 'user_added') {
+                    counts.user++;
+                } else if (r.source_file === 'saved_mixture') {
+                    counts.mixture++;
+                } else {
+                    counts.database++;
+                }
+            });
         }
+
+        // Build enhanced display
+        let html = `
+            <div class="results-count-container">
+                <div class="results-count-main">
+                    <span class="count-number">${count}</span>
+                    <span class="count-label">solvent${count !== 1 ? 's' : ''} found</span>
+                </div>`;
+
+        // Show breakdown if there are multiple types
+        if ((counts.database > 0 ? 1 : 0) + (counts.user > 0 ? 1 : 0) + (counts.mixture > 0 ? 1 : 0) > 1) {
+            html += `
+                <div class="results-breakdown">`;
+
+            if (counts.database > 0) {
+                html += `<span class="breakdown-badge badge-database" title="Database solvents">${counts.database} DB</span>`;
+            }
+            if (counts.user > 0) {
+                html += `<span class="breakdown-badge badge-user" title="User-added solvents">👤 ${counts.user}</span>`;
+            }
+            if (counts.mixture > 0) {
+                html += `<span class="breakdown-badge badge-mixture" title="Saved mixtures">${counts.mixture} Mix</span>`;
+            }
+
+            html += `
+                </div>`;
+        }
+
+        html += `
+            </div>`;
+
+        countDisplay.innerHTML = html;
     }
 
     showError(message) {
@@ -1103,7 +1153,7 @@ class SolventSearch {
         // Tabulator configuration
         this.resultsTable = new Tabulator(container, {
             data: [],
-            layout: "fitColumns",
+            layout: "fitDataStretch",  // Better column width distribution
             height: "100%",
             placeholder: "Search solvents to see results",
 
@@ -1114,8 +1164,8 @@ class SolventSearch {
                     sorter: "string",
                     headerFilter: "input",
                     headerFilterPlaceholder: "Filter...",
-                    minWidth: 120,
-                    widthGrow: 2,
+                    minWidth: 200,  // Increased minimum width for names
+                    widthGrow: 3,   // Grow more than other columns
                     formatter: (cell) => {
                         const data = cell.getRow().getData();
                         const sourceUrl = data.source_url;
@@ -1129,9 +1179,20 @@ class SolventSearch {
                             : name;
                         const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
 
+                        // Add visual marker for user-added solvents
+                        let nameDisplay = name;
+                        let nameStyle = '';
+
+                        if (sourceFile === 'user_added') {
+                            nameDisplay = `<span style="font-size: 14px;" title="User Added Solvent">👤</span> ${name}`;
+                            nameStyle = 'color: #2196F3; font-weight: 500;';
+                        } else if (sourceFile === 'saved_mixture') {
+                            nameStyle = 'color: #FF9800;';
+                        }
+
                         let html = `
                             <span style="display: flex; justify-content: space-between; align-items: center; gap: 4px;">
-                                <span style="flex: 1; overflow: hidden; text-overflow: ellipsis;">${name}</span>
+                                <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; ${nameStyle}">${nameDisplay}</span>
                                 <span style="display: flex; gap: 4px;">`;
 
                         // Data source link
@@ -1170,7 +1231,8 @@ class SolventSearch {
                         return `<span class="${redClass}">${value.toFixed(2)}</span>`;
                     },
                     headerTooltip: "Target 1: Relative Energy Difference",
-                    width: 80,
+                    width: 90,
+                    widthGrow: 1.5,  // Grow slightly
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
@@ -1188,7 +1250,8 @@ class SolventSearch {
                         return `<span class="${redClass}">${value.toFixed(2)}</span>`;
                     },
                     headerTooltip: "Target 2: Relative Energy Difference",
-                    width: 80,
+                    width: 90,
+                    widthGrow: 1.5,  // Grow slightly
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
@@ -1206,7 +1269,8 @@ class SolventSearch {
                         return `<span class="${redClass}">${value.toFixed(2)}</span>`;
                     },
                     headerTooltip: "Target 3: Relative Energy Difference",
-                    width: 80,
+                    width: 90,
+                    widthGrow: 1.5,  // Grow slightly
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
@@ -1219,7 +1283,7 @@ class SolventSearch {
                     headerFilterLiveFilter: false,
                     formatter: (cell) => cell.getValue().toFixed(1),
                     headerTooltip: "Dispersion parameter (δD) in MPa^0.5",
-                    width: 80,
+                    width: 85,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
@@ -1232,7 +1296,7 @@ class SolventSearch {
                     headerFilterLiveFilter: false,
                     formatter: (cell) => cell.getValue().toFixed(1),
                     headerTooltip: "Polar parameter (δP) in MPa^0.5",
-                    width: 80,
+                    width: 85,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
@@ -1245,7 +1309,7 @@ class SolventSearch {
                     headerFilterLiveFilter: false,
                     formatter: (cell) => cell.getValue().toFixed(1),
                     headerTooltip: "Hydrogen bonding parameter (δH) in MPa^0.5",
-                    width: 80,
+                    width: 85,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
@@ -1435,10 +1499,8 @@ class SolventSearch {
      * Update the results count badge
      */
     updateResultsCountBadge(count) {
-        const badge = document.querySelector('#results-count-badge');
-        if (badge) {
-            badge.textContent = `${count} result${count !== 1 ? 's' : ''}`;
-        }
+        // Use the enhanced results count display
+        this.updateResultsCount(count);
     }
 
     setupPanelToggle() {
@@ -1476,6 +1538,52 @@ class SolventSearch {
         expandBtn.addEventListener('click', togglePanel);
 
         console.log('Panel toggle setup complete');
+    }
+
+    setupVisualizationToggle() {
+        const vizPanel = document.getElementById('visualization-panel');
+        const vizCollapseBtn = document.getElementById('viz-collapse-btn');
+        const searchResultsSplit = document.querySelector('#solvent-search .search-results-split');
+
+        if (!vizPanel || !vizCollapseBtn) {
+            console.warn('Visualization toggle elements not found');
+            return;
+        }
+
+        // Restore state from localStorage
+        const savedState = localStorage.getItem('vizPanelCollapsed');
+        if (savedState === 'true') {
+            vizPanel.classList.add('collapsed');
+            if (searchResultsSplit) searchResultsSplit.classList.add('viz-collapsed');
+        }
+
+        // Toggle function
+        const toggleVisualization = () => {
+            const isCollapsed = vizPanel.classList.toggle('collapsed');
+
+            if (searchResultsSplit) {
+                searchResultsSplit.classList.toggle('viz-collapsed', isCollapsed);
+            }
+
+            // Save state to localStorage
+            localStorage.setItem('vizPanelCollapsed', isCollapsed);
+
+            // Update button title
+            vizCollapseBtn.title = isCollapsed ? 'Expand visualization panel' : 'Collapse visualization panel';
+
+            // Resize Plotly chart if expanding
+            if (!isCollapsed && this.visualization) {
+                setTimeout(() => {
+                    const plotlyContainer = document.getElementById('search-plotly-visualization');
+                    if (plotlyContainer && window.Plotly) {
+                        window.Plotly.Plots.resize(plotlyContainer);
+                    }
+                }, 350); // After CSS transition completes
+            }
+        };
+
+        vizCollapseBtn.addEventListener('click', toggleVisualization);
+        console.log('Visualization toggle setup complete');
     }
 }
 

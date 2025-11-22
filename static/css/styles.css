@@ -3512,3 +3512,120 @@ body {
 .delete-btn:hover {
     background: #fecaca;
 }
+
+/* Results Count Display Enhancement */
+.results-count-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.results-count-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.results-count-main {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.count-number {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1976D2;
+}
+
+.count-label {
+    font-size: 14px;
+    color: #666;
+}
+
+.results-breakdown {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.breakdown-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+}
+
+.badge-database {
+    background: #2196F3;
+}
+
+.badge-user {
+    background: #4CAF50;
+}
+
+.badge-mixture {
+    background: #FF9800;
+}
+
+/* 3D Visualization Panel Collapse */
+.visualization-area {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.visualization-collapse-toggle {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 100;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 4px;
+    background: rgba(30, 58, 138, 0.9);
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.visualization-collapse-toggle:hover {
+    background: rgba(30, 58, 138, 1);
+    transform: scale(1.05);
+}
+
+.visualization-collapse-toggle .collapse-icon {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+/* Collapsed state */
+.visualization-area.collapsed {
+    width: 50px !important;
+    min-width: 50px !important;
+    flex: 0 0 50px !important;
+}
+
+.visualization-area.collapsed .hansen-sphere {
+    display: none;
+}
+
+.visualization-area.collapsed .visualization-collapse-toggle {
+    right: 9px;
+}
+
+.visualization-area.collapsed .collapse-icon {
+    transform: rotate(180deg);
+}
+
+/* Grid adjustment for collapsed state */
+#solvent-search .search-results-split.viz-collapsed {
+    grid-template-columns: 50px 1fr;
+}

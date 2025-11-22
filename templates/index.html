@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ app_name }}</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <link rel="stylesheet" href="/static/css/styles.css?v=20251115VALIDATION">
+    <link rel="stylesheet" href="/static/css/styles.css?v=20251122LAYOUT">
     <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
 </head>
 <body>
@@ -266,7 +266,7 @@
                         <div class="results-area">
                             <div class="results-panel-header">
                                 <h3>Solvent Results</h3>
-                                <span id="results-count-badge" class="count-badge">0 results</span>
+                                <div id="results-count-display" class="results-count-display"></div>
                                 <button id="export-csv-btn" class="btn btn-secondary btn-small" style="display: none;">Export CSV</button>
                             </div>
 
@@ -277,7 +277,10 @@
                         </div>
 
                         <!-- Right: Visualization -->
-                        <div class="visualization-area">
+                        <div class="visualization-area" id="visualization-panel">
+                            <button class="visualization-collapse-toggle" id="viz-collapse-btn" title="Collapse visualization panel">
+                                <span class="collapse-icon">◀</span>
+                            </button>
                             <div class="hansen-sphere" id="search-hansen-sphere-container">
                                 <div class="viz-tabs">
                                     <button id="search-tab-3d" class="viz-tab active">3D View</button>
@@ -773,7 +776,7 @@
     <script src="/static/js/hsp_visualization.js?v=20251115TARGET3H"></script>
     <script src="/static/js/hsp_experimental.js?v=20251108MANUAL"></script>
     <script src="/static/js/hsp_calculation.js?v=20251115VALIDATION"></script>
-    <script src="/static/js/solvent_search.js?v=20251115TARGET3D"></script>
+    <script src="/static/js/solvent_search.js?v=20251122LAYOUT2"></script>
     <script src="/static/js/data_list.js?v=20251114MODAL"></script>
 </body>
 </html>
