@@ -3782,3 +3782,261 @@ body {
 .logo-section.clickable:hover {
     opacity: 0.8;
 }
+
+/* ========================================
+   SMILES Prediction Section
+   ======================================== */
+
+.smiles-predict-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.smiles-predict-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.smiles-predict-header h2 {
+    color: #1e3a8a;
+    margin-bottom: 0.5rem;
+}
+
+.section-description {
+    color: #666;
+    font-size: 1rem;
+}
+
+.smiles-input-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.smiles-input-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.smiles-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-family: 'Courier New', monospace;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    transition: border-color 0.2s;
+}
+
+.smiles-input:focus {
+    outline: none;
+    border-color: #1e3a8a;
+}
+
+.input-hint {
+    display: block;
+    margin-top: 0.5rem;
+    color: #888;
+    font-size: 0.85rem;
+}
+
+.prediction-results-section {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+}
+
+.prediction-results-section h3 {
+    color: #1e3a8a;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.results-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.result-card {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 1.25rem;
+    border: 1px solid #e2e8f0;
+}
+
+.result-card h4 {
+    color: #334155;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.hsp-results {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.hsp-value-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.hsp-value-item label {
+    font-weight: 600;
+    color: #1e3a8a;
+    min-width: 30px;
+}
+
+.hsp-value-item .value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e40af;
+}
+
+.hsp-value-item .unit {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.tv-result {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 0;
+}
+
+.tv-result .value.large {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1e40af;
+}
+
+.tv-result .unit {
+    font-size: 1.25rem;
+    color: #64748b;
+}
+
+.prediction-error {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.prediction-error p {
+    color: #dc2626;
+    margin: 0;
+}
+
+.method-info {
+    background: white;
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.method-info summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #1e3a8a;
+    padding: 0.5rem 0;
+}
+
+.method-details {
+    padding: 1rem 0;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.method-details p {
+    margin-bottom: 0.75rem;
+}
+
+.performance-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.85rem;
+}
+
+.performance-table th,
+.performance-table td {
+    padding: 0.5rem;
+    text-align: center;
+    border: 1px solid #e2e8f0;
+}
+
+.performance-table th {
+    background: #f1f5f9;
+    font-weight: 600;
+}
+
+.performance-table tbody tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+.reference {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.reference a {
+    color: #1e40af;
+}
+
+.method-link {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: #1e3a8a;
+    color: white !important;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.method-link:hover {
+    background: #1e40af;
+    text-decoration: none;
+}
+
+/* Animation */
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .smiles-input-row {
+        flex-direction: column;
+    }
+
+    .smiles-input-row .btn {
+        width: 100%;
+    }
+}

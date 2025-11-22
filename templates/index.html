@@ -19,6 +19,7 @@
                 <button class="nav-btn" data-section="hsp-experimental">Determine HSP</button>
                 <button class="nav-btn" data-section="hsp-calculation">Calculate HSP</button>
                 <button class="nav-btn" data-section="solvent-search">Search Solvents</button>
+                <button class="nav-btn" data-section="smiles-predict">Predict from SMILES</button>
                 <button class="nav-btn" data-section="data-list">Database</button>
             </nav>
         </div>
@@ -52,6 +53,13 @@
                         <div class="feature-icon">🔍</div>
                         <h3>Search Solvents</h3>
                         <p>Find compatible solvents by searching the database using target HSP values and RED criteria.</p>
+                        <button class="feature-btn">Get Started</button>
+                    </div>
+
+                    <div class="feature-card" data-section="smiles-predict">
+                        <div class="feature-icon">🧬</div>
+                        <h3>Predict from SMILES</h3>
+                        <p>Predict HSP and boiling point from molecular SMILES using machine learning.</p>
                         <button class="feature-btn">Get Started</button>
                     </div>
 
@@ -349,6 +357,105 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SMILES Prediction Section -->
+        <section id="smiles-predict" class="content-section">
+            <div class="smiles-predict-container">
+                <div class="smiles-predict-header">
+                    <h2>Predict Properties from SMILES</h2>
+                    <p class="section-description">
+                        Predict Hansen Solubility Parameters (dD, dP, dH) and Boiling Point (Tv) from molecular SMILES using machine learning.
+                    </p>
+                </div>
+
+                <div class="smiles-input-section">
+                    <div class="input-group">
+                        <label for="smiles-input">Enter SMILES:</label>
+                        <div class="smiles-input-row">
+                            <input type="text" id="smiles-input" class="form-input smiles-input"
+                                   placeholder="e.g., CCO (Ethanol), c1ccccc1 (Benzene)"
+                                   autocomplete="off">
+                            <button id="predict-btn" class="btn btn-primary">Predict</button>
+                            <button id="clear-smiles-btn" class="btn btn-secondary">Clear</button>
+                        </div>
+                        <small class="input-hint">Enter a valid SMILES string representing the molecular structure</small>
+                    </div>
+                </div>
+
+                <div class="prediction-results-section" id="prediction-results" style="display: none;">
+                    <h3>Prediction Results</h3>
+                    <div class="results-grid">
+                        <div class="result-card">
+                            <h4>Hansen Solubility Parameters</h4>
+                            <div class="hsp-results">
+                                <div class="hsp-value-item">
+                                    <label>&delta;D:</label>
+                                    <span id="pred-dD" class="value">-</span>
+                                    <span class="unit">MPa<sup>0.5</sup></span>
+                                </div>
+                                <div class="hsp-value-item">
+                                    <label>&delta;P:</label>
+                                    <span id="pred-dP" class="value">-</span>
+                                    <span class="unit">MPa<sup>0.5</sup></span>
+                                </div>
+                                <div class="hsp-value-item">
+                                    <label>&delta;H:</label>
+                                    <span id="pred-dH" class="value">-</span>
+                                    <span class="unit">MPa<sup>0.5</sup></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="result-card">
+                            <h4>Boiling Point</h4>
+                            <div class="tv-result">
+                                <span id="pred-Tv" class="value large">-</span>
+                                <span class="unit">&deg;C</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button id="add-to-database-btn" class="btn btn-primary" disabled>Add to User Solvents</button>
+                        <button id="copy-prediction-btn" class="btn btn-secondary">Copy Results</button>
+                    </div>
+                </div>
+
+                <div class="prediction-error" id="prediction-error" style="display: none;">
+                    <p id="error-message"></p>
+                </div>
+
+                <div class="method-info">
+                    <details>
+                        <summary>About the Prediction Method</summary>
+                        <div class="method-details">
+                            <p><strong>Algorithm:</strong> GradientBoosting Regressor with RDKit molecular descriptors</p>
+                            <p><strong>Training Data:</strong> 499 solvents from Niederquell & Kuentz (2018)</p>
+                            <p><strong>Cross-Validation Performance (5-Fold):</strong></p>
+                            <table class="performance-table">
+                                <thead>
+                                    <tr><th>Property</th><th>R&sup2;</th><th>MAE</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>dD</td><td>0.858</td><td>0.36 MPa<sup>0.5</sup></td></tr>
+                                    <tr><td>dP</td><td>0.696</td><td>1.15 MPa<sup>0.5</sup></td></tr>
+                                    <tr><td>dH</td><td>0.794</td><td>0.94 MPa<sup>0.5</sup></td></tr>
+                                    <tr><td>Tv</td><td>0.864</td><td>15.1 &deg;C</td></tr>
+                                </tbody>
+                            </table>
+                            <p class="reference">
+                                <strong>Data Source:</strong> Niederquell, A., & Kuentz, M. (2018).
+                                <a href="https://doi.org/10.17632/b4dmjzk8w6.1" target="_blank">Mendeley Data, V1</a>
+                            </p>
+                            <p style="margin-top: 1rem;">
+                                <a href="/method" target="_blank" class="method-link">
+                                    📄 View Detailed Method Documentation
+                                </a>
+                            </p>
+                        </div>
+                    </details>
                 </div>
             </div>
         </section>
@@ -823,5 +930,6 @@
     <script src="/static/js/hsp_calculation.js?v=20251115VALIDATION"></script>
     <script src="/static/js/solvent_search.js?v=20251122UI2"></script>
     <script src="/static/js/data_list.js?v=20251114MODAL"></script>
+    <script src="/static/js/smiles_predict.js?v=20251122"></script>
 </body>
 </html>

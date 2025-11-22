@@ -10,7 +10,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 
 from app.config import settings
-from app.api import hsp_experimental, hsp_calculation, solvent_search, data_list, polymer_data, solvent_api
+from app.api import hsp_experimental, hsp_calculation, solvent_search, data_list, polymer_data, solvent_api, smiles_predictor
 
 # Create FastAPI application
 app = FastAPI(
@@ -54,6 +54,7 @@ app.include_router(hsp_calculation.router, prefix="/api/hsp-calculation", tags=[
 app.include_router(solvent_search.router, prefix="/api/solvent-search", tags=["Solvent Search"])
 app.include_router(data_list.router, prefix="/api/data-list", tags=["Data List"])
 app.include_router(polymer_data.router, prefix="/api/polymer-data", tags=["Polymer Data"])
+app.include_router(smiles_predictor.router, tags=["SMILES Prediction"])
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -74,6 +75,19 @@ async def data_list_page(request: Request):
     """Serve the data list management page"""
     return templates.TemplateResponse(
         "data_list.html",
+        {
+            "request": request,
+            "app_name": settings.app_name,
+            "version": settings.version
+        }
+    )
+
+
+@app.get("/method", response_class=HTMLResponse)
+async def method_page(request: Request):
+    """Serve the ML prediction method documentation page"""
+    return templates.TemplateResponse(
+        "method.html",
         {
             "request": request,
             "app_name": settings.app_name,

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Prediction Method - {{ app_name }}</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/css/styles.css?v=20251122METHOD">
+    <style>
+        .method-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            background: white;
+        }
+
+        .method-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #1e3a8a;
+        }
+
+        .method-header h1 {
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
+        }
+
+        .method-header .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 1rem;
+            color: #1e3a8a;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section h2 {
+            color: #1e3a8a;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .section h3 {
+            color: #334155;
+            margin: 1.5rem 0 0.5rem 0;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border: 1px solid #e2e8f0;
+        }
+
+        .data-table th {
+            background: #f1f5f9;
+            font-weight: 600;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background: #f8fafc;
+        }
+
+        .figure {
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .figure img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .figure-caption {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+        }
+
+        .reference {
+            background: #f8fafc;
+            padding: 1rem;
+            border-left: 4px solid #1e3a8a;
+            margin: 1rem 0;
+            font-size: 0.95rem;
+        }
+
+        .reference a {
+            color: #1e40af;
+        }
+
+        .highlight-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .print-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #1e3a8a;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .print-btn:hover {
+            background: #1e40af;
+        }
+
+        @media print {
+            .back-link, .print-btn {
+                display: none;
+            }
+            .method-container {
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="/static/images/mc_logo.png" alt="MixingCompass Logo" class="logo">
+                <h1>{{ app_name }}</h1>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content" style="padding-top: 80px;">
+        <div class="method-container">
+            <a href="/" class="back-link">&larr; Back to MixingCompass</a>
+
+            <div class="method-header">
+                <h1>Machine Learning Prediction Method</h1>
+                <p class="subtitle">Hansen Solubility Parameters and Boiling Point from SMILES</p>
+            </div>
+
+            <!-- Abstract -->
+            <section class="section">
+                <h2>Abstract</h2>
+                <p>
+                    This document describes the machine learning approach used in MixingCompass for predicting
+                    Hansen Solubility Parameters (dD, dP, dH) and boiling point (Tv) from molecular SMILES strings.
+                    GradientBoosting regression models were trained using RDKit molecular descriptors as features,
+                    achieving R&sup2; values of 0.70-0.86 across all target properties.
+                </p>
+            </section>
+
+            <!-- Data Source -->
+            <section class="section">
+                <h2>Data Source</h2>
+                <div class="reference">
+                    <strong>Training Data Citation:</strong><br>
+                    Niederquell, A., &amp; Kuentz, M. (2018).
+                    <em>Solvent data for pharmaceutical and chemical industry - Useful physicochemical data of common solvents.</em>
+                    Mendeley Data, V1.<br>
+                    <a href="https://doi.org/10.17632/b4dmjzk8w6.1" target="_blank">https://doi.org/10.17632/b4dmjzk8w6.1</a>
+                </div>
+                <p>
+                    The dataset contains physicochemical properties of 499 common solvents used in pharmaceutical
+                    and chemical applications, including SMILES structures, Hansen Solubility Parameters,
+                    and boiling points.
+                </p>
+            </section>
+
+            <!-- Methods -->
+            <section class="section">
+                <h2>Methods</h2>
+
+                <h3>Feature Extraction</h3>
+                <p>
+                    Molecular features were calculated using RDKit molecular descriptors. After preprocessing
+                    (removing features with NaN, infinite values, or zero variance), <strong>164 descriptors</strong>
+                    were retained for model training, including:
+                </p>
+                <ul>
+                    <li>Molecular weight, LogP, TPSA (Topological Polar Surface Area)</li>
+                    <li>Constitutional descriptors (atom counts, bond counts, ring counts)</li>
+                    <li>Topological descriptors (Wiener index, Balaban J index)</li>
+                    <li>Electronic descriptors (partial charges, electronegativity)</li>
+                </ul>
+
+                <h3>Model Architecture</h3>
+                <div class="highlight-box">
+                    <strong>Algorithm:</strong> GradientBoosting Regressor (scikit-learn)<br>
+                    <strong>Parameters:</strong>
+                    <ul>
+                        <li>n_estimators: 100</li>
+                        <li>max_depth: 5</li>
+                        <li>learning_rate: 0.1</li>
+                        <li>random_state: 42</li>
+                    </ul>
+                    <strong>Feature Scaling:</strong> StandardScaler (z-score normalization)
+                </div>
+
+                <h3>Validation</h3>
+                <p>
+                    <strong>5-Fold Cross-Validation</strong> was used to evaluate model performance.
+                    This method splits the data into 5 subsets, training on 4 and testing on 1,
+                    rotating through all combinations to provide robust performance estimates.
+                </p>
+            </section>
+
+            <!-- Results -->
+            <section class="section">
+                <h2>Results</h2>
+
+                <h3>Cross-Validation Performance</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Property</th>
+                            <th>Description</th>
+                            <th>R&sup2;</th>
+                            <th>MAE</th>
+                            <th>Unit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>dD</strong></td>
+                            <td>Dispersion forces</td>
+                            <td>0.858</td>
+                            <td>0.36</td>
+                            <td>MPa<sup>0.5</sup></td>
+                        </tr>
+                        <tr>
+                            <td><strong>dP</strong></td>
+                            <td>Polar forces</td>
+                            <td>0.696</td>
+                            <td>1.15</td>
+                            <td>MPa<sup>0.5</sup></td>
+                        </tr>
+                        <tr>
+                            <td><strong>dH</strong></td>
+                            <td>Hydrogen bonding</td>
+                            <td>0.794</td>
+                            <td>0.94</td>
+                            <td>MPa<sup>0.5</sup></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Tv</strong></td>
+                            <td>Boiling point</td>
+                            <td>0.864</td>
+                            <td>15.14</td>
+                            <td>&deg;C</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Figure 1: Predicted vs Literature Values</h3>
+                <div class="figure">
+                    <img src="/static/images/ml/cv_scatter_plots.png" alt="Cross-validation scatter plots">
+                    <p class="figure-caption">
+                        Figure 1. Scatter plots comparing predicted values (y-axis) against literature values (x-axis)
+                        for all four target properties. Dashed line represents perfect prediction (y=x).
+                        R&sup2; and MAE values are shown for each property.
+                    </p>
+                </div>
+
+                <h3>Figure 2: R&sup2; Score Summary</h3>
+                <div class="figure">
+                    <img src="/static/images/ml/cv_summary.png" alt="R2 score summary">
+                    <p class="figure-caption">
+                        Figure 2. Bar chart comparing R&sup2; scores across all target properties.
+                        Horizontal lines indicate R&sup2; = 0.8 and R&sup2; = 0.7 thresholds.
+                    </p>
+                </div>
+
+                <h3>Figure 3: Prediction Error Distributions</h3>
+                <div class="figure">
+                    <img src="/static/images/ml/cv_error_distributions.png" alt="Error distributions">
+                    <p class="figure-caption">
+                        Figure 3. Histograms showing the distribution of prediction errors for each property.
+                        Red vertical line indicates the mean error. All distributions are centered near zero,
+                        indicating no systematic bias.
+                    </p>
+                </div>
+            </section>
+
+            <!-- Discussion -->
+            <section class="section">
+                <h2>Discussion</h2>
+
+                <h3>Key Findings</h3>
+                <ol>
+                    <li>
+                        <strong>Dispersion (dD):</strong> Achieved R&sup2; = 0.858, indicating strong predictive performance.
+                        This is expected as dispersion forces correlate well with molecular size and structure,
+                        which are well-captured by RDKit descriptors.
+                    </li>
+                    <li>
+                        <strong>Polar (dP):</strong> R&sup2; = 0.696, showing moderate correlation. Polar interactions
+                        are more complex and depend on molecular geometry and charge distribution, which may require
+                        3D conformer analysis for improved accuracy.
+                    </li>
+                    <li>
+                        <strong>H-bonding (dH):</strong> R&sup2; = 0.794, reflecting the complexity of hydrogen bonding
+                        which depends on specific functional groups and their accessibility.
+                    </li>
+                    <li>
+                        <strong>Boiling Point (Tv):</strong> R&sup2; = 0.864, demonstrating strong predictive capability
+                        for this fundamental thermodynamic property.
+                    </li>
+                </ol>
+            </section>
+
+            <!-- Limitations -->
+            <section class="section">
+                <h2>Limitations</h2>
+                <ul>
+                    <li>
+                        <strong>Domain of Applicability:</strong> Models are trained on common solvents.
+                        Predictions for molecules significantly different from the training set may be unreliable.
+                    </li>
+                    <li>
+                        <strong>Functional Group Coverage:</strong> Unusual functional groups not well-represented
+                        in the training data may lead to larger prediction errors.
+                    </li>
+                    <li>
+                        <strong>Stereochemistry:</strong> The model does not distinguish stereoisomers as
+                        RDKit 2D descriptors are used.
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Usage -->
+            <section class="section">
+                <h2>Usage</h2>
+                <h3>Web Interface</h3>
+                <p>Navigate to "Predict from SMILES" in MixingCompass and enter a SMILES string.</p>
+
+                <h3>Python API</h3>
+                <div class="code-block">
+<pre>from app.ml import predict_from_smiles
+
+# Single prediction
+result = predict_from_smiles('CCO')  # Ethanol
+print(result)
+# {'smiles': 'CCO', 'is_valid': True, 'dD': 15.8, 'dP': 8.94, 'dH': 19.28, 'Tv': 79.32}
+
+# Batch prediction
+results = predict_from_smiles(['CCO', 'CCCCCC', 'c1ccccc1'])</pre>
+                </div>
+
+                <h3>REST API</h3>
+                <div class="code-block">
+<pre>POST /api/predict/single
+Content-Type: application/json
+
+{"smiles": "CCO"}
+
+Response:
+{"smiles": "CCO", "is_valid": true, "dD": 15.8, "dP": 8.94, "dH": 19.28, "Tv": 79.32}</pre>
+                </div>
+            </section>
+
+            <!-- References -->
+            <section class="section">
+                <h2>References</h2>
+                <ol>
+                    <li>
+                        Hansen, C. M. (2007). <em>Hansen Solubility Parameters: A User's Handbook, Second Edition.</em>
+                        CRC Press.
+                    </li>
+                    <li>
+                        Niederquell, A., &amp; Kuentz, M. (2018). Solvent data for pharmaceutical and chemical industry -
+                        Useful physicochemical data of common solvents. Mendeley Data, V1.
+                        <a href="https://doi.org/10.17632/b4dmjzk8w6.1" target="_blank">https://doi.org/10.17632/b4dmjzk8w6.1</a>
+                    </li>
+                    <li>
+                        RDKit: Open-source cheminformatics. <a href="https://www.rdkit.org" target="_blank">https://www.rdkit.org</a>
+                    </li>
+                    <li>
+                        Pedregosa, F. et al. (2011). Scikit-learn: Machine Learning in Python.
+                        <em>Journal of Machine Learning Research</em>, 12, 2825-2830.
+                    </li>
+                </ol>
+            </section>
+
+            <hr style="margin: 2rem 0;">
+            <p style="text-align: center; color: #666; font-size: 0.9rem;">
+                Generated by MixingCompass | Last updated: November 2024
+            </p>
+        </div>
+
+        <button class="print-btn" onclick="window.print()">Print / Save PDF</button>
+    </main>
+</body>
+</html>
