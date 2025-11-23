@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ app_name }}</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <link rel="stylesheet" href="/static/css/styles.css?v=20251122HOME">
+    <link rel="stylesheet" href="/static/css/styles.css?v=20251123MODAL">
     <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
 </head>
 <body>
@@ -43,7 +43,7 @@
                     </div>
 
                     <div class="feature-card" data-section="smiles-predict">
-                        <div class="feature-icon">🧬</div>
+                        <div class="feature-icon">🧠</div>
                         <h3>Predict from SMILES</h3>
                         <p>Predict HSP and boiling point from molecular SMILES using machine learning.</p>
                         <button class="feature-btn">Get Started</button>
@@ -658,17 +658,19 @@
                                 <label for="add-solvent-name">Solvent Name: *</label>
                                 <input type="text" id="add-solvent-name" class="form-input" placeholder="Enter solvent name" required>
                             </div>
-                            <div class="form-group">
-                                <label for="add-delta-d">δD (MPa<sup>0.5</sup>): *</label>
-                                <input type="number" id="add-delta-d" class="form-input" step="0.1" placeholder="15.5" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="add-delta-p">δP (MPa<sup>0.5</sup>): *</label>
-                                <input type="number" id="add-delta-p" class="form-input" step="0.1" placeholder="7.0" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="add-delta-h">δH (MPa<sup>0.5</sup>): *</label>
-                                <input type="number" id="add-delta-h" class="form-input" step="0.1" placeholder="8.0" required>
+                            <div class="hsp-input-row">
+                                <div class="form-group">
+                                    <label for="add-delta-d">δD (MPa<sup>0.5</sup>): *</label>
+                                    <input type="number" id="add-delta-d" class="form-input" step="0.1" placeholder="15.5" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="add-delta-p">δP (MPa<sup>0.5</sup>): *</label>
+                                    <input type="number" id="add-delta-p" class="form-input" step="0.1" placeholder="7.0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="add-delta-h">δH (MPa<sup>0.5</sup>): *</label>
+                                    <input type="number" id="add-delta-h" class="form-input" step="0.1" placeholder="8.0" required>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="add-cas">CAS Number:</label>
@@ -698,17 +700,19 @@
                                 <label for="edit-solvent-name">Solvent Name: *</label>
                                 <input type="text" id="edit-solvent-name" class="form-input" placeholder="Enter solvent name" required>
                             </div>
-                            <div class="form-group">
-                                <label for="edit-delta-d">δD (MPa<sup>0.5</sup>): *</label>
-                                <input type="number" id="edit-delta-d" class="form-input" step="0.1" placeholder="15.5" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="edit-delta-p">δP (MPa<sup>0.5</sup>): *</label>
-                                <input type="number" id="edit-delta-p" class="form-input" step="0.1" placeholder="7.0" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="edit-delta-h">δH (MPa<sup>0.5</sup>): *</label>
-                                <input type="number" id="edit-delta-h" class="form-input" step="0.1" placeholder="8.0" required>
+                            <div class="hsp-input-row">
+                                <div class="form-group">
+                                    <label for="edit-delta-d">δD (MPa<sup>0.5</sup>): *</label>
+                                    <input type="number" id="edit-delta-d" class="form-input" step="0.1" placeholder="15.5" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit-delta-p">δP (MPa<sup>0.5</sup>): *</label>
+                                    <input type="number" id="edit-delta-p" class="form-input" step="0.1" placeholder="7.0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit-delta-h">δH (MPa<sup>0.5</sup>): *</label>
+                                    <input type="number" id="edit-delta-h" class="form-input" step="0.1" placeholder="8.0" required>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="edit-cas">CAS Number:</label>
@@ -738,17 +742,19 @@
                                 <label for="add-polymer-name">Polymer Name: *</label>
                                 <input type="text" id="add-polymer-name" class="form-input" placeholder="Enter polymer name" required>
                             </div>
-                            <div class="form-group">
-                                <label for="add-polymer-delta-d">δD (MPa<sup>0.5</sup>): *</label>
-                                <input type="number" id="add-polymer-delta-d" class="form-input" step="0.1" placeholder="18.0" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="add-polymer-delta-p">δP (MPa<sup>0.5</sup>): *</label>
-                                <input type="number" id="add-polymer-delta-p" class="form-input" step="0.1" placeholder="6.0" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="add-polymer-delta-h">δH (MPa<sup>0.5</sup>): *</label>
-                                <input type="number" id="add-polymer-delta-h" class="form-input" step="0.1" placeholder="4.0" required>
+                            <div class="hsp-input-row">
+                                <div class="form-group">
+                                    <label for="add-polymer-delta-d">δD (MPa<sup>0.5</sup>): *</label>
+                                    <input type="number" id="add-polymer-delta-d" class="form-input" step="0.1" placeholder="18.0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="add-polymer-delta-p">δP (MPa<sup>0.5</sup>): *</label>
+                                    <input type="number" id="add-polymer-delta-p" class="form-input" step="0.1" placeholder="6.0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="add-polymer-delta-h">δH (MPa<sup>0.5</sup>): *</label>
+                                    <input type="number" id="add-polymer-delta-h" class="form-input" step="0.1" placeholder="4.0" required>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="add-polymer-r0">R0 (MPa<sup>0.5</sup>): *</label>
@@ -778,17 +784,19 @@
                                 <label for="edit-polymer-name">Polymer Name: *</label>
                                 <input type="text" id="edit-polymer-name" class="form-input" placeholder="Enter polymer name" required>
                             </div>
-                            <div class="form-group">
-                                <label for="edit-polymer-delta-d">δD (MPa<sup>0.5</sup>): *</label>
-                                <input type="number" id="edit-polymer-delta-d" class="form-input" step="0.1" placeholder="18.0" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="edit-polymer-delta-p">δP (MPa<sup>0.5</sup>): *</label>
-                                <input type="number" id="edit-polymer-delta-p" class="form-input" step="0.1" placeholder="6.0" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="edit-polymer-delta-h">δH (MPa<sup>0.5</sup>): *</label>
-                                <input type="number" id="edit-polymer-delta-h" class="form-input" step="0.1" placeholder="4.0" required>
+                            <div class="hsp-input-row">
+                                <div class="form-group">
+                                    <label for="edit-polymer-delta-d">δD (MPa<sup>0.5</sup>): *</label>
+                                    <input type="number" id="edit-polymer-delta-d" class="form-input" step="0.1" placeholder="18.0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit-polymer-delta-p">δP (MPa<sup>0.5</sup>): *</label>
+                                    <input type="number" id="edit-polymer-delta-p" class="form-input" step="0.1" placeholder="6.0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="edit-polymer-delta-h">δH (MPa<sup>0.5</sup>): *</label>
+                                    <input type="number" id="edit-polymer-delta-h" class="form-input" step="0.1" placeholder="4.0" required>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="edit-polymer-r0">R0 (MPa<sup>0.5</sup>): *</label>

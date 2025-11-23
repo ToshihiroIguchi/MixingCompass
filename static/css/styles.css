@@ -1506,6 +1506,27 @@ body {
     box-shadow: 0 0 0 1px #3b82f6;
 }
 
+/* Horizontal HSP input row */
+.hsp-input-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.hsp-input-row .form-group {
+    margin-bottom: 0;
+}
+
+.hsp-input-row .form-group label {
+    font-size: 0.85rem;
+    white-space: nowrap;
+}
+
+.hsp-input-row .form-input {
+    width: 100%;
+}
+
 .edit-solvents-list {
     border: 1px solid #e5e7eb;
     border-radius: 4px;
