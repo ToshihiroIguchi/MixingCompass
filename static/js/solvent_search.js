@@ -100,6 +100,9 @@ class SolventSearch {
         this.currentTarget3 = null;
         this.filteredResults = [];
         this.resultsTable = null; // Tabulator instance
+        this.selectedSolvents = new Set(); // Track selected solvents for set creation
+        this.searchScope = 'all'; // 'all' or 'set'
+        this.selectedSetId = null; // Selected solvent set ID for filtering
         this.init();
     }
 
@@ -255,6 +258,43 @@ class SolventSearch {
                     this.resultsTable.download("csv", "solvent_results.csv");
                 }
             });
+        }
+
+        // Search scope radio buttons
+        const searchScopeRadios = document.querySelectorAll('input[name="search-scope"]');
+        searchScopeRadios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                this.searchScope = e.target.value;
+                const selectorContainer = document.getElementById('search-set-selector-container');
+                if (selectorContainer) {
+                    selectorContainer.style.display = this.searchScope === 'set' ? 'block' : 'none';
+                }
+                if (this.searchScope === 'set') {
+                    this.populateSolventSetSelector();
+                }
+            });
+        });
+
+        // Solvent set selector
+        const setSelector = document.getElementById('search-solvent-set-selector');
+        if (setSelector) {
+            setSelector.addEventListener('change', (e) => {
+                this.selectedSetId = e.target.value || null;
+            });
+        }
+
+        // Select all checkbox
+        const selectAllCheckbox = document.getElementById('select-all-results');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', (e) => {
+                this.toggleSelectAll(e.target.checked);
+            });
+        }
+
+        // Save as Set button
+        const saveAsSetBtn = document.getElementById('save-as-set-btn');
+        if (saveAsSetBtn) {
+            saveAsSetBtn.addEventListener('click', () => this.saveAsSet());
         }
     }
 
@@ -569,6 +609,9 @@ class SolventSearch {
             );
 
             this.searchResults = [...results.results, ...savedMixtures, ...userSolvents];
+
+            // Filter by solvent set if selected
+            this.searchResults = this.filterBySet(this.searchResults);
             this.filteredResults = [...this.searchResults]; // Initialize filtered results
 
             // Sort by distance
@@ -577,6 +620,9 @@ class SolventSearch {
 
             this.displayResults('single');
             this.updateResultsCount(this.searchResults.length);
+
+            // Show selection controls and save button
+            this.showSelectionUI(this.searchResults.length > 0);
 
             // Generate visualization with all targets
             this.generateVisualization(target1Data, target2Data, this.searchResults, target3Data);
@@ -1173,6 +1219,18 @@ class SolventSearch {
 
             columns: [
                 {
+                    title: "",
+                    field: "selected",
+                    formatter: "rowSelection",
+                    titleFormatter: "rowSelection",
+                    hozAlign: "center",
+                    headerSort: false,
+                    width: 30,
+                    cellClick: (e, cell) => {
+                        cell.getRow().toggleSelect();
+                    }
+                },
+                {
                     title: "Solvent<br>Name",
                     field: "name",
                     sorter: "string",
@@ -1439,6 +1497,12 @@ class SolventSearch {
             this.resultsTable.hideColumn("red2_value");
             this.resultsTable.hideColumn("red3_value");
         });
+
+        // Row selection changed event
+        this.resultsTable.on("rowSelectionChanged", (data, rows) => {
+            this.selectedSolvents = new Set(data.map(d => d.name));
+            this.updateSelectionUI();
+        });
     }
 
     /**
@@ -1657,6 +1721,176 @@ class SolventSearch {
         if (this.visualization) {
             this.visualization.showPlaceholder('Search solvents to display Hansen sphere visualization');
         }
+    }
+
+    /**
+     * Show/hide selection UI elements
+     */
+    showSelectionUI(show) {
+        const selectionControls = document.getElementById('selection-controls');
+        const saveAsSetBtn = document.getElementById('save-as-set-btn');
+
+        if (selectionControls) {
+            selectionControls.style.display = show ? 'flex' : 'none';
+        }
+        if (saveAsSetBtn) {
+            saveAsSetBtn.style.display = show ? 'inline-block' : 'none';
+        }
+
+        // Reset selection state
+        if (show) {
+            this.selectedSolvents.clear();
+            this.updateSelectionUI();
+            const selectAllCheckbox = document.getElementById('select-all-results');
+            if (selectAllCheckbox) selectAllCheckbox.checked = false;
+        }
+    }
+
+    /**
+     * Populate solvent set selector dropdown
+     */
+    populateSolventSetSelector() {
+        const selector = document.getElementById('search-solvent-set-selector');
+        if (!selector) return;
+
+        // Get solvent sets from storage (use same key as solvent_set_manager.js)
+        const solventSets = JSON.parse(localStorage.getItem('mixingCompass_solventSets') || '[]');
+
+        // Clear and repopulate
+        selector.innerHTML = '<option value="">Select a solvent set...</option>';
+        solventSets.forEach(set => {
+            const option = document.createElement('option');
+            option.value = set.id;
+            option.textContent = `${set.name} (${set.solvents.length} solvents)`;
+            selector.appendChild(option);
+        });
+    }
+
+    /**
+     * Toggle select all in results table
+     */
+    toggleSelectAll(selectAll) {
+        if (!this.resultsTable) return;
+
+        if (selectAll) {
+            this.resultsTable.selectRow();
+        } else {
+            this.resultsTable.deselectRow();
+        }
+    }
+
+    /**
+     * Update selection UI (count display, buttons)
+     */
+    updateSelectionUI() {
+        const countDisplay = document.getElementById('selection-count');
+        if (countDisplay) {
+            countDisplay.textContent = `${this.selectedSolvents.size} selected`;
+        }
+
+        // Update select all checkbox state
+        const selectAllCheckbox = document.getElementById('select-all-results');
+        if (selectAllCheckbox && this.resultsTable) {
+            const totalRows = this.resultsTable.getDataCount("active");
+            selectAllCheckbox.checked = this.selectedSolvents.size > 0 && this.selectedSolvents.size === totalRows;
+            selectAllCheckbox.indeterminate = this.selectedSolvents.size > 0 && this.selectedSolvents.size < totalRows;
+        }
+    }
+
+    /**
+     * Save selected solvents as a new set
+     */
+    saveAsSet() {
+        if (this.selectedSolvents.size === 0) {
+            // If nothing selected, use all visible results
+            const allData = this.resultsTable.getData("active");
+            if (allData.length === 0) {
+                window.showNotification && window.showNotification('No solvents to save', 'error');
+                return;
+            }
+            allData.forEach(d => this.selectedSolvents.add(d.name));
+        }
+
+        const setName = prompt('Enter a name for this solvent set:', `Search Results (${this.selectedSolvents.size} solvents)`);
+        if (!setName) return;
+
+        // Get full solvent data for selected solvents
+        const allData = this.resultsTable.getData();
+        const selectedData = allData.filter(d => this.selectedSolvents.has(d.name));
+
+        // Format for solvent set storage (use solvent_name for consistency with SolventSetManager)
+        const solventsForSet = selectedData.map(s => ({
+            solvent_name: s.name,
+            delta_d: s.delta_d,
+            delta_p: s.delta_p,
+            delta_h: s.delta_h,
+            ratio: 100 / selectedData.length // Equal ratio
+        }));
+
+        // Use solventSetManager if available
+        if (window.solventSetManager) {
+            window.solventSetManager.saveSolventSet(setName, solventsForSet);
+            window.showNotification && window.showNotification(`Saved "${setName}" with ${solventsForSet.length} solvents`, 'success');
+
+            // Refresh displays
+            if (window.dataListManager) {
+                window.dataListManager.loadSolventSetsDisplay();
+            }
+        } else {
+            // Fallback: Direct localStorage save (use same key as solvent_set_manager.js)
+            const solventSets = JSON.parse(localStorage.getItem('mixingCompass_solventSets') || '[]');
+            const newSet = {
+                id: Date.now().toString(),
+                name: setName,
+                solvents: solventsForSet,
+                created: new Date().toISOString()
+            };
+            solventSets.push(newSet);
+            localStorage.setItem('mixingCompass_solventSets', JSON.stringify(solventSets));
+            window.showNotification && window.showNotification(`Saved "${setName}" with ${solventsForSet.length} solvents`, 'success');
+        }
+
+        // Clear selection
+        this.resultsTable.deselectRow();
+    }
+
+    /**
+     * Get solvent names from a solvent set by ID
+     */
+    getSolventSetNames(setId) {
+        const solventSets = JSON.parse(localStorage.getItem('mixingCompass_solventSets') || '[]');
+        const set = solventSets.find(s => s.id === setId);
+        if (!set) return new Set();
+        // Handle both field names: solvent_name (from SolventSetManager) and name (from saveAsSet)
+        return new Set(set.solvents.map(s => s.solvent_name || s.name));
+    }
+
+    /**
+     * Filter search results by solvent set
+     */
+    filterBySet(results) {
+        if (this.searchScope !== 'set' || !this.selectedSetId) {
+            return results;
+        }
+
+        const setNames = this.getSolventSetNames(this.selectedSetId);
+        console.log('Filter by set - setNames:', [...setNames]);
+        console.log('Filter by set - results sample names:', results.slice(0, 5).map(r => r.name));
+
+        if (setNames.size === 0) return results;
+
+        // Create lowercase set for case-insensitive matching
+        const setNamesLower = new Set([...setNames].map(n => n.toLowerCase()));
+
+        // Check multiple possible field names for solvent name (case-insensitive)
+        const filtered = results.filter(r => {
+            const solventName = r.solvent || r.Solvent || r.name;
+            if (!solventName) return false;
+            return setNamesLower.has(solventName.toLowerCase());
+        });
+
+        console.log('Filter by set - filtered count:', filtered.length);
+        return filtered;
     }
 }
 
