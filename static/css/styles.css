@@ -1474,65 +1474,6 @@ body {
     width: 100%;
 }
 
-.edit-solvents-list {
-    border: 1px solid #e5e7eb;
-    border-radius: 4px;
-    padding: 1rem;
-    max-height: 300px;
-    overflow-y: auto;
-}
-
-.edit-solvent-item {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
-    gap: 0.5rem;
-    align-items: end;
-    padding: 0.75rem;
-    border: 1px solid #f3f4f6;
-    border-radius: 4px;
-    margin-bottom: 0.5rem;
-    background-color: #fafafa;
-}
-
-.solvent-field {
-    display: flex;
-    flex-direction: column;
-}
-
-.solvent-field label {
-    font-size: 0.75rem;
-    color: #6b7280;
-    margin-bottom: 0.25rem;
-}
-
-.solvent-field input,
-.solvent-field select {
-    padding: 0.25rem;
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    font-size: 0.875rem;
-}
-
-.custom-solubility-field {
-    margin-top: 0.25rem;
-}
-
-.remove-solvent-btn {
-    align-self: end;
-    background-color: #ef4444;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    width: 2rem;
-    height: 2rem;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.remove-solvent-btn:hover {
-    background-color: #dc2626;
-}
-
 /* Extra large screen optimizations */
 @media (min-width: 1600px) {
     .split-layout {

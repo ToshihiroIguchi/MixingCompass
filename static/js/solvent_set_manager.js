@@ -422,7 +422,6 @@ class SolventSetManager {
                     delta_d: null,
                     delta_p: null,
                     delta_h: null,
-                    notes: solventData.notes || '',
                     mode: 'auto',
                     source_url: null
                 };
@@ -478,9 +477,9 @@ class SolventSetManager {
     cleanSolventData(solvents) {
         // Clean and validate solvent data before saving
         // Note: Solubility data is NOT saved as it's experiment-specific
+        // Note: Notes field removed as it's not needed for solvent sets
         return solvents.map(solvent => ({
             solvent_name: solvent.solvent_name,
-            notes: solvent.notes || null,
             manual_delta_d: solvent.manual_delta_d || undefined,
             manual_delta_p: solvent.manual_delta_p || undefined,
             manual_delta_h: solvent.manual_delta_h || undefined

@@ -222,74 +222,99 @@ class DataListManager {
     showEditModal(solventSet) {
         const modal = document.querySelector('#edit-set-modal');
         const nameInput = document.querySelector('#edit-set-name');
-        const solventsList = document.querySelector('#edit-solvents-list');
+        const tableContainer = document.querySelector('#edit-solvents-table');
 
-        if (!modal || !nameInput || !solventsList) return;
+        if (!modal || !nameInput || !tableContainer) return;
 
         // Populate modal with set data
         nameInput.value = solventSet.name;
 
-        // Create editable solvents list
-        const solventsHTML = solventSet.solvents.map((solvent, index) => `
-            <div class="edit-solvent-item" data-index="${index}">
-                <div class="solvent-field">
-                    <label>Solvent:</label>
-                    <input type="text" class="solvent-name-field" value="${this.escapeHtml(solvent.solvent_name)}">
-                </div>
-                <div class="solvent-field">
-                    <label>Notes:</label>
-                    <input type="text" class="notes-field" value="${this.escapeHtml(solvent.notes || '')}">
-                </div>
-                <button class="btn-icon remove-solvent-btn" title="Remove solvent" data-index="${index}">×</button>
-            </div>
-        `).join('');
+        // Initialize datalist with solvent names from shared cache
+        this.initializeEditSolventDatalist();
 
-        solventsList.innerHTML = solventsHTML + `
-            <button id="add-solvent-to-set" class="btn btn-secondary btn-small">Add Solvent</button>
-        `;
+        // Create Tabulator table for solvents
+        const tableData = solventSet.solvents.map(s => ({
+            solvent_name: s.solvent_name
+        }));
 
-        // Add event listeners for dynamic controls
+        // Destroy existing table if any
+        if (this.editSetTable) {
+            this.editSetTable.destroy();
+        }
+
+        this.editSetTable = new Tabulator('#edit-solvents-table', {
+            data: tableData,
+            layout: 'fitColumns',
+            height: '250px',
+            placeholder: 'No solvents added. Click "+ Add Solvent" to add.',
+            columns: [
+                {
+                    title: 'Solvent',
+                    field: 'solvent_name',
+                    editor: 'input',
+                    editorParams: {
+                        elementAttributes: {
+                            list: 'edit-set-solvent-datalist'
+                        }
+                    },
+                    validator: ['required', 'string'],
+                    cellEdited: (cell) => {
+                        // Auto-validate solvent name against database
+                        const value = cell.getValue();
+                        if (value && window.sharedSolventCache) {
+                            const solvent = window.sharedSolventCache.get(value);
+                            if (!solvent) {
+                                cell.getElement().style.backgroundColor = '#fef3c7';
+                                cell.getElement().title = 'Solvent not found in database';
+                            } else {
+                                cell.getElement().style.backgroundColor = '';
+                                cell.getElement().title = '';
+                            }
+                        }
+                    }
+                },
+                {
+                    title: '',
+                    formatter: 'buttonCross',
+                    width: 40,
+                    hozAlign: 'center',
+                    cellClick: (e, cell) => {
+                        cell.getRow().delete();
+                    }
+                }
+            ]
+        });
+
+        // Setup add button listener
         this.setupEditModalListeners();
 
         modal.style.display = 'flex';
     }
 
-    setupEditModalListeners() {
-        // Remove solvent buttons
-        document.querySelectorAll('.remove-solvent-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.target.closest('.edit-solvent-item').remove();
-            });
-        });
+    initializeEditSolventDatalist() {
+        const datalist = document.querySelector('#edit-set-solvent-datalist');
+        if (!datalist || !window.sharedSolventCache) return;
 
+        // Get solvent names from shared cache
+        const names = window.sharedSolventCache.getNames();
+        datalist.innerHTML = names.map(name => `<option value="${this.escapeHtml(name)}">`).join('');
+    }
+
+    setupEditModalListeners() {
         // Add solvent button
         const addBtn = document.querySelector('#add-solvent-to-set');
         if (addBtn) {
-            addBtn.addEventListener('click', () => this.addSolventToEditList());
+            // Remove old listener and add new one
+            const newBtn = addBtn.cloneNode(true);
+            addBtn.parentNode.replaceChild(newBtn, addBtn);
+            newBtn.addEventListener('click', () => this.addSolventToEditList());
         }
     }
 
     addSolventToEditList() {
-        const solventsList = document.querySelector('#edit-solvents-list');
-        const addBtn = document.querySelector('#add-solvent-to-set');
-
-        const newIndex = document.querySelectorAll('.edit-solvent-item').length;
-        const newSolventHTML = `
-            <div class="edit-solvent-item" data-index="${newIndex}">
-                <div class="solvent-field">
-                    <label>Solvent:</label>
-                    <input type="text" class="solvent-name-field" placeholder="Enter solvent name">
-                </div>
-                <div class="solvent-field">
-                    <label>Notes:</label>
-                    <input type="text" class="notes-field" placeholder="Optional notes">
-                </div>
-                <button class="btn-icon remove-solvent-btn" title="Remove solvent" data-index="${newIndex}">×</button>
-            </div>
-        `;
-
-        addBtn.insertAdjacentHTML('beforebegin', newSolventHTML);
-        this.setupEditModalListeners();
+        if (this.editSetTable) {
+            this.editSetTable.addRow({ solvent_name: '' });
+        }
     }
 
     saveSetChanges() {
@@ -301,21 +326,18 @@ class DataListManager {
             return;
         }
 
-        // Collect solvent data from form
-        const solventItems = document.querySelectorAll('.edit-solvent-item');
-        const solvents = [];
+        if (!this.editSetTable) {
+            alert('Table not initialized');
+            return;
+        }
 
-        solventItems.forEach(item => {
-            const name = item.querySelector('.solvent-name-field').value.trim();
-            if (!name) return; // Skip empty entries
-
-            const notes = item.querySelector('.notes-field').value.trim();
-
-            solvents.push({
-                solvent_name: name,
-                notes: notes || null
-            });
-        });
+        // Get data from Tabulator
+        const tableData = this.editSetTable.getData();
+        const solvents = tableData
+            .filter(row => row.solvent_name && row.solvent_name.trim())
+            .map(row => ({
+                solvent_name: row.solvent_name.trim()
+            }));
 
         if (solvents.length === 0) {
             alert('Please add at least one solvent');
@@ -342,6 +364,11 @@ class DataListManager {
         const modal = document.querySelector('#edit-set-modal');
         if (modal) {
             modal.style.display = 'none';
+        }
+        // Destroy table to free resources
+        if (this.editSetTable) {
+            this.editSetTable.destroy();
+            this.editSetTable = null;
         }
         this.currentEditingSet = null;
     }

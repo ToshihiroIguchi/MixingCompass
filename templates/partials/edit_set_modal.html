@@ -1,6 +1,6 @@
 <!-- Edit Solvent Set Modal -->
 <div id="edit-set-modal" class="modal" style="display: none;">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 500px;">
         <div class="modal-header">
             <h3>Edit Solvent Set</h3>
             <button class="modal-close">&times;</button>
@@ -13,9 +13,10 @@
 
             <div class="form-group">
                 <label>Solvents in this set:</label>
-                <div id="edit-solvents-list" class="edit-solvents-list">
-                    <!-- Solvent list will be populated dynamically -->
-                </div>
+                <div id="edit-solvents-table" style="min-height: 200px;"></div>
+                <button type="button" id="add-solvent-to-set" class="btn btn-secondary btn-small" style="margin-top: 0.5rem;">
+                    + Add Solvent
+                </button>
             </div>
         </div>
         <div class="modal-footer">
@@ -24,3 +25,6 @@
         </div>
     </div>
 </div>
+
+<!-- Datalist for solvent autocomplete in edit modal -->
+<datalist id="edit-set-solvent-datalist"></datalist>
