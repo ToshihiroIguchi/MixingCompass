@@ -1198,7 +1198,7 @@ class SolventSearch {
                         let nameStyle = '';
 
                         if (sourceFile === 'user_added') {
-                            nameDisplay = `<span style="font-size: 14px;" title="User Added Solvent">👤</span> ${name}`;
+                            nameDisplay = `<span style="font-size: 14px;" title="User Solvent">👤</span> ${name}`;
                             nameStyle = 'color: #2196F3; font-weight: 500;';
                         } else if (sourceFile === 'saved_mixture') {
                             nameStyle = 'color: #FF9800;';

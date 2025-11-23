@@ -182,7 +182,7 @@
                 <h2>Abstract</h2>
                 <p>
                     This document describes the machine learning approach used in MixingCompass for predicting
-                    Hansen Solubility Parameters (dD, dP, dH) and boiling point (Tv) from molecular SMILES strings.
+                    Hansen Solubility Parameters (δD, δP, δH) and Boiling Point (Tv) from molecular SMILES strings.
                     GradientBoosting regression models were trained using RDKit molecular descriptors as features,
                     achieving R&sup2; values of 0.70-0.86 across all target properties.
                 </p>
@@ -260,21 +260,21 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <td><strong>dD</strong></td>
+                            <td><strong>δD</strong></td>
                             <td>Dispersion forces</td>
                             <td>0.858</td>
                             <td>0.36</td>
                             <td>MPa<sup>0.5</sup></td>
                         </tr>
                         <tr>
-                            <td><strong>dP</strong></td>
+                            <td><strong>δP</strong></td>
                             <td>Polar forces</td>
                             <td>0.696</td>
                             <td>1.15</td>
                             <td>MPa<sup>0.5</sup></td>
                         </tr>
                         <tr>
-                            <td><strong>dH</strong></td>
+                            <td><strong>δH</strong></td>
                             <td>Hydrogen bonding</td>
                             <td>0.794</td>
                             <td>0.94</td>
@@ -327,17 +327,17 @@
                 <h3>Key Findings</h3>
                 <ol>
                     <li>
-                        <strong>Dispersion (dD):</strong> Achieved R&sup2; = 0.858, indicating strong predictive performance.
+                        <strong>Dispersion (δD):</strong> Achieved R&sup2; = 0.858, indicating strong predictive performance.
                         This is expected as dispersion forces correlate well with molecular size and structure,
                         which are well-captured by RDKit descriptors.
                     </li>
                     <li>
-                        <strong>Polar (dP):</strong> R&sup2; = 0.696, showing moderate correlation. Polar interactions
+                        <strong>Polar (δP):</strong> R&sup2; = 0.696, showing moderate correlation. Polar interactions
                         are more complex and depend on molecular geometry and charge distribution, which may require
                         3D conformer analysis for improved accuracy.
                     </li>
                     <li>
-                        <strong>H-bonding (dH):</strong> R&sup2; = 0.794, reflecting the complexity of hydrogen bonding
+                        <strong>H-bonding (δH):</strong> R&sup2; = 0.794, reflecting the complexity of hydrogen bonding
                         which depends on specific functional groups and their accessibility.
                     </li>
                     <li>

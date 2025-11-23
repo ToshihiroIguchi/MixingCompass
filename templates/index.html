@@ -66,7 +66,7 @@
                     <div class="feature-card" data-section="data-list">
                         <div class="feature-icon">🗃️</div>
                         <h3>Data Manager</h3>
-                        <p>Browse and manage the solvent database, including user-added solvents and saved mixtures.</p>
+                        <p>Browse and manage the solvent database, including user solvents and saved mixtures.</p>
                         <button class="feature-btn">Get Started</button>
                     </div>
                 </div>
@@ -367,7 +367,7 @@
                 <div class="smiles-predict-header">
                     <h2>Predict Properties from SMILES</h2>
                     <p class="section-description">
-                        Predict Hansen Solubility Parameters (dD, dP, dH) and Boiling Point (Tv) from molecular SMILES using machine learning.
+                        Predict Hansen Solubility Parameters (δD, δP, δH) and Boiling Point (Tv) from molecular SMILES using machine learning.
                     </p>
                 </div>
 
@@ -462,9 +462,9 @@
                                     <tr><th>Property</th><th>R&sup2;</th><th>MAE</th></tr>
                                 </thead>
                                 <tbody>
-                                    <tr><td>dD</td><td>0.858</td><td>0.36 MPa<sup>0.5</sup></td></tr>
-                                    <tr><td>dP</td><td>0.696</td><td>1.15 MPa<sup>0.5</sup></td></tr>
-                                    <tr><td>dH</td><td>0.794</td><td>0.94 MPa<sup>0.5</sup></td></tr>
+                                    <tr><td>δD</td><td>0.858</td><td>0.36 MPa<sup>0.5</sup></td></tr>
+                                    <tr><td>δP</td><td>0.696</td><td>1.15 MPa<sup>0.5</sup></td></tr>
+                                    <tr><td>δH</td><td>0.794</td><td>0.94 MPa<sup>0.5</sup></td></tr>
                                     <tr><td>Tv</td><td>0.864</td><td>15.1 &deg;C</td></tr>
                                 </tbody>
                             </table>
@@ -509,10 +509,10 @@
                     </div>
                 </div>
 
-                <!-- User Added Solvents Section -->
+                <!-- User Solvents Section -->
                 <div class="user-solvents-section">
                     <div class="section-header">
-                        <h3>User Added Solvents</h3>
+                        <h3>User Solvents</h3>
                         <div>
                             <button id="add-user-solvent-btn" class="btn btn-primary btn-small">+ Add Solvent</button>
                             <span id="user-solvents-count" class="count-badge">0 solvents</span>
@@ -520,7 +520,7 @@
                     </div>
 
                     <div id="user-solvents-empty" class="empty-state" style="display: none;">
-                        <p>No user-added solvents yet.</p>
+                        <p>No user solvents yet.</p>
                         <p>Click "+ Add Solvent" above to add your first solvent.</p>
                     </div>
 
@@ -529,10 +529,10 @@
                     </div>
                 </div>
 
-                <!-- User Added Polymers Section -->
+                <!-- User Polymers Section -->
                 <div class="user-polymers-section">
                     <div class="section-header">
-                        <h3>User Added Polymers</h3>
+                        <h3>User Polymers</h3>
                         <div>
                             <button id="add-user-polymer-btn" class="btn btn-primary btn-small">+ Add Polymer</button>
                             <span id="user-polymers-count" class="count-badge">0 polymers</span>
@@ -540,7 +540,7 @@
                     </div>
 
                     <div id="user-polymers-empty" class="empty-state" style="display: none;">
-                        <p>No user-added polymers yet.</p>
+                        <p>No user polymers yet.</p>
                         <p>Click "+ Add Polymer" above to add your first polymer.</p>
                     </div>
 

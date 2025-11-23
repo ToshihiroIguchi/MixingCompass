@@ -899,7 +899,7 @@ class DataListManager {
                 tableContainer.innerHTML = `
                     <div class="loading-container">
                         <div class="loading-spinner"></div>
-                        <span class="loading-text">Loading user-added solvents...</span>
+                        <span class="loading-text">Loading user solvents...</span>
                     </div>
                 `;
             }
@@ -1128,9 +1128,9 @@ class DataListManager {
         } catch (error) {
             console.error('Error loading user-added solvents:', error);
             if (tableContainer) {
-                tableContainer.innerHTML = `<div class="error-cell">Error loading user-added solvents: ${error.message}</div>`;
+                tableContainer.innerHTML = `<div class="error-cell">Error loading user solvents: ${error.message}</div>`;
             }
-            Notification.error('Failed to load user-added solvents');
+            Notification.error('Failed to load user solvents');
         }
     }
 
