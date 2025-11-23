@@ -17,6 +17,7 @@
         resultsSection: null,
         errorSection: null,
         errorMessage: null,
+        structureSvgContainer: null,
         predDd: null,
         predDp: null,
         predDh: null,
@@ -25,7 +26,10 @@
         predCho: null,
         solventNameInput: null,
         saveBtn: null,
-        copyBtn: null
+        copyBtn: null,
+        structureModal: null,
+        structureModalSvg: null,
+        structureModalClose: null
     };
 
     /**
@@ -39,6 +43,7 @@
         elements.resultsSection = document.getElementById('prediction-results');
         elements.errorSection = document.getElementById('prediction-error');
         elements.errorMessage = document.getElementById('error-message');
+        elements.structureSvgContainer = document.getElementById('structure-svg-container');
         elements.predDd = document.getElementById('pred-dD');
         elements.predDp = document.getElementById('pred-dP');
         elements.predDh = document.getElementById('pred-dH');
@@ -48,6 +53,9 @@
         elements.solventNameInput = document.getElementById('solvent-name-input');
         elements.saveBtn = document.getElementById('save-prediction-btn');
         elements.copyBtn = document.getElementById('copy-prediction-btn');
+        elements.structureModal = document.getElementById('structure-modal');
+        elements.structureModalSvg = document.getElementById('structure-modal-svg');
+        elements.structureModalClose = document.querySelector('.structure-modal-close');
 
         // Bind event listeners
         if (elements.predictBtn) {
@@ -76,6 +84,21 @@
         }
         if (elements.copyBtn) {
             elements.copyBtn.addEventListener('click', handleCopyResults);
+        }
+
+        // Structure click to enlarge
+        if (elements.structureSvgContainer) {
+            elements.structureSvgContainer.addEventListener('click', handleStructureClick);
+        }
+        if (elements.structureModalClose) {
+            elements.structureModalClose.addEventListener('click', closeStructureModal);
+        }
+        if (elements.structureModal) {
+            elements.structureModal.addEventListener('click', function(e) {
+                if (e.target === elements.structureModal) {
+                    closeStructureModal();
+                }
+            });
         }
 
         console.log('SMILES Prediction module initialized');
@@ -145,6 +168,15 @@
      * Display prediction results
      */
     function displayResults(data) {
+        // Structure SVG
+        if (elements.structureSvgContainer) {
+            if (data.structure_svg) {
+                elements.structureSvgContainer.innerHTML = data.structure_svg;
+            } else {
+                elements.structureSvgContainer.innerHTML = '<span style="color:#94a3b8;font-size:0.9rem;">No structure</span>';
+            }
+        }
+
         // HSP values
         elements.predDd.textContent = data.dD !== null ? data.dD.toFixed(2) : '-';
         elements.predDp.textContent = data.dP !== null ? data.dP.toFixed(2) : '-';
@@ -195,6 +227,9 @@
         elements.smilesInput.value = '';
         if (elements.solventNameInput) {
             elements.solventNameInput.value = '';
+        }
+        if (elements.structureSvgContainer) {
+            elements.structureSvgContainer.innerHTML = '';
         }
         hideResults();
         hideError();
@@ -347,6 +382,29 @@
                 window.showNotification('Results copied to clipboard', 'success');
             }
         });
+    }
+
+    /**
+     * Handle structure click to show enlarged view
+     */
+    function handleStructureClick() {
+        if (!lastPrediction || !lastPrediction.structure_svg) return;
+
+        if (elements.structureModalSvg) {
+            elements.structureModalSvg.innerHTML = lastPrediction.structure_svg;
+        }
+        if (elements.structureModal) {
+            elements.structureModal.style.display = 'flex';
+        }
+    }
+
+    /**
+     * Close structure modal
+     */
+    function closeStructureModal() {
+        if (elements.structureModal) {
+            elements.structureModal.style.display = 'none';
+        }
     }
 
     // Initialize when DOM is ready

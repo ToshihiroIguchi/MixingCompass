@@ -31,6 +31,7 @@ class PredictionOutput(BaseModel):
     Tv: Optional[float] = Field(None, description="Boiling point (C)")
     CHO: Optional[bool] = Field(None, description="True if molecule contains only C, H, O")
     molecular_formula: Optional[str] = Field(None, description="Molecular formula")
+    structure_svg: Optional[str] = Field(None, description="SVG string of molecular structure")
     error_message: Optional[str] = None
 
 

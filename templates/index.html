@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ app_name }}</title>
     <link rel="icon" type="image/x-icon" href="/static/favicon.ico">
-    <link rel="stylesheet" href="/static/css/styles.css?v=20251123MODAL">
+    <link rel="stylesheet" href="/static/css/styles.css?v=20251123SVG">
     <link href="https://unpkg.com/tabulator-tables@6.2.5/dist/css/tabulator.min.css" rel="stylesheet">
 </head>
 <body>
@@ -388,22 +388,38 @@
                 <div class="prediction-results-section" id="prediction-results" style="display: none;">
                     <h3>Prediction Results</h3>
 
-                    <!-- Molecular Information -->
-                    <div class="molecular-info-row">
-                        <div class="molecular-info-item">
-                            <label>Formula:</label>
-                            <span id="pred-formula" class="formula-value">-</span>
+                    <div class="prediction-result-card">
+                        <!-- Left: Structure SVG -->
+                        <div class="structure-column">
+                            <div id="structure-svg-container" class="structure-svg-container" title="Click to enlarge">
+                                <!-- SVG will be inserted here -->
+                            </div>
                         </div>
-                        <div class="molecular-info-item">
-                            <label>Type:</label>
-                            <span id="pred-cho" class="cho-badge">-</span>
-                        </div>
-                    </div>
 
-                    <div class="results-grid">
-                        <div class="result-card">
-                            <h4>Hansen Solubility Parameters</h4>
-                            <div class="hsp-results">
+                        <!-- Right: Properties and Save -->
+                        <div class="properties-column">
+                            <!-- Name Input -->
+                            <div class="name-input-row">
+                                <input type="text" id="solvent-name-input" class="form-input"
+                                       placeholder="Enter solvent name" maxlength="100">
+                            </div>
+
+                            <!-- Molecular Information -->
+                            <div class="molecular-info-row">
+                                <div class="molecular-info-item">
+                                    <label>Formula:</label>
+                                    <span id="pred-formula" class="formula-value">-</span>
+                                </div>
+                                <div class="molecular-info-item">
+                                    <label>Type:</label>
+                                    <span id="pred-cho" class="cho-badge">-</span>
+                                </div>
+                            </div>
+
+                            <div class="properties-divider"></div>
+
+                            <!-- HSP Values -->
+                            <div class="hsp-results-row">
                                 <div class="hsp-value-item">
                                     <label>&delta;D:</label>
                                     <span id="pred-dD" class="value">-</span>
@@ -420,29 +436,20 @@
                                     <span class="unit">MPa<sup>0.5</sup></span>
                                 </div>
                             </div>
-                        </div>
-                        <div class="result-card">
-                            <h4>Boiling Point</h4>
-                            <div class="tv-result">
-                                <span id="pred-Tv" class="value large">-</span>
+
+                            <!-- Boiling Point -->
+                            <div class="tv-result-row">
+                                <label>Boiling Point:</label>
+                                <span id="pred-Tv" class="value">-</span>
                                 <span class="unit">&deg;C</span>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Save to Database Section -->
-                    <div class="save-prediction-section">
-                        <h4>Save to User Solvents</h4>
-                        <div class="save-input-row">
-                            <input type="text" id="solvent-name-input" class="form-input"
-                                   placeholder="Enter solvent name (required)" maxlength="100">
-                            <button id="save-prediction-btn" class="btn btn-primary" disabled>Save</button>
+                            <!-- Action Buttons -->
+                            <div class="card-action-buttons">
+                                <button id="save-prediction-btn" class="btn btn-primary" disabled>Save to User Solvents</button>
+                                <button id="copy-prediction-btn" class="btn btn-secondary">Copy</button>
+                            </div>
                         </div>
-                        <small class="input-hint">Name is required to save. The solvent will be available in HSP calculations and searches.</small>
-                    </div>
-
-                    <div class="action-buttons">
-                        <button id="copy-prediction-btn" class="btn btn-secondary">Copy Results</button>
                     </div>
                 </div>
 
@@ -961,6 +968,16 @@
     <script src="/static/js/hsp_calculation.js?v=20251115VALIDATION"></script>
     <script src="/static/js/solvent_search.js?v=20251122UI2"></script>
     <script src="/static/js/data_list.js?v=20251114MODAL"></script>
-    <script src="/static/js/smiles_predict.js?v=20251122"></script>
+    <script src="/static/js/smiles_predict.js?v=20251123SVG"></script>
+
+    <!-- Structure Enlarge Modal -->
+    <div id="structure-modal" class="modal structure-modal" style="display: none;">
+        <div class="structure-modal-content">
+            <button class="structure-modal-close">&times;</button>
+            <div id="structure-modal-svg" class="structure-modal-svg">
+                <!-- Enlarged SVG will be inserted here -->
+            </div>
+        </div>
+    </div>
 </body>
 </html>

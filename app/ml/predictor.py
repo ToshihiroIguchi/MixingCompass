@@ -19,7 +19,7 @@ from typing import Dict, Optional, List, Union
 from dataclasses import dataclass
 
 from rdkit import Chem
-from rdkit.Chem import Descriptors, rdMolDescriptors
+from rdkit.Chem import Descriptors, rdMolDescriptors, Draw
 from rdkit.ML.Descriptors import MoleculeDescriptors
 
 
@@ -38,6 +38,7 @@ class PredictionResult:
     Tv: Optional[float] = None
     CHO: Optional[bool] = None  # True if molecule contains only C, H, O
     molecular_formula: Optional[str] = None
+    structure_svg: Optional[str] = None  # SVG string of molecular structure
     error_message: Optional[str] = None
 
     def to_dict(self) -> Dict:
@@ -50,6 +51,7 @@ class PredictionResult:
             'Tv': self.Tv,
             'CHO': self.CHO,
             'molecular_formula': self.molecular_formula,
+            'structure_svg': self.structure_svg,
             'error_message': self.error_message
         }
 
@@ -131,6 +133,30 @@ class SMILESPredictor:
         except Exception:
             return None, None
 
+    def _generate_svg(self, mol, size: tuple = (200, 200)) -> Optional[str]:
+        """
+        Generate SVG string of molecular structure
+
+        Args:
+            mol: RDKit mol object
+            size: Tuple of (width, height) in pixels
+
+        Returns:
+            SVG string or None if generation fails
+        """
+        if mol is None:
+            return None
+
+        try:
+            # Generate SVG using RDKit Draw
+            drawer = Draw.MolDraw2DSVG(size[0], size[1])
+            drawer.DrawMolecule(mol)
+            drawer.FinishDrawing()
+            svg = drawer.GetDrawingText()
+            return svg
+        except Exception:
+            return None
+
     def _calculate_descriptors(self, smiles: str) -> Optional[np.ndarray]:
         """
         Calculate RDKit descriptors for a SMILES string
@@ -184,6 +210,9 @@ class SMILESPredictor:
         # Get molecular info (formula and CHO status)
         molecular_formula, is_cho = self._get_molecular_info(mol)
 
+        # Generate structure SVG
+        structure_svg = self._generate_svg(mol)
+
         # Calculate descriptors
         descriptors = self._calculate_descriptors(smiles)
 
@@ -193,6 +222,7 @@ class SMILESPredictor:
                 is_valid=False,
                 CHO=is_cho,
                 molecular_formula=molecular_formula,
+                structure_svg=structure_svg,
                 error_message="Failed to calculate descriptors"
             )
 
@@ -214,7 +244,8 @@ class SMILESPredictor:
                 dH=predictions.get('dH'),
                 Tv=predictions.get('Tv'),
                 CHO=is_cho,
-                molecular_formula=molecular_formula
+                molecular_formula=molecular_formula,
+                structure_svg=structure_svg
             )
 
         except Exception as e:
@@ -223,6 +254,7 @@ class SMILESPredictor:
                 is_valid=False,
                 CHO=is_cho,
                 molecular_formula=molecular_formula,
+                structure_svg=structure_svg,
                 error_message=str(e)
             )
 
