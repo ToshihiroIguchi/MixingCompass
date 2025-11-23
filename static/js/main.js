@@ -52,9 +52,9 @@ class MixingCompass {
             if (countSpan && window.sharedSolventCache) {
                 // Wait for cache to load
                 setTimeout(() => {
-                    const count = window.sharedSolventCache.getSolventCount();
-                    if (count > 0) {
-                        countSpan.textContent = count.toLocaleString();
+                    const stats = window.sharedSolventCache.getStats();
+                    if (stats && stats.count > 0) {
+                        countSpan.textContent = stats.count.toLocaleString();
                     }
                 }, 1000);
             }

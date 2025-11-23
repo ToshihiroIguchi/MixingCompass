@@ -170,26 +170,13 @@ class DataListManager {
         if (solvents.length === 0) return '<span class="no-solvents">No solvents</span>';
 
         const preview = solvents.slice(0, 5).map(solvent => {
-            const solubilityLabel = this.getSolubilityLabel(solvent.solubility);
-            return `<span class="solvent-preview" title="${solvent.solvent_name} (${solubilityLabel})">${solvent.solvent_name}</span>`;
+            return `<span class="solvent-preview" title="${solvent.solvent_name}">${solvent.solvent_name}</span>`;
         }).join('');
 
         const remaining = solvents.length - 5;
         const moreText = remaining > 0 ? ` <span class="more-solvents">+${remaining} more</span>` : '';
 
         return preview + moreText;
-    }
-
-    getSolubilityLabel(solubility) {
-        if (typeof solubility === 'number') {
-            return `Custom: ${solubility}`;
-        }
-        const labels = {
-            'soluble': 'Soluble',
-            'insoluble': 'Insoluble',
-            'partial': 'Partial'
-        };
-        return labels[solubility] || 'Unknown';
     }
 
     attachSetActionListeners() {
@@ -250,19 +237,6 @@ class DataListManager {
                     <input type="text" class="solvent-name-field" value="${this.escapeHtml(solvent.solvent_name)}">
                 </div>
                 <div class="solvent-field">
-                    <label>Solubility:</label>
-                    <select class="solubility-field">
-                        <option value="soluble" ${solvent.solubility === 'soluble' ? 'selected' : ''}>Soluble</option>
-                        <option value="partial" ${solvent.solubility === 'partial' ? 'selected' : ''}>Partial</option>
-                        <option value="insoluble" ${solvent.solubility === 'insoluble' ? 'selected' : ''}>Insoluble</option>
-                        <option value="custom" ${typeof solvent.solubility === 'number' ? 'selected' : ''}>Custom</option>
-                    </select>
-                    ${typeof solvent.solubility === 'number' ?
-                        `<input type="number" class="custom-solubility-field" min="0" max="1" step="0.1" value="${solvent.solubility}">` :
-                        `<input type="number" class="custom-solubility-field" min="0" max="1" step="0.1" style="display: none;">`
-                    }
-                </div>
-                <div class="solvent-field">
                     <label>Notes:</label>
                     <input type="text" class="notes-field" value="${this.escapeHtml(solvent.notes || '')}">
                 </div>
@@ -277,22 +251,10 @@ class DataListManager {
         // Add event listeners for dynamic controls
         this.setupEditModalListeners();
 
-        modal.style.display = 'block';
+        modal.style.display = 'flex';
     }
 
     setupEditModalListeners() {
-        // Solubility select change handlers
-        document.querySelectorAll('.solubility-field').forEach(select => {
-            select.addEventListener('change', (e) => {
-                const customInput = e.target.parentNode.querySelector('.custom-solubility-field');
-                if (e.target.value === 'custom') {
-                    customInput.style.display = 'inline-block';
-                } else {
-                    customInput.style.display = 'none';
-                }
-            });
-        });
-
         // Remove solvent buttons
         document.querySelectorAll('.remove-solvent-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -317,16 +279,6 @@ class DataListManager {
                 <div class="solvent-field">
                     <label>Solvent:</label>
                     <input type="text" class="solvent-name-field" placeholder="Enter solvent name">
-                </div>
-                <div class="solvent-field">
-                    <label>Solubility:</label>
-                    <select class="solubility-field">
-                        <option value="soluble">Soluble</option>
-                        <option value="partial">Partial</option>
-                        <option value="insoluble" selected>Insoluble</option>
-                        <option value="custom">Custom</option>
-                    </select>
-                    <input type="number" class="custom-solubility-field" min="0" max="1" step="0.1" style="display: none;">
                 </div>
                 <div class="solvent-field">
                     <label>Notes:</label>
@@ -357,20 +309,10 @@ class DataListManager {
             const name = item.querySelector('.solvent-name-field').value.trim();
             if (!name) return; // Skip empty entries
 
-            const solubilitySelect = item.querySelector('.solubility-field');
-            const customInput = item.querySelector('.custom-solubility-field');
             const notes = item.querySelector('.notes-field').value.trim();
-
-            let solubility;
-            if (solubilitySelect.value === 'custom') {
-                solubility = parseFloat(customInput.value) || 0.5;
-            } else {
-                solubility = solubilitySelect.value;
-            }
 
             solvents.push({
                 solvent_name: name,
-                solubility: solubility,
                 notes: notes || null
             });
         });
@@ -1056,7 +998,7 @@ class DataListManager {
                                 field: "cho",
                                 minWidth: 70,
                                 hozAlign: "center",
-                                headerFilter: "select",
+                                headerFilter: "list",
                                 headerFilterParams: {
                                     values: { "": "All", "true": "CHO", "false": "Non-CHO" }
                                 },
@@ -1074,7 +1016,7 @@ class DataListManager {
                                 title: "Source",
                                 field: "source",
                                 minWidth: 100,
-                                headerFilter: "select",
+                                headerFilter: "list",
                                 headerFilterParams: {
                                     values: { "": "All", "user_added": "Manual", "ML Prediction": "ML Prediction" }
                                 },

@@ -657,31 +657,7 @@
                 </div>
 
                 <!-- Edit Modal -->
-                <div id="edit-set-modal" class="modal" style="display: none;">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h3>Edit Solvent Set</h3>
-                            <button class="modal-close">&times;</button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label for="edit-set-name">Set Name:</label>
-                                <input type="text" id="edit-set-name" class="form-input" placeholder="Enter set name">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Solvents in this set:</label>
-                                <div id="edit-solvents-list" class="edit-solvents-list">
-                                    <!-- Solvent list will be populated dynamically -->
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button id="save-set-changes" class="btn btn-primary">Save Changes</button>
-                            <button id="cancel-set-edit" class="btn btn-secondary">Cancel</button>
-                        </div>
-                    </div>
-                </div>
+                {% include 'partials/edit_set_modal.html' %}
 
                 <!-- Add User Solvent Modal -->
                 <div id="add-user-solvent-modal" class="modal" style="display: none;">
