@@ -209,37 +209,148 @@
             <section class="section">
                 <h2>Methods</h2>
 
-                <h3>Feature Extraction</h3>
+                <h3>RDKit: Molecular Descriptor Calculation</h3>
                 <p>
-                    Molecular features were calculated using RDKit molecular descriptors. After preprocessing
-                    (removing features with NaN, infinite values, or zero variance), <strong>164 descriptors</strong>
-                    were retained for model training, including:
+                    <strong>RDKit</strong> is an open-source cheminformatics library that provides a comprehensive
+                    suite of tools for processing and analyzing chemical structures. In this application, RDKit
+                    is used to convert SMILES (Simplified Molecular Input Line Entry System) strings into
+                    numerical molecular descriptors that can be used as input features for machine learning models.
                 </p>
-                <ul>
-                    <li>Molecular weight, LogP, TPSA (Topological Polar Surface Area)</li>
-                    <li>Constitutional descriptors (atom counts, bond counts, ring counts)</li>
-                    <li>Topological descriptors (Wiener index, Balaban J index)</li>
-                    <li>Electronic descriptors (partial charges, electronegativity)</li>
-                </ul>
 
-                <h3>Model Architecture</h3>
                 <div class="highlight-box">
-                    <strong>Algorithm:</strong> GradientBoosting Regressor (scikit-learn)<br>
-                    <strong>Parameters:</strong>
+                    <strong>SMILES Representation:</strong><br>
+                    SMILES is a linear notation for describing chemical structures using ASCII characters.
+                    For example:
                     <ul>
-                        <li>n_estimators: 100</li>
-                        <li>max_depth: 5</li>
-                        <li>learning_rate: 0.1</li>
-                        <li>random_state: 42</li>
+                        <li><code>CCO</code> → Ethanol (C-C-O)</li>
+                        <li><code>c1ccccc1</code> → Benzene (aromatic ring)</li>
+                        <li><code>CC(=O)O</code> → Acetic acid</li>
                     </ul>
-                    <strong>Feature Scaling:</strong> StandardScaler (z-score normalization)
                 </div>
 
-                <h3>Validation</h3>
+                <h4>Molecular Descriptors</h4>
                 <p>
-                    <strong>5-Fold Cross-Validation</strong> was used to evaluate model performance.
-                    This method splits the data into 5 subsets, training on 4 and testing on 1,
-                    rotating through all combinations to provide robust performance estimates.
+                    RDKit calculates over 200 molecular descriptors from SMILES structures. After preprocessing
+                    (removing features with NaN, infinite values, or zero variance), <strong>164 descriptors</strong>
+                    were retained for model training. These descriptors are categorized as follows:
+                </p>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Examples</th>
+                            <th>Physical Meaning</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Constitutional</strong></td>
+                            <td>MolWt, HeavyAtomCount, NumRotatableBonds</td>
+                            <td>Basic molecular composition (atom counts, bond counts, molecular weight)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Topological</strong></td>
+                            <td>BalabanJ, BertzCT, Chi0-Chi4</td>
+                            <td>Molecular connectivity and branching patterns</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Electronic</strong></td>
+                            <td>TPSA, MolLogP, MolMR</td>
+                            <td>Polar surface area, lipophilicity, molar refractivity</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Fragment-based</strong></td>
+                            <td>fr_C_O, fr_NH2, fr_benzene</td>
+                            <td>Counts of specific functional groups (C=O, -NH2, benzene rings, etc.)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ring descriptors</strong></td>
+                            <td>RingCount, NumAromaticRings, NumAliphaticRings</td>
+                            <td>Ring system characteristics</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Gradient Boosting Regression</h3>
+                <p>
+                    <strong>Gradient Boosting</strong> is an ensemble machine learning technique that builds
+                    a predictive model by combining multiple weak learners (typically decision trees) in a
+                    sequential manner. Each subsequent tree is trained to correct the errors of the previous
+                    ensemble, leading to progressively better predictions.
+                </p>
+
+                <h4>Algorithm Principle</h4>
+                <p>The gradient boosting algorithm works as follows:</p>
+                <ol>
+                    <li><strong>Initialize:</strong> Start with a simple model (e.g., mean of target values)</li>
+                    <li><strong>Compute Residuals:</strong> Calculate the difference between actual and predicted values</li>
+                    <li><strong>Fit New Tree:</strong> Train a decision tree to predict these residuals</li>
+                    <li><strong>Update Model:</strong> Add the new tree to the ensemble with a learning rate weight</li>
+                    <li><strong>Repeat:</strong> Continue steps 2-4 for the specified number of iterations</li>
+                </ol>
+
+                <div class="highlight-box">
+                    <strong>Mathematical Formulation:</strong><br>
+                    The prediction at iteration <em>m</em> is updated as:<br>
+                    <code style="font-size: 1.1em;">F<sub>m</sub>(x) = F<sub>m-1</sub>(x) + η · h<sub>m</sub>(x)</code><br><br>
+                    Where:
+                    <ul>
+                        <li><code>F<sub>m</sub>(x)</code> = prediction at iteration m</li>
+                        <li><code>η</code> = learning rate (0.1 in our model)</li>
+                        <li><code>h<sub>m</sub>(x)</code> = new tree fitted to residuals</li>
+                    </ul>
+                </div>
+
+                <h4>Why Gradient Boosting?</h4>
+                <ul>
+                    <li><strong>Non-linear Relationships:</strong> Can capture complex, non-linear relationships between molecular descriptors and physical properties</li>
+                    <li><strong>Feature Interactions:</strong> Automatically discovers interactions between different molecular features</li>
+                    <li><strong>Robustness:</strong> Resistant to overfitting when properly tuned, and handles mixed feature types well</li>
+                    <li><strong>Interpretability:</strong> Provides feature importance scores to understand which descriptors are most predictive</li>
+                </ul>
+
+                <h3>Model Configuration</h3>
+                <div class="highlight-box">
+                    <strong>Algorithm:</strong> GradientBoostingRegressor (scikit-learn)<br><br>
+                    <strong>Hyperparameters:</strong>
+                    <table class="data-table" style="margin-top: 0.5rem;">
+                        <tr>
+                            <td><code>n_estimators: 100</code></td>
+                            <td>Number of boosting stages (trees in the ensemble)</td>
+                        </tr>
+                        <tr>
+                            <td><code>max_depth: 5</code></td>
+                            <td>Maximum depth of individual trees (controls model complexity)</td>
+                        </tr>
+                        <tr>
+                            <td><code>learning_rate: 0.1</code></td>
+                            <td>Shrinkage parameter to prevent overfitting</td>
+                        </tr>
+                        <tr>
+                            <td><code>random_state: 42</code></td>
+                            <td>Seed for reproducibility</td>
+                        </tr>
+                    </table>
+                    <br>
+                    <strong>Feature Preprocessing:</strong> StandardScaler (z-score normalization)<br>
+                    <code>z = (x - μ) / σ</code> where μ = mean, σ = standard deviation
+                </div>
+
+                <h3>Validation Strategy</h3>
+                <p>
+                    <strong>5-Fold Cross-Validation</strong> was employed to provide robust performance estimates
+                    and detect potential overfitting:
+                </p>
+                <ol>
+                    <li>The dataset is randomly divided into 5 equal-sized subsets (folds)</li>
+                    <li>For each fold: train on 4 folds (80% of data), test on remaining fold (20%)</li>
+                    <li>Repeat for all 5 combinations</li>
+                    <li>Report mean and standard deviation of performance metrics</li>
+                </ol>
+                <p>
+                    This approach ensures that every data point is used for both training and testing exactly once,
+                    providing a reliable estimate of model generalization performance.
                 </p>
             </section>
 
@@ -345,6 +456,86 @@
                         for this fundamental thermodynamic property.
                     </li>
                 </ol>
+            </section>
+
+            <!-- Feature Importance -->
+            <section class="section">
+                <h2>Feature Importance Analysis</h2>
+                <p>
+                    Gradient Boosting models provide <strong>feature importance scores</strong> that indicate
+                    how much each molecular descriptor contributes to the prediction. Feature importance is
+                    calculated based on the reduction in impurity (mean squared error) achieved by each feature
+                    across all decision trees in the ensemble.
+                </p>
+
+                <h3>Figure 4: Feature Importance by Target Property</h3>
+                <div class="figure">
+                    <img src="/static/images/ml/feature_importance.png" alt="Feature importance by target">
+                    <p class="figure-caption">
+                        Figure 4. Top 20 most important features for each target property. Different properties
+                        rely on different molecular descriptors, reflecting the distinct physical mechanisms
+                        underlying each Hansen parameter.
+                    </p>
+                </div>
+
+                <h3>Figure 5: Average Feature Importance</h3>
+                <div class="figure">
+                    <img src="/static/images/ml/feature_importance_average.png" alt="Average feature importance">
+                    <p class="figure-caption">
+                        Figure 5. Top 25 features ranked by average importance across all four target properties.
+                        These descriptors are the most universally predictive for solvent properties.
+                    </p>
+                </div>
+
+                <h3>Interpretation of Key Features</h3>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Description</th>
+                            <th>Physical Relevance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>MolLogP</strong></td>
+                            <td>Wildman-Crippen LogP</td>
+                            <td>Lipophilicity indicator; correlates with dispersion interactions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>TPSA</strong></td>
+                            <td>Topological Polar Surface Area</td>
+                            <td>Measures polar surface; correlates with H-bonding and polar parameters</td>
+                        </tr>
+                        <tr>
+                            <td><strong>MolWt</strong></td>
+                            <td>Molecular Weight</td>
+                            <td>Size indicator; affects boiling point and dispersion forces</td>
+                        </tr>
+                        <tr>
+                            <td><strong>fr_* descriptors</strong></td>
+                            <td>Functional group counts</td>
+                            <td>Counts of specific groups (-OH, -NH, C=O, etc.) directly relate to H-bonding</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Chi*</strong></td>
+                            <td>Kier-Hall Connectivity indices</td>
+                            <td>Molecular branching and connectivity patterns</td>
+                        </tr>
+                        <tr>
+                            <td><strong>VSA_*</strong></td>
+                            <td>MOE-type surface area descriptors</td>
+                            <td>Surface area contributions by atom type and charge</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="highlight-box">
+                    <strong>Note on Interpretation:</strong><br>
+                    Feature importance in Gradient Boosting indicates predictive utility, not necessarily
+                    direct physical causation. Correlated features may share importance, and the most
+                    physically meaningful feature is not always the most statistically predictive.
+                </div>
             </section>
 
             <!-- Limitations -->

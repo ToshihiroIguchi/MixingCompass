@@ -359,16 +359,107 @@ def create_visualizations(predictions: dict, cv_results: dict,
     plt.close()
 
 
+def create_feature_importance_plots(models: dict, feature_names: list):
+    """Create feature importance visualizations for each target"""
+
+    print("\nGenerating feature importance plots...")
+
+    targets = ['dD', 'dP', 'dH', 'Tv']
+    target_names = {
+        'dD': 'Dispersion (δD)',
+        'dP': 'Polar (δP)',
+        'dH': 'H-bonding (δH)',
+        'Tv': 'Boiling Point (Tv)'
+    }
+    colors = {'dD': '#3498db', 'dP': '#2ecc71', 'dH': '#e74c3c', 'Tv': '#9b59b6'}
+
+    # Store importance data for all targets
+    all_importances = {}
+
+    # Figure: Top 20 features for each target (2x2 subplot)
+    fig, axes = plt.subplots(2, 2, figsize=(14, 12))
+    axes = axes.flatten()
+
+    for i, target in enumerate(targets):
+        model = models[target]
+        importances = model.feature_importances_
+        indices = np.argsort(importances)[::-1][:20]  # Top 20
+
+        top_features = [feature_names[j] for j in indices]
+        top_importances = importances[indices]
+
+        all_importances[target] = {
+            'features': top_features,
+            'importances': top_importances.tolist()
+        }
+
+        ax = axes[i]
+        y_pos = np.arange(len(top_features))
+        ax.barh(y_pos, top_importances, color=colors[target], edgecolor='black', alpha=0.8)
+        ax.set_yticks(y_pos)
+        ax.set_yticklabels(top_features, fontsize=8)
+        ax.invert_yaxis()
+        ax.set_xlabel('Feature Importance', fontsize=10)
+        ax.set_title(f'{target_names[target]}', fontsize=12, fontweight='bold')
+        ax.grid(axis='x', alpha=0.3)
+
+    plt.suptitle('Top 20 Most Important Features by Target Property\n(GradientBoosting Feature Importance)',
+                 fontsize=14, fontweight='bold', y=1.02)
+    plt.tight_layout()
+
+    importance_path = MODEL_DIR / 'feature_importance.png'
+    plt.savefig(importance_path, dpi=150, bbox_inches='tight')
+    print(f"Saved: {importance_path}")
+    plt.close()
+
+    # Also create a combined importance plot (average across all targets)
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    # Calculate average importance across all targets
+    avg_importance = np.zeros(len(feature_names))
+    for target in targets:
+        avg_importance += models[target].feature_importances_
+
+    avg_importance /= len(targets)
+    indices = np.argsort(avg_importance)[::-1][:25]  # Top 25
+
+    top_features = [feature_names[j] for j in indices]
+    top_importances = avg_importance[indices]
+
+    y_pos = np.arange(len(top_features))
+    bars = ax.barh(y_pos, top_importances, color='#34495e', edgecolor='black', alpha=0.8)
+    ax.set_yticks(y_pos)
+    ax.set_yticklabels(top_features, fontsize=9)
+    ax.invert_yaxis()
+    ax.set_xlabel('Average Feature Importance', fontsize=11)
+    ax.set_title('Top 25 Most Important Features (Average Across All Targets)\n'
+                 'GradientBoosting Feature Importance', fontsize=13, fontweight='bold')
+    ax.grid(axis='x', alpha=0.3)
+
+    plt.tight_layout()
+
+    avg_importance_path = MODEL_DIR / 'feature_importance_average.png'
+    plt.savefig(avg_importance_path, dpi=150, bbox_inches='tight')
+    print(f"Saved: {avg_importance_path}")
+    plt.close()
+
+    return all_importances
+
+
 def save_models(result: dict, feature_names: list):
     """Save trained models and metadata"""
 
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Calculate feature importance
+    feature_importances = create_feature_importance_plots(result['models'], feature_names)
 
     model_data = {
         'models': result['models'],
         'scaler': result['scaler'],
         'feature_names': feature_names,
         'cv_results': result['cv_results'],
+        'feature_importances': feature_importances,
         'training_date': datetime.now().isoformat(),
         'description': 'GradientBoosting models for HSP and Tv prediction from SMILES'
     }

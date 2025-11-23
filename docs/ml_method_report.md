@@ -105,4 +105,4 @@ results = predict_from_smiles(['CCO', 'CCCCCC', 'c1ccccc1'])
 
 ---
 
-Generated: 2025-11-22 16:27:28
+Generated: 2025-11-23 19:50:47
