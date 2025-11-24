@@ -4284,3 +4284,150 @@ body {
         width: 100%;
     }
 }
+
+/* === Mix Solvents Optimization Mode === */
+
+/* Mode toggle in panel header */
+#hsp-calculation .panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+#hsp-calculation .panel-header h2 {
+    margin: 0;
+}
+
+.mode-toggle {
+    display: inline-flex;
+    border: 1px solid #cbd5e0;
+    border-radius: 4px;
+    overflow: hidden;
+    background: white;
+}
+
+/* Optimize target section */
+.optimize-target-section {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.optimize-target-section .target-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.optimize-target-section .target-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #374151;
+}
+
+/* Min ratio option */
+.min-ratio-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.min-ratio-option label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #4b5563;
+    cursor: pointer;
+}
+
+.min-ratio-option input[type="number"] {
+    width: 60px;
+    padding: 4px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 0.875rem;
+}
+
+.min-ratio-option input[type="number"]:disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+}
+
+/* Optimization results */
+.optimize-result-grid {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.optimize-result-grid .result-column h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.ra-display {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    font-size: 1rem;
+}
+
+.ra-value {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #059669;
+}
+
+#optimize-result-section {
+    background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%);
+    border: 1px solid #a7f3d0;
+}
+
+#optimize-result-section h3 {
+    color: #047857;
+}
+
+/* Solute HSP display in optimize mode */
+#optimize-target-content .solute-hsp-display {
+    margin-top: 0.75rem;
+}
+
+#optimize-target-content .hsp-header {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+    text-align: center;
+    margin-bottom: 0.25rem;
+}
+
+#optimize-target-content .hsp-values-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+#optimize-target-content .hsp-cell {
+    text-align: center;
+    font-weight: 500;
+    color: #1f2937;
+    background: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #e5e7eb;
+}

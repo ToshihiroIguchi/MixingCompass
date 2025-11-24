@@ -196,11 +196,41 @@
             <div class="single-panel-layout">
                 <div class="panel-header">
                     <h2>Mix Solvents</h2>
+                    <div class="mode-toggle" id="mix-mode-toggle">
+                        <button class="toggle-btn active" data-mode="calculate">Calculate HSP</button>
+                        <button class="toggle-btn" data-mode="optimize">Optimize Ratio</button>
+                    </div>
                 </div>
-                <div class="mixture-info">
+
+                <!-- Calculate Mode: Mixture Name -->
+                <div class="mixture-info" id="mixture-name-section">
                     <label>Mixture Name:</label>
                     <input type="text" id="mixture-name" placeholder="Enter mixture name" required>
                 </div>
+
+                <!-- Optimize Mode: Target HSP -->
+                <div class="optimize-target-section" id="optimize-target-section" style="display: none;">
+                    <div class="target-header">
+                        <h3>Target HSP</h3>
+                        <div class="source-toggle" id="optimize-source-toggle">
+                            <button class="toggle-btn active" data-source="polymer">Polymer</button>
+                            <button class="toggle-btn" data-source="solvent">Solvent</button>
+                            <button class="toggle-btn" data-source="custom">Custom</button>
+                        </div>
+                    </div>
+                    <div id="optimize-target-content">
+                        <!-- Content will be dynamically populated based on selection -->
+                    </div>
+                    <div class="min-ratio-option">
+                        <label>
+                            <input type="checkbox" id="use-min-ratio">
+                            Minimum ratio per solvent:
+                        </label>
+                        <input type="number" id="min-ratio-value" value="1" min="0" max="50" step="1" disabled>
+                        <span>%</span>
+                    </div>
+                </div>
+
                 <div class="mixture-table-section">
                     <div class="mixture-table-header">
                         <h3>Components</h3>
@@ -222,9 +252,18 @@
                     </div>
                     <button id="add-component-btn" class="btn btn-secondary">+ Add Solvent</button>
                 </div>
-                <div class="mixture-actions">
+
+                <!-- Calculate Mode Actions -->
+                <div class="mixture-actions" id="calculate-actions">
                     <button id="calculate-mixture-btn" class="btn btn-primary" disabled>Calculate HSP</button>
                 </div>
+
+                <!-- Optimize Mode Actions -->
+                <div class="mixture-actions" id="optimize-actions" style="display: none;">
+                    <button id="optimize-mixture-btn" class="btn btn-primary" disabled>Find Optimal Ratio</button>
+                </div>
+
+                <!-- Calculate Mode Results -->
                 <div id="mixture-result-section" class="mixture-result-section" style="display: none;">
                     <h3>Calculated HSP</h3>
                     <div class="hsp-values-inline">
@@ -245,6 +284,42 @@
                         </span>
                     </div>
                     <button id="save-mixture-btn" class="btn btn-primary">Save Mixture</button>
+                </div>
+
+                <!-- Optimize Mode Results -->
+                <div id="optimize-result-section" class="mixture-result-section" style="display: none;">
+                    <h3>Optimization Result</h3>
+                    <div class="optimize-result-grid">
+                        <div class="result-column">
+                            <h4>Mixture HSP</h4>
+                            <div class="hsp-values-inline">
+                                <span class="hsp-value-inline">
+                                    <label>&delta;D:</label>
+                                    <span id="opt-mixture-delta-d" class="value">-</span>
+                                    <span class="unit">MPa<sup>0.5</sup></span>
+                                </span>
+                                <span class="hsp-value-inline">
+                                    <label>&delta;P:</label>
+                                    <span id="opt-mixture-delta-p" class="value">-</span>
+                                    <span class="unit">MPa<sup>0.5</sup></span>
+                                </span>
+                                <span class="hsp-value-inline">
+                                    <label>&delta;H:</label>
+                                    <span id="opt-mixture-delta-h" class="value">-</span>
+                                    <span class="unit">MPa<sup>0.5</sup></span>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="result-column">
+                            <h4>Distance</h4>
+                            <div class="ra-display">
+                                <span>Ra = </span>
+                                <span id="opt-ra" class="value ra-value">-</span>
+                                <span class="unit">MPa<sup>0.5</sup></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button id="save-optimized-mixture-btn" class="btn btn-primary">Save Mixture</button>
                 </div>
             </div>
         </section>
@@ -971,7 +1046,7 @@
     <script src="/static/js/experimental_results_manager.js"></script>
     <script src="/static/js/hsp_visualization.js?v=20251115TARGET3H"></script>
     <script src="/static/js/hsp_experimental.js?v=20251108MANUAL"></script>
-    <script src="/static/js/hsp_calculation.js?v=20251115VALIDATION"></script>
+    <script src="/static/js/hsp_calculation.js?v=20251124UNIT"></script>
     <script src="/static/js/solvent_search.js?v=20251123SET4"></script>
     <script src="/static/js/data_list.js?v=20251114MODAL"></script>
     <script src="/static/js/smiles_predict.js?v=20251123SVG"></script>

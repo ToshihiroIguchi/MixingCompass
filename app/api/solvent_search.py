@@ -4,12 +4,31 @@ Solvent Search API endpoints
 
 from fastapi import APIRouter, Query, Request
 from typing import List, Optional
+from pydantic import BaseModel
 import pandas as pd
 import numpy as np
+from scipy.optimize import minimize
 from pathlib import Path
 import json
 
 from app.services.solvent_service import solvent_service
+
+
+class SolventComponent(BaseModel):
+    """Solvent component for optimization"""
+    name: str
+    delta_d: float
+    delta_p: float
+    delta_h: float
+
+
+class OptimizeRequest(BaseModel):
+    """Request model for mixture optimization"""
+    solvents: List[SolventComponent]
+    target_delta_d: float
+    target_delta_p: float
+    target_delta_h: float
+    min_ratio: Optional[float] = 0.0  # Minimum ratio per solvent (0-1)
 
 router = APIRouter()
 
@@ -287,4 +306,108 @@ async def search_blend_solvents(
         }
     }
 
+
+@router.post("/optimize-mixture")
+async def optimize_mixture(request: OptimizeRequest):
+    """
+    Optimize solvent mixture ratios to minimize Ra (distance) to target HSP.
+
+    Uses constrained optimization (SLSQP) to find optimal volume fractions.
+    The objective function (Ra²) is convex, guaranteeing a global optimum.
+
+    Args:
+        request: OptimizeRequest containing solvents and target HSP
+
+    Returns:
+        Optimized ratios and resulting HSP values
+    """
+    solvents = request.solvents
+    n = len(solvents)
+
+    if n < 2:
+        return {
+            'success': False,
+            'error': 'At least 2 solvents are required for optimization'
+        }
+
+    # Extract HSP values as numpy arrays for efficiency
+    delta_d = np.array([s.delta_d for s in solvents])
+    delta_p = np.array([s.delta_p for s in solvents])
+    delta_h = np.array([s.delta_h for s in solvents])
+
+    target = np.array([request.target_delta_d, request.target_delta_p, request.target_delta_h])
+
+    def objective(phi):
+        """Ra² = 4*(ΔδD)² + (ΔδP)² + (ΔδH)²"""
+        mix_d = np.dot(phi, delta_d)
+        mix_p = np.dot(phi, delta_p)
+        mix_h = np.dot(phi, delta_h)
+        return 4 * (mix_d - target[0])**2 + (mix_p - target[1])**2 + (mix_h - target[2])**2
+
+    # Constraint: sum of ratios = 1
+    constraints = {'type': 'eq', 'fun': lambda phi: np.sum(phi) - 1}
+
+    # Bounds: min_ratio <= phi <= 1
+    min_ratio = max(0.0, min(request.min_ratio or 0.0, 1.0 / n))
+    bounds = [(min_ratio, 1.0) for _ in range(n)]
+
+    # Initial guess: equal ratios
+    x0 = np.ones(n) / n
+
+    # Optimize using SLSQP (Sequential Least Squares Programming)
+    result = minimize(
+        objective,
+        x0,
+        method='SLSQP',
+        bounds=bounds,
+        constraints=constraints,
+        options={'ftol': 1e-10, 'maxiter': 1000}
+    )
+
+    if not result.success:
+        return {
+            'success': False,
+            'error': f'Optimization failed: {result.message}'
+        }
+
+    # Calculate optimized mixture HSP
+    optimal_ratios = result.x
+    mix_delta_d = float(np.dot(optimal_ratios, delta_d))
+    mix_delta_p = float(np.dot(optimal_ratios, delta_p))
+    mix_delta_h = float(np.dot(optimal_ratios, delta_h))
+
+    # Calculate Ra
+    ra = float(np.sqrt(result.fun))
+
+    # Build response with solvent details
+    solvent_results = []
+    for i, solvent in enumerate(solvents):
+        ratio = float(optimal_ratios[i])
+        # Round very small ratios to 0
+        if ratio < 0.001:
+            ratio = 0.0
+        solvent_results.append({
+            'name': solvent.name,
+            'delta_d': solvent.delta_d,
+            'delta_p': solvent.delta_p,
+            'delta_h': solvent.delta_h,
+            'ratio': round(ratio, 4)
+        })
+
+    return {
+        'success': True,
+        'solvents': solvent_results,
+        'mixture_hsp': {
+            'delta_d': round(mix_delta_d, 2),
+            'delta_p': round(mix_delta_p, 2),
+            'delta_h': round(mix_delta_h, 2)
+        },
+        'target_hsp': {
+            'delta_d': request.target_delta_d,
+            'delta_p': request.target_delta_p,
+            'delta_h': request.target_delta_h
+        },
+        'ra': round(ra, 3),
+        'min_ratio_used': min_ratio
+    }
 
