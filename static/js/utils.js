@@ -98,39 +98,6 @@ const Utils = {
     },
 
     /**
-     * Validate email format
-     * @param {string} email - Email to validate
-     * @returns {boolean} True if valid
-     */
-    isValidEmail(email) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email);
-    },
-
-    /**
-     * Truncate string to specified length
-     * @param {string} str - String to truncate
-     * @param {number} length - Maximum length
-     * @returns {string} Truncated string
-     */
-    truncate(str, length) {
-        if (!str || str.length <= length) return str;
-        return str.substring(0, length) + '...';
-    },
-
-    /**
-     * Check if value is empty (null, undefined, empty string, empty array)
-     * @param {*} value - Value to check
-     * @returns {boolean} True if empty
-     */
-    isEmpty(value) {
-        return value === null ||
-               value === undefined ||
-               (typeof value === 'string' && value.trim() === '') ||
-               (Array.isArray(value) && value.length === 0);
-    },
-
-    /**
      * Format HSP value with specified decimal places
      * @param {number|null} value - HSP value to format
      * @param {number} decimals - Number of decimal places (default: 1)

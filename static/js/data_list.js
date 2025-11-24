@@ -792,41 +792,6 @@ class DataListManager {
         return filename || sourceFile;
     }
 
-    formatSourceLink(sourceUrl, sourceFile) {
-        // If no URL and it's a user-added solvent, show nothing
-        if (!sourceUrl && sourceFile === 'user_added') {
-            return '-';
-        }
-
-        // If there's a URL, show link icon that opens URL
-        if (sourceUrl) {
-            return `<a href="${this.escapeHtml(sourceUrl)}" target="_blank" rel="noopener noreferrer" class="source-link" title="${this.escapeHtml(sourceUrl)}">🔗</a>`;
-        }
-
-        // If no URL but has source file, show link icon without href (not clickable)
-        if (sourceFile && sourceFile !== 'user_added') {
-            const sourceName = this.formatSource(sourceFile);
-            return `<span class="source-icon" title="Source: ${this.escapeHtml(sourceName)} (no URL available)">🔗</span>`;
-        }
-
-        return '-';
-    }
-
-    /**
-     * Format solvent property values for display
-     * @param {Object} solvent - Solvent data object
-     * @returns {Object} Formatted values
-     */
-    formatSolventValues(solvent) {
-        return {
-            deltaD: solvent.delta_d !== null ? solvent.delta_d.toFixed(1) : '-',
-            deltaP: solvent.delta_p !== null ? solvent.delta_p.toFixed(1) : '-',
-            deltaH: solvent.delta_h !== null ? solvent.delta_h.toFixed(1) : '-',
-            cas: solvent.cas || '-',
-            bp: solvent.boiling_point !== null ? solvent.boiling_point.toFixed(1) : '-'
-        };
-    }
-
     /**
      * Refresh all solvent-related tables
      */
