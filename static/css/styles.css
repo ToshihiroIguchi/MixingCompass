@@ -116,7 +116,7 @@ body {
     grid-template-columns: 1fr 1fr;
 }
 
-/* Solvent Search: 2列レイアウト (左300px、右は1fr) */
+/* Solvent Search: 2列レイアウチE(左300px、右は1fr) */
 #solvent-search .split-layout {
     grid-template-columns: 300px 1fr;
 }
@@ -3024,7 +3024,7 @@ body {
 }
 
 .toggle-btn.active {
-    background: #3b82f6;
+    background: #1e3a8a;
     color: white;
 }
 
@@ -4434,3 +4434,4 @@ body {
     border-radius: 4px;
     border: 1px solid #e5e7eb;
 }
+

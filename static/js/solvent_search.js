@@ -451,6 +451,10 @@ class SolventSearch {
         if (target1Valid || target2Valid || target3Valid) {
             searchBtn.disabled = false;
             searchBtn.title = 'Search for suitable solvents';
+            // Reset button to blue (action needed state)
+            searchBtn.classList.remove('btn-secondary');
+            searchBtn.classList.add('btn-primary');
+            searchBtn.textContent = 'Update Results';
         } else {
             searchBtn.disabled = true;
             searchBtn.title = 'Please configure at least one target';
@@ -589,45 +593,59 @@ class SolventSearch {
     }
 
     async performSearch() {
-        // Get target data (now async)
-        const target1Data = await this.getTargetData('target1');
-        const target2Data = await this.getTargetData('target2');
-        const target3Data = await this.getTargetData('target3');
+        const searchBtn = document.querySelector('#search-solvents-btn');
+        
+        // Show loading state
+        searchBtn.disabled = true;
+        searchBtn.textContent = 'Updating...';
+        
+        try {
+            // Get target data (now async)
+            const target1Data = await this.getTargetData('target1');
+            const target2Data = await this.getTargetData('target2');
+            const target3Data = await this.getTargetData('target3');
 
-        // Store targets for RED calculations in results table
-        this.currentTarget1 = target1Data;
-        this.currentTarget2 = target2Data;
-        this.currentTarget3 = target3Data;
+            // Store targets for RED calculations in results table
+            this.currentTarget1 = target1Data;
+            this.currentTarget2 = target2Data;
+            this.currentTarget3 = target3Data;
 
-        // If no data loaded yet, load all solvents first
-        if (this.searchResults.length === 0) {
-            await this.loadAllSolventsInitial();
-            return; // loadAllSolventsInitial will call populateResultsTable
-        }
+            // If no data loaded yet, load all solvents first
+            if (this.searchResults.length === 0) {
+                await this.loadAllSolventsInitial();
+                return; // loadAllSolventsInitial will call populateResultsTable
+            }
 
-        // Filter by solvent set if selected
-        const filteredResults = this.filterBySet(this.searchResults);
+            // Filter by solvent set if selected
+            const filteredResults = this.filterBySet(this.searchResults);
 
-        // Store filtered results for table display
-        this.currentFilteredResults = filteredResults;
+            // Store filtered results for table display
+            this.currentFilteredResults = filteredResults;
 
-        // Re-populate table with filtered results (will re-calculate distances and re-sort)
-        this.populateResultsTable();
-        this.updateResultsCount(filteredResults.length);
+            // Re-populate table with filtered results (will re-calculate distances and re-sort)
+            this.populateResultsTable();
+            this.updateResultsCount(filteredResults.length);
 
-        // Show selection controls if we have results
-        this.showSelectionUI(filteredResults.length > 0);
+            // Show selection controls if we have results
+            this.showSelectionUI(filteredResults.length > 0);
 
-        // Always generate visualization (shows filtered solvents)
-        this.generateVisualization(target1Data, target2Data, filteredResults, target3Data);
+            // Always generate visualization (shows filtered solvents)
+            this.generateVisualization(target1Data, target2Data, filteredResults, target3Data);
 
-        // Generate RED Plot if both Target 1 and Target 2 are set
-        const tabRED = document.querySelector('#search-tab-red');
-        if (target1Data && target2Data) {
-            this.generateREDPlot(target1Data, target2Data, filteredResults);
-            if (tabRED) tabRED.style.display = 'inline-block';
-        } else {
-            if (tabRED) tabRED.style.display = 'none';
+            // Generate RED Plot if both Target 1 and Target 2 are set
+            const tabRED = document.querySelector('#search-tab-red');
+            if (target1Data && target2Data) {
+                this.generateREDPlot(target1Data, target2Data, filteredResults);
+                if (tabRED) tabRED.style.display = 'inline-block';
+            } else {
+                if (tabRED) tabRED.style.display = 'none';
+            }
+        } finally {
+            // Update button to show completion (gray, up-to-date)
+            searchBtn.classList.remove('btn-primary');
+            searchBtn.classList.add('btn-secondary');
+            searchBtn.textContent = 'Up-to-Date';
+            searchBtn.disabled = false;
         }
     }
 
