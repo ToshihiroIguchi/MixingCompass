@@ -216,7 +216,8 @@ class CSVConsolidator:
         return df
 
     def calculate_priority_score(self, file_name: str, row_index: int,
-                               total_rows: int, completeness_ratio: float) -> int:
+                               total_rows: int, completeness_ratio: float,
+                               row: pd.Series = None) -> int:
         """Calculate priority score for duplicate resolution"""
 
         # File priority weights (higher = better)
@@ -235,7 +236,21 @@ class CSVConsolidator:
         # Data completeness bonus
         completeness_bonus = int(completeness_ratio * 100)
 
-        total_score = base_weight + position_bonus + completeness_bonus
+        # Boiling point (Tb) bonus - high priority
+        tb_bonus = 0
+        if row is not None and 'Tb' in row.index:
+            tb_value = row['Tb']
+            if pd.notna(tb_value) and str(tb_value).strip() not in ['', '-', 'nan', 'NaN', 'NA', 'N/A']:
+                tb_bonus = 500  # Significant bonus for having Tb data
+
+        # CAS number bonus - high priority
+        cas_bonus = 0
+        if row is not None and 'CAS' in row.index:
+            cas_value = row['CAS']
+            if pd.notna(cas_value) and str(cas_value).strip() not in ['', '-', 'nan', 'NaN', 'NA', 'N/A']:
+                cas_bonus = 500  # Significant bonus for having CAS data
+
+        total_score = base_weight + position_bonus + completeness_bonus + tb_bonus + cas_bonus
 
         return total_score
 
@@ -302,7 +317,7 @@ class CSVConsolidator:
                 # Calculate completeness and priority
                 completeness = self.calculate_completeness(row, essential_cols)
                 priority_score = self.calculate_priority_score(
-                    file_name, idx, total_rows, completeness
+                    file_name, idx, total_rows, completeness, row
                 )
 
                 # Add source information

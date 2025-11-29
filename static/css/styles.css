@@ -3504,6 +3504,8 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
+    margin-left: auto;
+    margin-right: 1rem;
 }
 
 .results-count-container {

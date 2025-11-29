@@ -7,7 +7,7 @@
 (E)-Cinnamyl Nitrile,1885-38-7,18.65,8.12,5.29,2,1,"Skin irritation (Category 2), Eye irri...",Unknown,SDS Source,2.52,89.81,22,263.8,129.16,125.642,1.028,-,1.6016,0.023 mmHg at 25 C,113,Not Soluble,0.3,C9H7N,False
 (E)-Nerolidol,40716-66-3,16.92,2.2,5.43,2,1,"Skin irritation (Category 2), Eye irri...",Nitrile,SDS Source,70,131.09,-,276,222.37,253.847,0.876,-,1.479,-,113,-,0.2,C15H26O,True
 (R)-(-)-a-Phellandrene,4221-98-1,16.52,1.71,3.06,0,2,Flammable liquids (Category 3),Fluorinated rubber,SDS Source,22.4,159.66,-,175,136.23,161.41,0.844,-,1.471,-,42,Not Soluble,62.2,C10H16,True
-(R)-(?)-2-Octanol,5978-70-1,16.08,4.21,8.96,2,2,"Flammable liquids (Category 3), Acute ...",Nitrile,SDS Source,22.43,-,-,175,130.23,156.904,0.83,-,1.43,0.242 mmHg at 25 C,60,1.12,4.1,C8H18O,True
+(R)-(-)-2-Octanol,5978-70-1,16.08,4.21,8.96,2,2,"Flammable liquids (Category 3), Acute ...",Nitrile,SDS Source,22.43,-,-,175,130.23,156.904,0.83,-,1.43,0.242 mmHg at 25 C,60,1.12,4.1,C8H18O,True
 (R)-Butan-2-ol,14898-79-4,15.65,5.76,12.29,2,3,"Flammable liquids (Category 2), Eye ir...",Nitrile,SDS Source,37.75,0,-,99,74.12,91.8463,0.807,-,1.3952,16.7 hPa at 20 C,22,-,48.3,C4H10O,True
 (S)-(+)-2-Octanol,6169-06-8,16.08,4.21,8.96,3,2,"Acute oral toxicity (Category 3), Skin...",Unknown,SDS Source,5.47,1481.66,-,176,130.23,158.778,0.8202,-,1.426,-,60,1.12,-,C8H18O,True
 "(S)-2,2-Dimethyl-1,3-Dioxolane-4-Methanol",22323-82-6,16.8,7.48,10.95,0,2,Flammable liquids (Category 4),Unknown,SDS Source,11.05,838.69,-,188.5,132.16,123.514,1.07,-,1.433,-,80,-,-,C6H12O3,True
@@ -104,7 +104,7 @@
 2-(1-Ethylpropyl)Pyridine,7399-50-0,17.22,4.24,3.63,2,0,"Acute toxicity, Oral (Category 3), Ski...",Unknown,SDS Source,10.13,-,-,195.4,149.24,165.822,0.9,-,1.4866,-,51.3,-,-,C10H15N,False
 2-(Dimethylamino)Pyridine,5683-33-0,18.63,6.06,7.32,2,0,"Flammable liquids (Category 4), Skin i...",Unknown,SDS Source,1.97,259.45,-,191,122.17,124.157,0.984,-,1.559,0.48 hPa at 22 C,47,Not Soluble,-,C7H10N2,False
 2-(Trimethylsilyl)-Ethanol,2916-68-9,14.39,4.56,9.34,0,2,"Flammable liquids (Category 3), Skin i...",Unknown,SDS Source,7.83,551.34,-,145,118.25,143.333,0.825,-,1.423,< 5 mmHg at 25 C,50,-502,-,C5H14OSi,False
-2-?Butyne,503-17-3,15.1,3.4,7.6,2,4,"Flammable liquids (Category 1), Skin i...",Unknown,SDS Source,7.38,-,-32,24,54.09,78.3913,0.69,-,1.3921,790.6 hPa at 20 C,-25,-,2562.8,C4H6,True
+2-Butyne,503-17-3,15.1,3.4,7.6,2,4,"Flammable liquids (Category 1), Skin i...",Unknown,SDS Source,7.38,-,-32,24,54.09,78.3913,0.69,-,1.3921,790.6 hPa at 20 C,-25,-,2562.8,C4H6,True
 2-Acetyl Pyridine,1122-62-9,19.17,10.12,6.26,2,2,"Flammable liquids (Category 4), Skin i...",Chloroprene/ Fluori,SDS Source,0.32,47.76,-,192,121.14,112.167,1.08,-,1.5209,-,73,18.7,2.8,C7H7NO,False
 2-Acetyl-3-Ethyl Pyrazine,32974-92-8,18.34,10.56,5.19,0,2,"Flammable liquids (Category 4), Skin i...",Unknown,SDS Source,13.39,754.78,-,220,150.18,139.702,1.075,-,1.515,-,87,-502,0.4,C8H10N2O,False
 2-Acetyl-5-Methyl Furan,1193-79-9,17.88,8.26,5.44,2,2,"Flammable liquids (Category 4), Acute ...",Unknown,SDS Source,1.08,92.53,2,201.9,124.14,116.454,1.066,-,1.509,0.301 mmHg at 25 C,80,-,7.1,C7H8O2,True
@@ -177,7 +177,7 @@
 "3,3-Dimethyl-2-Thiabutane",6163-64-0,15.85,2.5,2.44,0,3,"Flammable liquids (Category 2), Skin i...",Unknown,SDS Source,4.19,242.22,-,101,104.21,126.162,0.826,-,1.44023,-,-4,-,311.2,C5H12S,False
 "3,3-Dimethyl-4-Pentenoic Acid, Methyl Ester",63721-05-1,15.6,3.29,4.31,0,2,Flammable liquids (Category 3),Unknown,SDS Source,4.67,119.75,-,-,142.2,158.176,0.899,-,-,-,42,-,-,C8H14O2,True
 "3,3-Dimethylbutanal",2987-16-8,15.16,6.18,4.17,2,3,"Flammable liquids (Category 2), Skin i...",Unknown,SDS Source,29.38,274.42,-24,104,100.16,125.514,0.798,0.98,1.4072,33 mbar at 20 C,13,7.3,212.3,C6H12O,True
-"3,3?-Thiodipropionitrile",111-97-7,17.94,15.79,7.39,2,1,"Skin irritation (Category 2), Eye irri...",Unknown,SDS Source,0.27,-,24,340.3,140.21,126.315,1.11,-,1.499,0.000087 mmHg at 25 C,195,-,-,C6H8N2S,False
+"3,3’-Thiodipropionitrile",111-97-7,17.94,15.79,7.39,2,1,"Skin irritation (Category 2), Eye irri...",Unknown,SDS Source,0.27,-,24,340.3,140.21,126.315,1.11,-,1.499,0.000087 mmHg at 25 C,195,-,-,C6H8N2S,False
 "3,4,5-Trimethoxytoluene",6443-69-2,18.35,5.65,6.59,0,2,Flammable liquids (Category 4),Nitrile,SDS Source,4.39,68.04,25,253,182.22,168.41,1.082,-,1.5242,-,74,Not Soluble,-,C10H14O3,True
 "3,4-Dihydro-2Methoxy-2H-Pyram",4454-05-1,16.98,5.57,5.91,2,3,"Flammable liquids (Category 2), Skin i...",Unknown,SDS Source,0.23,40.37,-60,126,114.14,114.14,1,1.11,1.4423,12.4 hPa at 20 C,16,16,52.8,C6H10O2,True
 "3,4-Dimethyl-3-Hexanol",19550-08-4,15.89,2.62,6.62,1,0,None,Unknown,SDS Source,18.93,-,-,164.7,130.23,156.245,0.8335,-,1.4211,0.961 mmHg at 25 C,56.6,-,7.6,C8H18O,True
@@ -266,12 +266,12 @@
 5-Methyl-2-(1-Methylvinyl)Cyclohexan-1-ol,7786-67-6,16.58,3.74,7.48,2,2,"Flammable liquids (Category 4), Acute ...",Nitrile,SDS Source,3.59,-,-,212,154.25,169.134,0.912,-,1.4725,-,78,0.3086,-,C10H18O,True
 5-Methyl-3-Heptanol,18720-65-5,15.77,3.66,8.04,2,2,"Flammable liquids (Category 4), Eye ir...",Unknown,SDS Source,26.2,1168.91,-,156,130.23,158.817,0.82,-,1.4262,-,56.6,-,12,C8H18O,True
 5-Methyl-3-Heptanone,541-85-5,15.75,4.65,2.98,1,2,"Flammable liquids (Category 3), Eye ir...",Butyl Rubber,SDS Source,0.09,81.19,-57,157,128.21,155.784,0.823,-,1.4232,3 hPa at 20 C,44,1.92,23.8,C8H16O,True
-6-Amyl-?-Pyrone,27593-23-3,16.79,10.31,5.41,0,1,"Skin irritation (Category 2), Eye irri...",Unknown,SDS Source,25.86,-,-,285,166.22,164.574,1.01,-,1.505,0.06 kPa at 20 C,146,-,0.2,C10H14O2,True
+6-Amyl-2-Pyrone,27593-23-3,16.79,10.31,5.41,0,1,"Skin irritation (Category 2), Eye irri...",Unknown,SDS Source,25.86,-,-,285,166.22,164.574,1.01,-,1.505,0.06 kPa at 20 C,146,-,0.2,C10H14O2,True
 6-Methyl-2-Heptanol,4730-22-7,15.82,3.99,8.31,0,2,Flammable liquids (Category 4),Unknown,SDS Source,17.08,691.27,-105,172,130.23,158.817,0.82,-,1.422,-,67,-,5.6,C8H18O,True
 6-Methyl-2-Heptylamine,543-82-8,15.74,2.89,4.97,2,2,"Flammable liquids (Category 3), Acute ...",Unknown,SDS Source,4.65,238.14,25,154,129.24,168.501,0.767,-,1.425,-,49,-,-,C8H19N,False
 6-Methylquinoline,91-62-3,19.43,4.85,5.26,2,1,"Skin irritation (Category 2), Acute to...",Butyl Rubber,SDS Source,2.06,-,-22,256,143.19,134.704,1.063,-,1.6125,-,113,-,0.7,C10H9N,False
-?-Hexalactone,695-06-7,16.55,9.85,5.88,2,1,Eye irritation (Category 2A),Unknown,SDS Source,0.44,67.59,-18,215.5,114.14,111.574,1.023,-,1.4495,0.2 mmHg at 25C,98,-,4.2,C6H10O2,True
-?-Methyl Cinnamic Alcohol,1504-55-8,18.43,4.36,10.08,2,1,Eye irritation (Category 2A),Unknown,SDS Source,12.5,1086.81,-,288,148.21,143.893,1.03,-,1.572,-,113,-,0.4,C10H12O,True
+γ-Hexalactone,695-06-7,16.55,9.85,5.88,2,1,Eye irritation (Category 2A),Unknown,SDS Source,0.44,67.59,-18,215.5,114.14,111.574,1.023,-,1.4495,0.2 mmHg at 25C,98,-,4.2,C6H10O2,True
+α-Methylcinnamyl Alcohol,1504-55-8,18.43,4.36,10.08,2,1,Eye irritation (Category 2A),Unknown,SDS Source,12.5,1086.81,-,288,148.21,143.893,1.03,-,1.572,-,113,-,0.4,C10H12O,True
 Abhexone,698-10-2,16.53,8.58,11.27,0,1,None,Unknown,SDS Source,4.19,1000.17,31,316.4,142.15,125.353,1.134,-,1.49,0.00085 kPa at 23 C,113,-,1.2,C7H10O3,True
 Acetaldoxime,107-29-9,16.3,4,20.2,2,2,"Flammable liquids (Category 3), Acute ...",Unknown,SDS Source,1.3,-,45,115,59.07,60.9598,0.969,-,1.42567,17 hPa at 25 C,40,-,29.6,C2H5NO,False
 Acetol,116-09-6,17.4,12.82,16.47,1,2,Flammable liquids (Category 3),Nitrile,SDS Source,0.2,47.17,-17,145,74.08,68.4658,1.082,1.592,1.425,7.5 hPa at 20 C,56,-502,7.6,C3H6O2,True
@@ -286,7 +286,7 @@ Allyl Cyanoacetate,13361-32-5,16.82,10.7,7.9,2,1,"Acute toxicity, Oral (Category
 Allyl Phenoxyacetate,7493-74-5,17.77,4.97,6.23,2,0,"Acute toxicity, Oral (Category 4), Acu...",Unknown,SDS Source,0.32,64.82,-,266,192.21,174.419,1.102,-,1.524,-,113,-,0.2,C11H12O3,True
 Allyl Phenyl Acetate,1797-74-6,17.61,3.67,5.23,2,1,"Acute toxicity, Oral (Category 4), Acu...",Unknown,SDS Source,1.17,139.25,-,240,176.21,169.433,1.04,-,1.507,-,100,-,0.6,C11H12O2,True
 Allyl Phenyl Ether,1746-13-0,17.84,4.2,4.93,0,2,Flammable liquids (Category 4),Unknown,SDS Source,1.05,102.97,-,192,134.18,138.33,0.97,-,1.5196,0.7 mbar at 20 C,62,Not Soluble,4.9,C9H10O,True
-alpha-Acetylbutyrolactone,517-23-7,17.56,12.97,7.28,2,1,"Skin irritation (Category 2), Eye irri...",Unknown,SDS Source,0.22,35.38,-,253,128.13,107.672,1.19,-,1.459,0.0186 mmHg at 25 C,113,310,-,C6H8O3,True
+Α-Acetyl-γ-butyrolactone,517-23-7,17.56,12.97,7.28,2,1,"Skin irritation (Category 2), Eye irri...",Unknown,SDS Source,0.22,35.38,-,253,128.13,107.672,1.19,-,1.459,0.0186 mmHg at 25 C,113,310,-,C6H8O3,True
 Amyl Isovalerate,25415-62-7,15.77,3.12,4.21,0,2,"Flammable liquids (Category 4), Acute ...",Unknown,SDS Source,8,117.48,-,78,172.26,200.769,0.858,-,1.412,-,69,Not Soluble,6.6,C10H20O2,True
 Anisole,100-66-3,17.8,4.4,6.9,1,2,"Flammable liquids (Category 3),  Acute...",Nitrile,SDS Source,0.06,14.32,-37.5,153.7,108.14,108.683,0.995,5.1,1.5171,3.510 mmHg at 25 C,43,1.71,17.063,C7H8O,True
 Bean Pyrazine,25773-40-4,17.5,7.97,5.19,2,2,"Flammable liquids (Category 4), Skin i...",Unknown,SDS Source,37.9,-,-,189,152.2,152.811,0.996,-,1.494,0.006 kPa at 20 C,67,-,1,C8H12N2O,False
@@ -342,8 +342,8 @@ d-Acetone Glycerol,14347-78-5,16.8,7.48,10.95,0,2,Flammable liquids (Category 4)
 Decanenitrile,1975-78-6,16.04,5.92,3.55,2,1,"Acute toxicity, Oral (Category 4), Acu...",Unknown,SDS Source,0.89,113.4,-17.9,241,153.27,189.222,0.81,-,1.428,-,97,-,1,C10H19N,False
 Decylcyclohexane,1795-16-0,16.17,0.1,0.1,0,0,None,Unknown,SDS Source,9.48,-,-1.7,299,224.43,274.801,0.8167,-,1.45338,-,127.5,Not Soluble,0.3,C16H32,True
 Decyltetradecanol,58670-89-6,16.04,1.86,6.16,0,0,None,Unknown,SDS Source,0.94,338.83,17,-,354.65,421.2,0.842,-,1.457,-,113,-,-,C24H50O,True
-Delta-Decalactone,705-86-2,16.37,10.2,4.31,0,0,None,Latex/ Chloroprene/,SDS Source,0.66,52.05,-27,281,170.25,178.459,0.954,-,1.4577,0.00294 mmHg at 20 C,113,4,0.3,C10H18O2,True
-Delta-Nonalactone,3301-94-8,16.4,11.26,4.45,0,0,None,Latex/ Chloroprene/,SDS Source,0.81,134.04,-,250,156.22,174.938,0.893,-,1.455,0.86 Pa at 25 C,100,-,0.6,C9H16O2,True
+δ-Decalactone,705-86-2,16.37,10.2,4.31,0,0,None,Latex/ Chloroprene/,SDS Source,0.66,52.05,-27,281,170.25,178.459,0.954,-,1.4577,0.00294 mmHg at 20 C,113,4,0.3,C10H18O2,True
+δ-Nonalactone,3301-94-8,16.4,11.26,4.45,0,0,None,Latex/ Chloroprene/,SDS Source,0.81,134.04,-,250,156.22,174.938,0.893,-,1.455,0.86 Pa at 25 C,100,-,0.6,C9H16O2,True
 Dexpanthenol,81-13-0,17.59,13.59,17.2,0,0,None,Nitrile,SDS Source,0.33,23.69,-25,235.6,205.25,171.042,1.2,180000,1.497,0 hPa at 25 C,150.5,509,-,C9H19NO4,False
 Dextro-Dihydrocarvone,7764-50-3,17.09,5.29,2.8,2,2,"Flammable liquids (Category 4), Skin i...",Unknown,SDS Source,1.09,113.4,-,222,152.23,163.864,0.929,-,1.472,0.08 hPa at 20 C,81,-,9,C10H16O,True
 Di-(2-Ethyl Hexyl) Sebacate,122-62-3,16.2,5,9,0,0,Not a hazardous substance or mixture,Nitrile,SDS Source,0.38,20.64,-48,256,426.67,467.84,0.912,17.21,1.451,0.000024 Pa at 37 C C,210,-,0,C26H50O4,True
@@ -442,9 +442,9 @@ Ethylidene Diacetate,542-10-9,16.61,6.02,8.31,0,1,Flammable liquids (Category 4)
 exo-Trimethylenenorbor-500e,2825-82-3,17.17,1.94,1.83,0,2,Flammable Liquids [Category 3],Unknown,SDS Source,27.56,424.56,183.2,457.76,136.23,146.958,0.927,2.853,1.489,-,55,Not Soluble,-,C10H16,True
 Filbert Pyrazine,15707-23-0,17.64,7.43,4.82,2,2,"Flammable liquids (Category 3), Acute ...",Unknown,SDS Source,2.34,471.06,-,169,122.17,123.404,0.99,-,1.499,1.69 mmHg at 25 C,57,-,3.8,C7H10N2,False
 Fruity Ketal,6290-17-1,16.7,5.73,5.75,0,2,Flammable liquids (Category 4),Unknown,SDS Source,1.04,115.21,-68,220.6,188.22,180.633,1.042,-,1.4278,7.95 Pa at 25 C,91,-,5.1,C9H16O4,True
-Gamma Decalactone,706-14-9,16.42,10,4.51,0,1,None,Nitrile,SDS Source,1.12,88.11,-20,281,170.25,178.834,0.952,-,1.4492,0.01 mm Hg at 20 C,136,Not Soluble,0.3,C10H18O2,True
-gamma-Nonalactone,104-61-0,16.46,11.03,4.86,0,1,None,Nitrile,SDS Source,0.23,38.74,-,243,156.22,160.061,0.976,-,1.448,0.02 mmHg at 20 C,113,Not Soluble,0.6,C9H16O2,True
-gamma-Undecalactone,104-67-6,16.36,9.19,4.22,2,1,"Skin irritation (Category 2), Eye irri...",Nitrile,SDS Source,0.13,21.5,-,286,184.28,194.183,0.949,-,1.454,-,113,Not Soluble,0.2,C11H20O2,True
+γ-Decanolactone,706-14-9,16.42,10,4.51,0,1,None,Nitrile,SDS Source,1.12,88.11,-20,281,170.25,178.834,0.952,-,1.4492,0.01 mm Hg at 20 C,136,Not Soluble,0.3,C10H18O2,True
+γ-Nonanolactone,104-61-0,16.46,11.03,4.86,0,1,None,Nitrile,SDS Source,0.23,38.74,-,243,156.22,160.061,0.976,-,1.448,0.02 mmHg at 20 C,113,Not Soluble,0.6,C9H16O2,True
+γ-Undecalactone,104-67-6,16.36,9.19,4.22,2,1,"Skin irritation (Category 2), Eye irri...",Nitrile,SDS Source,0.13,21.5,-,286,184.28,194.183,0.949,-,1.454,-,113,Not Soluble,0.2,C11H20O2,True
 Geranic Acid,459-80-3,17.15,4.35,8.8,2,1,"Acute toxicity, Dermal (Category 4), S...",Unknown,SDS Source,1.65,346.54,-,250,168.23,173.433,0.97,-,1.488,-,133,-,0.7,C10H16O2,True
 Geranyl Formate,105-86-2,16.72,4.03,4.9,0,1,Eye irritation (Category 2B),Nitrile,SDS Source,0.79,56.7,-,216,182.26,198.109,0.92,-,1.461,0.0154 mmHg at 25 C,96,Not Soluble,1.9,C11H18O2,True
 Glutaronitrile,544-13-8,16.81,18.08,7.75,2,1,"Acute toxicity, Oral (Category 3), Acu...",Butyl Rubber,SDS Source,1.28,-,-29,285,94.12,95.0707,0.99,-,1.434,-,112,-,0.4,C5H6N2,False

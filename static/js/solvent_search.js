@@ -137,10 +137,30 @@ class SolventSearch {
     }
 
     async performInitialSearch() {
-        // Check if Target 1 has HSP values set
-        if (this.currentTarget1 && this.currentTarget1.delta_d) {
-            console.log('Performing initial search with Target 1:', this.currentTarget1);
-            await this.performSearch();
+        // Always load all solvents on initial page load for browsing
+        console.log('Loading all solvents for initial display');
+        await this.loadAllSolventsInitial();
+    }
+
+    async loadAllSolventsInitial() {
+        try {
+            // Fetch all solvents from the database (request full data, not just names)
+            const response = await fetch('/api/solvents?full_data=true');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+
+            // Store all solvents
+            this.searchResults = data.solvents || [];
+
+            // Display in table (will sort by name since no target is set)
+            this.populateResultsTable();
+            this.updateResultsCount(this.searchResults.length);
+
+            console.log(`Loaded ${this.searchResults.length} solvents for initial display`);
+        } catch (error) {
+            console.error('Error loading initial solvents:', error);
         }
     }
 
@@ -260,26 +280,21 @@ class SolventSearch {
             });
         }
 
-        // Search scope radio buttons
-        const searchScopeRadios = document.querySelectorAll('input[name="search-scope"]');
-        searchScopeRadios.forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                this.searchScope = e.target.value;
-                const selectorContainer = document.getElementById('search-set-selector-container');
-                if (selectorContainer) {
-                    selectorContainer.style.display = this.searchScope === 'set' ? 'block' : 'none';
-                }
-                if (this.searchScope === 'set') {
-                    this.populateSolventSetSelector();
-                }
-            });
-        });
+        // Search scope dropdown (unified selector)
+        const scopeSelector = document.getElementById('search-scope-selector');
+        if (scopeSelector) {
+            // Populate with solvent sets on init
+            this.populateSolventSetSelector();
 
-        // Solvent set selector
-        const setSelector = document.getElementById('search-solvent-set-selector');
-        if (setSelector) {
-            setSelector.addEventListener('change', (e) => {
-                this.selectedSetId = e.target.value || null;
+            scopeSelector.addEventListener('change', (e) => {
+                const value = e.target.value;
+                if (value === 'all') {
+                    this.searchScope = 'all';
+                    this.selectedSetId = null;
+                } else {
+                    this.searchScope = 'set';
+                    this.selectedSetId = value;
+                }
             });
         }
 
@@ -578,74 +593,35 @@ class SolventSearch {
         this.currentTarget2 = target2Data;
         this.currentTarget3 = target3Data;
 
-        // Check if at least one target is configured
-        if (!target1Data && !target2Data && !target3Data) {
-            this.showError('Please configure at least one target.');
-            return;
+        // If no data loaded yet, load all solvents first
+        if (this.searchResults.length === 0) {
+            await this.loadAllSolventsInitial();
+            return; // loadAllSolventsInitial will call populateResultsTable
         }
 
-        // Show loading
-        const searchBtn = document.querySelector('#search-solvents-btn');
-        const originalText = searchBtn.textContent;
-        searchBtn.textContent = 'Searching...';
-        searchBtn.disabled = true;
+        // Re-populate table with new targets (will re-calculate distances and re-sort)
+        this.populateResultsTable();
+        this.updateResultsCount(this.searchResults.length);
 
-        try {
-            // Use Target1 as primary target for search
-            const primaryTarget = target1Data || target2Data || target3Data;
+        // Show selection controls if we have results
+        this.showSelectionUI(this.searchResults.length > 0);
 
-            const results = await this.searchSingleSolvents(
-                primaryTarget.delta_d, primaryTarget.delta_p, primaryTarget.delta_h, primaryTarget.r0
-            );
-
-            // Add saved mixtures to results
-            const savedMixtures = this.getSavedMixturesAsResults(
-                primaryTarget.delta_d, primaryTarget.delta_p, primaryTarget.delta_h, primaryTarget.r0
-            );
-
-            // Add user-added solvents to results
-            const userSolvents = this.getUserSolventsAsResults(
-                primaryTarget.delta_d, primaryTarget.delta_p, primaryTarget.delta_h, primaryTarget.r0
-            );
-
-            this.searchResults = [...results.results, ...savedMixtures, ...userSolvents];
-
-            // Filter by solvent set if selected
-            this.searchResults = this.filterBySet(this.searchResults);
-            this.filteredResults = [...this.searchResults]; // Initialize filtered results
-
-            // Sort by distance
-            this.searchResults.sort((a, b) => a.distance - b.distance);
-            this.filteredResults.sort((a, b) => a.distance - b.distance);
-
-            this.displayResults('single');
-            this.updateResultsCount(this.searchResults.length);
-
-            // Show selection controls and save button
-            this.showSelectionUI(this.searchResults.length > 0);
-
-            // Generate visualization with all targets
+        // Generate visualization with all targets if at least one target is set
+        if (target1Data || target2Data || target3Data) {
             this.generateVisualization(target1Data, target2Data, this.searchResults, target3Data);
-
-            // Generate RED Plot if both targets are set
-            const tabRED = document.querySelector('#search-tab-red');
-            if (target1Data && target2Data) {
-                this.generateREDPlot(target1Data, target2Data, this.searchResults);
-                if (tabRED) tabRED.style.display = 'inline-block';
-            } else {
-                if (tabRED) tabRED.style.display = 'none';
-            }
-
-            // Populate right panel results table
-            this.populateResultsTable();
-
-        } catch (error) {
-            console.error('Search error:', error);
-            this.showError('Search failed. Please try again.');
-        } finally {
-            searchBtn.textContent = originalText;
-            searchBtn.disabled = false;
         }
+
+        // Generate RED Plot if both Target 1 and Target 2 are set
+        const tabRED = document.querySelector('#search-tab-red');
+        if (target1Data && target2Data) {
+            this.generateREDPlot(target1Data, target2Data, this.searchResults);
+            if (tabRED) tabRED.style.display = 'inline-block';
+        } else {
+            if (tabRED) tabRED.style.display = 'none';
+        }
+
+        // Populate right panel results table
+        this.populateResultsTable();
     }
 
     generateVisualization(target1Data, target2Data, solventResults, target3Data = null) {
@@ -1353,9 +1329,13 @@ class SolventSearch {
                     headerFilter: minMaxFilterEditor,
                     headerFilterFunc: minMaxFilterFunction,
                     headerFilterLiveFilter: false,
-                    formatter: (cell) => cell.getValue().toFixed(1),
+                    formatter: (cell) => {
+                        const val = cell.getValue();
+                        return (val !== null && val !== undefined) ? val.toFixed(1) : '—';
+                    },
                     headerTooltip: "Dispersion parameter (δD) in MPa^0.5",
-                    width: 85,
+                    width: 90,
+                    minWidth: 90,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
@@ -1366,9 +1346,13 @@ class SolventSearch {
                     headerFilter: minMaxFilterEditor,
                     headerFilterFunc: minMaxFilterFunction,
                     headerFilterLiveFilter: false,
-                    formatter: (cell) => cell.getValue().toFixed(1),
+                    formatter: (cell) => {
+                        const val = cell.getValue();
+                        return (val !== null && val !== undefined) ? val.toFixed(1) : '—';
+                    },
                     headerTooltip: "Polar parameter (δP) in MPa^0.5",
-                    width: 85,
+                    width: 90,
+                    minWidth: 90,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
@@ -1379,9 +1363,13 @@ class SolventSearch {
                     headerFilter: minMaxFilterEditor,
                     headerFilterFunc: minMaxFilterFunction,
                     headerFilterLiveFilter: false,
-                    formatter: (cell) => cell.getValue().toFixed(1),
+                    formatter: (cell) => {
+                        const val = cell.getValue();
+                        return (val !== null && val !== undefined) ? val.toFixed(1) : '—';
+                    },
                     headerTooltip: "Hydrogen bonding parameter (δH) in MPa^0.5",
-                    width: 85,
+                    width: 90,
+                    minWidth: 90,
                     hozAlign: "center",
                     headerHozAlign: "center"
                 },
@@ -1523,14 +1511,20 @@ class SolventSearch {
             return;
         }
 
-        // Prepare data for Tabulator (use searchResults instead of filteredResults)
+        // Check if any target is set
+        const hasTarget1 = this.currentTarget1 && this.currentTarget1.delta_d !== undefined;
+        const hasTarget2 = this.currentTarget2 && this.currentTarget2.delta_d !== undefined;
+        const hasTarget3 = this.currentTarget3 && this.currentTarget3.delta_d !== undefined;
+
+        // Prepare data for Tabulator
         const tableData = this.searchResults.map(solvent => {
-            const ra1 = this.calculateDistance(solvent, this.currentTarget1);
-            const red1 = this.calculateRED(solvent, this.currentTarget1);
-            const ra2 = this.calculateDistance(solvent, this.currentTarget2);
-            const red2 = this.calculateRED(solvent, this.currentTarget2);
-            const ra3 = this.calculateDistance(solvent, this.currentTarget3);
-            const red3 = this.calculateRED(solvent, this.currentTarget3);
+            // Calculate distances only if targets are set
+            const ra1 = hasTarget1 ? this.calculateDistance(solvent, this.currentTarget1) : null;
+            const red1 = hasTarget1 ? this.calculateRED(solvent, this.currentTarget1) : null;
+            const ra2 = hasTarget2 ? this.calculateDistance(solvent, this.currentTarget2) : null;
+            const red2 = hasTarget2 ? this.calculateRED(solvent, this.currentTarget2) : null;
+            const ra3 = hasTarget3 ? this.calculateDistance(solvent, this.currentTarget3) : null;
+            const red3 = hasTarget3 ? this.calculateRED(solvent, this.currentTarget3) : null;
 
             return {
                 name: solvent.name,
@@ -1550,6 +1544,13 @@ class SolventSearch {
                 source_file: solvent.source_file || ''
             };
         });
+
+        // Sort: by distance if target is set, by name otherwise
+        if (hasTarget1) {
+            tableData.sort((a, b) => a.ra1_value - b.ra1_value);
+        } else {
+            tableData.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+        }
 
         // Update table
         this.resultsTable.setData(tableData);
@@ -1750,14 +1751,19 @@ class SolventSearch {
      * Populate solvent set selector dropdown
      */
     populateSolventSetSelector() {
-        const selector = document.getElementById('search-solvent-set-selector');
+        const selector = document.getElementById('search-scope-selector');
         if (!selector) return;
 
         // Get solvent sets from storage (use same key as solvent_set_manager.js)
         const solventSets = JSON.parse(localStorage.getItem('mixingCompass_solventSets') || '[]');
 
-        // Clear and repopulate
-        selector.innerHTML = '<option value="">Select a solvent set...</option>';
+        // Clear options except "All Solvents" and separator
+        selector.innerHTML = `
+            <option value="all">All Solvents</option>
+            <option disabled>──────────</option>
+        `;
+
+        // Add solvent sets
         solventSets.forEach(set => {
             const option = document.createElement('option');
             option.value = set.id;

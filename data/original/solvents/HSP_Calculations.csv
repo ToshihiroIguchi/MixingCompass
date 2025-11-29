@@ -1,87 +1,87 @@
-Solvents,dD,dP,dH,MVol,CHO
-Acetone,15.5,10.4,7,73.8,True
-Acetonitrile,15.3,18,6.1,52.9,False
-n-Amyl Acetate,15.8,3.3,6.1,148,True
-n-Amyl Alcohol,15.9,5.9,13.9,108.6,True
-Benzene,18.4,0,2,52.9,True
-Benzyl Alcohol,18.4,6.3,13.7,103.8,True
-Benzyl Benzoate,20,5.1,5.2,190.3,True
-1-Butanol,16,5.7,15.8,92,True
-2-Butanol,15.8,5.7,14.5,92,True
-n-Butyl Acetate,15.8,3.7,6.3,132.6,True
-t-Butyl Acetate,15,3.7,6,134.8,True
-t-Butyl Alcohol,15.2,5.1,14.7,96,True
-Butyl Benzoate,18.3,5.6,5.5,178.1,True
-Butyl Diglycol Acetate,16,4.1,8.2,208.2,True
-Butyl Glycol Acetate,15.3,7.5,6.8,171.2,True
-n-Butyl Propionate,15.7,5.5,5.9,149.3,True
-Caprolactone (Epsilon),19.7,15,7.4,110.8,True
-Chloroform,17.8,3.1,5.7,80.5,False
-m-Cresol,18.5,6.5,13.7,105,True
-Cyclohexane,16.8,0,0.2,108.9,True
-Cyclohexanol,17.4,4.1,13.5,105.7,True
-Cyclohexanone,17.8,8.4,5.1,104.2,True
-Di-isoButyl Ketone,16,3.7,4.1,177.4,True
-Diacetone Alcohol,15.8,8.2,10.8,124.3,True
-Diethyl Ether,14.5,2.9,4.6,104.7,True
-Diethylene Glycol Monobutyl Ether,16,7,10.6,170.4,True
-Dimethyl Cyclohexane,16.1,0,1.1,140,True
-Dimethyl Sulfoxide (DMSO),18.4,16.4,10.2,71.3,False
-"1,4-Dioxane",17.5,1.8,9,85.7,True
-"1,3-Dioxolane",18.1,6.6,9.3,69.9,True
-Dipropylene Glycol,16.5,10.6,17.7,131.8,True
-Dipropylene Glycol Methyl Ether,15.5,5.7,11.2,156.1,True
-Dipropylene Glycol Mono n-Butyl Ether,15.7,6.5,10,211.2,True
-Ethanol,15.8,8.8,19.4,58.6,True
-Ethyl Acetate,15.8,5.3,7.2,98.6,True
-Ethyl Benzene,17.8,0.6,1.4,122.8,True
-Ethyl Lactate,16,7.6,12.5,115,True
-Ethylene Carbonate,18,21.7,5.1,66,True
-Ethylene Glycol,17,11,26,55.9,True
-Ethylene Glycol Monobutyl Ether,16,5.1,12.3,132,True
-Ethylene Glycol Monomethyl Ether,16,8.2,15,79.3,True
-gamma-Butyrolactone (GBL),18,16.6,7.4,76.5,True
-Glycerol Carbonate,17.9,25.5,17.4,83.2,True
-Heptane,15.3,0,0,147,True
-Hexane,14.9,0,0,131.4,True
-Iso-Butanol,15.1,5.7,15.9,92.9,True
-Iso-Butyl Isobutyrate,15.1,2.8,5.8,169.8,True
-Iso-Pentyl Acetate,15.3,3.1,7,150.2,True
-iso-Pentyl Alcohol,15.8,5.2,13.3,109.3,True
-Iso-Propyl Acetate,14.9,4.5,8.2,117.1,True
-Iso-Propyl Ether,15.1,3.2,3.2,141.8,True
-Isophorone,17,8,5,150.3,True
-d-Limonene,17.2,1.8,4.3,162.9,True
-Methanol,14.7,12.3,22.3,40.6,True
-Methyl Acetate,15.5,7.2,7.6,79.8,True
-Methyl Carbitol,16.2,7.8,12.6,118.2,True
-Methyl Cellosolve,16,8.2,15,79.3,True
-Methyl Cyclohexane,16,0,1,128.2,True
-Methyl Ethyl Ketone (MEK),16,9,5.1,90.2,True
-Methyl iso-Amyl Ketone,16,5.7,4.1,141.3,True
-Methyl iso-Butyl Carbinol,15.4,3.3,12.3,127.2,True
-Methyl Iso-Butyl Ketone (MIBK),15.3,6.1,4.1,125.8,True
-Methyl Oleate,16.2,3.8,4.5,340.7,True
-Methyl Propyl Ketone,16,7.6,4.7,107.3,True
-N-Methyl-2-Pyrrolidone (NMP),18,12.3,7.2,96.6,False
-Methylene Chloride,17,7.3,7.1,64.4,False
-"N,N-Dimethyl Acetamide",16.8,11.5,10.2,93,False
-"N,N-Dimethyl Formamide (DMF)",17.4,13.7,11.3,77.4,False
-1-Nitropropane,16.6,12.3,5.5,89.5,False
-2-Phenoxy Ethanol,17.8,5.7,14.3,124.7,True
-2-Propanol,15.8,6.1,16.4,76.9,True
-1-Propanol,16,6.8,17.4,75.1,True
-n-Propyl Acetate,15.3,4.3,7.6,115.8,True
-n-Propyl Propanoate,15.5,5.6,5.7,132.5,True
-Propylene Carbonate,20,18,4.1,85.2,True
-Propylene Glycol Monobutyl Ether,15.3,4.5,9.2,132,True
-Propylene Glycol Monoethyl Ether Acetate,15.6,6.3,7.7,155.1,True
-Propylene Glycol Monomethyl Ether,15.6,6.3,11.6,98.2,True
-Propylene Glycol Monomethyl Ether Acetate,15.6,5.6,9.8,137.1,True
-Propylene Glycol Phenyl Ether,17.4,5.3,11.5,143.2,True
-sec-Butyl Acetate,15,3.7,7.6,134,True
-Sulfolane (Tetramethylene Sulfone),18,18,9.9,95.3,False
-Tetrahydrofuran (THF),16.8,5.7,8,81.9,True
-Tetrahydrofurfuryl Alcohol,17.8,8.2,12.9,97.4,True
-Toluene,18,1.4,2,106.6,True
-Xylene,17.6,1,3.1,123.9,True
+Solvents,dD,dP,dH,MVol,CHO,Tb
+Acetone,15.5,10.4,7,73.8,True,
+Acetonitrile,15.3,18,6.1,52.9,False,
+n-Amyl Acetate,15.8,3.3,6.1,148,True,
+n-Amyl Alcohol,15.9,5.9,13.9,108.6,True,
+Benzene,18.4,0,2,52.9,True,
+Benzyl Alcohol,18.4,6.3,13.7,103.8,True,
+Benzyl Benzoate,20,5.1,5.2,190.3,True,
+1-Butanol,16,5.7,15.8,92,True,
+2-Butanol,15.8,5.7,14.5,92,True,
+n-Butyl Acetate,15.8,3.7,6.3,132.6,True,
+t-Butyl Acetate,15,3.7,6,134.8,True,
+t-Butyl Alcohol,15.2,5.1,14.7,96,True,
+Butyl Benzoate,18.3,5.6,5.5,178.1,True,
+Butyl Diglycol Acetate,16,4.1,8.2,208.2,True,
+Butyl Glycol Acetate,15.3,7.5,6.8,171.2,True,
+n-Butyl Propionate,15.7,5.5,5.9,149.3,True,
+Caprolactone (Epsilon),19.7,15,7.4,110.8,True,
+Chloroform,17.8,3.1,5.7,80.5,False,
+m-Cresol,18.5,6.5,13.7,105,True,
+Cyclohexane,16.8,0,0.2,108.9,True,
+Cyclohexanol,17.4,4.1,13.5,105.7,True,
+Cyclohexanone,17.8,8.4,5.1,104.2,True,
+Di-isoButyl Ketone,16,3.7,4.1,177.4,True,
+Diacetone Alcohol,15.8,8.2,10.8,124.3,True,
+Diethyl Ether,14.5,2.9,4.6,104.7,True,
+Diethylene Glycol Monobutyl Ether,16,7,10.6,170.4,True,
+Dimethyl Cyclohexane,16.1,0,1.1,140,True,
+Dimethyl Sulfoxide (DMSO),18.4,16.4,10.2,71.3,False,
+"1,4-Dioxane",17.5,1.8,9,85.7,True,
+"1,3-Dioxolane",18.1,6.6,9.3,69.9,True,
+Dipropylene Glycol,16.5,10.6,17.7,131.8,True,
+Dipropylene Glycol Methyl Ether,15.5,5.7,11.2,156.1,True,
+Dipropylene Glycol Mono n-Butyl Ether,15.7,6.5,10,211.2,True,
+Ethanol,15.8,8.8,19.4,58.6,True,
+Ethyl Acetate,15.8,5.3,7.2,98.6,True,
+Ethyl Benzene,17.8,0.6,1.4,122.8,True,
+Ethyl Lactate,16,7.6,12.5,115,True,
+Ethylene Carbonate,18,21.7,5.1,66,True,
+Ethylene Glycol,17,11,26,55.9,True,
+Ethylene Glycol Monobutyl Ether,16,5.1,12.3,132,True,
+Ethylene Glycol Monomethyl Ether,16,8.2,15,79.3,True,
+gamma-Butyrolactone (GBL),18,16.6,7.4,76.5,True,
+Glycerol Carbonate,17.9,25.5,17.4,83.2,True,
+Heptane,15.3,0,0,147,True,
+Hexane,14.9,0,0,131.4,True,
+Iso-Butanol,15.1,5.7,15.9,92.9,True,
+Iso-Butyl Isobutyrate,15.1,2.8,5.8,169.8,True,
+Iso-Pentyl Acetate,15.3,3.1,7,150.2,True,
+iso-Pentyl Alcohol,15.8,5.2,13.3,109.3,True,
+Iso-Propyl Acetate,14.9,4.5,8.2,117.1,True,
+Iso-Propyl Ether,15.1,3.2,3.2,141.8,True,
+Isophorone,17,8,5,150.3,True,
+d-Limonene,17.2,1.8,4.3,162.9,True,
+Methanol,14.7,12.3,22.3,40.6,True,
+Methyl Acetate,15.5,7.2,7.6,79.8,True,
+Methyl Carbitol,16.2,7.8,12.6,118.2,True,
+Methyl Cellosolve,16,8.2,15,79.3,True,
+Methyl Cyclohexane,16,0,1,128.2,True,
+Methyl Ethyl Ketone (MEK),16,9,5.1,90.2,True,
+Methyl iso-Amyl Ketone,16,5.7,4.1,141.3,True,
+Methyl iso-Butyl Carbinol,15.4,3.3,12.3,127.2,True,
+Methyl Iso-Butyl Ketone (MIBK),15.3,6.1,4.1,125.8,True,
+Methyl Oleate,16.2,3.8,4.5,340.7,True,
+Methyl Propyl Ketone,16,7.6,4.7,107.3,True,
+N-Methyl-2-Pyrrolidone (NMP),18,12.3,7.2,96.6,False,
+Methylene Chloride,17,7.3,7.1,64.4,False,
+"N,N-Dimethyl Acetamide",16.8,11.5,10.2,93,False,
+"N,N-Dimethyl Formamide (DMF)",17.4,13.7,11.3,77.4,False,
+1-Nitropropane,16.6,12.3,5.5,89.5,False,
+2-Phenoxy Ethanol,17.8,5.7,14.3,124.7,True,
+2-Propanol,15.8,6.1,16.4,76.9,True,
+1-Propanol,16,6.8,17.4,75.1,True,
+n-Propyl Acetate,15.3,4.3,7.6,115.8,True,
+n-Propyl Propanoate,15.5,5.6,5.7,132.5,True,
+Propylene Carbonate,20,18,4.1,85.2,True,
+Propylene Glycol Monobutyl Ether,15.3,4.5,9.2,132,True,
+Propylene Glycol Monoethyl Ether Acetate,15.6,6.3,7.7,155.1,True,
+Propylene Glycol Monomethyl Ether,15.6,6.3,11.6,98.2,True,
+Propylene Glycol Monomethyl Ether Acetate,15.6,5.6,9.8,137.1,True,
+Propylene Glycol Phenyl Ether,17.4,5.3,11.5,143.2,True,
+sec-Butyl Acetate,15,3.7,7.6,134,True,
+Sulfolane (Tetramethylene Sulfone),18,18,9.9,95.3,False,
+Tetrahydrofuran (THF),16.8,5.7,8,81.9,True,
+Tetrahydrofurfuryl Alcohol,17.8,8.2,12.9,97.4,True,
+Toluene,18,1.4,2,106.6,True,
+Xylene,17.6,1,3.1,123.9,True,138.5
