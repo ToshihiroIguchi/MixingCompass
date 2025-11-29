@@ -246,17 +246,6 @@ class HSPCalculation {
                 this.saveOptimizedMixture();
             });
         }
-
-        // Min ratio checkbox
-        const useMinRatioCheckbox = document.getElementById('use-min-ratio');
-        if (useMinRatioCheckbox) {
-            useMinRatioCheckbox.addEventListener('change', (e) => {
-                const minRatioInput = document.getElementById('min-ratio-value');
-                if (minRatioInput) {
-                    minRatioInput.disabled = !e.target.checked;
-                }
-            });
-        }
     }
 
     addComponent() {
@@ -793,10 +782,6 @@ class HSPCalculation {
                 return;
             }
 
-            const useMinRatio = document.getElementById('use-min-ratio')?.checked;
-            const minRatioPercent = parseFloat(document.getElementById('min-ratio-value')?.value) || 0;
-            const minRatio = useMinRatio ? minRatioPercent / 100 : 0;
-
             const requestBody = {
                 solvents: components.map(c => ({
                     name: c.solvent,
@@ -807,7 +792,7 @@ class HSPCalculation {
                 target_delta_d: targetHSP.delta_d,
                 target_delta_p: targetHSP.delta_p,
                 target_delta_h: targetHSP.delta_h,
-                min_ratio: minRatio
+                min_ratio: 0
             };
 
             const response = await fetch('/api/solvent-search/optimize-mixture', {
