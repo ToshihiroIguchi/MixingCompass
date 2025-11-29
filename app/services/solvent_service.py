@@ -154,6 +154,7 @@ class SolventService:
             density=float(row['Density']) if pd.notna(row.get('Density')) else None,
             boiling_point=float(row['Tb']) if pd.notna(row.get('Tb')) else None,
             vapor_pressure=float(row['Pv']) if pd.notna(row.get('Pv')) else None,
+            cho=bool(row['CHO']) if pd.notna(row.get('CHO')) else None,
             ghs_classification=str(row['GHS']) if pd.notna(row.get('GHS')) else None,
             hazard_statements=str(row['H']) if pd.notna(row.get('H')) else None,
             wgk_class=int(row['WGK']) if pd.notna(row.get('WGK')) else None,

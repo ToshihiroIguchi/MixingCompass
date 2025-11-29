@@ -1782,7 +1782,7 @@ body {
 .hsp-header {
     display: flex;
     gap: 0.75rem;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
     color: #374151;
 }
@@ -1791,6 +1791,7 @@ body {
     flex: 1;
     text-align: center;
     white-space: nowrap;
+    overflow: visible;
 }
 
 .hsp-values-row {

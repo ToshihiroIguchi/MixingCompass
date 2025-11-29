@@ -35,6 +35,9 @@ class SolventData(BaseModel):
     boiling_point: Optional[float] = Field(None, description="Boiling point (°C)")
     vapor_pressure: Optional[float] = Field(None, description="Vapor pressure (hPa)", ge=0)
 
+    # Chemical composition
+    cho: Optional[bool] = Field(None, description="Contains only C, H, O elements")
+
     # Safety and regulatory
     ghs_classification: Optional[str] = Field(None, description="GHS classification")
     hazard_statements: Optional[str] = Field(None, description="H-statements")

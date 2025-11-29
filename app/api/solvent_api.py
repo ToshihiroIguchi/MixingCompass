@@ -65,7 +65,7 @@ async def get_solvents(
                     'density': s.density,
                     'molecular_weight': s.molecular_weight,
                     'cost': s.cost_per_ml,
-                    'cho': None,  # Not in SolventData model
+                    'cho': s.cho,
                     'wgk': s.wgk_class,
                     'ghs': s.ghs_classification
                 }
