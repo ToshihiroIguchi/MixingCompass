@@ -272,32 +272,35 @@ class HSPVisualization {
         // Build traces
         const traces = [];
 
-        // Target 1 sphere as wireframe (blue)
-        traces.push(this.generateSphereWireframe(
-            [target1Data.delta_d, target1Data.delta_p, target1Data.delta_h],
-            target1Data.radius,
-            'rgba(33, 150, 243, 0.8)',
-            target1Data.name || 'Target 1'
-        ));
+        // Target 1 sphere and center (blue) if provided
+        if (target1Data) {
+            // Target 1 sphere as wireframe (blue)
+            traces.push(this.generateSphereWireframe(
+                [target1Data.delta_d, target1Data.delta_p, target1Data.delta_h],
+                target1Data.radius,
+                'rgba(33, 150, 243, 0.8)',
+                target1Data.name || 'Target 1'
+            ));
 
-        // Target 1 center
-        traces.push({
-            type: 'scatter3d',
-            mode: 'markers',
-            x: [target1Data.delta_d],
-            y: [target1Data.delta_p],
-            z: [target1Data.delta_h],
-            name: `${target1Data.name || 'Target 1'} Center`,
-            showlegend: false,
-            marker: {
-                size: 3,
-                color: '#2196F3',
-                symbol: 'circle',
-                opacity: 1.0,
-                line: { width: 0.5, color: 'rgba(33, 150, 243, 0.8)' }
-            },
-            hovertemplate: `<b>${target1Data.name || 'Target 1'} Center</b><br>δD: ${target1Data.delta_d.toFixed(1)}<br>δP: ${target1Data.delta_p.toFixed(1)}<br>δH: ${target1Data.delta_h.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
-        });
+            // Target 1 center
+            traces.push({
+                type: 'scatter3d',
+                mode: 'markers',
+                x: [target1Data.delta_d],
+                y: [target1Data.delta_p],
+                z: [target1Data.delta_h],
+                name: `${target1Data.name || 'Target 1'} Center`,
+                showlegend: false,
+                marker: {
+                    size: 3,
+                    color: '#2196F3',
+                    symbol: 'circle',
+                    opacity: 1.0,
+                    line: { width: 0.5, color: 'rgba(33, 150, 243, 0.8)' }
+                },
+                hovertemplate: `<b>${target1Data.name || 'Target 1'} Center</b><br>δD: ${target1Data.delta_d.toFixed(1)}<br>δP: ${target1Data.delta_p.toFixed(1)}<br>δH: ${target1Data.delta_h.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
+            });
+        }
 
         // Target 2 sphere and center (orange) if provided
         if (target2Data) {
@@ -372,11 +375,11 @@ class HSPVisualization {
                 solventY.push(s.delta_p);
                 solventZ.push(s.delta_h);
 
-                // Calculate RED for all targets
-                const red1 = this.calculateDistance(
+                // Calculate RED for all targets (only if targets exist)
+                const red1 = target1Data ? this.calculateDistance(
                     s.delta_d, s.delta_p, s.delta_h,
                     target1Data.delta_d, target1Data.delta_p, target1Data.delta_h
-                ) / target1Data.radius;
+                ) / target1Data.radius : null;
 
                 const red2 = target2Data ? this.calculateDistance(
                     s.delta_d, s.delta_p, s.delta_h,
@@ -390,7 +393,10 @@ class HSPVisualization {
 
                 // Determine color based on RED values
                 let color = '';
-                if (target3Data) {
+                if (!target1Data && !target2Data && !target3Data) {
+                    // No targets - show all solvents in neutral color
+                    color = '#78909C'; // Blue Grey - neutral visualization
+                } else if (target3Data) {
                     // Triple target mode - color by number of targets satisfied
                     const satisfied = [red1 < 1.0, red2 < 1.0, red3 < 1.0].filter(Boolean).length;
                     if (satisfied === 3) {
@@ -419,12 +425,18 @@ class HSPVisualization {
                 }
                 solventColors.push(color);
 
-                // Build hover text with RED values
+                // Build hover text
                 let hoverText = `<b>${s.name}</b><br>` +
                     `δD: ${s.delta_d.toFixed(1)}<br>` +
                     `δP: ${s.delta_p.toFixed(1)}<br>` +
-                    `δH: ${s.delta_h.toFixed(1)}<br>` +
-                    `RED (${target1Data.name || 'Target 1'}): ${red1.toFixed(2)}`;
+                    `δH: ${s.delta_h.toFixed(1)}`;
+
+                // Add RED values only if targets are set
+                if (red1 !== null) {
+                    if (red1 !== null) {
+                        hoverText += `<br>RED (${target1Data.name || 'Target 1'}): ${red1.toFixed(2)}`;
+                    }
+                }
 
                 if (red2 !== null) {
                     hoverText += `<br>RED (${target2Data.name || 'Target 2'}): ${red2.toFixed(2)}`;
@@ -666,10 +678,7 @@ class HSPVisualization {
      * Generate 2D projections for dual target visualization
      */
     generate2DProjections(target1Data, target2Data, solventData = [], target3Data = null) {
-        if (!target1Data) {
-            console.warn('No target data provided for 2D projections');
-            return null;
-        }
+        // Allow 2D projections even without targets - will show all solvents in neutral color
 
         // Helper function to create ellipse points for target sphere projection
         // radiusX and radiusY allow for elliptical projections
@@ -712,8 +721,13 @@ class HSPVisualization {
         });
 
         // Calculate axis ranges
-        const allX = [target1Data.delta_d];
-        const allY = [target1Data.delta_p, target1Data.delta_h];
+        const allX = [];
+        const allY = [];
+
+        if (target1Data) {
+            allX.push(target1Data.delta_d);
+            allY.push(target1Data.delta_p, target1Data.delta_h);
+        }
 
         if (target2Data) {
             allX.push(target2Data.delta_d);
@@ -739,23 +753,25 @@ class HSPVisualization {
         const ddDpData = [];
 
         // Target 1 ellipse (δD has factor of 4 in Hansen distance, so radius is R0/2)
-        const ellipse1_ddDp = createEllipsePoints(
-            target1Data.delta_d,
-            target1Data.delta_p,
-            target1Data.radius / 2,  // δD direction: R0/2
-            target1Data.radius        // δP direction: R0
-        );
-        ddDpData.push({
-            type: 'scatter',
-            mode: 'lines',
-            x: ellipse1_ddDp.x,
-            y: ellipse1_ddDp.y,
-            name: target1Data.name || 'Target 1',
-            line: { color: '#2196F3', width: 2 },
-            fill: 'toself',
-            fillcolor: 'rgba(33, 150, 243, 0.1)',
-            hoverinfo: 'skip'
-        });
+        if (target1Data) {
+            const ellipse1_ddDp = createEllipsePoints(
+                target1Data.delta_d,
+                target1Data.delta_p,
+                target1Data.radius / 2,  // δD direction: R0/2
+                target1Data.radius        // δP direction: R0
+            );
+            ddDpData.push({
+                type: 'scatter',
+                mode: 'lines',
+                x: ellipse1_ddDp.x,
+                y: ellipse1_ddDp.y,
+                name: target1Data.name || 'Target 1',
+                line: { color: '#2196F3', width: 2 },
+                fill: 'toself',
+                fillcolor: 'rgba(33, 150, 243, 0.1)',
+                hoverinfo: 'skip'
+            });
+        }
 
         // Target 2 ellipse if provided
         if (target2Data) {
@@ -811,10 +827,10 @@ class HSPVisualization {
                 solventY.push(s.delta_p);
 
                 // Calculate RED values (needed for both coloring and hover text)
-                const red1 = this.calculateDistance(
+                const red1 = target1Data ? this.calculateDistance(
                     s.delta_d, s.delta_p, s.delta_h,
                     target1Data.delta_d, target1Data.delta_p, target1Data.delta_h
-                ) / target1Data.radius;
+                ) / target1Data.radius : null;
 
                 let red2 = null;
                 if (target2Data) {
@@ -831,7 +847,10 @@ class HSPVisualization {
                     color = this.getSolubilityColor(s.solubility);
                 } else {
                     // Otherwise, use RED-based coloring
-                    if (target2Data) {
+                    if (!target1Data && !target2Data) {
+                        // No targets - show all solvents in neutral color
+                        color = '#78909C'; // Blue Grey - neutral visualization
+                    } else if (target2Data) {
                         // Dual target color scheme
                         if (red1 < 1.0 && red2 < 1.0) {
                             color = '#4CAF50'; // Green - both targets
@@ -856,7 +875,9 @@ class HSPVisualization {
                 if (s.hasOwnProperty('solubility') && s.solubility !== undefined && s.solubility !== null) {
                     hoverText += `<br>Solubility: ${typeof s.solubility === 'number' ? s.solubility.toFixed(2) : s.solubility}`;
                 } else {
-                    hoverText += `<br>RED (${target1Data.name || 'Target 1'}): ${red1.toFixed(2)}`;
+                    if (red1 !== null) {
+                        hoverText += `<br>RED (${target1Data.name || 'Target 1'}): ${red1.toFixed(2)}`;
+                    }
                     if (target2Data) {
                         hoverText += `<br>RED (${target2Data.name || 'Target 2'}): ${red2.toFixed(2)}`;
                     }
@@ -879,16 +900,18 @@ class HSPVisualization {
         }
 
         // Target centers (add last so they appear on top)
-        ddDpData.push({
-            type: 'scatter',
-            mode: 'markers',
-            x: [target1Data.delta_d],
-            y: [target1Data.delta_p],
-            name: `${target1Data.name || 'Target 1'} Center`,
-            marker: { size: 10, color: '#2196F3', symbol: 'cross', line: { width: 3, color: 'white' } },
-            showlegend: false,
-            hovertemplate: `<b>${target1Data.name || 'Target 1'}</b><br>δD: ${target1Data.delta_d.toFixed(1)}<br>δP: ${target1Data.delta_p.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
-        });
+        if (target1Data) {
+            ddDpData.push({
+                type: 'scatter',
+                mode: 'markers',
+                x: [target1Data.delta_d],
+                y: [target1Data.delta_p],
+                name: `${target1Data.name || 'Target 1'} Center`,
+                marker: { size: 10, color: '#2196F3', symbol: 'cross', line: { width: 3, color: 'white' } },
+                showlegend: false,
+                hovertemplate: `<b>${target1Data.name || 'Target 1'}</b><br>δD: ${target1Data.delta_d.toFixed(1)}<br>δP: ${target1Data.delta_p.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
+            });
+        }
 
         if (target2Data) {
             ddDpData.push({
@@ -920,23 +943,25 @@ class HSPVisualization {
         const ddDhData = [];
 
         // Target 1 ellipse (δD has factor of 4 in Hansen distance, so radius is R0/2)
-        const ellipse1_ddDh = createEllipsePoints(
-            target1Data.delta_d,
-            target1Data.delta_h,
-            target1Data.radius / 2,  // δD direction: R0/2
-            target1Data.radius        // δH direction: R0
-        );
-        ddDhData.push({
-            type: 'scatter',
-            mode: 'lines',
-            x: ellipse1_ddDh.x,
-            y: ellipse1_ddDh.y,
-            name: target1Data.name || 'Target 1',
-            line: { color: '#2196F3', width: 2 },
-            fill: 'toself',
-            fillcolor: 'rgba(33, 150, 243, 0.1)',
-            hoverinfo: 'skip'
-        });
+        if (target1Data) {
+            const ellipse1_ddDh = createEllipsePoints(
+                target1Data.delta_d,
+                target1Data.delta_h,
+                target1Data.radius / 2,  // δD direction: R0/2
+                target1Data.radius        // δH direction: R0
+            );
+            ddDhData.push({
+                type: 'scatter',
+                mode: 'lines',
+                x: ellipse1_ddDh.x,
+                y: ellipse1_ddDh.y,
+                name: target1Data.name || 'Target 1',
+                line: { color: '#2196F3', width: 2 },
+                fill: 'toself',
+                fillcolor: 'rgba(33, 150, 243, 0.1)',
+                hoverinfo: 'skip'
+            });
+        }
 
         if (target2Data) {
             const ellipse2_ddDh = createEllipsePoints(
@@ -989,10 +1014,10 @@ class HSPVisualization {
                 solventY.push(s.delta_h);
 
                 // Calculate RED values (needed for both coloring and hover text)
-                const red1 = this.calculateDistance(
+                const red1 = target1Data ? this.calculateDistance(
                     s.delta_d, s.delta_p, s.delta_h,
                     target1Data.delta_d, target1Data.delta_p, target1Data.delta_h
-                ) / target1Data.radius;
+                ) / target1Data.radius : null;
 
                 let red2 = null;
                 if (target2Data) {
@@ -1009,7 +1034,10 @@ class HSPVisualization {
                     color = this.getSolubilityColor(s.solubility);
                 } else {
                     // Otherwise, use RED-based coloring
-                    if (target2Data) {
+                    if (!target1Data && !target2Data) {
+                        // No targets - show all solvents in neutral color
+                        color = '#78909C'; // Blue Grey - neutral visualization
+                    } else if (target2Data) {
                         // Dual target color scheme
                         if (red1 < 1.0 && red2 < 1.0) {
                             color = '#4CAF50'; // Green - both targets
@@ -1034,7 +1062,9 @@ class HSPVisualization {
                 if (s.hasOwnProperty('solubility') && s.solubility !== undefined && s.solubility !== null) {
                     hoverText += `<br>Solubility: ${typeof s.solubility === 'number' ? s.solubility.toFixed(2) : s.solubility}`;
                 } else {
-                    hoverText += `<br>RED (${target1Data.name || 'Target 1'}): ${red1.toFixed(2)}`;
+                    if (red1 !== null) {
+                        hoverText += `<br>RED (${target1Data.name || 'Target 1'}): ${red1.toFixed(2)}`;
+                    }
                     if (target2Data) {
                         hoverText += `<br>RED (${target2Data.name || 'Target 2'}): ${red2.toFixed(2)}`;
                     }
@@ -1057,16 +1087,18 @@ class HSPVisualization {
         }
 
         // Target centers (add last so they appear on top)
-        ddDhData.push({
-            type: 'scatter',
-            mode: 'markers',
-            x: [target1Data.delta_d],
-            y: [target1Data.delta_h],
-            name: `${target1Data.name || 'Target 1'} Center`,
-            marker: { size: 10, color: '#2196F3', symbol: 'cross', line: { width: 3, color: 'white' } },
-            showlegend: false,
-            hovertemplate: `<b>${target1Data.name || 'Target 1'}</b><br>δD: ${target1Data.delta_d.toFixed(1)}<br>δH: ${target1Data.delta_h.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
-        });
+        if (target1Data) {
+            ddDhData.push({
+                type: 'scatter',
+                mode: 'markers',
+                x: [target1Data.delta_d],
+                y: [target1Data.delta_h],
+                name: `${target1Data.name || 'Target 1'} Center`,
+                marker: { size: 10, color: '#2196F3', symbol: 'cross', line: { width: 3, color: 'white' } },
+                showlegend: false,
+                hovertemplate: `<b>${target1Data.name || 'Target 1'}</b><br>δD: ${target1Data.delta_d.toFixed(1)}<br>δH: ${target1Data.delta_h.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
+            });
+        }
 
         if (target2Data) {
             ddDhData.push({
@@ -1098,23 +1130,25 @@ class HSPVisualization {
         const dpDhData = [];
 
         // Target 1 circle (no factor of 4 for δP and δH, so radius is R0)
-        const circle1_dpDh = createEllipsePoints(
-            target1Data.delta_p,
-            target1Data.delta_h,
-            target1Data.radius,  // δP direction: R0
-            target1Data.radius   // δH direction: R0
-        );
-        dpDhData.push({
-            type: 'scatter',
-            mode: 'lines',
-            x: circle1_dpDh.x,
-            y: circle1_dpDh.y,
-            name: target1Data.name || 'Target 1',
-            line: { color: '#2196F3', width: 2 },
-            fill: 'toself',
-            fillcolor: 'rgba(33, 150, 243, 0.1)',
-            hoverinfo: 'skip'
-        });
+        if (target1Data) {
+            const circle1_dpDh = createEllipsePoints(
+                target1Data.delta_p,
+                target1Data.delta_h,
+                target1Data.radius,  // δP direction: R0
+                target1Data.radius   // δH direction: R0
+            );
+            dpDhData.push({
+                type: 'scatter',
+                mode: 'lines',
+                x: circle1_dpDh.x,
+                y: circle1_dpDh.y,
+                name: target1Data.name || 'Target 1',
+                line: { color: '#2196F3', width: 2 },
+                fill: 'toself',
+                fillcolor: 'rgba(33, 150, 243, 0.1)',
+                hoverinfo: 'skip'
+            });
+        }
 
         if (target2Data) {
             const circle2_dpDh = createEllipsePoints(
@@ -1167,10 +1201,10 @@ class HSPVisualization {
                 solventY.push(s.delta_h);
 
                 // Calculate RED values (needed for both coloring and hover text)
-                const red1 = this.calculateDistance(
+                const red1 = target1Data ? this.calculateDistance(
                     s.delta_d, s.delta_p, s.delta_h,
                     target1Data.delta_d, target1Data.delta_p, target1Data.delta_h
-                ) / target1Data.radius;
+                ) / target1Data.radius : null;
 
                 let red2 = null;
                 if (target2Data) {
@@ -1187,7 +1221,10 @@ class HSPVisualization {
                     color = this.getSolubilityColor(s.solubility);
                 } else {
                     // Otherwise, use RED-based coloring
-                    if (target2Data) {
+                    if (!target1Data && !target2Data) {
+                        // No targets - show all solvents in neutral color
+                        color = '#78909C'; // Blue Grey - neutral visualization
+                    } else if (target2Data) {
                         // Dual target color scheme
                         if (red1 < 1.0 && red2 < 1.0) {
                             color = '#4CAF50'; // Green - both targets
@@ -1212,7 +1249,9 @@ class HSPVisualization {
                 if (s.hasOwnProperty('solubility') && s.solubility !== undefined && s.solubility !== null) {
                     hoverText += `<br>Solubility: ${typeof s.solubility === 'number' ? s.solubility.toFixed(2) : s.solubility}`;
                 } else {
-                    hoverText += `<br>RED (${target1Data.name || 'Target 1'}): ${red1.toFixed(2)}`;
+                    if (red1 !== null) {
+                        hoverText += `<br>RED (${target1Data.name || 'Target 1'}): ${red1.toFixed(2)}`;
+                    }
                     if (target2Data) {
                         hoverText += `<br>RED (${target2Data.name || 'Target 2'}): ${red2.toFixed(2)}`;
                     }
@@ -1235,16 +1274,18 @@ class HSPVisualization {
         }
 
         // Target centers (add last so they appear on top)
-        dpDhData.push({
-            type: 'scatter',
-            mode: 'markers',
-            x: [target1Data.delta_p],
-            y: [target1Data.delta_h],
-            name: `${target1Data.name || 'Target 1'} Center`,
-            marker: { size: 10, color: '#2196F3', symbol: 'cross', line: { width: 3, color: 'white' } },
-            showlegend: false,
-            hovertemplate: `<b>${target1Data.name || 'Target 1'}</b><br>δP: ${target1Data.delta_p.toFixed(1)}<br>δH: ${target1Data.delta_h.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
-        });
+        if (target1Data) {
+            dpDhData.push({
+                type: 'scatter',
+                mode: 'markers',
+                x: [target1Data.delta_p],
+                y: [target1Data.delta_h],
+                name: `${target1Data.name || 'Target 1'} Center`,
+                marker: { size: 10, color: '#2196F3', symbol: 'cross', line: { width: 3, color: 'white' } },
+                showlegend: false,
+                hovertemplate: `<b>${target1Data.name || 'Target 1'}</b><br>δP: ${target1Data.delta_p.toFixed(1)}<br>δH: ${target1Data.delta_h.toFixed(1)}<br>R0: ${target1Data.radius.toFixed(1)}<extra></extra>`
+            });
+        }
 
         if (target2Data) {
             dpDhData.push({

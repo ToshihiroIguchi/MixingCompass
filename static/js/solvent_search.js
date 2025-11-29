@@ -154,9 +154,15 @@ class SolventSearch {
             // Store all solvents
             this.searchResults = data.solvents || [];
 
+            // Clear any previous filtering (show all solvents initially)
+            this.currentFilteredResults = null;
+
             // Display in table (will sort by name since no target is set)
             this.populateResultsTable();
             this.updateResultsCount(this.searchResults.length);
+
+            // Generate visualization with all solvents (no targets initially)
+            this.generateVisualization(null, null, this.searchResults, null);
 
             console.log(`Loaded ${this.searchResults.length} solvents for initial display`);
         } catch (error) {
@@ -599,38 +605,33 @@ class SolventSearch {
             return; // loadAllSolventsInitial will call populateResultsTable
         }
 
-        // Re-populate table with new targets (will re-calculate distances and re-sort)
+        // Filter by solvent set if selected
+        const filteredResults = this.filterBySet(this.searchResults);
+
+        // Store filtered results for table display
+        this.currentFilteredResults = filteredResults;
+
+        // Re-populate table with filtered results (will re-calculate distances and re-sort)
         this.populateResultsTable();
-        this.updateResultsCount(this.searchResults.length);
+        this.updateResultsCount(filteredResults.length);
 
         // Show selection controls if we have results
-        this.showSelectionUI(this.searchResults.length > 0);
+        this.showSelectionUI(filteredResults.length > 0);
 
-        // Generate visualization with all targets if at least one target is set
-        if (target1Data || target2Data || target3Data) {
-            this.generateVisualization(target1Data, target2Data, this.searchResults, target3Data);
-        }
+        // Always generate visualization (shows filtered solvents)
+        this.generateVisualization(target1Data, target2Data, filteredResults, target3Data);
 
         // Generate RED Plot if both Target 1 and Target 2 are set
         const tabRED = document.querySelector('#search-tab-red');
         if (target1Data && target2Data) {
-            this.generateREDPlot(target1Data, target2Data, this.searchResults);
+            this.generateREDPlot(target1Data, target2Data, filteredResults);
             if (tabRED) tabRED.style.display = 'inline-block';
         } else {
             if (tabRED) tabRED.style.display = 'none';
         }
-
-        // Populate right panel results table
-        this.populateResultsTable();
     }
 
     generateVisualization(target1Data, target2Data, solventResults, target3Data = null) {
-        // Convert target data to format expected by visualization module
-        if (!target1Data && !target2Data && !target3Data) {
-            this.visualization.showPlaceholder('Configure targets and search solvents to display visualization');
-            return;
-        }
-
         // Prepare target data with proper field names
         const target1 = target1Data ? {
             name: target1Data.name,
@@ -664,7 +665,7 @@ class SolventSearch {
             delta_h: s.delta_h
         }));
 
-        // Generate visualization - pass all targets
+        // Generate visualization - show all solvents even when no targets are set
         if (target1 && !target2 && !target3) {
             // Single target visualization
             this.visualization.generateDualTargetVisualization(target1, null, solventsToVisualize, null);
@@ -686,6 +687,9 @@ class SolventSearch {
         } else if (target3) {
             // Only target3 is set
             this.visualization.generateDualTargetVisualization(target3, null, solventsToVisualize, null);
+        } else {
+            // No targets set - show all solvents in Hansen space
+            this.visualization.generateDualTargetVisualization(null, null, solventsToVisualize, null);
         }
     }
 
@@ -1502,7 +1506,10 @@ class SolventSearch {
             return;
         }
 
-        if (this.searchResults.length === 0) {
+        // Use filtered results if available, otherwise use all results
+        const dataToDisplay = this.currentFilteredResults || this.searchResults;
+
+        if (dataToDisplay.length === 0) {
             this.resultsTable.setData([]);
             this.updateResultsCountBadge(0);
             // Hide CSV button
@@ -1517,7 +1524,7 @@ class SolventSearch {
         const hasTarget3 = this.currentTarget3 && this.currentTarget3.delta_d !== undefined;
 
         // Prepare data for Tabulator
-        const tableData = this.searchResults.map(solvent => {
+        const tableData = dataToDisplay.map(solvent => {
             // Calculate distances only if targets are set
             const ra1 = hasTarget1 ? this.calculateDistance(solvent, this.currentTarget1) : null;
             const red1 = hasTarget1 ? this.calculateRED(solvent, this.currentTarget1) : null;
@@ -1554,7 +1561,7 @@ class SolventSearch {
 
         // Update table
         this.resultsTable.setData(tableData);
-        this.updateResultsCountBadge(this.searchResults.length);
+        this.updateResultsCountBadge(dataToDisplay.length);
 
         // Show/hide RED columns based on whether targets are set
         if (this.currentTarget1 && this.currentTarget1.delta_d !== undefined) {
