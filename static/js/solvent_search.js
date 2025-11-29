@@ -1556,14 +1556,20 @@ class SolventSearch {
         this.resultsTable.setData(tableData);
         this.updateResultsCountBadge(this.searchResults.length);
 
-        // Show/hide Target 2 and Target 3 RED columns based on whether they are set
-        if (this.currentTarget2) {
+        // Show/hide RED columns based on whether targets are set
+        if (this.currentTarget1 && this.currentTarget1.delta_d !== undefined) {
+            this.resultsTable.showColumn("red1_value");
+        } else {
+            this.resultsTable.hideColumn("red1_value");
+        }
+
+        if (this.currentTarget2 && this.currentTarget2.delta_d !== undefined) {
             this.resultsTable.showColumn("red2_value");
         } else {
             this.resultsTable.hideColumn("red2_value");
         }
 
-        if (this.currentTarget3) {
+        if (this.currentTarget3 && this.currentTarget3.delta_d !== undefined) {
             this.resultsTable.showColumn("red3_value");
         } else {
             this.resultsTable.hideColumn("red3_value");
