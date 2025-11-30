@@ -307,7 +307,7 @@ class SolventSearch {
             // Populate with solvent sets on init
             this.populateSolventSetSelector();
 
-            scopeSelector.addEventListener('change', (e) => {
+            scopeSelector.addEventListener('change', async (e) => {
                 const value = e.target.value;
                 if (value === 'all') {
                     this.searchScope = 'all';
@@ -315,6 +315,27 @@ class SolventSearch {
                 } else {
                     this.searchScope = 'set';
                     this.selectedSetId = value;
+                }
+
+                // Apply the filter and update display
+                if (this.searchResults.length === 0) {
+                    // Load all solvents first if not loaded yet
+                    await this.loadAllSolventsInitial();
+                } else {
+                    // Filter and display
+                    const filteredResults = this.filterBySet(this.searchResults);
+                    this.currentFilteredResults = filteredResults;
+                    this.populateResultsTable();
+                    this.updateResultsCount(filteredResults.length);
+                    this.showSelectionUI(filteredResults.length > 0);
+
+                    // Update visualization
+                    this.generateVisualization(
+                        this.currentTarget1,
+                        this.currentTarget2,
+                        filteredResults,
+                        this.currentTarget3
+                    );
                 }
             });
         }
