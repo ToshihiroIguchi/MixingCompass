@@ -3,6 +3,9 @@ MixingCompass - Hansen Solubility Parameter Analysis Tool
 FastAPI main application module
 """
 
+import os
+from pathlib import Path
+
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -47,6 +50,43 @@ app.mount("/static", StaticFiles(directory=settings.static_dir), name="static")
 # Setup templates
 templates = Jinja2Templates(directory=settings.templates_dir)
 
+
+def get_js_versions():
+    """Get version numbers for all JS files based on modification time"""
+    js_dir = Path(settings.static_dir) / 'js'
+    js_files = [
+        'utils.js',
+        'storage.js',
+        'notification.js',
+        'user_solvents.js',
+        'shared_solvent_cache.js',
+        'solvent_table.js',
+        'modal_manager.js',
+        'solvent_set_manager.js',
+        'experimental_results_manager.js',
+        'hsp_visualization.js',
+        'hsp_experimental.js',
+        'hsp_calculation.js',
+        'solvent_search.js',
+        'data_list.js',
+        'smiles_predict.js',
+        'main.js'
+    ]
+
+    versions = {}
+    for filename in js_files:
+        filepath = js_dir / filename
+        try:
+            # Use file modification time as version
+            mtime = int(os.path.getmtime(filepath))
+            versions[filename] = str(mtime)
+        except:
+            # Fallback if file doesn't exist
+            versions[filename] = '1'
+
+    return versions
+
+
 # Include API routers
 app.include_router(solvent_api.router, prefix="/api", tags=["Solvents"])
 app.include_router(hsp_experimental.router, prefix="/api/hsp-experimental", tags=["HSP Experimental"])
@@ -65,7 +105,8 @@ async def root(request: Request):
         {
             "request": request,
             "app_name": settings.app_name,
-            "version": settings.version
+            "version": settings.version,
+            "js_v": get_js_versions()
         }
     )
 

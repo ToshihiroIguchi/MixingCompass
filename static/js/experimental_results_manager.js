@@ -64,6 +64,10 @@ class ExperimentalResultsManager {
                 // Add new result
                 this.experimentalResults.push(experimentalResult);
                 this.saveResultsToStorage();
+
+                // Dispatch event for data list manager
+                window.dispatchEvent(new CustomEvent('experimentalResultsUpdated'));
+
                 this.showNotification(`Experimental result "${sampleName}" saved successfully`, 'success');
                 return Promise.resolve(true);
             }
@@ -84,6 +88,10 @@ class ExperimentalResultsManager {
                     // Keep original creation date but update everything else
                     this.experimentalResults[existingIndex] = newResult;
                     this.saveResultsToStorage();
+
+                    // Dispatch event for data list manager
+                    window.dispatchEvent(new CustomEvent('experimentalResultsUpdated'));
+
                     this.showNotification(`Experimental result "${newResult.sample_name}" updated successfully`, 'success');
                     return true;
                 } else if (action === 'saveAsNew') {
@@ -93,6 +101,10 @@ class ExperimentalResultsManager {
                     newResult.created = Utils.formatISO();
                     this.experimentalResults.push(newResult);
                     this.saveResultsToStorage();
+
+                    // Dispatch event for data list manager
+                    window.dispatchEvent(new CustomEvent('experimentalResultsUpdated'));
+
                     Notification.success(`Experimental result saved as "${newResult.sample_name}"`);
                     return true;
                 } else {
@@ -282,6 +294,10 @@ class ExperimentalResultsManager {
             if (confirm(`Are you sure you want to delete the experimental result "${resultName}"?`)) {
                 this.experimentalResults.splice(index, 1);
                 this.saveResultsToStorage();
+
+                // Dispatch event for data list manager
+                window.dispatchEvent(new CustomEvent('experimentalResultsUpdated'));
+
                 this.showNotification(`Deleted experimental result: ${resultName}`, 'success');
                 return true;
             }
@@ -309,6 +325,10 @@ class ExperimentalResultsManager {
 
             this.experimentalResults[index].last_modified = Utils.formatISO();
             this.saveResultsToStorage();
+
+            // Dispatch event for data list manager
+            window.dispatchEvent(new CustomEvent('experimentalResultsUpdated'));
+
             Notification.success('Experimental result updated successfully');
             return true;
         }

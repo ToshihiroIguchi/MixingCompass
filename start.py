@@ -64,8 +64,83 @@ class PortManager:
 
         return processes
 
+    def kill_process_tree(self, process: psutil.Process, force_wait: int = 5) -> bool:
+        """
+        Kill a process and all its children recursively.
+        Children are killed first to avoid orphaned processes.
+
+        Args:
+            process: The psutil.Process instance to kill
+            force_wait: Seconds to wait before force killing (default: 5)
+
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            process_name = process.name() if hasattr(process, 'name') else 'unknown'
+            pid = process.pid
+
+            # First, recursively kill all children
+            try:
+                children = process.children(recursive=True)
+                if children:
+                    print(f"  Found {len(children)} child process(es) under {pid}")
+                    for child in children:
+                        try:
+                            child_name = child.name() if hasattr(child, 'name') else 'unknown'
+                            print(f"  Terminating child process {child.pid} ({child_name})...")
+                            child.terminate()
+                        except (psutil.NoSuchProcess, psutil.AccessDenied):
+                            pass
+
+                    # Wait for children to terminate
+                    gone, alive = psutil.wait_procs(children, timeout=3)
+
+                    # Force kill any remaining children
+                    for child in alive:
+                        try:
+                            print(f"  Force killing child process {child.pid}...")
+                            child.kill()
+                        except (psutil.NoSuchProcess, psutil.AccessDenied):
+                            pass
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                # Process might have already terminated or we don't have access
+                pass
+
+            # Now kill the parent process
+            print(f"Terminating process {pid} ({process_name})...")
+            process.terminate()
+
+            # Wait for graceful termination
+            try:
+                process.wait(timeout=force_wait)
+                print(f"Process {pid} terminated gracefully.")
+                return True
+            except psutil.TimeoutExpired:
+                print(f"Process {pid} did not terminate gracefully. Force killing...")
+                process.kill()
+                try:
+                    process.wait(timeout=3)
+                    print(f"Process {pid} was force killed.")
+                    return True
+                except psutil.TimeoutExpired:
+                    print(f"Failed to force kill process {pid}.")
+                    return False
+
+        except psutil.NoSuchProcess:
+            print(f"Process {pid} already terminated.")
+            return True
+        except psutil.AccessDenied as e:
+            print(f"Access denied when trying to terminate process {pid}: {e}")
+            if self.is_windows:
+                print(f"Try running as Administrator to terminate process {pid}")
+            return False
+        except Exception as e:
+            print(f"Unexpected error terminating process {pid}: {e}")
+            return False
+
     def kill_process_on_port(self, port: int, force: bool = True) -> bool:
-        """Kill all processes using the specified port"""
+        """Kill all processes using the specified port, including their child processes"""
         pids = self.find_processes_using_port(port)
         if not pids:
             print(f"No process found using port {port}.")
@@ -79,39 +154,19 @@ class PortManager:
                 print(f"Found process {pid} ({process_name}) using port {port}.")
 
                 if not force:
-                    response = input(f"Kill process {pid} ({process_name})? (y/n): ").lower()
+                    response = input(f"Kill process {pid} ({process_name}) and its children? (y/n): ").lower()
                     if response != 'y':
                         print(f"Skipping process {pid}")
                         continue
 
-                print(f"Terminating process {pid}...")
-
-                # First try graceful termination
-                process.terminate()
-
-                # Wait up to 5 seconds for graceful termination
-                try:
-                    process.wait(timeout=5)
-                    print(f"Process {pid} terminated gracefully.")
-                except psutil.TimeoutExpired:
-                    print(f"Process {pid} did not terminate gracefully. Force killing...")
-                    process.kill()
-                    try:
-                        process.wait(timeout=3)
-                        print(f"Process {pid} was force killed.")
-                    except psutil.TimeoutExpired:
-                        print(f"Failed to force kill process {pid}.")
-                        success = False
+                # Kill the entire process tree
+                if not self.kill_process_tree(process, force_wait=5):
+                    success = False
 
             except psutil.NoSuchProcess:
                 print(f"Process {pid} already terminated.")
-            except psutil.AccessDenied as e:
-                print(f"Access denied when trying to terminate process {pid}: {e}")
-                if self.is_windows:
-                    print(f"Try running as Administrator to terminate process {pid}")
-                success = False
             except Exception as e:
-                print(f"Unexpected error terminating process {pid}: {e}")
+                print(f"Unexpected error with process {pid}: {e}")
                 success = False
 
         return success

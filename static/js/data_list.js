@@ -89,6 +89,22 @@ class DataListManager {
                 }
             });
         }
+
+        // Unified event-driven data update system
+        const dataUpdateEvents = {
+            'userSolventsUpdated': 'loadUserAddedSolvents',
+            'solventSetsUpdated': 'loadSolventSetsDisplay',
+            'savedMixturesUpdated': 'loadSavedMixtures',
+            'experimentalResultsUpdated': 'loadExperimentalResultsDisplay',
+            'userPolymersUpdated': 'loadUserAddedPolymers'
+        };
+
+        Object.entries(dataUpdateEvents).forEach(([eventName, methodName]) => {
+            window.addEventListener(eventName, () => {
+                console.log(`[DataListManager] ${eventName} received`);
+                this[methodName]();
+            });
+        });
     }
 
     loadSolventSetsDisplay() {
@@ -462,14 +478,34 @@ class DataListManager {
                 </div>
             `;
 
-            // Fetch solvent data
-            const response = await fetch('/api/data-list/solvents?limit=2000&offset=0');
+            // Use shared solvent cache to get all solvents (includes CSV, User Solvents, and Saved Mixtures)
+            await window.sharedSolventCache.ensureLoaded();
+            const allNames = window.sharedSolventCache.getNames();
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            // Build data array from cache
+            const solvents = allNames.map(name => {
+                const solvent = window.sharedSolventCache.get(name);
+                return {
+                    solvent: solvent.name,
+                    delta_d: solvent.delta_d,
+                    delta_p: solvent.delta_p,
+                    delta_h: solvent.delta_h,
+                    cas: solvent.cas,
+                    boiling_point: solvent.boiling_point,
+                    density: solvent.density,
+                    molecular_weight: solvent.molecular_weight,
+                    cho: solvent.cho,
+                    source_url: solvent.source_url,
+                    source_file: solvent.source === 'user_added' ? 'user_added' :
+                                 solvent.source === 'saved_mixture' ? 'saved_mixture' :
+                                 'database'
+                };
+            }).filter(s => s !== null);
 
-            const data = await response.json();
+            const data = {
+                solvents: solvents,
+                total: solvents.length
+            };
 
             // Update count badge
             if (countBadge) {
@@ -482,15 +518,10 @@ class DataListManager {
                 this.solventDatabaseTable.setData(data.solvents);
             } else {
                 // Create new Tabulator instance
-                this.solventDatabaseTable = new Tabulator("#solvent-database-table", {
+                this.solventDatabaseTable = new Tabulator("#solvent-database-table", this.getDefaultTableConfig({
                     data: data.solvents,
-                    layout: "fitColumns",
-                    responsiveLayout: "collapse",
-                    pagination: true,
                     paginationSize: 20,
                     paginationSizeSelector: [10, 20, 50, 100],
-                    movableColumns: true,
-                    resizableColumns: true,
                     initialSort: [
                         { column: "solvent", dir: "asc" }
                     ],
@@ -601,10 +632,10 @@ class DataListManager {
                             }
                         }
                     ]
-                });
+                }));
             }
 
-            console.log(`Loaded ${data.solvents.length} of ${data.total} solvents into Tabulator`);
+            console.log(`[Data List] Using shared cache with ${data.total} solvents (includes CSV, User Solvents, and Saved Mixtures)`);
 
         } catch (error) {
             console.error('Error loading solvent database:', error);
@@ -655,15 +686,10 @@ class DataListManager {
                 this.polymerDatabaseTable.setData(data.polymers);
             } else {
                 // Create new Tabulator instance
-                this.polymerDatabaseTable = new Tabulator("#polymer-database-table", {
+                this.polymerDatabaseTable = new Tabulator("#polymer-database-table", this.getDefaultTableConfig({
                     data: data.polymers,
-                    layout: "fitColumns",
-                    responsiveLayout: "collapse",
-                    pagination: true,
                     paginationSize: 20,
                     paginationSizeSelector: [10, 20, 50, 100],
-                    movableColumns: true,
-                    resizableColumns: true,
                     initialSort: [
                         { column: "polymer", dir: "asc" }
                     ],
@@ -769,7 +795,7 @@ class DataListManager {
                             }
                         }
                     ]
-                });
+                }));
             }
 
             console.log(`Loaded ${data.polymers.length} of ${data.total} polymers into Tabulator`);
@@ -896,16 +922,9 @@ class DataListManager {
                     console.log('[User Solvents] Creating new Tabulator instance');
                     tableContainer.innerHTML = '<div id="user-solvents-table"></div>';
 
-                    this.userSolventsTable = new Tabulator("#user-solvents-table", {
+                    this.userSolventsTable = new Tabulator("#user-solvents-table", this.getDefaultTableConfig({
                         data: solvents,
                         height: "400px",  // Set explicit height to prevent infinite resize loop
-                        layout: "fitColumns",
-                        responsiveLayout: "collapse",
-                        pagination: true,
-                        paginationSize: 10,
-                        paginationSizeSelector: [5, 10, 20, 50],
-                        movableColumns: true,
-                        resizableColumns: true,
                         initialSort: [
                             { column: "solvent", dir: "asc" }
                         ],
@@ -1028,6 +1047,7 @@ class DataListManager {
                                 width: 120,
                                 hozAlign: "center",
                                 headerSort: false,
+                                responsive: 0, // Always show this column
                                 formatter: (cell) => {
                                     return `
                                         <button class="btn-icon" title="Edit" data-action="edit">✏️</button>
@@ -1052,7 +1072,7 @@ class DataListManager {
                                 }
                             }
                         ]
-                    });
+                    }));
                     console.log('[User Solvents] Tabulator instance created successfully');
                 }
             }, 50);
@@ -1238,11 +1258,13 @@ class DataListManager {
             Notification.success(`Solvent '${name}' added successfully`);
             this.closeAddUserSolventModal();
 
-            // Reload solvent cache and tables
+            // Reload solvent cache
             if (window.sharedSolventCache) {
                 await window.sharedSolventCache.reload();
             }
-            await this.refreshAllTables();
+
+            // Dispatch event for data list manager
+            window.dispatchEvent(new CustomEvent('userSolventsUpdated'));
 
         } catch (error) {
             console.error('Error adding user solvent:', error);
@@ -1298,11 +1320,13 @@ class DataListManager {
             Notification.success(`Solvent '${newName}' updated successfully`);
             this.closeEditUserSolventModal();
 
-            // Reload solvent cache and tables
+            // Reload solvent cache
             if (window.sharedSolventCache) {
                 await window.sharedSolventCache.reload();
             }
-            await this.refreshAllTables();
+
+            // Dispatch event for data list manager
+            window.dispatchEvent(new CustomEvent('userSolventsUpdated'));
 
         } catch (error) {
             console.error('Error updating user solvent:', error);
@@ -1325,11 +1349,13 @@ class DataListManager {
 
             Notification.success(`Solvent '${solventName}' deleted successfully`);
 
-            // Reload solvent cache and tables
+            // Reload solvent cache
             if (window.sharedSolventCache) {
                 await window.sharedSolventCache.reload();
             }
-            await this.refreshAllTables();
+
+            // Dispatch event for data list manager
+            window.dispatchEvent(new CustomEvent('userSolventsUpdated'));
 
         } catch (error) {
             console.error('Error deleting user solvent:', error);
@@ -1383,13 +1409,8 @@ class DataListManager {
         if (this.userPolymersTable) {
             this.userPolymersTable.setData(polymers);
         } else {
-            this.userPolymersTable = new Tabulator("#user-polymers-table", {
+            this.userPolymersTable = new Tabulator("#user-polymers-table", this.getDefaultTableConfig({
                 data: polymers,
-                layout: "fitColumns",
-                responsiveLayout: "collapse",
-                pagination: true,
-                paginationSize: 10,
-                paginationSizeSelector: [5, 10, 20, 50],
                 initialSort: [{ column: "name", dir: "asc" }],
                 columns: [
                     { title: "Polymer", field: "name", minWidth: 200, headerFilter: "input", sorter: "string" },
@@ -1400,6 +1421,7 @@ class DataListManager {
                     { title: "CAS", field: "cas", minWidth: 120, formatter: (cell) => cell.getValue() || '-' },
                     {
                         title: "Actions", minWidth: 120, width: 120, hozAlign: "center", headerSort: false,
+                        responsive: 0, // Always show this column
                         formatter: () => '<button class="btn-icon" title="Edit" data-action="edit">✏️</button><button class="btn-icon" title="Delete" data-action="delete">🗑️</button>',
                         cellClick: (e, cell) => {
                             const target = e.target;
@@ -1410,7 +1432,7 @@ class DataListManager {
                         }
                     }
                 ]
-            });
+            }));
         }
     }
 
@@ -1482,7 +1504,9 @@ class DataListManager {
         this.saveUserPolymersToStorage(polymers);
         Notification.success(`Polymer '${name}' added successfully`);
         this.closeAddUserPolymerModal();
-        this.loadUserAddedPolymers();
+
+        // Dispatch event for data list manager
+        window.dispatchEvent(new CustomEvent('userPolymersUpdated'));
     }
 
     showEditUserPolymerModal(polymerData) {
@@ -1541,7 +1565,9 @@ class DataListManager {
         this.saveUserPolymersToStorage(polymers);
         Notification.success(`Polymer '${name}' updated successfully`);
         this.closeEditUserPolymerModal();
-        this.loadUserAddedPolymers();
+
+        // Dispatch event for data list manager
+        window.dispatchEvent(new CustomEvent('userPolymersUpdated'));
     }
 
     deleteUserPolymer(polymerName) {
@@ -1550,7 +1576,9 @@ class DataListManager {
         const filtered = polymers.filter(p => p.name !== polymerName);
         this.saveUserPolymersToStorage(filtered);
         Notification.success(`Polymer '${polymerName}' deleted successfully`);
-        this.loadUserAddedPolymers();
+
+        // Dispatch event for data list manager
+        window.dispatchEvent(new CustomEvent('userPolymersUpdated'));
     }
 
     // === Experimental Results Management ===
@@ -1611,17 +1639,10 @@ class DataListManager {
         // Initialize Tabulator (will replace loading state)
         setTimeout(() => {
             console.time('[Perf] Experimental Results - Tabulator Init');
-            this.experimentalResultsTable = new Tabulator("#experimental-results-table", {
+            this.experimentalResultsTable = new Tabulator("#experimental-results-table", this.getDefaultTableConfig({
                 data: results,
-                layout: "fitColumns",
-            responsiveLayout: "collapse",
-            pagination: true,
-            paginationSize: 10,
-            paginationSizeSelector: [5, 10, 20, 50],
-            movableColumns: true,
-            resizableColumns: true,
-            height: "500px", // Fix infinite resize loop by setting explicit height
-            columns: [
+                height: "500px", // Fix infinite resize loop by setting explicit height
+                columns: [
                 {
                     title: "Name",
                     field: "sample_name",
@@ -1710,7 +1731,7 @@ class DataListManager {
                     width: 200
                 })
             ]
-            });
+            }));
             console.timeEnd('[Perf] Experimental Results - Tabulator Init');
             console.timeEnd('[Perf] Experimental Results - Total');
         }, 50); // Small delay to show loading state
@@ -1951,6 +1972,24 @@ class DataListManager {
         };
     }
 
+    /**
+     * Get default Tabulator configuration
+     * @param {Object} overrides - Custom configuration to override defaults
+     * @returns {Object} Tabulator configuration object
+     */
+    getDefaultTableConfig(overrides = {}) {
+        const defaults = {
+            layout: "fitDataFill",
+            pagination: true,
+            paginationSize: 10,
+            paginationSizeSelector: [5, 10, 20, 50],
+            movableColumns: true,
+            resizableColumns: true
+        };
+
+        return { ...defaults, ...overrides };
+    }
+
     // === Saved Mixtures Management ===
 
     loadSavedMixtures() {
@@ -2026,15 +2065,8 @@ class DataListManager {
         // Initialize Tabulator (will replace loading state)
         setTimeout(() => {
             console.time('[Perf] Saved Mixtures - Tabulator Init');
-            this.savedMixturesTable = new Tabulator("#saved-mixtures-table", {
+            this.savedMixturesTable = new Tabulator("#saved-mixtures-table", this.getDefaultTableConfig({
                     data: tableData,
-                    layout: "fitColumns",
-                    responsiveLayout: "collapse",
-                    pagination: true,
-                    paginationSize: 10,
-                    paginationSizeSelector: [5, 10, 20, 50],
-                    movableColumns: true,
-                    resizableColumns: true,
                     height: "500px", // Fix infinite resize loop by setting explicit height
                     initialSort: [{ column: "created_at", dir: "desc" }],
                     columns: [
@@ -2111,7 +2143,7 @@ class DataListManager {
                             width: 150
                         })
                     ]
-                });
+                }));
             console.timeEnd('[Perf] Saved Mixtures - Tabulator Init');
 
             console.log(`Loaded ${mixtures.length} saved mixtures`);
@@ -2189,8 +2221,8 @@ class DataListManager {
             const updatedMixtures = mixtures.filter(m => m.id !== mixtureId);
             Storage.set(STORAGE_KEY, updatedMixtures);
 
-            // Reload table
-            this.loadSavedMixtures();
+            // Dispatch event for data list manager
+            window.dispatchEvent(new CustomEvent('savedMixturesUpdated'));
 
             // Reload shared solvent cache to remove deleted mixture from dropdowns
             if (window.sharedSolventCache) {

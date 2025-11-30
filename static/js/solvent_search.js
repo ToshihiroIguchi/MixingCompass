@@ -144,15 +144,30 @@ class SolventSearch {
 
     async loadAllSolventsInitial() {
         try {
-            // Fetch all solvents from the database (request full data, not just names)
-            const response = await fetch('/api/solvents?full_data=true');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
+            // Use shared solvent cache to get all solvents (includes CSV, User Solvents, and Saved Mixtures)
+            await window.sharedSolventCache.ensureLoaded();
+            const allNames = window.sharedSolventCache.getNames();
 
-            // Store all solvents
-            this.searchResults = data.solvents || [];
+            // Build search results array from cache
+            this.searchResults = allNames.map(name => {
+                const solvent = window.sharedSolventCache.get(name);
+                return {
+                    name: solvent.name,
+                    delta_d: solvent.delta_d,
+                    delta_p: solvent.delta_p,
+                    delta_h: solvent.delta_h,
+                    source_url: solvent.source_url,
+                    cas: solvent.cas,
+                    boiling_point: solvent.boiling_point,
+                    density: solvent.density,
+                    molecular_weight: solvent.molecular_weight,
+                    cost: solvent.cost,
+                    cho: solvent.cho,
+                    wgk: solvent.wgk,
+                    ghs: solvent.ghs,
+                    source: solvent.source
+                };
+            }).filter(s => s !== null);
 
             // Clear any previous filtering (show all solvents initially)
             this.currentFilteredResults = null;
@@ -164,9 +179,9 @@ class SolventSearch {
             // Generate visualization with all solvents (no targets initially)
             this.generateVisualization(null, null, this.searchResults, null);
 
-            console.log(`Loaded ${this.searchResults.length} solvents for initial display`);
+            console.log(`[Solvent Search] Using shared cache with ${this.searchResults.length} solvents for initial display`);
         } catch (error) {
-            console.error('Error loading initial solvents:', error);
+            console.error('[Solvent Search] Error loading initial solvents:', error);
         }
     }
 
@@ -361,7 +376,7 @@ class SolventSearch {
                     <div class="target-manual-inline">
                         <div class="inline-input-group">
                             <label>Name:</label>
-                            <input type="text" id="${targetId}-name" placeholder="Sample">
+                            <input type="text" class="name-input" id="${targetId}-name" placeholder="Sample">
                         </div>
                         <div class="inline-input-group">
                             <label>δD:</label>
@@ -1869,10 +1884,7 @@ class SolventSearch {
             window.solventSetManager.saveSolventSet(setName, solventsForSet);
             window.showNotification && window.showNotification(`Saved "${setName}" with ${solventsForSet.length} solvents`, 'success');
 
-            // Refresh displays
-            if (window.dataListManager) {
-                window.dataListManager.loadSolventSetsDisplay();
-            }
+            // Event is dispatched by solvent_set_manager
         } else {
             // Fallback: Direct localStorage save (use same key as solvent_set_manager.js)
             const solventSets = JSON.parse(localStorage.getItem('mixingCompass_solventSets') || '[]');
@@ -1885,6 +1897,9 @@ class SolventSearch {
             solventSets.push(newSet);
             localStorage.setItem('mixingCompass_solventSets', JSON.stringify(solventSets));
             window.showNotification && window.showNotification(`Saved "${setName}" with ${solventsForSet.length} solvents`, 'success');
+
+            // Dispatch event for data list manager
+            window.dispatchEvent(new CustomEvent('solventSetsUpdated'));
         }
 
         // Clear selection

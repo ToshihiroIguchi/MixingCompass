@@ -1715,6 +1715,10 @@ body {
     font-size: 0.875rem;
 }
 
+.target-manual-inline .inline-input-group input.name-input {
+    width: 120px;
+}
+
 /* Target Solute Search */
 .target-solute-search {
     margin-top: 0.5rem;

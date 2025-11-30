@@ -410,10 +410,8 @@ class HSPCalculation {
         // Save to storage
         Storage.set(this.STORAGE_KEY, savedMixtures);
 
-        // Notify Data List to reload
-        if (window.dataListManager) {
-            window.dataListManager.loadSavedMixtures();
-        }
+        // Dispatch event for data list manager
+        window.dispatchEvent(new CustomEvent('savedMixturesUpdated'));
 
         // Reload shared solvent cache to make saved mixture available in dropdowns
         if (window.sharedSolventCache) {

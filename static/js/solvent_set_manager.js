@@ -383,6 +383,9 @@ class SolventSetManager {
             this.saveSolventSetsToStorage();
             this.updateSolventSetSelector();
 
+            // Dispatch event for data list manager
+            window.dispatchEvent(new CustomEvent('solventSetsUpdated'));
+
         } catch (error) {
             console.error('Error saving solvent set:', error);
             Notification.error('Failed to save solvent set');
@@ -495,6 +498,10 @@ class SolventSetManager {
                 this.saveSolventSetsToStorage();
                 this.updateSolventSetSelector();
                 Notification.success(`Deleted solvent set: ${setName}`);
+
+                // Dispatch event for data list manager
+                window.dispatchEvent(new CustomEvent('solventSetsUpdated'));
+
                 return true;
             }
         }

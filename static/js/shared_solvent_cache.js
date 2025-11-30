@@ -9,6 +9,36 @@ class SharedSolventCache {
         this.names = [];
         this.loaded = false;
         this.loading = null;  // Promise for ongoing load operation
+
+        // Listen for data updates to reload cache
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        // Reload cache when User Solvents are updated
+        window.addEventListener('userSolventsUpdated', () => {
+            console.log('[SharedSolventCache] User Solvents updated, reloading cache...');
+            this.reload();
+        });
+
+        // Reload cache when Saved Mixtures are updated
+        window.addEventListener('savedMixturesUpdated', () => {
+            console.log('[SharedSolventCache] Saved Mixtures updated, reloading cache...');
+            this.reload();
+        });
+    }
+
+    /**
+     * Reload the cache by clearing and reloading all data
+     */
+    async reload() {
+        console.log('[SharedSolventCache] Reloading cache...');
+        this.cache.clear();
+        this.names = [];
+        this.loaded = false;
+        this.loading = null;
+        await this.ensureLoaded();
+        console.log('[SharedSolventCache] Cache reloaded successfully');
     }
 
     /**
@@ -69,6 +99,7 @@ class SharedSolventCache {
                     boiling_point: solvent.boiling_point,
                     density: solvent.density,
                     molecular_weight: solvent.molecular_weight,
+                    cho: solvent.cho,
                     source: 'database'
                 });
             });
@@ -94,6 +125,7 @@ class SharedSolventCache {
                             density: solvent.density,
                             molecular_weight: solvent.molecular_weight,
                             cost: solvent.cost,
+                            cho: solvent.cho,
                             wgk: solvent.wgk,
                             ghs: solvent.ghs,
                             source: 'user_added'
