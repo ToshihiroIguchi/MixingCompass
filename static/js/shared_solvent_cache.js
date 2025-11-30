@@ -121,6 +121,7 @@ class SharedSolventCache {
                             delta_p: solvent.delta_p,
                             delta_h: solvent.delta_h,
                             cas: solvent.cas,
+                            smiles: solvent.smiles,
                             boiling_point: solvent.boiling_point,
                             density: solvent.density,
                             molecular_weight: solvent.molecular_weight,

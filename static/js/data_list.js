@@ -991,6 +991,18 @@ class DataListManager {
                                 }
                             },
                             {
+                                title: "SMILES",
+                                field: "smiles",
+                                minWidth: 150,
+                                headerFilter: "input",
+                                headerFilterPlaceholder: "Filter...",
+                                formatter: (cell) => {
+                                    const value = cell.getValue();
+                                    return value || '-';
+                                },
+                                visible: false  // Hidden by default
+                            },
+                            {
                                 title: "BP (°C)",
                                 field: "boiling_point",
                                 minWidth: 100,
@@ -1157,6 +1169,7 @@ class DataListManager {
         const deltaPInput = document.querySelector('#edit-delta-p');
         const deltaHInput = document.querySelector('#edit-delta-h');
         const casInput = document.querySelector('#edit-cas');
+        const smilesInput = document.querySelector('#edit-smiles');
         const bpInput = document.querySelector('#edit-boiling-point');
 
         if (!modal) return;
@@ -1170,6 +1183,7 @@ class DataListManager {
         if (deltaPInput) deltaPInput.value = solventData.delta_p !== null ? solventData.delta_p : '';
         if (deltaHInput) deltaHInput.value = solventData.delta_h !== null ? solventData.delta_h : '';
         if (casInput) casInput.value = solventData.cas || '';
+        if (smilesInput) smilesInput.value = solventData.smiles || '';
         if (bpInput) bpInput.value = solventData.boiling_point !== null ? solventData.boiling_point : '';
 
         // Open modal with autofocus, text selection, and Esc key support
@@ -1219,6 +1233,7 @@ class DataListManager {
         const deltaPInput = document.querySelector('#add-delta-p');
         const deltaHInput = document.querySelector('#add-delta-h');
         const casInput = document.querySelector('#add-cas');
+        const smilesInput = document.querySelector('#add-smiles');
         const bpInput = document.querySelector('#add-boiling-point');
 
         // Validate required fields
@@ -1244,6 +1259,7 @@ class DataListManager {
             delta_p: deltaP,
             delta_h: deltaH,
             cas: casInput.value.trim() || null,
+            smiles: smilesInput.value.trim() || null,
             boiling_point: bpInput.value ? parseFloat(bpInput.value) : null
         };
 
@@ -1281,6 +1297,7 @@ class DataListManager {
         const deltaPInput = document.querySelector('#edit-delta-p');
         const deltaHInput = document.querySelector('#edit-delta-h');
         const casInput = document.querySelector('#edit-cas');
+        const smilesInput = document.querySelector('#edit-smiles');
         const bpInput = document.querySelector('#edit-boiling-point');
 
         // Validate required fields
@@ -1306,6 +1323,7 @@ class DataListManager {
             delta_p: deltaP,
             delta_h: deltaH,
             cas: casInput.value.trim() || null,
+            smiles: smilesInput.value.trim() || null,
             boiling_point: bpInput.value ? parseFloat(bpInput.value) : null
         };
 

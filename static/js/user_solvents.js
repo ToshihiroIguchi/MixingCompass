@@ -25,6 +25,7 @@ class UserSolventsManager {
      * @param {number} solventData.delta_p - δP value
      * @param {number} solventData.delta_h - δH value
      * @param {string} [solventData.cas] - CAS number
+     * @param {string} [solventData.smiles] - SMILES string
      * @param {number} [solventData.boiling_point] - Boiling point
      * @param {number} [solventData.density] - Density
      * @param {number} [solventData.molecular_weight] - Molecular weight
