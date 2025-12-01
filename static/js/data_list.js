@@ -535,7 +535,7 @@ class DataListManager {
                             sorter: "string"
                         },
                         {
-                            title: "δD",
+                            title: "δD<br>(MPa<sup>0.5</sup>)",
                             field: "delta_d",
                             minWidth: 80,
                             hozAlign: "right",
@@ -544,12 +544,13 @@ class DataListManager {
                             headerFilterFunc: ">=",
                             formatter: (cell) => {
                                 const value = cell.getValue();
-                                return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                                return value !== null && value !== undefined ? value.toFixed(1) : '—';
                             },
+                            headerTooltip: "Dispersion parameter (δD) in MPa^0.5",
                             sorter: "number"
                         },
                         {
-                            title: "δP",
+                            title: "δP<br>(MPa<sup>0.5</sup>)",
                             field: "delta_p",
                             minWidth: 80,
                             hozAlign: "right",
@@ -558,12 +559,13 @@ class DataListManager {
                             headerFilterFunc: ">=",
                             formatter: (cell) => {
                                 const value = cell.getValue();
-                                return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                                return value !== null && value !== undefined ? value.toFixed(1) : '—';
                             },
+                            headerTooltip: "Polar parameter (δP) in MPa^0.5",
                             sorter: "number"
                         },
                         {
-                            title: "δH",
+                            title: "δH<br>(MPa<sup>0.5</sup>)",
                             field: "delta_h",
                             minWidth: 80,
                             hozAlign: "right",
@@ -572,8 +574,9 @@ class DataListManager {
                             headerFilterFunc: ">=",
                             formatter: (cell) => {
                                 const value = cell.getValue();
-                                return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                                return value !== null && value !== undefined ? value.toFixed(1) : '—';
                             },
+                            headerTooltip: "Hydrogen bonding parameter (δH) in MPa^0.5",
                             sorter: "number"
                         },
                         {
@@ -588,7 +591,7 @@ class DataListManager {
                             }
                         },
                         {
-                            title: "BP (°C)",
+                            title: "Tb<br>(°C)",
                             field: "boiling_point",
                             minWidth: 100,
                             hozAlign: "right",
@@ -597,9 +600,30 @@ class DataListManager {
                             headerFilterFunc: ">=",
                             formatter: (cell) => {
                                 const value = cell.getValue();
-                                return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                                return value !== null && value !== undefined ? value.toFixed(1) : '—';
                             },
+                            headerTooltip: "Boiling point (Tb) in °C",
                             sorter: "number"
+                        },
+                        {
+                            title: "C,H,O<br>Only",
+                            field: "cho",
+                            minWidth: 70,
+                            hozAlign: "center",
+                            headerFilter: "list",
+                            headerFilterParams: {
+                                values: { "": "All", "true": "✔ C,H,O Only", "false": "✘ Other elements" }
+                            },
+                            formatter: (cell) => {
+                                const value = cell.getValue();
+                                if (value === true) {
+                                    return '<span class="cho-yes" title="Contains only C, H, O elements">✔</span>';
+                                } else if (value === false) {
+                                    return '<span class="cho-no" title="Contains other elements">✘</span>';
+                                }
+                                return '—';
+                            },
+                            headerTooltip: "Contains only Carbon, Hydrogen, and Oxygen"
                         },
                         {
                             title: "Link",
@@ -938,7 +962,7 @@ class DataListManager {
                                 sorter: "string"
                             },
                             {
-                                title: "δD",
+                                title: "δD<br>(MPa<sup>0.5</sup>)",
                                 field: "delta_d",
                                 minWidth: 80,
                                 hozAlign: "right",
@@ -947,12 +971,13 @@ class DataListManager {
                                 headerFilterFunc: ">=",
                                 formatter: (cell) => {
                                     const value = cell.getValue();
-                                    return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                                    return value !== null && value !== undefined ? value.toFixed(1) : '—';
                                 },
+                                headerTooltip: "Dispersion parameter (δD) in MPa^0.5",
                                 sorter: "number"
                             },
                             {
-                                title: "δP",
+                                title: "δP<br>(MPa<sup>0.5</sup>)",
                                 field: "delta_p",
                                 minWidth: 80,
                                 hozAlign: "right",
@@ -961,12 +986,13 @@ class DataListManager {
                                 headerFilterFunc: ">=",
                                 formatter: (cell) => {
                                     const value = cell.getValue();
-                                    return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                                    return value !== null && value !== undefined ? value.toFixed(1) : '—';
                                 },
+                                headerTooltip: "Polar parameter (δP) in MPa^0.5",
                                 sorter: "number"
                             },
                             {
-                                title: "δH",
+                                title: "δH<br>(MPa<sup>0.5</sup>)",
                                 field: "delta_h",
                                 minWidth: 80,
                                 hozAlign: "right",
@@ -975,8 +1001,9 @@ class DataListManager {
                                 headerFilterFunc: ">=",
                                 formatter: (cell) => {
                                     const value = cell.getValue();
-                                    return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                                    return value !== null && value !== undefined ? value.toFixed(1) : '—';
                                 },
+                                headerTooltip: "Hydrogen bonding parameter (δH) in MPa^0.5",
                                 sorter: "number"
                             },
                             {
@@ -1003,7 +1030,7 @@ class DataListManager {
                                 visible: false  // Hidden by default
                             },
                             {
-                                title: "BP (°C)",
+                                title: "Tb<br>(°C)",
                                 field: "boiling_point",
                                 minWidth: 100,
                                 hozAlign: "right",
@@ -1012,28 +1039,30 @@ class DataListManager {
                                 headerFilterFunc: ">=",
                                 formatter: (cell) => {
                                     const value = cell.getValue();
-                                    return value !== null && value !== undefined ? value.toFixed(1) : '-';
+                                    return value !== null && value !== undefined ? value.toFixed(1) : '—';
                                 },
+                                headerTooltip: "Boiling point (Tb) in °C",
                                 sorter: "number"
                             },
                             {
-                                title: "CHO",
+                                title: "C,H,O<br>Only",
                                 field: "cho",
                                 minWidth: 70,
                                 hozAlign: "center",
                                 headerFilter: "list",
                                 headerFilterParams: {
-                                    values: { "": "All", "true": "CHO", "false": "Non-CHO" }
+                                    values: { "": "All", "true": "✔ C,H,O Only", "false": "✘ Other elements" }
                                 },
                                 formatter: (cell) => {
                                     const value = cell.getValue();
                                     if (value === true) {
-                                        return '<span class="cho-badge cho-true" style="font-size:0.75rem;padding:0.15rem 0.5rem;">CHO</span>';
+                                        return '<span class="cho-yes" title="Contains only C, H, O elements">✔</span>';
                                     } else if (value === false) {
-                                        return '<span class="cho-badge cho-false" style="font-size:0.75rem;padding:0.15rem 0.5rem;">Non-CHO</span>';
+                                        return '<span class="cho-no" title="Contains other elements">✘</span>';
                                     }
-                                    return '-';
-                                }
+                                    return '—';
+                                },
+                                headerTooltip: "Contains only Carbon, Hydrogen, and Oxygen"
                             },
                             {
                                 title: "Source",
@@ -1678,33 +1707,36 @@ class DataListManager {
                     }
                 },
                 {
-                    title: "δD",
+                    title: "δD<br>(MPa<sup>0.5</sup>)",
                     field: "hsp_result.delta_d",
                     minWidth: 80,
                     formatter: (cell) => {
                         const value = cell.getValue();
-                        return value != null ? value.toFixed(1) : '-';
+                        return value != null ? value.toFixed(1) : '—';
                     },
+                    headerTooltip: "Dispersion parameter (δD) in MPa^0.5",
                     sorter: "number"
                 },
                 {
-                    title: "δP",
+                    title: "δP<br>(MPa<sup>0.5</sup>)",
                     field: "hsp_result.delta_p",
                     minWidth: 80,
                     formatter: (cell) => {
                         const value = cell.getValue();
-                        return value != null ? value.toFixed(1) : '-';
+                        return value != null ? value.toFixed(1) : '—';
                     },
+                    headerTooltip: "Polar parameter (δP) in MPa^0.5",
                     sorter: "number"
                 },
                 {
-                    title: "δH",
+                    title: "δH<br>(MPa<sup>0.5</sup>)",
                     field: "hsp_result.delta_h",
                     minWidth: 80,
                     formatter: (cell) => {
                         const value = cell.getValue();
-                        return value != null ? value.toFixed(1) : '-';
+                        return value != null ? value.toFixed(1) : '—';
                     },
+                    headerTooltip: "Hydrogen bonding parameter (δH) in MPa^0.5",
                     sorter: "number"
                 },
                 {
@@ -2097,7 +2129,7 @@ class DataListManager {
                             sorter: "string"
                         },
                         {
-                            title: "δD",
+                            title: "δD<br>(MPa<sup>0.5</sup>)",
                             field: "delta_d",
                             minWidth: 80,
                             hozAlign: "right",
@@ -2105,10 +2137,11 @@ class DataListManager {
                             headerFilterPlaceholder: "Min",
                             headerFilterFunc: ">=",
                             formatter: (cell) => cell.getValue().toFixed(1),
+                            headerTooltip: "Dispersion parameter (δD) in MPa^0.5",
                             sorter: "number"
                         },
                         {
-                            title: "δP",
+                            title: "δP<br>(MPa<sup>0.5</sup>)",
                             field: "delta_p",
                             minWidth: 80,
                             hozAlign: "right",
@@ -2116,10 +2149,11 @@ class DataListManager {
                             headerFilterPlaceholder: "Min",
                             headerFilterFunc: ">=",
                             formatter: (cell) => cell.getValue().toFixed(1),
+                            headerTooltip: "Polar parameter (δP) in MPa^0.5",
                             sorter: "number"
                         },
                         {
-                            title: "δH",
+                            title: "δH<br>(MPa<sup>0.5</sup>)",
                             field: "delta_h",
                             minWidth: 80,
                             hozAlign: "right",
@@ -2127,6 +2161,7 @@ class DataListManager {
                             headerFilterPlaceholder: "Min",
                             headerFilterFunc: ">=",
                             formatter: (cell) => cell.getValue().toFixed(1),
+                            headerTooltip: "Hydrogen bonding parameter (δH) in MPa^0.5",
                             sorter: "number"
                         },
                         {
