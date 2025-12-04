@@ -1,0 +1,22 @@
+Category,Solvent,Structural formula,Molecular weight (g/mol),CHO,Tb,Flash point (°F/°C),Evaporation rate (nBuAc=1),Specific gravity (20/20°C),Density (lb/gal at 20°C),Viscosity (cP at 20°C),Vapor pressure (mmHg at 20°C),CAS,Surface tension (dynes/cm at 20°C),dD,dP,dH,Total,Solubility In water (wt% at 20°C),Solubility Water in (wt% at 20°C)
+Alcohols,Primary amyl alcohol mixed isomers,C5H11OH (mixed isomers),88.15,TRUE,133.2,113/45,0.3,0.815,6.79,4.3,2.2,137-32-6 / 71-41-0,23.7,15.9,4.5,13.9,21.7,1.7,9.2
+Alcohols,n-Butanol,C4H9OH,74.12,TRUE,117.7,97/36,0.44,0.81,6.75,3,4.9,71-36-3,24.8,16,5.7,15.8,23.1,7.7,20.1
+Alcohols,2-Ethylhexanol,CH3(CH2)3CH(C2H5)CH2OH,130.23,TRUE,184.6,162/72,0.02,0.833,6.94,10.3,0.09,104-76-7,26.9,15.9,3.3,11.8,20.2,0.07,2.6
+Alcohols,Isobutanol,(CH3)2CHCH2OH,74.12,TRUE,107.9,82/28,0.63,0.802,6.68,4,8.1,78-83-1,23,15.1,5.7,15.9,22.7,8.5,15
+Alcohols,2-Methyl Butanol,C2H5CH(CH3)CH2OH,88.15,TRUE,128.7,113/45,0.5,0.818,6.82,5,3.8,137-32-6,25.7,16,5.1,14.3,21.1,2.2,8.3
+Alcohols,n-Pentanol,C5H11OH,88.15,TRUE,137.9,119/48,0.3,0.816,6.79,4,1.4,71-41-0,25.7,15.9,4.5,13.9,21.7,2,9.5
+Alcohols,n-Propanol,C3H7OH,60.1,TRUE,97.2,73/23,0.87,0.816,6.71,2.2,15.2,71-23-8,23.8,16,6.8,17.4,24.5,∞,∞
+Esters,Primary Amyl Acetate Mixed Isomers,C5H11OC(O)CH3 (mixed isomers),130.19,TRUE,146,77/25,0.39,0.876,7.29,0.9,4,628-63-7 / 624-41-9,25.8,15.8,3.3,6.1,17.1,0.2,0.9
+Esters,n-Butyl Acetate,C4H9OC(O)CH3,116.16,TRUE,126.2,72/22,1,0.883,7.35,0.7,8.5,123-86-4,25.3,15.8,3.7,6.3,17.4,0.7,1.9
+Esters,Isobutyl Acetate,(CH3)2CHCH2OC(O)CH3,116.16,TRUE,118,64/18,1.52,0.873,7.26,0.7,13.6,110-19-0,23.4,15.1,3.7,6.3,16.8,0.66,1.1
+Esters,Isopropyl Acetate,(CH3)2CHOC(O)CH3,102.13,TRUE,88.5,36/2,3.5,0.869,7.28,0.5,45.7,108-21-4,22.3,14.9,4.5,8.2,17.6,3,1.9
+Esters,n-Propyl Acetate,C3H7OC(O)CH3,102.13,TRUE,101.5,58/14,2.13,0.883,7.39,0.6,25,109-60-4,24.4,15.3,4.3,7.6,18,2,2.6
+Esters,UCAR™ n-Butyl Propionate,C4H9OC(O)CH2CH3,130.19,TRUE,144.7,100/38,0.45,0.876,7.3,0.8,3.4,590-01-2,25.3,15.6,5.4,5.3,18,0.2,<0.02
+Esters,UCAR™ Ester EEP,C2H5OC2H4C(O)OCH2CH3,146.19,TRUE,169.7,138/60,0.12,0.951,7.91,1.3,0.9,763-69-9,28.1,16.2,3.3,8.8,18.6,5.2,2.2
+Esters,UCAR™ Filmer IBT,(CH3)2CHCH(OH)C(CH3)2CH2OC(O)CH(CH3)2,216,TRUE,255,246/120,<0.01,0.948,7.89,17.9,<0.01,25265-77-4,30.7,15.1,6.1,9.8,16.8,0.12,2.9
+Esters,UCAR™ n-Pentyl Propionate,C5H11OC(O)CH2CH3,144.22,TRUE,165,135/57,0.18,0.874,7.28,1,1.5,624-54-4,26.4,15.6,5.1,5.1,17.1,<0.05,<0.03
+Esters,UCAR™ n-Propyl Propionate,C3H7OC(O)CH2CH3,116.16,TRUE,122.4,75/24,1.21,0.881,7.34,0.7,10.7,106-36-5,24.7,15.7,5.8,5.7,17.5,0.5,
+Oxo Acids,Propionic Acid,CH3CH2COOH,74.08,TRUE,140.8,125/52,0.24,0.995,8.3,1.1,2.4,79-09-4,26.2,14.7,5.3,12.4,18.9,∞,∞
+Oxo Acids,Valeric Acid,CH3(CH2)3COOH,102.13,TRUE,185.5,183/84,0.02,0.939,7.84,2.2,<0.1,109-52-4,26.1,15,4.1,10.3,18.7,2.4,13
+Oxo Acids,Isopentanoic Acid,C4H9COOH (mixed isomers),102.13,TRUE,183.1,171/77,0.04,0.937,7.82,2.1,0.1,109-52-4 / 116-53-0,25.5,16.4,4.1,10.7,20,3.2,
+Oxo Acids,2-Ethylhexoic Acid,CH3(CH2)3CH(C2H5)COOH,144.21,TRUE,227.8,256/124,<0.01,0.908,7.58,7.7,<0.01,149-57-5,28.3,15.9,4.4,9.1,18.8,0.1,1.4

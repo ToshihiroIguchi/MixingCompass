@@ -1,0 +1,104 @@
+Solvent,CAS,_Boiling point (°C),Tb,dD,dP,dH,CHO
+MMB(1-Butanol),56539-66-3,174,174,15.1,4.7,12.6,TRUE
+VertecBio ELSOL-AR,,71.1-155.6,,7.7,3.4,6.1,TRUE
+VertecBio ELSOL-BCR,,71.1-155.6,,7.5,3.8,6.1,TRUE
+VertecBio ELSOL Clean ECO-Solv,,77-154,,7.7,4.2,8.8,TRUE
+VertecBio ELSOL-CXR,,111.1-154.4,,7.7,3.5,6.4,TRUE
+VertecBio ELSOL-KTR1,,160,160,7.7,3.4,6.1,TRUE
+VertecBio ELSOL-KTR2,,160,160,7.7,3.4,5.7,TRUE
+VertecBio ELSOL-LQ,,77.2-151.7,,7.7,4,5.4,TRUE
+VertecBio ELSOL-MAKR,,43.9-67.8,,7.7,3.4,6.7,TRUE
+VertecBio ELSOL-NMPR,,148.9,148.9,7.7,2.9,5.4,TRUE
+VertecBio ELSOL PMAR,,45.6-78.9,,7.7,3.1,6.2,TRUE
+VertecBio ELSOL-XTR,,80-160,,7.7,2.9,5.4,TRUE
+Diethylene glycol monobutyl ether,124-17-4,245,245,16,4.1,8.2,TRUE
+Diethylene glycol monoethyl ether,112-15-2,217.4,217.4,16.2,5.1,9.2,TRUE
+Diethylene glycol monomethyl ether,629-38-9,209.1,209.1,16.1,6,8.8,TRUE
+Dimethyl glutarate,1119-40-0,96,96,16.1,7.7,8.3,TRUE
+Dimethyl succinate,106-65-0,195,195,16.1,7.7,8.8,TRUE
+Dipropylene glycol monomethyl ether acetate,88917-22-0,200,200,16.3,4.9,8,TRUE
+Estasol,95481-62-2,200,200,16.2,6.5,8.4,TRUE
+Ethyl propionate,105-37-3,99.1,99.1,15.5,6.1,4.9,TRUE
+Ethylene glycol methyl ether acetate,110-49-6,145,145,15.9,5.5,11.6,TRUE
+Ethylene glycol monobutyl ether acetate,112-07-2,194,194,15.3,7.5,6.8,TRUE
+Glycerol triacetate,102-76-1,258,258,16.5,4.5,9.1,TRUE
+Isopropyl lactate,617-51-6,157,157,16,6.7,13.4,TRUE
+Jeff sol AG-1555 carbonate,108-32-7,242,242,20,18,4.1,TRUE
+Propylene glycol monomethyl ether,108-65-6,146,146,15.6,5.6,9.8,TRUE
+Propylene glycol monostearate,1323-39-3,,0,16.3,3.5,6.3,TRUE
+UltraPure ethylene carbonate,96-49-1,248.2,248.2,18,21.7,5.1,TRUE
+UltraPure propylene carbonate,108-32-7,242,242,20,18,4.1,TRUE
+Butyl stearate,123-95-5,343,343,14.5,3.7,3.5,TRUE
+CanolaGold 110,,337.8,337.8,7.9,2.4,2.9,TRUE
+SoyClear 1500,,334.4,334.4,7.9,2.4,2.9,TRUE
+SoyGold 1000,,334.4,334.4,7.9,2.4,2.9,TRUE
+SoyGold 1100,,336.7,336.7,7.9,2.4,2.9,TRUE
+SoyGold 1500,,344,344,2.9,2.4,7.9,TRUE
+Acetic acid,64-19-7,118,118,14.5,8,13.5,TRUE
+Ethyl formate,109-94-4,54.3,54.3,15.5,8.4,8.4,TRUE
+Formic acid,64-18-6,100.6,100.6,14.6,10,14,TRUE
+Glycerol,56-81-5,171,171,17.4,11.3,27.2,TRUE
+Lactic acid,50-21-5,122,122,17,8.3,28.4,TRUE
+Propionic acid,79-09-4,141,141,14.7,5.3,12.4,TRUE
+"Propylene glycol, 1,2",57-55-6,188.2,188.2,16.8,10.4,21.3,TRUE
+Stearic acid,57-11-4,350,350,16.3,3.3,5.5,TRUE
+Water,7732-18-5,100,100,15.5,16,42.3,TRUE
+Acetone,67-64-1,56.1,56.1,15.5,10.4,7,TRUE
+Acetonitrile,75-05-8,81.6,81.6,15.3,18,6.1,FALSE
+"Amyl acetate, n-",628-63-7,142-149.25,,15.8,3.3,6.1,TRUE
+Anisole,100-66-3,158,158,17.8,4.4,6.9,TRUE
+Benzyl alcohol,100-51-6,205,205,18.4,6.3,13.7,TRUE
+"Butanol, 1-",71-36-3,117.7,117.7,16,5.7,15.8,TRUE
+"Butanol, 2-",78-92-2,99.5,99.5,15.8,5.7,14.5,TRUE
+"Butanol, tert-",75-65-0,83,83,15.2,5.1,14.7,TRUE
+"Butyl acetate, n-",123-86-4,126,126,15.8,3.7,6.3,TRUE
+"Butyl acetate, tert-",540-88-5,96,96,15,3.7,6,TRUE
+Butyl lactate,138-22-7,188,188,15.8,0.5,10.2,TRUE
+"Butyrolactone, gamma-",96-48-0,204,204,18,16.6,7.4,TRUE
+Cyclohexane,110-82-7,81,81,16.8,0,0.2,TRUE
+Cyclohexanone,108-94-1,155.7,155.7,17.8,8.4,5.1,TRUE
+Diethylene glycol butyl ester,112-34-5,231,231,16,7,10.6,TRUE
+Dimethyl carbonate,616-38-6,90,90,15.5,8.6,9.7,TRUE
+Dimethyl isosorbide,5306-85-4,93,93,17.5,6.8,6.7,TRUE
+Diisopropyl ether,108-20-3,68.5,68.5,15.1,3.2,3.2,TRUE
+Ethanol (anhydrous),64-17-5,78.4,78.4,15.8,8.8,19.4,TRUE
+Ethyl lactate,97-64-3,153,153,16,7.6,12.5,TRUE
+Ethylene carbonate,96-49-1,248,248,18,21.7,5.1,TRUE
+Ethylene glycol,107-21-1,197.5,197.5,17,11,26,TRUE
+"Heptane, n-",142-82-5,98.4,98.4,15.3,0,0,TRUE
+Isoamyl alcohol,123-51-3,132,132,15.8,5.2,13.3,TRUE
+Isopropyl acetate,108-21-4,88.5,88.5,14.9,4.5,8.2,TRUE
+Methanol,67-56-1,64.6,64.6,14.7,12.3,22.3,TRUE
+Methyl acetate,79-20-9,57,57,15.5,7.2,7.6,TRUE
+Methyl ethyl ketone,78-93-3,79.6,79.6,16,9,5.1,TRUE
+Methyl formate,107-31-3,32,32,15.3,8.4,10.2,TRUE
+Methyl isobutyl ketone,108-10-1,116.1,116.1,15.3,6.1,4.1,TRUE
+Methylcyclohexane,108-87-2,100,100,16,0,1,TRUE
+"Methyl tetrahydrofuran, 2-",96-47-9,78-80,,16.9,5,4.3,TRUE
+"Propanol, 1-",71-23-8,97.2,97.2,16,6.8,17.4,TRUE
+"Propanol, 2-",67-63-0,82,82,15.8,6.1,16.4,TRUE
+"Propyl acetate, n-",109-60-4,101.6,101.6,15.3,4.3,7.6,TRUE
+Propylene carbonate,108-32-7,241.7,241.7,20,18,4.1,TRUE
+Tetrahydrofuran,109-99-9,65.9,65.9,16.8,5.7,8,TRUE
+Toluene,108-88-3,110.6,110.6,18,1.4,2,TRUE
+Trimethyl phosphate,512-56-1,197.2,197.2,15.7,10.5,10.2,FALSE
+Xylene,1330-20-7,137,137,17.8,1.8,3.1,TRUE
+Perﬂuorodecalin,306-94-5,142,142,12.4,0,0,FALSE
+Perﬂuoroheptane,335-57-9,83.9,83.9,12,0,0,FALSE
+Perﬂuorohexane,355-42-0,69,69,12.1,0,0,FALSE
+Perﬂuoromethylcyclohexane,355-02-2,76,76,12.4,0,0,FALSE
+Perﬂuoropentane,678-26-2,29,29,11.3,0,0,FALSE
+Tetrafluoromethane,75-73-0,-127.8,-127.8,11.6,4.9,1.4,FALSE
+Tetramethylsilane,75-76-3,26,26,13.4,1,1.5,FALSE
+Dibutyl sulfoxide,2168-93-6,250,250,16.5,9.9,4.9,FALSE
+Dimethyl sulfoxide,67-68-5,189,189,18.4,16.4,10.2,FALSE
+Ethylene sulﬁte,3741-38-6,172,172,20,15.9,5.1,FALSE
+Sulfolane,126-33-0,285,285,17.8,17.4,8.7,FALSE
+Carbon dioxide,124-38-9,,,15.7,6.3,5.7,TRUE
+Dipentene,138-86-3,176,176,17.2,1.8,4.3,TRUE
+"Limonene, d-",94266-47-4,176,176,17.2,1.8,4.3,TRUE
+Linalool,78-70-6,197,197,16.3,3,10.8,TRUE
+Pine oil,8002-09-3,195,195,15.6,3,9.8,TRUE
+"Pinene, alpha-",80-56-8,155,155,16.9,1.8,3.1,TRUE
+"Pinene, beta-",127-91-3,166,166,17.1,3,2.7,TRUE
+"Terpineol, alpha-",10482-56-1,217.5,217.5,17.2,4.2,11.1,TRUE
