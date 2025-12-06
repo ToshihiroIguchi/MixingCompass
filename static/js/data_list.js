@@ -64,6 +64,12 @@ class DataListManager {
             importInput.addEventListener('change', (e) => this.handleImportFile(e));
         }
 
+        // Create set button
+        const createSetBtn = document.querySelector('#create-set-btn');
+        if (createSetBtn) {
+            createSetBtn.addEventListener('click', () => this.showCreateSetModal());
+        }
+
         // Edit modal controls
         const saveChangesBtn = document.querySelector('#save-set-changes');
         if (saveChangesBtn) {
@@ -173,11 +179,6 @@ class DataListManager {
                         ${this.createSolventsPreviewHTML(set.solvents)}
                     </div>
                 </div>
-                <div class="set-card-footer">
-                    <button class="btn btn-primary btn-small load-set-btn" data-set-id="${set.id}">
-                        Load in HSP Analysis
-                    </button>
-                </div>
             </div>
         `;
     }
@@ -209,14 +210,6 @@ class DataListManager {
             btn.addEventListener('click', (e) => {
                 const setId = e.target.dataset.setId;
                 this.deleteSolventSet(setId);
-            });
-        });
-
-        // Load buttons
-        document.querySelectorAll('.load-set-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const setId = e.target.dataset.setId;
-                this.loadSolventSetInAnalysis(setId);
             });
         });
     }
@@ -389,6 +382,41 @@ class DataListManager {
         this.currentEditingSet = null;
     }
 
+    showCreateSetModal() {
+        const setName = prompt('Enter a name for the new solvent set:');
+
+        if (!setName || !setName.trim()) {
+            return;
+        }
+
+        const solventSetManager = window.solventSetManager;
+        if (!solventSetManager) {
+            alert('Solvent set manager not available');
+            return;
+        }
+
+        // Create a new empty set
+        const newSet = {
+            id: Utils.generateId('set'),
+            name: setName.trim(),
+            solvents: [],
+            created: Utils.formatISO(),
+            lastUsed: Utils.formatISO()
+        };
+
+        // Save the new set
+        solventSetManager.solventSets.push(newSet);
+        solventSetManager.saveSolventSetsToStorage();
+
+        // Refresh display
+        this.loadSolventSetsDisplay();
+
+        // Open the edit modal immediately so user can add solvents
+        this.editSolventSet(newSet.id);
+
+        Notification.success(`Created new solvent set: "${setName.trim()}"`);
+    }
+
     deleteSolventSet(setId) {
         const solventSetManager = window.solventSetManager;
         if (!solventSetManager) return;
@@ -400,22 +428,6 @@ class DataListManager {
             if (solventSetManager.deleteSolventSet(setId)) {
                 this.loadSolventSetsDisplay();
             }
-        }
-    }
-
-    loadSolventSetInAnalysis(setId) {
-        const solventSetManager = window.solventSetManager;
-        if (!solventSetManager) return;
-
-        const solventSet = solventSetManager.getSolventSetById(setId);
-        if (!solventSet) return;
-
-        // Store the set ID to load
-        sessionStorage.setItem('loadSolventSetId', setId);
-
-        // Switch to HSP Experimental tab
-        if (window.mixingCompass) {
-            window.mixingCompass.switchSection('hsp-experimental');
         }
     }
 
@@ -1931,6 +1943,17 @@ class DataListManager {
                 if (!this.solventDatabaseTable || this.solventDatabaseTable.getData().length === 0) {
                     this.loadSolventDatabase();
                 }
+            }
+        );
+
+        // Setup Solvent Sets collapsible
+        this.setupCollapsibleSection(
+            '#sets-collapse-toggle',
+            '#sets-collapsible-content',
+            'solventSetsSectionExpanded',
+            () => {
+                // Refresh solvent sets display when expanded
+                this.loadSolventSetsDisplay();
             }
         );
 

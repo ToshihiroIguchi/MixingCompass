@@ -660,16 +660,26 @@
                 </div>
 
                 <!-- Saved Solvent Sets Section -->
-                <div class="solvent-sets-section">
-                    <div class="section-header">
-                        <h3>Saved Solvent Sets</h3>
-                        <span id="sets-count" class="count-badge">0 sets</span>
+                <div class="solvent-sets-section collapsible-section">
+                    <div class="section-header collapsible-header">
+                        <h3>
+                            <button id="sets-collapse-toggle" class="collapse-toggle" aria-expanded="false">
+                                <span class="collapse-icon">▶</span>
+                                <span class="collapse-text">Saved Solvent Sets</span>
+                            </button>
+                        </h3>
+                        <div class="header-actions">
+                            <button id="create-set-btn" class="btn btn-primary btn-small">+ New Set</button>
+                            <span id="sets-count" class="count-badge">0 sets</span>
+                        </div>
                     </div>
 
-                    <div id="solvent-sets-list" class="solvent-sets-list">
-                        <div class="empty-state">
-                            <p>No solvent sets saved yet.</p>
-                            <p>Create sets in the Determine HSP tab to manage them here.</p>
+                    <div id="sets-collapsible-content" class="collapsible-content" style="display: none;">
+                        <div id="solvent-sets-list" class="solvent-sets-list">
+                            <div class="empty-state">
+                                <p>No solvent sets saved yet.</p>
+                                <p>Create sets using the "+ New Set" button above or in the Determine HSP tab.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
