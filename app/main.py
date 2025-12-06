@@ -60,6 +60,8 @@ def get_js_versions():
         'notification.js',
         'user_solvents.js',
         'shared_solvent_cache.js',
+        'shared_polymer_cache.js',
+        'hsp_selector_utils.js',
         'solvent_table.js',
         'modal_manager.js',
         'solvent_set_manager.js',

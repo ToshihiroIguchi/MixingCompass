@@ -92,8 +92,6 @@ class SolventSearch {
     constructor() {
         this.searchResults = [];
         this.currentSort = 'distance';
-        this.polymersData = [];
-        this.experimentalResults = [];
         this.visualization = null;
         this.currentTarget1 = null;
         this.currentTarget2 = null;
@@ -111,9 +109,8 @@ class SolventSearch {
         this.visualization = new HSPVisualization('search-plotly-visualization');
         this.visualization.showPlaceholder('Configure targets and search solvents to display visualization');
 
-        // Load data before initializing UI
-        await this.loadPolymersData();
-        await this.loadExperimentalResults();
+        // Load polymer data using shared cache
+        await window.sharedPolymerCache.ensureLoaded();
 
         this.setupEventListeners();
         this.setupPanelToggle(); // Setup panel collapse/expand
@@ -209,39 +206,6 @@ class SolventSearch {
         }
     }
 
-    async loadPolymersData() {
-        try {
-            const response = await fetch('/api/polymer-data/polymer-names');
-            if (response.ok) {
-                this.polymersData = await response.json();
-                console.log(`Loaded ${this.polymersData.length} polymer names`);
-            } else {
-                console.error('Failed to load polymer names');
-                this.polymersData = [];
-            }
-        } catch (error) {
-            console.error('Failed to load polymers data:', error);
-            this.polymersData = [];
-        }
-    }
-
-    async loadExperimentalResults() {
-        try {
-            // Wait for experimentalResultsManager to be initialized
-            if (window.experimentalResultsManager) {
-                const allResults = window.experimentalResultsManager.getExperimentalResults();
-                // Extract unique solvent names from experimental results
-                this.experimentalResults = allResults.map(result => result.sample_name);
-                console.log(`Loaded ${this.experimentalResults.length} experimental result names`);
-            } else {
-                console.warn('ExperimentalResultsManager not yet initialized');
-                this.experimentalResults = [];
-            }
-        } catch (error) {
-            console.error('Failed to load experimental results:', error);
-            this.experimentalResults = [];
-        }
-    }
 
     setupEventListeners() {
         // Target toggle buttons (common for both Target 1 and Target 2)
@@ -393,86 +357,37 @@ class SolventSearch {
 
         switch (dataSource) {
             case 'custom':
-                contentDiv.innerHTML = `
-                    <div class="target-manual-inline">
-                        <div class="inline-input-group">
-                            <label>Name:</label>
-                            <input type="text" class="name-input" id="${targetId}-name" placeholder="Sample">
-                        </div>
-                        <div class="inline-input-group">
-                            <label>δD:</label>
-                            <input type="number" id="${targetId}-delta-d" step="0.1" placeholder="15.5">
-                        </div>
-                        <div class="inline-input-group">
-                            <label>δP:</label>
-                            <input type="number" id="${targetId}-delta-p" step="0.1" placeholder="7.0">
-                        </div>
-                        <div class="inline-input-group">
-                            <label>δH:</label>
-                            <input type="number" id="${targetId}-delta-h" step="0.1" placeholder="8.0">
-                        </div>
-                        <div class="inline-input-group">
-                            <label>R0:</label>
-                            <input type="number" id="${targetId}-r0" step="0.1" placeholder="5.0" value="5.0">
-                        </div>
-                    </div>
-                `;
-                // Add input listeners for validation
-                ['delta-d', 'delta-p', 'delta-h'].forEach(param => {
-                    const input = document.querySelector(`#${targetId}-${param}`);
-                    if (input) {
-                        input.addEventListener('input', () => this.validateSearchButton());
-                    }
+                contentDiv.innerHTML = HSPSelectorUtils.generateCustomHTML({
+                    idPrefix: targetId,
+                    includeR0: true,
+                    includeName: true
                 });
+                HSPSelectorUtils.attachCustomInputListeners(
+                    targetId,
+                    () => this.validateSearchButton()
+                );
                 break;
 
             case 'polymer':
-                const allNames = [...this.polymersData, ...this.experimentalResults];
-                contentDiv.innerHTML = `
-                    <div class="target-solute-search">
-                        <input type="text"
-                               id="${targetId}-solute-input"
-                               class="solute-search-input"
-                               placeholder="Type to search polymer..."
-                               list="${targetId}-solute-datalist"
-                               autocomplete="off">
-                        <datalist id="${targetId}-solute-datalist">
-                            ${allNames.map(name => `<option value="${name}">`).join('')}
-                        </datalist>
-                        <div id="${targetId}-hsp-display" class="solute-hsp-display" style="display: none;">
-                            <div class="hsp-header">
-                                <div>&delta;D (MPa<sup>0.5</sup>)</div>
-                                <div>&delta;P (MPa<sup>0.5</sup>)</div>
-                                <div>&delta;H (MPa<sup>0.5</sup>)</div>
-                                <div>R0 (MPa<sup>0.5</sup>)</div>
-                            </div>
-                            <div class="hsp-values-row">
-                                <div id="${targetId}-display-dd" class="hsp-cell">-</div>
-                                <div id="${targetId}-display-dp" class="hsp-cell">-</div>
-                                <div id="${targetId}-display-dh" class="hsp-cell">-</div>
-                                <div id="${targetId}-display-r0" class="hsp-cell">-</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                const allNames = window.sharedPolymerCache.getNames();
+                contentDiv.innerHTML = HSPSelectorUtils.generateSelectorHTML({
+                    inputId: `${targetId}-solute-input`,
+                    datalistId: `${targetId}-solute-datalist`,
+                    displayId: `${targetId}-hsp-display`,
+                    placeholder: 'Type to search polymer...',
+                    dataOptions: allNames,
+                    includeR0: true,
+                    displayIdPrefix: `${targetId}-display`
+                });
 
-                const soluteInput = document.querySelector(`#${targetId}-solute-input`);
-                if (soluteInput) {
-                    let debounceTimer;
-                    soluteInput.addEventListener('input', () => {
-                        this.validateSearchButton();
-                        // Debounce HSP display update (wait 500ms after user stops typing)
-                        clearTimeout(debounceTimer);
-                        debounceTimer = setTimeout(() => {
-                            this.updateSoluteHSPDisplay(targetId);
-                        }, 500);
-                    });
-                    soluteInput.addEventListener('blur', () => {
-                        this.validateSearchButton();
-                        clearTimeout(debounceTimer);
-                        this.updateSoluteHSPDisplay(targetId);
-                    });
-                }
+                HSPSelectorUtils.attachDebouncedListener(
+                    `${targetId}-solute-input`,
+                    () => this.updateSoluteHSPDisplay(targetId),
+                    {
+                        debounceDelay: 500,
+                        onInput: () => this.validateSearchButton()
+                    }
+                );
                 break;
         }
     }
@@ -583,49 +498,15 @@ class SolventSearch {
     }
 
     async updateSoluteHSPDisplay(targetId) {
-        const displayDiv = document.querySelector(`#${targetId}-hsp-display`);
-        if (!displayDiv) return;
-
-        const soluteName = document.querySelector(`#${targetId}-solute-input`)?.value.trim();
-
-        if (!soluteName) {
-            displayDiv.style.display = 'none';
-            return;
-        }
-
-        try {
-            // First check experimental results
-            const allResults = window.experimentalResultsManager ?
-                window.experimentalResultsManager.getExperimentalResults() : [];
-            const expResult = allResults.find(r => r.sample_name === soluteName);
-
-            if (expResult) {
-                // Display experimental data
-                document.querySelector(`#${targetId}-display-dd`).textContent = expResult.hsp_result.delta_d.toFixed(1);
-                document.querySelector(`#${targetId}-display-dp`).textContent = expResult.hsp_result.delta_p.toFixed(1);
-                document.querySelector(`#${targetId}-display-dh`).textContent = expResult.hsp_result.delta_h.toFixed(1);
-                document.querySelector(`#${targetId}-display-r0`).textContent = expResult.hsp_result.radius.toFixed(1);
-                displayDiv.style.display = 'block';
-                return;
+        await HSPSelectorUtils.updateHSPDisplay({
+            inputId: `${targetId}-solute-input`,
+            displayId: `${targetId}-hsp-display`,
+            mode: 'polymer',
+            displayOptions: {
+                includeR0: true,
+                cellIdPrefix: `${targetId}-display`
             }
-
-            // If not found in experimental results, fetch from polymer API
-            const response = await fetch(`/api/polymer-data/polymer/${encodeURIComponent(soluteName)}`);
-            if (response.ok) {
-                const polymerData = await response.json();
-                document.querySelector(`#${targetId}-display-dd`).textContent = polymerData.delta_d.toFixed(1);
-                document.querySelector(`#${targetId}-display-dp`).textContent = polymerData.delta_p.toFixed(1);
-                document.querySelector(`#${targetId}-display-dh`).textContent = polymerData.delta_h.toFixed(1);
-                document.querySelector(`#${targetId}-display-r0`).textContent = polymerData.ra.toFixed(1);
-                displayDiv.style.display = 'block';
-            } else {
-                // Not found, hide display
-                displayDiv.style.display = 'none';
-            }
-        } catch (error) {
-            console.error('Error fetching HSP data:', error);
-            displayDiv.style.display = 'none';
-        }
+        });
     }
 
     async performSearch() {

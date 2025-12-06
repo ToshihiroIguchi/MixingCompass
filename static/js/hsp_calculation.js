@@ -10,8 +10,6 @@ class HSPCalculation {
         this.currentCalculatedHSP = null;
         this.table = null;
         this.currentMode = 'calculate'; // 'calculate' or 'optimize'
-        this.polymersData = [];
-        this.experimentalResults = [];
         this.optimizeTargetSource = 'polymer'; // 'polymer', 'solvent', or 'custom'
         this.lastOptimizeResult = null;
 
@@ -24,9 +22,8 @@ class HSPCalculation {
         // Load solvent names for autocomplete
         await this.loadSolventNames();
 
-        // Load polymers data for optimization target
-        await this.loadPolymersData();
-        await this.loadExperimentalResults();
+        // Load polymer data using shared cache
+        await window.sharedPolymerCache.ensureLoaded();
 
         // Initialize table manager
         this.initializeTable();
@@ -43,31 +40,6 @@ class HSPCalculation {
         console.log('HSP Calculation initialized');
     }
 
-    async loadPolymersData() {
-        try {
-            const response = await fetch('/api/polymer-data/polymer-names');
-            if (response.ok) {
-                this.polymersData = await response.json();
-                console.log(`[HSP Calculation] Loaded ${this.polymersData.length} polymer names`);
-            }
-        } catch (error) {
-            console.error('[HSP Calculation] Failed to load polymers data:', error);
-            this.polymersData = [];
-        }
-    }
-
-    async loadExperimentalResults() {
-        try {
-            if (window.experimentalResultsManager) {
-                const allResults = window.experimentalResultsManager.getExperimentalResults();
-                this.experimentalResults = allResults.map(result => result.sample_name);
-                console.log(`[HSP Calculation] Loaded ${this.experimentalResults.length} experimental result names`);
-            }
-        } catch (error) {
-            console.error('[HSP Calculation] Failed to load experimental results:', error);
-            this.experimentalResults = [];
-        }
-    }
 
     async loadSolventNames() {
         try {
@@ -508,177 +480,84 @@ class HSPCalculation {
 
         switch (source) {
             case 'custom':
-                contentDiv.innerHTML = `
-                    <div class="target-manual-inline">
-                        <div class="inline-input-group">
-                            <label>δD:</label>
-                            <input type="number" id="opt-target-delta-d" step="0.1" placeholder="15.5">
-                        </div>
-                        <div class="inline-input-group">
-                            <label>δP:</label>
-                            <input type="number" id="opt-target-delta-p" step="0.1" placeholder="7.0">
-                        </div>
-                        <div class="inline-input-group">
-                            <label>δH:</label>
-                            <input type="number" id="opt-target-delta-h" step="0.1" placeholder="8.0">
-                        </div>
-                    </div>
-                `;
-                ['delta-d', 'delta-p', 'delta-h'].forEach(param => {
-                    const input = document.getElementById(`opt-target-${param}`);
-                    if (input) {
-                        input.addEventListener('input', () => this.validateOptimizeInputs());
-                    }
+                contentDiv.innerHTML = HSPSelectorUtils.generateCustomHTML({
+                    idPrefix: 'opt-target',
+                    includeR0: false,
+                    includeName: false
                 });
+                HSPSelectorUtils.attachCustomInputListeners(
+                    'opt-target',
+                    () => this.validateOptimizeInputs()
+                );
                 break;
 
             case 'polymer':
-                const polymerNames = [...this.polymersData, ...this.experimentalResults];
-                contentDiv.innerHTML = `
-                    <div class="target-solute-search">
-                        <input type="text"
-                               id="opt-target-polymer-input"
-                               class="solute-search-input"
-                               placeholder="Type to search polymer..."
-                               list="opt-polymer-datalist"
-                               autocomplete="off">
-                        <datalist id="opt-polymer-datalist">
-                            ${polymerNames.map(name => `<option value="${name}">`).join('')}
-                        </datalist>
-                        <div id="opt-target-hsp-display" class="solute-hsp-display" style="display: none;">
-                            <div class="hsp-header">
-                                <div>&delta;D (MPa<sup>0.5</sup>)</div>
-                                <div>&delta;P (MPa<sup>0.5</sup>)</div>
-                                <div>&delta;H (MPa<sup>0.5</sup>)</div>
-                            </div>
-                            <div class="hsp-values-row">
-                                <div id="opt-display-dd" class="hsp-cell">-</div>
-                                <div id="opt-display-dp" class="hsp-cell">-</div>
-                                <div id="opt-display-dh" class="hsp-cell">-</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                const polymerInput = document.getElementById('opt-target-polymer-input');
-                if (polymerInput) {
-                    let debounceTimer;
-                    polymerInput.addEventListener('input', () => {
-                        this.validateOptimizeInputs();
-                        clearTimeout(debounceTimer);
-                        debounceTimer = setTimeout(() => {
-                            this.updateOptimizeTargetDisplay();
-                        }, 500);
-                    });
-                    polymerInput.addEventListener('blur', () => {
-                        this.updateOptimizeTargetDisplay();
-                    });
-                }
+                const polymerNames = window.sharedPolymerCache.getNames();
+                contentDiv.innerHTML = HSPSelectorUtils.generateSelectorHTML({
+                    inputId: 'opt-target-polymer-input',
+                    datalistId: 'opt-polymer-datalist',
+                    displayId: 'opt-target-hsp-display',
+                    placeholder: 'Type to search polymer...',
+                    dataOptions: polymerNames,
+                    includeR0: false,
+                    displayIdPrefix: 'opt-display'
+                });
+
+                HSPSelectorUtils.attachDebouncedListener(
+                    'opt-target-polymer-input',
+                    () => this.updateOptimizeTargetDisplay(),
+                    {
+                        debounceDelay: 500,
+                        onInput: () => this.validateOptimizeInputs()
+                    }
+                );
                 break;
 
             case 'solvent':
-                contentDiv.innerHTML = `
-                    <div class="target-solute-search">
-                        <input type="text"
-                               id="opt-target-solvent-input"
-                               class="solute-search-input"
-                               placeholder="Type to search solvent..."
-                               list="opt-solvent-datalist"
-                               autocomplete="off">
-                        <datalist id="opt-solvent-datalist">
-                            ${this.solventNames.map(name => `<option value="${name}">`).join('')}
-                        </datalist>
-                        <div id="opt-target-solvent-display" class="solute-hsp-display" style="display: none;">
-                            <div class="hsp-header">
-                                <div>&delta;D (MPa<sup>0.5</sup>)</div>
-                                <div>&delta;P (MPa<sup>0.5</sup>)</div>
-                                <div>&delta;H (MPa<sup>0.5</sup>)</div>
-                            </div>
-                            <div class="hsp-values-row">
-                                <div id="opt-solvent-dd" class="hsp-cell">-</div>
-                                <div id="opt-solvent-dp" class="hsp-cell">-</div>
-                                <div id="opt-solvent-dh" class="hsp-cell">-</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                const solventInput = document.getElementById('opt-target-solvent-input');
-                if (solventInput) {
-                    let debounceTimer;
-                    solventInput.addEventListener('input', () => {
-                        this.validateOptimizeInputs();
-                        clearTimeout(debounceTimer);
-                        debounceTimer = setTimeout(() => {
-                            this.updateOptimizeSolventDisplay();
-                        }, 300);
-                    });
-                    solventInput.addEventListener('blur', () => {
-                        this.updateOptimizeSolventDisplay();
-                    });
-                }
+                contentDiv.innerHTML = HSPSelectorUtils.generateSelectorHTML({
+                    inputId: 'opt-target-solvent-input',
+                    datalistId: 'opt-solvent-datalist',
+                    displayId: 'opt-target-solvent-display',
+                    placeholder: 'Type to search solvent...',
+                    dataOptions: this.solventNames,
+                    includeR0: false,
+                    displayIdPrefix: 'opt-solvent'
+                });
+
+                HSPSelectorUtils.attachDebouncedListener(
+                    'opt-target-solvent-input',
+                    () => this.updateOptimizeSolventDisplay(),
+                    {
+                        debounceDelay: 300,
+                        onInput: () => this.validateOptimizeInputs()
+                    }
+                );
                 break;
         }
     }
 
     async updateOptimizeTargetDisplay() {
-        const displayDiv = document.getElementById('opt-target-hsp-display');
-        if (!displayDiv) return;
-
-        const polymerName = document.getElementById('opt-target-polymer-input')?.value.trim();
-        if (!polymerName) {
-            displayDiv.style.display = 'none';
-            return;
-        }
-
-        try {
-            // Check experimental results first
-            const allResults = window.experimentalResultsManager ?
-                window.experimentalResultsManager.getExperimentalResults() : [];
-            const expResult = allResults.find(r => r.sample_name === polymerName);
-
-            if (expResult) {
-                document.getElementById('opt-display-dd').textContent = expResult.hsp_result.delta_d.toFixed(1);
-                document.getElementById('opt-display-dp').textContent = expResult.hsp_result.delta_p.toFixed(1);
-                document.getElementById('opt-display-dh').textContent = expResult.hsp_result.delta_h.toFixed(1);
-                displayDiv.style.display = 'block';
-                return;
+        await HSPSelectorUtils.updateHSPDisplay({
+            inputId: 'opt-target-polymer-input',
+            displayId: 'opt-target-hsp-display',
+            mode: 'polymer',
+            displayOptions: {
+                includeR0: false,
+                cellIdPrefix: 'opt-display'
             }
-
-            // Fetch from polymer API
-            const response = await fetch(`/api/polymer-data/polymer/${encodeURIComponent(polymerName)}`);
-            if (response.ok) {
-                const polymerData = await response.json();
-                document.getElementById('opt-display-dd').textContent = polymerData.delta_d.toFixed(1);
-                document.getElementById('opt-display-dp').textContent = polymerData.delta_p.toFixed(1);
-                document.getElementById('opt-display-dh').textContent = polymerData.delta_h.toFixed(1);
-                displayDiv.style.display = 'block';
-            } else {
-                displayDiv.style.display = 'none';
-            }
-        } catch (error) {
-            console.error('Error fetching polymer HSP data:', error);
-            displayDiv.style.display = 'none';
-        }
+        });
     }
 
-    updateOptimizeSolventDisplay() {
-        const displayDiv = document.getElementById('opt-target-solvent-display');
-        if (!displayDiv) return;
-
-        const solventName = document.getElementById('opt-target-solvent-input')?.value.trim();
-        if (!solventName) {
-            displayDiv.style.display = 'none';
-            return;
-        }
-
-        const solventData = window.sharedSolventCache.get(solventName);
-        if (solventData) {
-            document.getElementById('opt-solvent-dd').textContent = solventData.delta_d.toFixed(1);
-            document.getElementById('opt-solvent-dp').textContent = solventData.delta_p.toFixed(1);
-            document.getElementById('opt-solvent-dh').textContent = solventData.delta_h.toFixed(1);
-            displayDiv.style.display = 'block';
-        } else {
-            displayDiv.style.display = 'none';
-        }
+    async updateOptimizeSolventDisplay() {
+        await HSPSelectorUtils.updateHSPDisplay({
+            inputId: 'opt-target-solvent-input',
+            displayId: 'opt-target-solvent-display',
+            mode: 'solvent',
+            displayOptions: {
+                includeR0: false,
+                cellIdPrefix: 'opt-solvent'
+            }
+        });
     }
 
     validateOptimizeInputs() {
