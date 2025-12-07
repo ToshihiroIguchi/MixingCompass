@@ -317,12 +317,8 @@ class SolventSearch {
 
         // Create New Set button
         const createNewSetBtn = document.getElementById('create-new-set-btn');
-        console.log('[SolventSearch] create-new-set-btn found:', createNewSetBtn);
         if (createNewSetBtn) {
             createNewSetBtn.addEventListener('click', () => this.showCreateSetModal());
-            console.log('[SolventSearch] Event listener attached to create-new-set-btn');
-        } else {
-            console.error('[SolventSearch] create-new-set-btn NOT FOUND!');
         }
     }
 
@@ -1762,7 +1758,6 @@ class SolventSearch {
      * Show create set modal (Smart integration - can save selection or create empty)
      */
     showCreateSetModal() {
-        console.log('[showCreateSetModal] Called');
         const modal = document.getElementById('create-set-modal');
         const nameInput = document.getElementById('new-set-name');
         const includeCheckbox = document.getElementById('include-selection-checkbox');
@@ -1772,19 +1767,7 @@ class SolventSearch {
         const cancelBtn = document.getElementById('create-set-cancel');
         const closeBtn = document.getElementById('create-set-modal-close');
 
-        console.log('[showCreateSetModal] Elements found:', {
-            modal: !!modal,
-            nameInput: !!nameInput,
-            includeCheckbox: !!includeCheckbox,
-            selectionText: !!selectionText,
-            selectionGroup: !!selectionGroup,
-            confirmBtn: !!confirmBtn,
-            cancelBtn: !!cancelBtn,
-            closeBtn: !!closeBtn
-        });
-
         if (!modal || !nameInput) {
-            console.error('[showCreateSetModal] Required elements not found!');
             return;
         }
 
@@ -1806,8 +1789,7 @@ class SolventSearch {
         }
 
         // Show modal
-        modal.classList.add('active');
-        modal.style.display = 'flex';  // Override inline style
+        modal.style.display = 'flex';
         nameInput.focus();
         nameInput.select();
 
@@ -1890,7 +1872,7 @@ class SolventSearch {
         const nameInput = document.getElementById('new-set-name');
 
         if (modal) {
-            modal.classList.remove('active');
+            modal.style.display = 'none';
         }
         if (nameInput) {
             nameInput.value = '';
@@ -1906,7 +1888,7 @@ class SolventSearch {
         if (cancelBtn) cancelBtn.onclick = null;
         if (closeBtn) closeBtn.onclick = null;
 
-        modal.onclick = null;
+        if (modal) modal.onclick = null;
     }
 
     /**
