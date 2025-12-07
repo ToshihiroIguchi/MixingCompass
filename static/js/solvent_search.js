@@ -1821,6 +1821,9 @@ class SolventSearch {
             if (window.solventSetManager) {
                 window.solventSetManager.saveSolventSet(setName, solventsToSave);
 
+                // Update Search In dropdown
+                this.populateSolventSetSelector();
+
                 if (solventsToSave.length > 0) {
                     Notification.success(`Saved "${setName}" with ${solventsToSave.length} solvents`);
                     // Clear selection after save
