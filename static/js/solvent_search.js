@@ -173,6 +173,9 @@ class SolventSearch {
             this.populateResultsTable();
             this.updateResultsCount(this.searchResults.length);
 
+            // Show selection controls
+            this.showSelectionUI(this.searchResults.length > 0);
+
             // Generate visualization with all solvents (no targets initially)
             this.generateVisualization(null, null, this.searchResults, null);
 
@@ -312,10 +315,14 @@ class SolventSearch {
             });
         }
 
-        // Save as Set button
-        const saveAsSetBtn = document.getElementById('save-as-set-btn');
-        if (saveAsSetBtn) {
-            saveAsSetBtn.addEventListener('click', () => this.saveAsSet());
+        // Create New Set button
+        const createNewSetBtn = document.getElementById('create-new-set-btn');
+        console.log('[SolventSearch] create-new-set-btn found:', createNewSetBtn);
+        if (createNewSetBtn) {
+            createNewSetBtn.addEventListener('click', () => this.showCreateSetModal());
+            console.log('[SolventSearch] Event listener attached to create-new-set-btn');
+        } else {
+            console.error('[SolventSearch] create-new-set-btn NOT FOUND!');
         }
     }
 
@@ -1677,13 +1684,13 @@ class SolventSearch {
      */
     showSelectionUI(show) {
         const selectionControls = document.getElementById('selection-controls');
-        const saveAsSetBtn = document.getElementById('save-as-set-btn');
+        const createNewSetBtn = document.getElementById('create-new-set-btn');
 
         if (selectionControls) {
             selectionControls.style.display = show ? 'flex' : 'none';
         }
-        if (saveAsSetBtn) {
-            saveAsSetBtn.style.display = show ? 'inline-block' : 'none';
+        if (createNewSetBtn) {
+            createNewSetBtn.style.display = show ? 'inline-block' : 'none';
         }
 
         // Reset selection state
@@ -1752,7 +1759,158 @@ class SolventSearch {
     }
 
     /**
-     * Save selected solvents as a new set
+     * Show create set modal (Smart integration - can save selection or create empty)
+     */
+    showCreateSetModal() {
+        console.log('[showCreateSetModal] Called');
+        const modal = document.getElementById('create-set-modal');
+        const nameInput = document.getElementById('new-set-name');
+        const includeCheckbox = document.getElementById('include-selection-checkbox');
+        const selectionText = document.getElementById('selection-count-text');
+        const selectionGroup = document.getElementById('selection-option-group');
+        const confirmBtn = document.getElementById('create-set-confirm');
+        const cancelBtn = document.getElementById('create-set-cancel');
+        const closeBtn = document.getElementById('create-set-modal-close');
+
+        console.log('[showCreateSetModal] Elements found:', {
+            modal: !!modal,
+            nameInput: !!nameInput,
+            includeCheckbox: !!includeCheckbox,
+            selectionText: !!selectionText,
+            selectionGroup: !!selectionGroup,
+            confirmBtn: !!confirmBtn,
+            cancelBtn: !!cancelBtn,
+            closeBtn: !!closeBtn
+        });
+
+        if (!modal || !nameInput) {
+            console.error('[showCreateSetModal] Required elements not found!');
+            return;
+        }
+
+        // Get current selection
+        const selectedData = this.resultsTable ?
+            this.resultsTable.getData().filter(d => this.selectedSolvents.has(d.name)) :
+            [];
+        const hasSelection = selectedData.length > 0;
+
+        // Update UI based on selection
+        if (hasSelection) {
+            selectionText.textContent = selectedData.length;
+            selectionGroup.style.display = 'block';
+            includeCheckbox.checked = true;
+            nameInput.value = `Search Results (${selectedData.length})`;
+        } else {
+            selectionGroup.style.display = 'none';
+            nameInput.value = 'New Solvent Set';
+        }
+
+        // Show modal
+        modal.classList.add('active');
+        modal.style.display = 'flex';  // Override inline style
+        nameInput.focus();
+        nameInput.select();
+
+        // Save handler
+        const handleSave = () => {
+            const setName = nameInput.value.trim();
+            if (!setName) {
+                Notification.error('Please enter a set name');
+                nameInput.focus();
+                return;
+            }
+
+            // Determine which solvents to include
+            let solventsToSave = [];
+            if (hasSelection && includeCheckbox.checked) {
+                // Include current selection
+                solventsToSave = selectedData.map(s => ({
+                    solvent_name: s.name,
+                    delta_d: s.delta_d,
+                    delta_p: s.delta_p,
+                    delta_h: s.delta_h,
+                    ratio: 100 / selectedData.length
+                }));
+            }
+            // else: empty set
+
+            // Save using SolventSetManager
+            if (window.solventSetManager) {
+                window.solventSetManager.saveSolventSet(setName, solventsToSave);
+
+                if (solventsToSave.length > 0) {
+                    Notification.success(`Saved "${setName}" with ${solventsToSave.length} solvents`);
+                    // Clear selection after save
+                    this.resultsTable.deselectRow();
+                    this.selectedSolvents.clear();
+                    this.updateSelectionUI();
+                } else {
+                    Notification.success(`Created empty set "${setName}"`);
+                }
+            } else {
+                Notification.error('Solvent Set Manager not available');
+            }
+
+            // Close modal
+            this.closeCreateSetModal();
+        };
+
+        // Enter key support
+        const handleKeyPress = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSave();
+            }
+        };
+
+        // Close handler
+        const handleClose = () => {
+            this.closeCreateSetModal();
+        };
+
+        // Attach event listeners
+        confirmBtn.onclick = handleSave;
+        cancelBtn.onclick = handleClose;
+        closeBtn.onclick = handleClose;
+        nameInput.onkeypress = handleKeyPress;
+
+        // Close on background click
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                handleClose();
+            }
+        };
+    }
+
+    /**
+     * Close create set modal
+     */
+    closeCreateSetModal() {
+        const modal = document.getElementById('create-set-modal');
+        const nameInput = document.getElementById('new-set-name');
+
+        if (modal) {
+            modal.classList.remove('active');
+        }
+        if (nameInput) {
+            nameInput.value = '';
+            nameInput.onkeypress = null;
+        }
+
+        // Remove event listeners
+        const confirmBtn = document.getElementById('create-set-confirm');
+        const cancelBtn = document.getElementById('create-set-cancel');
+        const closeBtn = document.getElementById('create-set-modal-close');
+
+        if (confirmBtn) confirmBtn.onclick = null;
+        if (cancelBtn) cancelBtn.onclick = null;
+        if (closeBtn) closeBtn.onclick = null;
+
+        modal.onclick = null;
+    }
+
+    /**
+     * Save selected solvents as a new set (Legacy - kept for compatibility)
      */
     saveAsSet() {
         if (this.selectedSolvents.size === 0) {
