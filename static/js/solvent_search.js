@@ -1759,7 +1759,7 @@ class SolventSearch {
      */
     showCreateSetModal() {
         const modal = document.getElementById('create-set-modal');
-        const nameInput = document.getElementById('new-set-name');
+        const nameInput = document.getElementById('create-set-name-input');
         const includeCheckbox = document.getElementById('include-selection-checkbox');
         const selectionText = document.getElementById('selection-count-text');
         const selectionGroup = document.getElementById('selection-option-group');
@@ -1796,6 +1796,7 @@ class SolventSearch {
         // Save handler
         const handleSave = () => {
             const setName = nameInput.value.trim();
+
             if (!setName) {
                 Notification.error('Please enter a set name');
                 nameInput.focus();
@@ -1869,7 +1870,7 @@ class SolventSearch {
      */
     closeCreateSetModal() {
         const modal = document.getElementById('create-set-modal');
-        const nameInput = document.getElementById('new-set-name');
+        const nameInput = document.getElementById('create-set-name-input');
 
         if (modal) {
             modal.style.display = 'none';
