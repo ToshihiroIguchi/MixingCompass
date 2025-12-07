@@ -307,13 +307,7 @@ class SolventSearch {
             });
         }
 
-        // Select all checkbox
-        const selectAllCheckbox = document.getElementById('select-all-results');
-        if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', (e) => {
-                this.toggleSelectAll(e.target.checked);
-            });
-        }
+        // Row selection is now handled by Tabulator's built-in checkbox column
 
         // Create New Set button
         const createNewSetBtn = document.getElementById('create-new-set-btn');
@@ -1680,21 +1674,15 @@ class SolventSearch {
      */
     showSelectionUI(show) {
         const selectionControls = document.getElementById('selection-controls');
-        const createNewSetBtn = document.getElementById('create-new-set-btn');
 
         if (selectionControls) {
             selectionControls.style.display = show ? 'flex' : 'none';
-        }
-        if (createNewSetBtn) {
-            createNewSetBtn.style.display = show ? 'inline-block' : 'none';
         }
 
         // Reset selection state
         if (show) {
             this.selectedSolvents.clear();
             this.updateSelectionUI();
-            const selectAllCheckbox = document.getElementById('select-all-results');
-            if (selectAllCheckbox) selectAllCheckbox.checked = false;
         }
     }
 
@@ -1724,19 +1712,6 @@ class SolventSearch {
     }
 
     /**
-     * Toggle select all in results table
-     */
-    toggleSelectAll(selectAll) {
-        if (!this.resultsTable) return;
-
-        if (selectAll) {
-            this.resultsTable.selectRow();
-        } else {
-            this.resultsTable.deselectRow();
-        }
-    }
-
-    /**
      * Update selection UI (count display, buttons)
      */
     updateSelectionUI() {
@@ -1745,12 +1720,10 @@ class SolventSearch {
             countDisplay.textContent = `${this.selectedSolvents.size} selected`;
         }
 
-        // Update select all checkbox state
-        const selectAllCheckbox = document.getElementById('select-all-results');
-        if (selectAllCheckbox && this.resultsTable) {
-            const totalRows = this.resultsTable.getDataCount("active");
-            selectAllCheckbox.checked = this.selectedSolvents.size > 0 && this.selectedSolvents.size === totalRows;
-            selectAllCheckbox.indeterminate = this.selectedSolvents.size > 0 && this.selectedSolvents.size < totalRows;
+        // Show "+ New Set" button only when solvents are selected
+        const createNewSetBtn = document.getElementById('create-new-set-btn');
+        if (createNewSetBtn) {
+            createNewSetBtn.style.display = this.selectedSolvents.size > 0 ? 'inline-block' : 'none';
         }
     }
 
