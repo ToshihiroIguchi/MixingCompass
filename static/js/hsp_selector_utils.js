@@ -44,6 +44,10 @@ const HSPSelectorUtils = {
                     ${dataOptions.map(name => `<option value="${name}">`).join('')}
                 </datalist>
                 <div id="${displayId}" class="solute-hsp-display" style="display: none;">
+                    <div class="selected-name-row" id="${prefix}-name-row" style="margin-bottom: 0.5rem; display: none;">
+                        <span class="selected-name" id="${prefix}-name"></span>
+                        <span class="name-icons" id="${prefix}-icons"></span>
+                    </div>
                     <div class="hsp-header">
                         <div>&delta;D (MPa<sup>0.5</sup>)</div>
                         <div>&delta;P (MPa<sup>0.5</sup>)</div>
@@ -163,7 +167,9 @@ const HSPSelectorUtils = {
                 delta_d: expResult.hsp_result.delta_d,
                 delta_p: expResult.hsp_result.delta_p,
                 delta_h: expResult.hsp_result.delta_h,
-                r0: expResult.hsp_result.radius
+                r0: expResult.hsp_result.radius,
+                source_url: null,  // Experimental results don't have source URL
+                name: name.trim()
             };
         }
 
@@ -176,7 +182,9 @@ const HSPSelectorUtils = {
                     delta_d: data.delta_d,
                     delta_p: data.delta_p,
                     delta_h: data.delta_h,
-                    r0: data.ra
+                    r0: data.ra,
+                    source_url: data.source_url || null,
+                    name: name.trim()
                 };
             }
         } catch (error) {
@@ -200,7 +208,9 @@ const HSPSelectorUtils = {
                 delta_d: solventData.delta_d,
                 delta_p: solventData.delta_p,
                 delta_h: solventData.delta_h,
-                r0: null  // Solvents typically don't have R0
+                r0: null,  // Solvents typically don't have R0
+                source_url: solventData.source_url || null,
+                name: name.trim()
             };
         }
         return null;
@@ -220,6 +230,38 @@ const HSPSelectorUtils = {
         if (!displayDiv) return;
 
         const prefix = cellIdPrefix || displayId;
+
+        // Display name with icons if available
+        if (hspData.name) {
+            const nameRow = document.getElementById(`${prefix}-name-row`);
+            const nameSpan = document.getElementById(`${prefix}-name`);
+            const iconsSpan = document.getElementById(`${prefix}-icons`);
+
+            if (nameRow && nameSpan && iconsSpan) {
+                // Hide name text to avoid duplication with input field
+                nameSpan.style.display = 'none';
+
+                // Build icons HTML
+                let iconsHTML = '';
+                if (hspData.source_url) {
+                    iconsHTML += `<a href="${hspData.source_url}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="View data source"
+                                    class="source-link-icon">🔗</a>`;
+                }
+                // Always show Google search
+                const googleQuery = encodeURIComponent(hspData.name + ' polymer HSP');
+                iconsHTML += `<a href="https://www.google.com/search?q=${googleQuery}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                title="Search on Google"
+                                class="google-search-icon">🔍</a>`;
+
+                iconsSpan.innerHTML = iconsHTML;
+                nameRow.style.display = 'block';
+            }
+        }
 
         const ddCell = document.getElementById(`${prefix}-dd`);
         const dpCell = document.getElementById(`${prefix}-dp`);

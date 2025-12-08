@@ -1,16 +1,5 @@
 Solvent,CAS,_Boiling point (°C),Tb,dD,dP,dH,CHO
 MMB(1-Butanol),56539-66-3,174,174,15.1,4.7,12.6,TRUE
-VertecBio ELSOL-AR,,71.1-155.6,,7.7,3.4,6.1,TRUE
-VertecBio ELSOL-BCR,,71.1-155.6,,7.5,3.8,6.1,TRUE
-VertecBio ELSOL Clean ECO-Solv,,77-154,,7.7,4.2,8.8,TRUE
-VertecBio ELSOL-CXR,,111.1-154.4,,7.7,3.5,6.4,TRUE
-VertecBio ELSOL-KTR1,,160,160,7.7,3.4,6.1,TRUE
-VertecBio ELSOL-KTR2,,160,160,7.7,3.4,5.7,TRUE
-VertecBio ELSOL-LQ,,77.2-151.7,,7.7,4,5.4,TRUE
-VertecBio ELSOL-MAKR,,43.9-67.8,,7.7,3.4,6.7,TRUE
-VertecBio ELSOL-NMPR,,148.9,148.9,7.7,2.9,5.4,TRUE
-VertecBio ELSOL PMAR,,45.6-78.9,,7.7,3.1,6.2,TRUE
-VertecBio ELSOL-XTR,,80-160,,7.7,2.9,5.4,TRUE
 Diethylene glycol monobutyl ether,124-17-4,245,245,16,4.1,8.2,TRUE
 Diethylene glycol monoethyl ether,112-15-2,217.4,217.4,16.2,5.1,9.2,TRUE
 Diethylene glycol monomethyl ether,629-38-9,209.1,209.1,16.1,6,8.8,TRUE
