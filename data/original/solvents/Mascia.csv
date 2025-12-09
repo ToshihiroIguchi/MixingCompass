@@ -1,0 +1,5 @@
+Solvent,CAS,Smiles,dD,dP,dH,CHO
+Tri-cresyl phosphate (TCP),78-32-0,CC1=CC=C(C=C1)OP(=O)(OC2=CC=C(C=C2)C)OC3=CC=C(C=C3)C,19,12.3,4.5,FALSE
+N-Butylbenzene sulphonamide (BBSA),3622-84-2,CCCCNS(=O)(=O)C1=CC=CC=C1,18.9,7.9,8.8,FALSE
+Glycerol (GLY),56-81-5,C(C(CO)O)O,17.3,12.1,29.3,TRUE
+Soybean oil (SBO),8001-22-7,,17.1,2.5,2.8,TRUE
