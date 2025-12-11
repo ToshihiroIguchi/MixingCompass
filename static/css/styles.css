@@ -4022,11 +4022,16 @@ body {
     gap: 0.75rem;
     margin-top: auto;
     padding-top: 0.5rem;
+    align-items: center;
 }
 
 .card-action-buttons .btn {
     padding: 0.5rem 1rem;
     font-size: 0.9rem;
+}
+
+.card-action-buttons .info-btn {
+    flex-shrink: 0;
 }
 
 /* Responsive: Stack on mobile */

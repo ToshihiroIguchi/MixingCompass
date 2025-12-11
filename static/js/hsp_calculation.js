@@ -12,6 +12,7 @@ class HSPCalculation {
         this.currentMode = 'calculate'; // 'calculate' or 'optimize'
         this.optimizeTargetSource = 'polymer'; // 'polymer', 'solvent', or 'custom'
         this.lastOptimizeResult = null;
+        this.lastOptimizeTarget = null; // Store target HSP for export
 
         this.STORAGE_KEY = 'mixingcompass_saved_mixtures';
     }
@@ -218,6 +219,36 @@ class HSPCalculation {
                 this.saveOptimizedMixture();
             });
         }
+
+        // Export mixture package buttons
+        const exportMixtureBtn = document.getElementById('export-mixture-package-btn');
+        if (exportMixtureBtn) {
+            exportMixtureBtn.addEventListener('click', () => {
+                this.exportMixturePackage();
+            });
+        }
+
+        const exportOptMixtureBtn = document.getElementById('export-optimized-mixture-package-btn');
+        if (exportOptMixtureBtn) {
+            exportOptMixtureBtn.addEventListener('click', () => {
+                this.exportOptimizedMixturePackage();
+            });
+        }
+
+        // Copy mixture buttons
+        const copyMixtureBtn = document.getElementById('copy-mixture-btn');
+        if (copyMixtureBtn) {
+            copyMixtureBtn.addEventListener('click', () => {
+                this.copyMixtureData();
+            });
+        }
+
+        const copyOptMixtureBtn = document.getElementById('copy-optimized-mixture-btn');
+        if (copyOptMixtureBtn) {
+            copyOptMixtureBtn.addEventListener('click', () => {
+                this.copyOptimizedMixtureData();
+            });
+        }
     }
 
     addComponent() {
@@ -304,8 +335,20 @@ class HSPCalculation {
         document.getElementById('mixture-delta-p').textContent = Utils.formatHSPValue(hsp.delta_p);
         document.getElementById('mixture-delta-h').textContent = Utils.formatHSPValue(hsp.delta_h);
 
-        // Show result section and save button
+        // Show result section and buttons
         document.getElementById('mixture-result-section').style.display = 'block';
+
+        // Show export button
+        const exportBtn = document.getElementById('export-mixture-package-btn');
+        if (exportBtn) {
+            exportBtn.style.display = 'inline-block';
+        }
+
+        // Show copy button
+        const copyBtn = document.getElementById('copy-mixture-btn');
+        if (copyBtn) {
+            copyBtn.style.display = '';
+        }
     }
 
     saveMixture() {
@@ -686,6 +729,7 @@ class HSPCalculation {
             }
 
             this.lastOptimizeResult = result;
+            this.lastOptimizeTarget = targetHSP; // Store target for export
             this.displayOptimizeResults(result);
             this.applyOptimalRatios(); // Auto-apply to table
 
@@ -702,6 +746,18 @@ class HSPCalculation {
         document.getElementById('opt-ra').textContent = result.ra.toFixed(3);
 
         document.getElementById('optimize-result-section').style.display = 'block';
+
+        // Show export button
+        const exportBtn = document.getElementById('export-optimized-mixture-package-btn');
+        if (exportBtn) {
+            exportBtn.style.display = 'inline-block';
+        }
+
+        // Show copy button
+        const copyBtn = document.getElementById('copy-optimized-mixture-btn');
+        if (copyBtn) {
+            copyBtn.style.display = '';
+        }
     }
 
     applyOptimalRatios() {
@@ -728,6 +784,247 @@ class HSPCalculation {
         this.table.setData(updatedData);
         this.updateTotalRatio();
         Notification.success('Optimal ratios applied to table');
+    }
+
+    async exportMixturePackage() {
+        if (!this.currentCalculatedHSP) {
+            Notification.error('Please calculate mixture first');
+            return;
+        }
+
+        const mixtureName = document.getElementById('mixture-name').value.trim() || 'Custom_Mixture';
+        const components = this.table.getData();
+
+        if (components.length === 0) {
+            Notification.error('No components to export');
+            return;
+        }
+
+        try {
+            Notification.info('Generating package...');
+
+            const exportData = {
+                mixture_name: mixtureName,
+                components: components.map(c => ({
+                    solvent: c.solvent,
+                    volume: c.volume || 0
+                })),
+                delta_d: this.currentCalculatedHSP.delta_d,
+                delta_p: this.currentCalculatedHSP.delta_p,
+                delta_h: this.currentCalculatedHSP.delta_h,
+                mode: 'calculate'
+            };
+
+            const response = await fetch('/api/solvent-search/export-mixture', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(exportData)
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Export failed');
+            }
+
+            // Download ZIP file
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+
+            // Get filename from Content-Disposition header
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'mixture_package.zip';
+            if (contentDisposition) {
+                const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+                if (matches != null && matches[1]) {
+                    filename = matches[1].replace(/['"]/g, '');
+                }
+            }
+
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            Notification.success('Package exported successfully');
+
+        } catch (error) {
+            console.error('Export error:', error);
+            Notification.error(error.message || 'Failed to export package');
+        }
+    }
+
+    async exportOptimizedMixturePackage() {
+        if (!this.lastOptimizeResult) {
+            Notification.error('Please run optimization first');
+            return;
+        }
+
+        const mixtureName = prompt('Enter mixture name:', 'Optimized_Mixture');
+        if (!mixtureName || !mixtureName.trim()) {
+            return;
+        }
+
+        const components = this.table.getData();
+
+        if (components.length === 0) {
+            Notification.error('No components to export');
+            return;
+        }
+
+        try {
+            Notification.info('Generating package...');
+
+            const exportData = {
+                mixture_name: mixtureName.trim(),
+                components: components.map(c => ({
+                    solvent: c.solvent,
+                    volume: c.volume || 0
+                })),
+                delta_d: this.lastOptimizeResult.mixture_hsp.delta_d,
+                delta_p: this.lastOptimizeResult.mixture_hsp.delta_p,
+                delta_h: this.lastOptimizeResult.mixture_hsp.delta_h,
+                mode: 'optimize',
+                target_delta_d: this.lastOptimizeTarget.delta_d,
+                target_delta_p: this.lastOptimizeTarget.delta_p,
+                target_delta_h: this.lastOptimizeTarget.delta_h,
+                ra: this.lastOptimizeResult.ra
+            };
+
+            const response = await fetch('/api/solvent-search/export-mixture', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(exportData)
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Export failed');
+            }
+
+            // Download ZIP file
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+
+            // Get filename from Content-Disposition header
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'mixture_package.zip';
+            if (contentDisposition) {
+                const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+                if (matches != null && matches[1]) {
+                    filename = matches[1].replace(/['"]/g, '');
+                }
+            }
+
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            Notification.success('Package exported successfully');
+
+        } catch (error) {
+            console.error('Export error:', error);
+            Notification.error(error.message || 'Failed to export package');
+        }
+    }
+
+    async copyMixtureData() {
+        if (!this.currentCalculatedHSP) {
+            Notification.error('Please calculate mixture first');
+            return;
+        }
+
+        const mixtureName = document.getElementById('mixture-name').value.trim() || 'Mixture';
+        const components = this.table.getData();
+
+        try {
+            // Create tab-separated data for Excel
+            const header = 'Mixture Name\tδD\tδP\tδH';
+            const dataRow = `${mixtureName}\t${this.currentCalculatedHSP.delta_d.toFixed(2)}\t${this.currentCalculatedHSP.delta_p.toFixed(2)}\t${this.currentCalculatedHSP.delta_h.toFixed(2)}`;
+
+            let copyText = `${header}\n${dataRow}\n\n`;
+
+            // Add composition
+            copyText += 'Component\tVolume Ratio\n';
+            components.forEach(c => {
+                copyText += `${c.solvent}\t${c.volume || 0}\n`;
+            });
+
+            await navigator.clipboard.writeText(copyText);
+
+            Notification.success('Mixture data copied to clipboard');
+
+            // Visual feedback
+            const copyBtn = document.getElementById('copy-mixture-btn');
+            if (copyBtn) {
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✓';
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                }, 1500);
+            }
+
+        } catch (error) {
+            console.error('Copy error:', error);
+            Notification.error('Failed to copy mixture data');
+        }
+    }
+
+    async copyOptimizedMixtureData() {
+        if (!this.lastOptimizeResult) {
+            Notification.error('Please run optimization first');
+            return;
+        }
+
+        const components = this.table.getData();
+
+        try {
+            // Create tab-separated data for Excel
+            const header = 'Mixture δD\tMixture δP\tMixture δH\tRa (Distance)';
+            const dataRow = `${this.lastOptimizeResult.mixture_hsp.delta_d.toFixed(2)}\t${this.lastOptimizeResult.mixture_hsp.delta_p.toFixed(2)}\t${this.lastOptimizeResult.mixture_hsp.delta_h.toFixed(2)}\t${this.lastOptimizeResult.ra.toFixed(3)}`;
+
+            let copyText = `${header}\n${dataRow}\n\n`;
+
+            // Add target HSP
+            if (this.lastOptimizeTarget) {
+                copyText += 'Target δD\tTarget δP\tTarget δH\n';
+                copyText += `${this.lastOptimizeTarget.delta_d.toFixed(2)}\t${this.lastOptimizeTarget.delta_p.toFixed(2)}\t${this.lastOptimizeTarget.delta_h.toFixed(2)}\n\n`;
+            }
+
+            // Add composition
+            copyText += 'Component\tVolume Ratio\n';
+            components.forEach(c => {
+                copyText += `${c.solvent}\t${c.volume || 0}\n`;
+            });
+
+            await navigator.clipboard.writeText(copyText);
+
+            Notification.success('Mixture data copied to clipboard');
+
+            // Visual feedback
+            const copyBtn = document.getElementById('copy-optimized-mixture-btn');
+            if (copyBtn) {
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✓';
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                }, 1500);
+            }
+
+        } catch (error) {
+            console.error('Copy error:', error);
+            Notification.error('Failed to copy mixture data');
+        }
     }
 }
 

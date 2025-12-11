@@ -2,14 +2,19 @@
 Solvent Search API endpoints
 """
 
-from fastapi import APIRouter, Query, Request
+from fastapi import APIRouter, Query, Request, HTTPException
+from fastapi.responses import StreamingResponse
 from typing import List, Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import pandas as pd
 import numpy as np
 from scipy.optimize import minimize
 from pathlib import Path
 import json
+from datetime import datetime
+import io
+import zipfile
+import csv
 
 from app.services.solvent_service import solvent_service
 
@@ -410,4 +415,169 @@ async def optimize_mixture(request: OptimizeRequest):
         'ra': round(ra, 3),
         'min_ratio_used': min_ratio
     }
+
+
+class MixtureComponent(BaseModel):
+    """Component in a solvent mixture"""
+    solvent: str = Field(..., description="Solvent name")
+    volume: float = Field(..., description="Volume ratio/percentage")
+
+
+class MixtureExportInput(BaseModel):
+    """Input model for exporting mixture as ZIP package"""
+    mixture_name: str = Field(..., description="Name of the mixture")
+    components: List[MixtureComponent] = Field(..., description="List of mixture components")
+    delta_d: float = Field(..., description="Mixture δD")
+    delta_p: float = Field(..., description="Mixture δP")
+    delta_h: float = Field(..., description="Mixture δH")
+    mode: Optional[str] = Field("calculate", description="Mode: 'calculate' or 'optimize'")
+    target_delta_d: Optional[float] = Field(None, description="Target δD (for optimize mode)")
+    target_delta_p: Optional[float] = Field(None, description="Target δP (for optimize mode)")
+    target_delta_h: Optional[float] = Field(None, description="Target δH (for optimize mode)")
+    ra: Optional[float] = Field(None, description="Distance to target (for optimize mode)")
+
+
+@router.post("/export-mixture")
+async def export_mixture_as_zip(data: MixtureExportInput):
+    """
+    Export mixture composition and results as a ZIP package containing:
+    - CSV file with mixture composition
+    - JSON file with complete data
+    - README file with summary
+    """
+    try:
+        # Create ZIP file in memory
+        zip_buffer = io.BytesIO()
+
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            # 1. Generate CSV
+            csv_buffer = io.StringIO()
+            csv_writer = csv.writer(csv_buffer)
+
+            # Header section
+            csv_writer.writerow(['Mixture Name', data.mixture_name])
+            csv_writer.writerow(['Mode', data.mode.capitalize()])
+            csv_writer.writerow(['Export Date', datetime.now().strftime('%Y-%m-%d %H:%M:%S')])
+            csv_writer.writerow([])
+
+            # Mixture HSP
+            csv_writer.writerow(['Mixture Hansen Solubility Parameters'])
+            csv_writer.writerow(['Parameter', 'Value', 'Unit'])
+            csv_writer.writerow(['δD (Dispersion)', f'{data.delta_d:.2f}', 'MPa^0.5'])
+            csv_writer.writerow(['δP (Polar)', f'{data.delta_p:.2f}', 'MPa^0.5'])
+            csv_writer.writerow(['δH (H-bonding)', f'{data.delta_h:.2f}', 'MPa^0.5'])
+            csv_writer.writerow([])
+
+            # Target HSP and Ra (for optimize mode)
+            if data.mode == 'optimize' and data.target_delta_d is not None:
+                csv_writer.writerow(['Target Hansen Solubility Parameters'])
+                csv_writer.writerow(['Parameter', 'Value', 'Unit'])
+                csv_writer.writerow(['Target δD', f'{data.target_delta_d:.2f}', 'MPa^0.5'])
+                csv_writer.writerow(['Target δP', f'{data.target_delta_p:.2f}', 'MPa^0.5'])
+                csv_writer.writerow(['Target δH', f'{data.target_delta_h:.2f}', 'MPa^0.5'])
+                csv_writer.writerow(['Ra (Distance)', f'{data.ra:.3f}' if data.ra is not None else '-', 'MPa^0.5'])
+                csv_writer.writerow([])
+
+            # Mixture composition
+            csv_writer.writerow(['Mixture Composition'])
+            csv_writer.writerow(['Solvent', 'Volume Ratio', 'Percentage'])
+            total_volume = sum(c.volume for c in data.components)
+            for comp in data.components:
+                percentage = (comp.volume / total_volume * 100) if total_volume > 0 else 0
+                csv_writer.writerow([comp.solvent, f'{comp.volume:.2f}', f'{percentage:.1f}%'])
+            csv_writer.writerow(['Total', f'{total_volume:.2f}', '100.0%'])
+
+            zip_file.writestr('data/mixture.csv', csv_buffer.getvalue())
+
+            # 2. Generate JSON
+            json_data = {
+                'mixture_name': data.mixture_name,
+                'mode': data.mode,
+                'export_date': datetime.now().isoformat(),
+                'mixture_hsp': {
+                    'delta_d': data.delta_d,
+                    'delta_p': data.delta_p,
+                    'delta_h': data.delta_h
+                },
+                'components': [
+                    {
+                        'solvent': comp.solvent,
+                        'volume': comp.volume,
+                        'percentage': (comp.volume / total_volume * 100) if total_volume > 0 else 0
+                    }
+                    for comp in data.components
+                ]
+            }
+
+            # Add target and Ra for optimize mode
+            if data.mode == 'optimize' and data.target_delta_d is not None:
+                json_data['target_hsp'] = {
+                    'delta_d': data.target_delta_d,
+                    'delta_p': data.target_delta_p,
+                    'delta_h': data.target_delta_h
+                }
+                json_data['ra'] = data.ra
+
+            zip_file.writestr('data/mixture.json', json.dumps(json_data, indent=2))
+
+            # 3. Generate README
+            readme_content = f"""Solvent Mixture Analysis Results
+Mixture: {data.mixture_name}
+Mode: {data.mode.capitalize()}
+Export Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+
+Mixture Hansen Solubility Parameters:
+- δD (Dispersion)  = {data.delta_d:.2f} MPa^0.5
+- δP (Polar)       = {data.delta_p:.2f} MPa^0.5
+- δH (H-bonding)   = {data.delta_h:.2f} MPa^0.5
+"""
+
+            if data.mode == 'optimize' and data.target_delta_d is not None:
+                readme_content += f"""
+Target Hansen Solubility Parameters:
+- Target δD        = {data.target_delta_d:.2f} MPa^0.5
+- Target δP        = {data.target_delta_p:.2f} MPa^0.5
+- Target δH        = {data.target_delta_h:.2f} MPa^0.5
+- Ra (Distance)    = {data.ra:.3f} MPa^0.5
+"""
+
+            readme_content += f"""
+Mixture Composition:
+"""
+            for comp in data.components:
+                percentage = (comp.volume / total_volume * 100) if total_volume > 0 else 0
+                readme_content += f"- {comp.solvent}: {comp.volume:.2f} ({percentage:.1f}%)\n"
+
+            readme_content += f"""
+Package Contents:
+- data/mixture.csv       : Mixture composition and HSP data (CSV format)
+- data/mixture.json      : Complete mixture data (JSON format)
+- README.txt             : This file
+
+Notes:
+- HSP values are in MPa^0.5 units
+- Volume ratios are normalized to percentages
+- Ra (distance) measures how close the mixture is to the target HSP
+"""
+            zip_file.writestr('README.txt', readme_content)
+
+        # Prepare ZIP for download
+        zip_buffer.seek(0)
+
+        # Generate filename with sanitized mixture name
+        safe_name = "".join(c for c in data.mixture_name if c.isalnum() or c in (' ', '-', '_')).strip()
+        safe_name = safe_name.replace(' ', '_')
+        date_str = datetime.now().strftime('%Y%m%d')
+        filename = f"{safe_name}_mixture_{date_str}.zip"
+
+        return StreamingResponse(
+            zip_buffer,
+            media_type="application/zip",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Export error: {str(e)}")
 

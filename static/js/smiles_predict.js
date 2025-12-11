@@ -26,6 +26,7 @@
         predCho: null,
         solventNameInput: null,
         saveBtn: null,
+        exportPackageBtn: null,
         copyBtn: null,
         structureModal: null,
         structureModalSvg: null,
@@ -52,6 +53,7 @@
         elements.predCho = document.getElementById('pred-cho');
         elements.solventNameInput = document.getElementById('solvent-name-input');
         elements.saveBtn = document.getElementById('save-prediction-btn');
+        elements.exportPackageBtn = document.getElementById('export-prediction-package-btn');
         elements.copyBtn = document.getElementById('copy-prediction-btn');
         elements.structureModal = document.getElementById('structure-modal');
         elements.structureModalSvg = document.getElementById('structure-modal-svg');
@@ -81,6 +83,9 @@
         }
         if (elements.saveBtn) {
             elements.saveBtn.addEventListener('click', handleSave);
+        }
+        if (elements.exportPackageBtn) {
+            elements.exportPackageBtn.addEventListener('click', handleExportPackage);
         }
         if (elements.copyBtn) {
             elements.copyBtn.addEventListener('click', handleCopyResults);
@@ -211,6 +216,16 @@
         }
         updateSaveButtonState();
 
+        // Enable export package button
+        if (elements.exportPackageBtn) {
+            elements.exportPackageBtn.disabled = false;
+        }
+
+        // Show copy button
+        if (elements.copyBtn) {
+            elements.copyBtn.style.display = '';
+        }
+
         elements.resultsSection.style.display = 'block';
 
         // Animate the results
@@ -235,6 +250,16 @@
         hideError();
         lastPrediction = null;
         updateSaveButtonState();
+
+        // Disable export package button
+        if (elements.exportPackageBtn) {
+            elements.exportPackageBtn.disabled = true;
+        }
+
+        // Hide copy button
+        if (elements.copyBtn) {
+            elements.copyBtn.style.display = 'none';
+        }
     }
 
     /**
@@ -382,6 +407,92 @@
                 window.showNotification('Results copied to clipboard', 'success');
             }
         });
+    }
+
+    /**
+     * Export prediction as ZIP package
+     */
+    async function handleExportPackage() {
+        if (!lastPrediction) return;
+
+        const solventName = elements.solventNameInput.value.trim() || 'Unknown_Solvent';
+
+        try {
+            // Disable button during export
+            if (elements.exportPackageBtn) {
+                elements.exportPackageBtn.disabled = true;
+                elements.exportPackageBtn.textContent = 'Exporting...';
+            }
+
+            if (window.showNotification) {
+                window.showNotification('Generating package...', 'info');
+            }
+
+            // Prepare export data
+            const exportData = {
+                solvent_name: solventName,
+                smiles: lastPrediction.smiles,
+                dD: lastPrediction.dD,
+                dP: lastPrediction.dP,
+                dH: lastPrediction.dH,
+                Tv: lastPrediction.Tv,
+                CHO: lastPrediction.CHO,
+                molecular_formula: lastPrediction.molecular_formula,
+                structure_svg: lastPrediction.structure_svg
+            };
+
+            // Call export API
+            const response = await fetch('/api/predict/export', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(exportData)
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Export failed');
+            }
+
+            // Download ZIP file
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+
+            // Get filename from Content-Disposition header or generate one
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'prediction_package.zip';
+            if (contentDisposition) {
+                const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+                if (matches != null && matches[1]) {
+                    filename = matches[1].replace(/['"]/g, '');
+                }
+            }
+
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            if (window.showNotification) {
+                window.showNotification('Package exported successfully', 'success');
+            }
+
+        } catch (error) {
+            console.error('Export error:', error);
+            if (window.showNotification) {
+                window.showNotification(error.message || 'Failed to export package', 'error');
+            }
+        } finally {
+            // Re-enable button
+            if (elements.exportPackageBtn) {
+                elements.exportPackageBtn.disabled = false;
+                elements.exportPackageBtn.textContent = 'Export Package (ZIP)';
+            }
+        }
     }
 
     /**

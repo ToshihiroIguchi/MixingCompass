@@ -275,7 +275,11 @@
                             <span class="unit">MPa<sup>0.5</sup></span>
                         </span>
                     </div>
-                    <button id="save-mixture-btn" class="btn btn-primary">Save Mixture</button>
+                    <div class="card-action-buttons">
+                        <button id="save-mixture-btn" class="btn btn-primary">Save Mixture</button>
+                        <button id="export-mixture-package-btn" class="btn btn-secondary" style="display: none;">Export Package (ZIP)</button>
+                        <button id="copy-mixture-btn" class="btn btn-secondary" style="display: none;">Copy</button>
+                    </div>
                 </div>
 
                 <!-- Optimize Mode Results -->
@@ -311,7 +315,11 @@
                             </div>
                         </div>
                     </div>
-                    <button id="save-optimized-mixture-btn" class="btn btn-primary">Save Mixture</button>
+                    <div class="card-action-buttons">
+                        <button id="save-optimized-mixture-btn" class="btn btn-primary">Save Mixture</button>
+                        <button id="export-optimized-mixture-package-btn" class="btn btn-secondary" style="display: none;">Export Package (ZIP)</button>
+                        <button id="copy-optimized-mixture-btn" class="btn btn-secondary" style="display: none;">Copy</button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -529,7 +537,8 @@
                             <!-- Action Buttons -->
                             <div class="card-action-buttons">
                                 <button id="save-prediction-btn" class="btn btn-primary" disabled>Save to User Solvents</button>
-                                <button id="copy-prediction-btn" class="btn btn-secondary">Copy</button>
+                                <button id="export-prediction-package-btn" class="btn btn-secondary" disabled>Export Package (ZIP)</button>
+                                <button id="copy-prediction-btn" class="btn btn-secondary" style="display: none;">Copy</button>
                             </div>
                         </div>
                     </div>
