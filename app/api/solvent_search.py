@@ -581,3 +581,173 @@ Notes:
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Export error: {str(e)}")
 
+
+class TargetConfig(BaseModel):
+    """Target HSP configuration"""
+    name: Optional[str] = None
+    delta_d: float
+    delta_p: float
+    delta_h: float
+    r0: Optional[float] = None
+
+
+class SearchResultExportInput(BaseModel):
+    """Input model for exporting search results"""
+    search_name: str = Field(..., description="Name for this search")
+    solvents: List[dict] = Field(..., description="List of solvent results")
+    target1: Optional[TargetConfig] = None
+    target2: Optional[TargetConfig] = None
+    target3: Optional[TargetConfig] = None
+    search_scope: str = Field(default="all", description="Search scope (all or set name)")
+
+
+@router.post("/export-search-results")
+async def export_search_results(data: SearchResultExportInput):
+    """
+    Export search results as a ZIP package containing:
+    - CSV file with solvent data
+    - JSON file with search configuration and results
+    - README file with search summary
+    """
+    try:
+        # Create ZIP file in memory
+        zip_buffer = io.BytesIO()
+
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
+            # 1. Generate CSV with solvent results
+            csv_buffer = io.StringIO()
+
+            if data.solvents and len(data.solvents) > 0:
+                # Get all unique keys from solvents
+                all_keys = set()
+                for solvent in data.solvents:
+                    all_keys.update(solvent.keys())
+
+                fieldnames = sorted(list(all_keys))
+                csv_writer = csv.DictWriter(csv_buffer, fieldnames=fieldnames)
+                csv_writer.writeheader()
+                csv_writer.writerows(data.solvents)
+
+            zip_file.writestr('data/results.csv', csv_buffer.getvalue())
+
+            # 2. Generate JSON with complete data
+            json_data = {
+                'search_name': data.search_name,
+                'export_date': datetime.now().isoformat(),
+                'search_config': {
+                    'target1': data.target1.dict() if data.target1 else None,
+                    'target2': data.target2.dict() if data.target2 else None,
+                    'target3': data.target3.dict() if data.target3 else None,
+                    'search_scope': data.search_scope
+                },
+                'results': {
+                    'total_count': len(data.solvents),
+                    'solvents': data.solvents
+                }
+            }
+            zip_file.writestr('data/search_config.json', json.dumps(json_data, indent=2))
+
+            # 3. Generate README
+            readme_lines = [
+                f"Search Results: {data.search_name}",
+                f"Export Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
+                "",
+                "=" * 60,
+                "SEARCH CONFIGURATION",
+                "=" * 60,
+                ""
+            ]
+
+            # Target 1
+            if data.target1:
+                readme_lines.extend([
+                    "Target 1:",
+                    f"  Name: {data.target1.name or 'Custom'}",
+                    f"  δD = {data.target1.delta_d:.2f} MPa^0.5",
+                    f"  δP = {data.target1.delta_p:.2f} MPa^0.5",
+                    f"  δH = {data.target1.delta_h:.2f} MPa^0.5",
+                ])
+                if data.target1.r0:
+                    readme_lines.append(f"  R0 = {data.target1.r0:.2f} MPa^0.5")
+                readme_lines.append("")
+
+            # Target 2
+            if data.target2:
+                readme_lines.extend([
+                    "Target 2:",
+                    f"  Name: {data.target2.name or 'Custom'}",
+                    f"  δD = {data.target2.delta_d:.2f} MPa^0.5",
+                    f"  δP = {data.target2.delta_p:.2f} MPa^0.5",
+                    f"  δH = {data.target2.delta_h:.2f} MPa^0.5",
+                ])
+                if data.target2.r0:
+                    readme_lines.append(f"  R0 = {data.target2.r0:.2f} MPa^0.5")
+                readme_lines.append("")
+
+            # Target 3
+            if data.target3:
+                readme_lines.extend([
+                    "Target 3:",
+                    f"  Name: {data.target3.name or 'Custom'}",
+                    f"  δD = {data.target3.delta_d:.2f} MPa^0.5",
+                    f"  δP = {data.target3.delta_p:.2f} MPa^0.5",
+                    f"  δH = {data.target3.delta_h:.2f} MPa^0.5",
+                ])
+                if data.target3.r0:
+                    readme_lines.append(f"  R0 = {data.target3.r0:.2f} MPa^0.5")
+                readme_lines.append("")
+
+            readme_lines.extend([
+                f"Search Scope: {data.search_scope}",
+                "",
+                "=" * 60,
+                "RESULTS SUMMARY",
+                "=" * 60,
+                "",
+                f"Total Solvents Found: {len(data.solvents)}",
+                "",
+                "=" * 60,
+                "PACKAGE CONTENTS",
+                "=" * 60,
+                "",
+                "- data/results.csv         : Solvent data in CSV format",
+                "- data/search_config.json  : Complete search configuration and results",
+                "- README.txt               : This file",
+                "",
+                "=" * 60,
+                "NOTES",
+                "=" * 60,
+                "",
+                "- HSP values are in MPa^0.5 units",
+                "- RED (Relative Energy Difference) values indicate compatibility:",
+                "  RED < 1.0 : Good solubility",
+                "  RED ≈ 1.0 : Borderline",
+                "  RED > 1.0 : Poor solubility",
+                ""
+            ])
+
+            readme_content = '\n'.join(readme_lines)
+            zip_file.writestr('README.txt', readme_content)
+
+        # Prepare ZIP for download
+        zip_buffer.seek(0)
+
+        # Generate filename with sanitized search name
+        safe_name = "".join(c for c in data.search_name if c.isalnum() or c in (' ', '-', '_')).strip()
+        safe_name = safe_name.replace(' ', '_')
+        if not safe_name:
+            safe_name = "search_results"
+        date_str = datetime.now().strftime('%Y%m%d')
+        filename = f"{safe_name}_{date_str}.zip"
+
+        return StreamingResponse(
+            zip_buffer,
+            media_type="application/zip",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}"
+            }
+        )
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Export error: {str(e)}")
+

@@ -276,6 +276,14 @@ class SolventSearch {
             });
         }
 
+        // Export Search Package button
+        const exportSearchPackageBtn = document.querySelector('#export-search-package-btn');
+        if (exportSearchPackageBtn) {
+            exportSearchPackageBtn.addEventListener('click', () => {
+                this.exportSearchPackage();
+            });
+        }
+
         // Search scope dropdown (unified selector)
         const scopeSelector = document.getElementById('search-scope-selector');
         if (scopeSelector) {
@@ -1452,11 +1460,13 @@ class SolventSearch {
         if (dataToDisplay.length === 0) {
             this.resultsTable.setData([]);
             this.updateResultsCountBadge(0);
-            // Hide CSV and Copy Names buttons
+            // Hide export and copy buttons
             const exportBtn = document.querySelector('#export-csv-btn');
             if (exportBtn) exportBtn.style.display = 'none';
             const copyNamesBtn = document.querySelector('#copy-names-btn');
             if (copyNamesBtn) copyNamesBtn.style.display = 'none';
+            const exportPackageBtn = document.querySelector('#export-search-package-btn');
+            if (exportPackageBtn) exportPackageBtn.style.display = 'none';
             return;
         }
 
@@ -1524,11 +1534,13 @@ class SolventSearch {
             this.resultsTable.hideColumn("red3_value");
         }
 
-        // Show CSV and Copy Names buttons
+        // Show export and copy buttons
         const exportBtn = document.querySelector('#export-csv-btn');
         if (exportBtn) exportBtn.style.display = 'inline-block';
         const copyNamesBtn = document.querySelector('#copy-names-btn');
         if (copyNamesBtn) copyNamesBtn.style.display = 'inline-block';
+        const exportPackageBtn = document.querySelector('#export-search-package-btn');
+        if (exportPackageBtn) exportPackageBtn.style.display = 'inline-block';
     }
 
     /**
@@ -2031,6 +2043,153 @@ class SolventSearch {
                 window.showNotification('Solvent names copied to clipboard', 'success');
             }
         });
+    }
+
+    /**
+     * Export search results as ZIP package
+     */
+    async exportSearchPackage() {
+        if (!this.resultsTable) return;
+
+        // Get visible columns only (same as CSV export)
+        const visibleColumns = this.resultsTable.getColumns().filter(col => col.isVisible());
+        const columnFields = visibleColumns.map(col => col.getField());
+
+        // Get all data from the table
+        const allData = this.resultsTable.getData();
+
+        if (allData.length === 0) {
+            if (window.showNotification) {
+                window.showNotification('No search results to export', 'error');
+            }
+            return;
+        }
+
+        // Filter data to include only visible columns
+        const filteredData = allData.map(row => {
+            const filteredRow = {};
+            columnFields.forEach(field => {
+                if (row.hasOwnProperty(field)) {
+                    filteredRow[field] = row[field];
+                }
+            });
+            return filteredRow;
+        });
+
+        try {
+            // Disable button during export
+            const exportPackageBtn = document.querySelector('#export-search-package-btn');
+            if (exportPackageBtn) {
+                exportPackageBtn.disabled = true;
+                exportPackageBtn.textContent = 'Exporting...';
+            }
+
+            if (window.showNotification) {
+                window.showNotification('Generating package...', 'info');
+            }
+
+            // Prepare target configurations
+            const target1 = this.currentTarget1 && this.currentTarget1.delta_d !== undefined
+                ? {
+                    name: this.currentTarget1.name || null,
+                    delta_d: this.currentTarget1.delta_d,
+                    delta_p: this.currentTarget1.delta_p,
+                    delta_h: this.currentTarget1.delta_h,
+                    r0: this.currentTarget1.r0 || null
+                }
+                : null;
+
+            const target2 = this.currentTarget2 && this.currentTarget2.delta_d !== undefined
+                ? {
+                    name: this.currentTarget2.name || null,
+                    delta_d: this.currentTarget2.delta_d,
+                    delta_p: this.currentTarget2.delta_p,
+                    delta_h: this.currentTarget2.delta_h,
+                    r0: this.currentTarget2.r0 || null
+                }
+                : null;
+
+            const target3 = this.currentTarget3 && this.currentTarget3.delta_d !== undefined
+                ? {
+                    name: this.currentTarget3.name || null,
+                    delta_d: this.currentTarget3.delta_d,
+                    delta_p: this.currentTarget3.delta_p,
+                    delta_h: this.currentTarget3.delta_h,
+                    r0: this.currentTarget3.r0 || null
+                }
+                : null;
+
+            // Generate search name from targets or use default
+            let searchName = 'Search Results';
+            if (target1 && target1.name) {
+                searchName = target1.name;
+            } else if (target1) {
+                searchName = `Target_${target1.delta_d.toFixed(1)}_${target1.delta_p.toFixed(1)}_${target1.delta_h.toFixed(1)}`;
+            }
+
+            // Prepare export data
+            const exportData = {
+                search_name: searchName,
+                solvents: filteredData,
+                target1: target1,
+                target2: target2,
+                target3: target3,
+                search_scope: this.searchScope || 'all'
+            };
+
+            // Call export API
+            const response = await fetch('/api/solvent-search/export-search-results', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(exportData)
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.detail || 'Export failed');
+            }
+
+            // Download ZIP file
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+
+            // Get filename from Content-Disposition header or generate one
+            const contentDisposition = response.headers.get('Content-Disposition');
+            let filename = 'search_results.zip';
+            if (contentDisposition) {
+                const matches = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/.exec(contentDisposition);
+                if (matches != null && matches[1]) {
+                    filename = matches[1].replace(/['"]/g, '');
+                }
+            }
+
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            if (window.showNotification) {
+                window.showNotification('Package exported successfully', 'success');
+            }
+
+        } catch (error) {
+            console.error('Export error:', error);
+            if (window.showNotification) {
+                window.showNotification(error.message || 'Failed to export package', 'error');
+            }
+        } finally {
+            // Re-enable button
+            const exportPackageBtn = document.querySelector('#export-search-package-btn');
+            if (exportPackageBtn) {
+                exportPackageBtn.disabled = false;
+                exportPackageBtn.textContent = 'Export Package (ZIP)';
+            }
+        }
     }
 }
 
