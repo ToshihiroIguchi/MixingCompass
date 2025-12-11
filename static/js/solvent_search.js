@@ -268,6 +268,14 @@ class SolventSearch {
             });
         }
 
+        // Copy Names button
+        const copyNamesBtn = document.querySelector('#copy-names-btn');
+        if (copyNamesBtn) {
+            copyNamesBtn.addEventListener('click', () => {
+                this.copySolventNames();
+            });
+        }
+
         // Search scope dropdown (unified selector)
         const scopeSelector = document.getElementById('search-scope-selector');
         if (scopeSelector) {
@@ -1444,9 +1452,11 @@ class SolventSearch {
         if (dataToDisplay.length === 0) {
             this.resultsTable.setData([]);
             this.updateResultsCountBadge(0);
-            // Hide CSV button
+            // Hide CSV and Copy Names buttons
             const exportBtn = document.querySelector('#export-csv-btn');
             if (exportBtn) exportBtn.style.display = 'none';
+            const copyNamesBtn = document.querySelector('#copy-names-btn');
+            if (copyNamesBtn) copyNamesBtn.style.display = 'none';
             return;
         }
 
@@ -1514,9 +1524,11 @@ class SolventSearch {
             this.resultsTable.hideColumn("red3_value");
         }
 
-        // Show CSV button
+        // Show CSV and Copy Names buttons
         const exportBtn = document.querySelector('#export-csv-btn');
         if (exportBtn) exportBtn.style.display = 'inline-block';
+        const copyNamesBtn = document.querySelector('#copy-names-btn');
+        if (copyNamesBtn) copyNamesBtn.style.display = 'inline-block';
     }
 
     /**
@@ -1962,6 +1974,63 @@ class SolventSearch {
 
         console.log('Filter by set - filtered count:', filtered.length);
         return filtered;
+    }
+
+    /**
+     * Copy solvent names to clipboard
+     */
+    copySolventNames() {
+        if (!this.resultsTable) return;
+
+        // Get selected rows if any
+        const selectedRows = this.resultsTable.getSelectedRows();
+        let names = [];
+
+        if (selectedRows.length > 0) {
+            // Copy selected solvent names
+            names = selectedRows.map(row => row.getData().solvent || row.getData().Solvent || row.getData().name);
+        } else {
+            // Copy all visible solvent names
+            const allData = this.resultsTable.getData();
+            names = allData.map(row => row.solvent || row.Solvent || row.name);
+        }
+
+        // Filter out undefined/null names
+        names = names.filter(name => name);
+
+        if (names.length === 0) {
+            if (window.showNotification) {
+                window.showNotification('No solvent names to copy', 'error');
+            }
+            return;
+        }
+
+        // Join with newlines and copy to clipboard
+        const text = names.join('\n');
+
+        navigator.clipboard.writeText(text).then(() => {
+            const count = names.length;
+            const message = selectedRows.length > 0
+                ? `Copied ${count} selected solvent name${count > 1 ? 's' : ''}`
+                : `Copied ${count} solvent name${count > 1 ? 's' : ''}`;
+
+            if (window.showNotification) {
+                window.showNotification(message, 'success');
+            }
+        }).catch(err => {
+            console.error('Failed to copy:', err);
+            // Fallback method
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+
+            if (window.showNotification) {
+                window.showNotification('Solvent names copied to clipboard', 'success');
+            }
+        });
     }
 }
 

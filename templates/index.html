@@ -35,39 +35,34 @@
                 </div>
 
                 <div class="feature-cards">
-                    <div class="feature-card" data-section="hsp-experimental">
+                    <div class="feature-card clickable" data-section="hsp-experimental">
                         <div class="feature-icon">🧪</div>
                         <h3>HSP from Experiments</h3>
                         <p>Determine Hansen Solubility Parameters from experimental solubility data using dissolution tests.</p>
-                        <button class="feature-btn">Get Started</button>
                     </div>
 
-                    <div class="feature-card" data-section="smiles-predict">
+                    <div class="feature-card clickable" data-section="smiles-predict">
                         <div class="feature-icon">🧠</div>
                         <h3>Predict from SMILES</h3>
                         <p>Predict HSP and boiling point from molecular SMILES using machine learning.</p>
-                        <button class="feature-btn">Get Started</button>
                     </div>
 
-                    <div class="feature-card" data-section="hsp-calculation">
+                    <div class="feature-card clickable" data-section="hsp-calculation">
                         <div class="feature-icon">⚗️</div>
                         <h3>Mix Solvents</h3>
                         <p>Calculate HSP values for solvent mixtures using volume fraction weighted averaging.</p>
-                        <button class="feature-btn">Get Started</button>
                     </div>
 
-                    <div class="feature-card" data-section="solvent-search">
+                    <div class="feature-card clickable" data-section="solvent-search">
                         <div class="feature-icon">🔍</div>
                         <h3>Search Solvents</h3>
                         <p>Find compatible solvents by searching the database using target HSP values and RED criteria.</p>
-                        <button class="feature-btn">Get Started</button>
                     </div>
 
-                    <div class="feature-card" data-section="data-list">
+                    <div class="feature-card clickable" data-section="data-list">
                         <div class="feature-icon">🗃️</div>
                         <h3>Data Manager</h3>
                         <p>Browse and manage the solvent database, including user solvents and saved mixtures.</p>
-                        <button class="feature-btn">Get Started</button>
                     </div>
                 </div>
 
@@ -386,7 +381,7 @@
                     </div>
 
                     <!-- Filter Button -->
-                    <button id="search-solvents-btn" class="btn btn-primary">Update Results</button>
+                    <button id="search-solvents-btn" class="btn btn-primary">Search</button>
                 </div>
 
                 <!-- Panel Boundary Toggle Button -->
@@ -404,6 +399,7 @@
                             <div class="results-panel-header">
                                 <h3>Solvent Results</h3>
                                 <div id="results-count-display" class="results-count-display"></div>
+                                <button id="copy-names-btn" class="btn btn-secondary btn-small" style="display: none;">Copy Names</button>
                                 <button id="export-csv-btn" class="btn btn-secondary btn-small" style="display: none;">Export CSV</button>
                                 <button id="create-new-set-btn" class="btn btn-primary btn-small" style="display: none;">+ New Set</button>
                                 <button class="panel-collapse-btn" id="results-collapse-btn" title="Collapse results panel">◀</button>

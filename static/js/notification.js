@@ -71,3 +71,8 @@ const Notification = {
 
 // Make available globally
 window.Notification = Notification;
+
+// Convenience function for backward compatibility
+window.showNotification = function(message, type = 'info', duration) {
+    Notification.show(message, type, duration);
+};
